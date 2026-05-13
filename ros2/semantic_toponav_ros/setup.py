@@ -21,6 +21,7 @@ setup(
         "console_scripts": [
             "graph_loader = semantic_toponav_ros.graph_loader_node:main",
             "waypoint_publisher = semantic_toponav_ros.waypoint_publisher_node:main",
+            "nav2_demo = semantic_toponav_ros.nav2_demo_node:main",
         ],
     },
 )

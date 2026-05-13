@@ -473,9 +473,13 @@ semantic-toponav waypoints scratch.yaml a c
 
 The core Python package is ROS-independent. The ROS2 wrapper lives under
 `ros2/semantic_toponav_ros/` and the custom message definitions under
-`ros2/semantic_toponav_msgs/`. See [`ros2/README.md`](ros2/README.md) for the
-adapter design, the JSON vs typed-message comparison, and the Nav2
-integration boundary.
+`ros2/semantic_toponav_msgs/`. The wrapper ships three nodes:
+`graph_loader` (publishes the validated graph as a latched `TopologyGraph`),
+`waypoint_publisher` (plans and publishes semantic waypoints in JSON or
+typed form), and `nav2_demo` (a worked example that forwards semantic
+waypoints to Nav2's `NavigateThroughPoses`). See
+[`ros2/README.md`](ros2/README.md) for the adapter design, the JSON vs
+typed-message comparison, and the Nav2 integration boundary.
 
 ## Project status
 
