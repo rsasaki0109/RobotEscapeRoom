@@ -1,0 +1,174 @@
+version: 1
+metadata:
+  name: indoor_office
+  frame_id: map
+  description: >
+    A small two-floor office topology used to demonstrate semantic-aware
+    routing. Includes a restricted shortcut, stairs, and an elevator so
+    that semantic cost functions can produce visibly different routes.
+
+nodes:
+  # 1F
+  - id: entrance
+    label: Entrance
+    type: entrance
+    pose: {x: 0.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: corridor_main
+    label: Main Corridor
+    type: corridor
+    pose: {x: 4.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: lobby_intersection
+    label: Lobby Intersection
+    type: intersection
+    pose: {x: 8.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: kitchen
+    label: Kitchen
+    type: room
+    pose: {x: 8.0, y: 4.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: meeting_room
+    label: Meeting Room
+    type: room
+    pose: {x: 12.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: lab
+    label: Robotics Lab
+    type: room
+    pose: {x: 4.0, y: -4.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: elevator_1f
+    label: Elevator A (1F)
+    type: elevator
+    pose: {x: 6.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: stairs_1f
+    label: North Stairs (1F)
+    type: stairs
+    pose: {x: 10.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+
+  # 2F
+  - id: corridor_2f
+    label: 2F Corridor
+    type: corridor
+    pose: {x: 8.0, y: 10.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 2}
+  - id: office_2f
+    label: 2F Office
+    type: room
+    pose: {x: 12.0, y: 10.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 2}
+  - id: elevator_2f
+    label: Elevator A (2F)
+    type: elevator
+    pose: {x: 6.0, y: 10.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 2}
+  - id: stairs_2f
+    label: North Stairs (2F)
+    type: stairs
+    pose: {x: 10.0, y: 10.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 2}
+
+edges:
+  # 1F connections
+  - id: entrance_to_corridor
+    source: entrance
+    target: corridor_main
+    type: traversable
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+  - id: corridor_to_lobby
+    source: corridor_main
+    target: lobby_intersection
+    type: traversable
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+  - id: corridor_to_lab
+    source: corridor_main
+    target: lab
+    type: traversable
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+  - id: lobby_to_kitchen
+    source: lobby_intersection
+    target: kitchen
+    type: traversable
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+  - id: lobby_to_meeting
+    source: lobby_intersection
+    target: meeting_room
+    type: traversable
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+
+  # Restricted shortcut: cheaper-looking, but only legal when avoid_restricted
+  # is NOT applied. Demonstrates semantic cost changing the route.
+  - id: corridor_to_meeting_shortcut
+    source: corridor_main
+    target: meeting_room
+    type: restricted
+    cost: 1.0
+    bidirectional: true
+    properties: {note: "service door, employees only"}
+
+  # Vertical transit
+  - id: corridor_to_elevator_1f
+    source: corridor_main
+    target: elevator_1f
+    type: traversable
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+  - id: lobby_to_stairs_1f
+    source: lobby_intersection
+    target: stairs_1f
+    type: traversable
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+  - id: elevator_link
+    source: elevator_1f
+    target: elevator_2f
+    type: elevator_connection
+    cost: 3.0
+    bidirectional: true
+    properties: {}
+  - id: stairs_link
+    source: stairs_1f
+    target: stairs_2f
+    type: stairs_up
+    cost: 2.0
+    bidirectional: true
+    properties: {}
+
+  # 2F connections
+  - id: elevator_to_corridor_2f
+    source: elevator_2f
+    target: corridor_2f
+    type: traversable
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+  - id: stairs_to_corridor_2f
+    source: stairs_2f
+    target: corridor_2f
+    type: traversable
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+  - id: corridor_2f_to_office
+    source: corridor_2f
+    target: office_2f
+    type: traversable
+    cost: 1.0
+    bidirectional: true
+    properties: {}

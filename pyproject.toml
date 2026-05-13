@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "semantic-toponav"
+version = "0.1.0"
+description = "Semantic Topological Map based navigation: graph abstraction, semantic waypoint planning, and topology-aware routing."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "semantic-toponav contributors" },
+]
+keywords = ["robotics", "navigation", "topological-map", "semantic-map", "embodied-ai"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "ruff>=0.4",
+]
+
+[project.scripts]
+semantic-toponav = "semantic_toponav.cli.main:main"
+
+[project.urls]
+Homepage = "https://github.com/rsasaki0109/semantic-toponav"
+Repository = "https://github.com/rsasaki0109/semantic-toponav"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["semantic_toponav*"]
+exclude = ["tests*", "ros2*", "examples*", "docs*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E501"]
