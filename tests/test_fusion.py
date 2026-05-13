@@ -6,7 +6,9 @@ import pytest
 
 from semantic_toponav.conversion import (
     AnnotationResult,
+    IterativeFusionResult,
     annotate_graph_with_trajectories,
+    fuse_trajectories_iteratively,
     promote_unmapped_transitions,
     prune_low_traversal_edges,
 )
@@ -328,3 +330,150 @@ def test_promote_round_trips_with_annotation() -> None:
     result2 = annotate_graph_with_trajectories(g, [traj])
     assert result2.transitions_mapped == 1
     assert result2.unmapped_transitions == {}
+
+
+# --------------------------- fuse_trajectories_iteratively ---------------------------
+
+
+def test_iterative_returns_result_type() -> None:
+    g = _three_node_chain()
+    out = fuse_trajectories_iteratively(g, [_line((0.0, 0.0), (2.0, 0.0))])
+    assert isinstance(out, IterativeFusionResult)
+
+
+def test_iterative_converges_in_one_iteration_when_graph_already_matches() -> None:
+    # All trajectory transitions land on existing edges and every edge gets
+    # traversed -> no prune, no promote -> immediate convergence.
+    g = _three_node_chain()
+    traj = _line((0.0, 0.0), (2.0, 0.0))
+    out = fuse_trajectories_iteratively(g, [traj])
+    assert out.converged
+    assert out.iterations == 1
+    assert out.history[0].pruned_edge_ids == []
+    assert out.history[0].promoted_edge_ids == []
+    # Counts ended up on the existing edges.
+    assert g.get_edge("e_ab").properties["traversal_count"] == 1
+    assert g.get_edge("e_bc").properties["traversal_count"] == 1
+
+
+def test_iterative_promotes_then_stabilizes() -> None:
+    # Two-node graph with no edge; the trajectory creates the edge in
+    # iteration 1 (promote), and iteration 2 sees the edge filled in
+    # (no prune, no promote) -> converged.
+    g = TopologyGraph()
+    g.add_node(TopologyNode(id="a", label="a", type="x", pose=Pose2D(x=0.0, y=0.0)))
+    g.add_node(TopologyNode(id="b", label="b", type="x", pose=Pose2D(x=2.0, y=0.0)))
+    traj = _line((0.0, 0.0), (2.0, 0.0), n=11)
+    out = fuse_trajectories_iteratively(g, [traj, traj])
+
+    assert out.converged
+    assert out.iterations == 2
+    assert len(out.history[0].promoted_edge_ids) == 1
+    assert out.history[1].promoted_edge_ids == []
+    assert out.history[1].pruned_edge_ids == []
+    # The promoted edge exists and has a real traversal count.
+    promoted_id = out.history[0].promoted_edge_ids[0]
+    assert g.has_edge(promoted_id)
+    assert g.get_edge(promoted_id).properties["traversal_count"] == 2
+
+
+def test_iterative_prunes_unused_edges() -> None:
+    # Add an extra dangling edge that no trajectory ever uses; prune
+    # should drop it on iteration 1 and the loop converges on iteration 2.
+    g = _three_node_chain()
+    g.add_node(TopologyNode(id="d", label="d", type="x", pose=Pose2D(x=10.0, y=10.0)))
+    g.add_edge(TopologyEdge(id="e_dangling", source="c", target="d", type="corridor"))
+    traj = _line((0.0, 0.0), (2.0, 0.0))
+    out = fuse_trajectories_iteratively(g, [traj])
+
+    assert out.converged
+    assert "e_dangling" in out.history[0].pruned_edge_ids
+    assert not g.has_edge("e_dangling")
+
+
+def test_iterative_resets_counts_between_iterations() -> None:
+    # Pre-seed an edge with a giant traversal_count; the iterator must
+    # wipe it before re-annotating so the count reflects only the supplied
+    # trajectories.
+    g = _three_node_chain()
+    g.get_edge("e_ab").properties["traversal_count"] = 999
+    traj = _line((0.0, 0.0), (2.0, 0.0))
+    fuse_trajectories_iteratively(g, [traj])
+    assert g.get_edge("e_ab").properties["traversal_count"] == 1
+
+
+def test_iterative_caps_at_max_iterations_on_oscillation() -> None:
+    # Build a graph that flip-flops: the trajectory hits the promoted
+    # edge only twice but prune wants >= 5, so the promoted edge is
+    # pruned on the iteration *after* it was added — then promote
+    # recreates it the iteration after that.
+    g = TopologyGraph()
+    g.add_node(TopologyNode(id="a", label="a", type="x", pose=Pose2D(x=0.0, y=0.0)))
+    g.add_node(TopologyNode(id="b", label="b", type="x", pose=Pose2D(x=2.0, y=0.0)))
+    traj = _line((0.0, 0.0), (2.0, 0.0), n=11)
+    out = fuse_trajectories_iteratively(
+        g,
+        [traj, traj],
+        max_iterations=4,
+        prune_min_traversals=5,
+        promote_min_count=2,
+    )
+    assert not out.converged
+    assert out.iterations == 4
+    # The expected oscillation pattern, given a graph that starts edge-free:
+    #   iter 1: promote only (the graph was empty, nothing to prune)
+    #   iter 2: prune only  (the new edge gets snapped but fails the >=5 threshold)
+    #   iter 3: promote only
+    #   iter 4: prune only
+    assert out.history[0].promoted_edge_ids and not out.history[0].pruned_edge_ids
+    assert out.history[1].pruned_edge_ids and not out.history[1].promoted_edge_ids
+    assert out.history[2].promoted_edge_ids and not out.history[2].pruned_edge_ids
+    assert out.history[3].pruned_edge_ids and not out.history[3].promoted_edge_ids
+
+
+def test_iterative_with_no_trajectories_returns_one_iteration() -> None:
+    g = _three_node_chain()
+    out = fuse_trajectories_iteratively(g, [])
+    # Without trajectories: annotate produces zero counts, prune drops
+    # every existing edge (min_traversals=1), promote has nothing to do,
+    # iteration 2 has no edges, so iteration 2 makes no changes -> converge.
+    assert out.iterations >= 1
+    # The graph should be edge-stripped.
+    assert g.edge_ids() == []
+
+
+def test_iterative_max_iterations_zero_returns_empty_result() -> None:
+    g = _three_node_chain()
+    out = fuse_trajectories_iteratively(g, [], max_iterations=0)
+    assert out.iterations == 0
+    assert out.history == []
+    assert not out.converged
+    # Graph untouched.
+    assert set(g.edge_ids()) == {"e_ab", "e_bc"}
+
+
+def test_iterative_accepts_generator_trajectories() -> None:
+    g = _three_node_chain()
+
+    def gen():
+        yield _line((0.0, 0.0), (2.0, 0.0))
+
+    out = fuse_trajectories_iteratively(g, gen())
+    # Even though gen() is single-pass, the function materializes once
+    # and reuses across iterations.
+    assert out.converged
+    assert g.get_edge("e_ab").properties["traversal_count"] == 1
+
+
+def test_iterative_keep_edge_types_protects_structural_edges() -> None:
+    g = _three_node_chain()
+    # Add a "stairs" edge that no trajectory ever uses.
+    g.add_node(TopologyNode(id="d", label="d", type="x", pose=Pose2D(x=10.0, y=10.0)))
+    g.add_edge(TopologyEdge(id="stairs", source="c", target="d", type="stairs_up"))
+    traj = _line((0.0, 0.0), (2.0, 0.0))
+    out = fuse_trajectories_iteratively(g, [traj], keep_edge_types=("stairs_up",))
+    assert out.converged
+    assert g.has_edge("stairs")  # protected
+    # And nothing else was pruned mistakenly.
+    assert g.has_edge("e_ab")
+    assert g.has_edge("e_bc")

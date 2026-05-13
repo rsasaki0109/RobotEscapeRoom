@@ -203,6 +203,37 @@ def prune_low_traversal_edges(
     return removed
 
 
+@dataclass
+class IterativeFusionStep:
+    """One pass of the snap/prune/promote loop.
+
+    Attributes
+    ----------
+    iteration:
+        1-based index of this step.
+    annotation:
+        :class:`AnnotationResult` produced by the snap step.
+    pruned_edge_ids:
+        Edge ids that this iteration's prune step removed.
+    promoted_edge_ids:
+        Edge ids that this iteration's promote step added.
+    """
+
+    iteration: int
+    annotation: AnnotationResult
+    pruned_edge_ids: list[str] = field(default_factory=list)
+    promoted_edge_ids: list[str] = field(default_factory=list)
+
+
+@dataclass
+class IterativeFusionResult:
+    """Result of :func:`fuse_trajectories_iteratively`."""
+
+    iterations: int
+    converged: bool
+    history: list[IterativeFusionStep] = field(default_factory=list)
+
+
 def promote_unmapped_transitions(
     graph: TopologyGraph,
     unmapped_transitions: dict[tuple[str, str], int],
@@ -262,3 +293,98 @@ def promote_unmapped_transitions(
         )
         added.append(edge_id)
     return added
+
+
+def fuse_trajectories_iteratively(
+    graph: TopologyGraph,
+    trajectories: Iterable[Sequence[Point]],
+    *,
+    max_iterations: int = 5,
+    max_snap_distance: float | None = None,
+    prune_min_traversals: int = 1,
+    promote_min_count: int = 2,
+    keep_edge_types: Iterable[str] = (),
+    promoted_edge_type: str = _DEFAULT_EDGE_TYPE,
+    visit_count_key: str = "visit_count",
+    traversal_count_key: str = "traversal_count",
+) -> IterativeFusionResult:
+    """Run the annotate → prune → promote cycle until the graph stabilizes.
+
+    Each iteration:
+
+    1. Clears the ``visit_count`` and ``traversal_count`` property on
+       every node and edge so the snap step that follows reflects only
+       this iteration's state of the graph topology (the new promoted
+       edges from the previous iteration get freshly-counted snaps; the
+       pruned ones are gone).
+    2. Calls :func:`annotate_graph_with_trajectories` on the supplied
+       trajectories.
+    3. Calls :func:`prune_low_traversal_edges` with ``prune_min_traversals``.
+    4. Calls :func:`promote_unmapped_transitions` with ``promote_min_count``
+       on the unmapped transitions the snap step produced.
+
+    The loop terminates when an iteration's prune and promote steps both
+    return empty lists — meaning the graph topology made it through the
+    whole cycle unchanged. ``max_iterations`` caps the loop as a safety
+    net for oscillating thresholds (e.g. an edge that promote keeps
+    creating and prune keeps deleting because the trajectory hits it
+    fewer than ``prune_min_traversals`` times).
+
+    The trajectories iterable is materialized once so the same
+    trajectories are scored in every iteration; generators are safe to
+    pass.
+
+    Mutates ``graph`` in place. Returns an :class:`IterativeFusionResult`
+    whose ``converged`` flag is ``True`` only when the loop terminated
+    naturally (rather than hitting ``max_iterations``).
+    """
+    if max_iterations <= 0:
+        return IterativeFusionResult(iterations=0, converged=False, history=[])
+
+    materialized: list[list[Point]] = [list(t) for t in trajectories]
+    history: list[IterativeFusionStep] = []
+    converged = False
+    iterations = 0
+
+    for i in range(1, max_iterations + 1):
+        iterations = i
+        for node in graph.nodes():
+            node.properties.pop(visit_count_key, None)
+        for edge in graph.edges():
+            edge.properties.pop(traversal_count_key, None)
+
+        annotation = annotate_graph_with_trajectories(
+            graph,
+            materialized,
+            max_snap_distance=max_snap_distance,
+            visit_count_key=visit_count_key,
+            traversal_count_key=traversal_count_key,
+        )
+        pruned = prune_low_traversal_edges(
+            graph,
+            min_traversals=prune_min_traversals,
+            traversal_count_key=traversal_count_key,
+            keep_edge_types=keep_edge_types,
+        )
+        promoted = promote_unmapped_transitions(
+            graph,
+            annotation.unmapped_transitions,
+            min_count=promote_min_count,
+            edge_type=promoted_edge_type,
+            traversal_count_key=traversal_count_key,
+        )
+        history.append(
+            IterativeFusionStep(
+                iteration=i,
+                annotation=annotation,
+                pruned_edge_ids=pruned,
+                promoted_edge_ids=promoted,
+            )
+        )
+        if not pruned and not promoted:
+            converged = True
+            break
+
+    return IterativeFusionResult(
+        iterations=iterations, converged=converged, history=history
+    )
