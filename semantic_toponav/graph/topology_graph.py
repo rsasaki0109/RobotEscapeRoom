@@ -49,6 +49,38 @@ class TopologyGraph:
         if edge.bidirectional:
             self._adjacency[edge.target].append(edge.id)
 
+    def remove_node(self, node_id: str) -> list[str]:
+        """Remove a node and all of its incident edges.
+
+        Returns the list of edge IDs that were removed alongside the node.
+        Raises ``GraphValidationError`` if the node does not exist.
+        """
+        if node_id not in self._nodes:
+            raise GraphValidationError(f"unknown node id: {node_id!r}")
+        incident = [
+            eid
+            for eid, e in self._edges.items()
+            if e.source == node_id or e.target == node_id
+        ]
+        for eid in incident:
+            self.remove_edge(eid)
+        del self._nodes[node_id]
+        del self._adjacency[node_id]
+        return incident
+
+    def remove_edge(self, edge_id: str) -> None:
+        if edge_id not in self._edges:
+            raise GraphValidationError(f"unknown edge id: {edge_id!r}")
+        edge = self._edges[edge_id]
+        adj_src = self._adjacency.get(edge.source)
+        if adj_src is not None and edge_id in adj_src:
+            adj_src.remove(edge_id)
+        if edge.bidirectional:
+            adj_tgt = self._adjacency.get(edge.target)
+            if adj_tgt is not None and edge_id in adj_tgt:
+                adj_tgt.remove(edge_id)
+        del self._edges[edge_id]
+
     def has_node(self, node_id: str) -> bool:
         return node_id in self._nodes
 

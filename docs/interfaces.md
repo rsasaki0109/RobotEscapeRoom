@@ -74,6 +74,8 @@ g.neighbors("a")       # -> list[TopologyEdge]
 g.other_end(edge, "a") # -> str (the opposite endpoint of the edge)
 g.node_ids()           # -> list[str]
 g.edge_ids()           # -> list[str]
+g.remove_node("a")     # -> list[str] (ids of incident edges removed alongside)
+g.remove_edge("ab")    # -> None
 g.validate()           # raises GraphValidationError on any inconsistency
 ```
 

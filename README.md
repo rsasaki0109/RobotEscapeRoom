@@ -139,6 +139,7 @@ for wp in path_to_semantic_waypoints(graph, path):
 ## CLI
 
 ```text
+# Planning
 semantic-toponav validate  GRAPH
 semantic-toponav plan      GRAPH START GOAL [--algorithm astar|dijkstra] [--avoid-restricted]
                                             [--avoid-stairs] [--prefer-elevator]
@@ -146,6 +147,31 @@ semantic-toponav plan      GRAPH START GOAL [--algorithm astar|dijkstra] [--avoi
 semantic-toponav waypoints GRAPH START GOAL [...same options...]
 semantic-toponav plot      GRAPH [--start S --goal G] [--avoid-*] [--save FILE] [--show]
                                                        [--edge-ids] [--title STR]
+
+# Editing (write to stdout by default; pass --in-place or --out FILE to persist)
+semantic-toponav inspect   GRAPH [--nodes] [--edges] [--type T]
+semantic-toponav add-node  GRAPH ID --type T [--label L] [--x X --y Y [--yaw R]]
+                                             [--prop KEY=VALUE ...] [--in-place | --out FILE]
+semantic-toponav add-edge  GRAPH SRC TGT --type T [--id ID] [--cost C] [--one-way]
+                                                  [--prop KEY=VALUE ...] [--in-place | --out FILE]
+semantic-toponav rm-node   GRAPH ID [--in-place | --out FILE]   # cascades to incident edges
+semantic-toponav rm-edge   GRAPH ID [--in-place | --out FILE]
+```
+
+Build a tiny graph from scratch:
+
+```bash
+echo 'version: 1
+metadata: {name: scratch}
+nodes: []
+edges: []' > scratch.yaml
+
+semantic-toponav add-node scratch.yaml a --type entrance --x 0 --y 0 --in-place
+semantic-toponav add-node scratch.yaml b --type corridor --x 2 --y 0 --in-place
+semantic-toponav add-node scratch.yaml c --type room     --x 4 --y 0 --in-place
+semantic-toponav add-edge scratch.yaml a b --type traversable --in-place
+semantic-toponav add-edge scratch.yaml b c --type traversable --in-place
+semantic-toponav waypoints scratch.yaml a c
 ```
 
 ## ROS2 integration
