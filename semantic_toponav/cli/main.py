@@ -33,6 +33,7 @@ from semantic_toponav.planner import (
     same_floor_only,
 )
 from semantic_toponav.planner.errors import NoPathError, PlanningError
+from semantic_toponav.waypoint.describe import describe_path, path_to_steps
 from semantic_toponav.waypoint.semantic_waypoint import (
     SemanticWaypoint,
     path_to_semantic_waypoints,
@@ -247,6 +248,35 @@ def cmd_live_viewer(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_describe_path(args: argparse.Namespace) -> int:
+    try:
+        graph = load_graph(args.graph)
+        path = _run_plan(graph, args)
+    except (GraphLoadError, GraphValidationError, PlanningError, NoPathError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    if args.format == "json":
+        steps = path_to_steps(graph, path)
+        print(
+            json.dumps(
+                {
+                    "path": path,
+                    "steps": [s.to_dict() for s in steps],
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+    else:
+        print(_format_path_text(path))
+        print()
+        print("Instructions:")
+        for line in describe_path(graph, path):
+            print(f"  {line}")
+    return 0
+
+
 def cmd_waypoints(args: argparse.Namespace) -> int:
     try:
         graph = load_graph(args.graph)
@@ -381,6 +411,13 @@ def build_parser() -> argparse.ArgumentParser:
     p_waypoints = sub.add_parser("waypoints", help="generate semantic waypoints for a plan")
     _add_plan_args(p_waypoints)
     p_waypoints.set_defaults(func=cmd_waypoints)
+
+    p_describe = sub.add_parser(
+        "describe-path",
+        help="generate a human-readable step-by-step description of a plan",
+    )
+    _add_plan_args(p_describe)
+    p_describe.set_defaults(func=cmd_describe_path)
 
     p_plot = sub.add_parser("plot", help="render a graph (and optional path) with matplotlib")
     p_plot.add_argument("graph", help="path to YAML or JSON topology graph file")

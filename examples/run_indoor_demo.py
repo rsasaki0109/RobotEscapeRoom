@@ -23,6 +23,7 @@ from semantic_toponav.planner import (
     plan_astar,
     prefer_elevator,
 )
+from semantic_toponav.waypoint.describe import describe_path
 from semantic_toponav.waypoint.semantic_waypoint import path_to_semantic_waypoints
 
 GRAPH_PATH = Path(__file__).parent / "indoor_office.yaml"
@@ -42,6 +43,9 @@ def _print_plan(graph, path):
     print("Semantic Waypoints:")
     for i, wp in enumerate(path_to_semantic_waypoints(graph, path), start=1):
         print(f"  {i}. {wp.instruction}")
+    print("Instructions:")
+    for line in describe_path(graph, path):
+        print(f"  {line}")
 
 
 def _try_save_plot(graph, path, title, filename):

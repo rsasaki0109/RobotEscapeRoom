@@ -57,10 +57,16 @@ pip install -e .
 Generate a path from the bundled office example:
 
 ```bash
-semantic-toponav validate examples/indoor_office.yaml
-semantic-toponav plan      examples/indoor_office.yaml entrance meeting_room
-semantic-toponav waypoints examples/indoor_office.yaml entrance office_2f --avoid-stairs --prefer-elevator
+semantic-toponav validate      examples/indoor_office.yaml
+semantic-toponav plan          examples/indoor_office.yaml entrance meeting_room
+semantic-toponav waypoints     examples/indoor_office.yaml entrance office_2f --avoid-stairs --prefer-elevator
+semantic-toponav describe-path examples/indoor_office.yaml entrance office_2f --avoid-stairs --prefer-elevator
 ```
+
+The `describe-path` subcommand renders the plan as numbered, edge-aware
+step-by-step instructions (e.g. "Take the elevator from Elevator A (1F)
+to Elevator A (2F)", plus an explicit "Floor change: 1 -> 2" call-out)
+on top of `plan` / `waypoints`.
 
 Or run the full demo (shows how semantic costs change the route):
 
@@ -483,9 +489,10 @@ semantic-toponav plan      GRAPH START GOAL [--algorithm astar|dijkstra] [--avoi
                                             [--prefer-familiar [--familiar-multiplier M]]
                                             [--avoid-recent SECONDS [--recent-multiplier M] [--now TS]]
                                             [--format text|json]
-semantic-toponav waypoints GRAPH START GOAL [...same options...]
-semantic-toponav plot      GRAPH [--start S --goal G] [--avoid-*] [--save FILE] [--show]
-                                                       [--edge-ids] [--title STR]
+semantic-toponav waypoints     GRAPH START GOAL [...same options...]
+semantic-toponav describe-path GRAPH START GOAL [...same options...]
+semantic-toponav plot          GRAPH [--start S --goal G] [--avoid-*] [--save FILE] [--show]
+                                                           [--edge-ids] [--title STR]
 
 # Visit history (write to stdout by default; pass --in-place or --out FILE to persist)
 semantic-toponav record-visit  GRAPH NODE_ID [--now TS] [--in-place | --out FILE]
