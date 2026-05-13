@@ -85,6 +85,48 @@ def cmd_plan(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_plot(args: argparse.Namespace) -> int:
+    try:
+        graph = load_graph(args.graph)
+    except (GraphLoadError, GraphValidationError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    path: list[str] | None = None
+    if args.start and args.goal:
+        try:
+            path = _run_plan(graph, args)
+        except (PlanningError, NoPathError) as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
+    elif args.start or args.goal:
+        print("error: --start and --goal must be provided together", file=sys.stderr)
+        return 2
+
+    try:
+        from semantic_toponav.visualization.plot import plot_graph
+    except ImportError as exc:
+        print(
+            f"error: matplotlib is required for `plot`. Install with "
+            f"`pip install 'semantic-toponav[viz]'` ({exc})",
+            file=sys.stderr,
+        )
+        return 2
+
+    title = args.title or (f"{args.start} -> {args.goal}" if path else None)
+    plot_graph(
+        graph,
+        path=path,
+        title=title,
+        save_path=args.save,
+        show=args.show,
+        show_edge_ids=args.edge_ids,
+    )
+    if args.save:
+        print(f"saved {args.save}")
+    return 0
+
+
 def cmd_waypoints(args: argparse.Namespace) -> int:
     try:
         graph = load_graph(args.graph)
@@ -151,6 +193,25 @@ def build_parser() -> argparse.ArgumentParser:
     p_waypoints = sub.add_parser("waypoints", help="generate semantic waypoints for a plan")
     _add_plan_args(p_waypoints)
     p_waypoints.set_defaults(func=cmd_waypoints)
+
+    p_plot = sub.add_parser("plot", help="render a graph (and optional path) with matplotlib")
+    p_plot.add_argument("graph", help="path to YAML or JSON topology graph file")
+    p_plot.add_argument("--start", help="start node id (optional)")
+    p_plot.add_argument("--goal", help="goal node id (optional)")
+    p_plot.add_argument(
+        "--algorithm",
+        choices=["astar", "dijkstra"],
+        default="astar",
+        help="planner algorithm when --start/--goal are given (default: astar)",
+    )
+    p_plot.add_argument("--avoid-restricted", action="store_true")
+    p_plot.add_argument("--avoid-stairs", action="store_true")
+    p_plot.add_argument("--prefer-elevator", action="store_true")
+    p_plot.add_argument("--save", help="save the figure to this path (e.g., out.png)")
+    p_plot.add_argument("--show", action="store_true", help="open an interactive window")
+    p_plot.add_argument("--edge-ids", action="store_true", help="annotate edge ids")
+    p_plot.add_argument("--title", help="override plot title")
+    p_plot.set_defaults(func=cmd_plot)
 
     return parser
 
