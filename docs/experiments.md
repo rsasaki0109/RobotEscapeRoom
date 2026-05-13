@@ -47,7 +47,13 @@ experiment branch.
   (see `examples/load_map_demo.py`). Open follow-ups: region segmentation
   for room-aware labels, lossier graph compaction when corridors have
   many parallel skeleton branches, and door/threshold detection.
-- trajectory log → topology graph (cluster waypoints, merge revisits)
+- **trajectory log → topology**: implemented in
+  `semantic_toponav.conversion.topology_from_trajectories`. Greedy
+  clustering + consecutive-transition edge induction; edges carry a
+  ``traversal_count`` for downstream cost shaping. See
+  `examples/trajectory_to_topology.py`. Open follow-ups: DBSCAN /
+  k-medoids alternatives, time-aware clustering for dwell detection,
+  reading trajectories from rosbag or CSV.
 - VLM-based semantic labeling of map regions
 - CLIP embedding per node for place recognition
 

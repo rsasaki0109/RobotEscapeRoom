@@ -131,6 +131,27 @@ Each `SemanticWaypoint` has:
 - `pose`: optional `Pose2D`
 - `properties`: copy of the node's properties
 
+### Trajectory log → topology
+
+```python
+from semantic_toponav.conversion import topology_from_trajectories
+
+graph = topology_from_trajectories(
+    trajectories,         # Iterable of sequences of (x, y)
+    eps=0.5,              # cluster radius in meters
+    min_samples=3,        # discard clusters below this point count
+    node_type="waypoint",
+    edge_type="traversable",
+    frame_id="map",
+    id_prefix="",
+)
+```
+
+Pure-Python; no scientific-stack dependency required beyond what the
+core graph needs. Edges expose a ``traversal_count`` property indicating
+how many trajectories used that transition (useful as a downstream
+cost-function input — e.g. prefer well-trodden routes).
+
 ### Loading ROS map_server bundles (optional)
 
 ```python

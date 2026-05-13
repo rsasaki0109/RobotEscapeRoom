@@ -91,6 +91,31 @@ graph = topology_from_occupancy(grid, resolution=0.25)
 |-----------------------------------------|----------------------|
 | ![grid](docs/images/05_occupancy_graph.png) | ![path](docs/images/06_occupancy_graph_with_path.png) |
 
+## Trajectory log → topology
+
+When you don't have an occupancy grid but you do have logs of where the
+robot went (or where users / pedestrians walked), you can induce a
+topology directly from those tracks. Points are clustered greedily; each
+dense cluster becomes a node; consecutive cluster transitions become
+edges with a `traversal_count` property — higher counts mark routes the
+robot took repeatedly.
+
+```python
+from semantic_toponav.conversion import topology_from_trajectories
+
+graph = topology_from_trajectories(
+    [traj_a, traj_b],   # each traj is a sequence of (x, y)
+    eps=0.5,            # cluster radius in meters
+    min_samples=3,      # drop sparser clusters as noise
+)
+```
+
+```bash
+python examples/trajectory_to_topology.py
+```
+
+![trajectory to topology](docs/images/08_trajectory_topology.png)
+
 ### Loading ROS map_server bundles
 
 `semantic-toponav` can load the standard `map_server` YAML + PGM/PNG/BMP
