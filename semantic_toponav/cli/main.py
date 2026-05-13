@@ -8,6 +8,7 @@ import sys
 from collections.abc import Callable, Sequence
 
 from semantic_toponav.cli.editor import register_subcommands as register_editor_subcommands
+from semantic_toponav.cli.query_cli import register_subcommands as register_query_subcommands
 from semantic_toponav.graph.serialization import GraphLoadError, load_graph
 from semantic_toponav.graph.topology_graph import TopologyGraph
 from semantic_toponav.graph.types import GraphValidationError, TopologyEdge
@@ -215,6 +216,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_plot.set_defaults(func=cmd_plot)
 
     register_editor_subcommands(sub)
+    register_query_subcommands(sub)
 
     return parser
 

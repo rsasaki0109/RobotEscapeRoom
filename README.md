@@ -185,6 +185,32 @@ for wp in path_to_semantic_waypoints(graph, path):
     print(wp.instruction)
 ```
 
+## Semantic queries
+
+Translate natural-language-style intents ("nearest elevator", "any room on
+floor 2") into concrete graph operations:
+
+```python
+from semantic_toponav.query import (
+    find_nodes, nearest_node_by_pose, nearest_node_by_graph_distance,
+)
+
+elevators = find_nodes(graph, type="elevator")
+office_2f_nodes = find_nodes(graph, properties={"floor": 2})
+
+# Euclidean nearest (no path required).
+nearest = nearest_node_by_pose(graph, (0.0, 0.0), type="elevator")
+
+# Graph-distance nearest, with shortest path included.
+node, path = nearest_node_by_graph_distance(graph, "entrance", type="room")
+```
+
+```bash
+semantic-toponav find    examples/indoor_office.yaml --type elevator
+semantic-toponav nearest examples/indoor_office.yaml --from-node entrance --type room
+semantic-toponav nearest examples/indoor_office.yaml --from-pose 0 0 --type elevator
+```
+
 ## CLI
 
 ```text
@@ -205,6 +231,12 @@ semantic-toponav add-edge  GRAPH SRC TGT --type T [--id ID] [--cost C] [--one-wa
                                                   [--prop KEY=VALUE ...] [--in-place | --out FILE]
 semantic-toponav rm-node   GRAPH ID [--in-place | --out FILE]   # cascades to incident edges
 semantic-toponav rm-edge   GRAPH ID [--in-place | --out FILE]
+
+# Semantic queries
+semantic-toponav find      GRAPH [--type T] [--label-contains S] [--label-equals S]
+                                 [--prop KEY=VALUE ...] [--format text|json]
+semantic-toponav nearest   GRAPH (--from-pose X Y | --from-node ID)
+                                 [...same filter flags as `find`...]
 ```
 
 Build a tiny graph from scratch:
