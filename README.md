@@ -91,6 +91,28 @@ graph = topology_from_occupancy(grid, resolution=0.25)
 |-----------------------------------------|----------------------|
 | ![grid](docs/images/05_occupancy_graph.png) | ![path](docs/images/06_occupancy_graph_with_path.png) |
 
+### Loading ROS map_server bundles
+
+`semantic-toponav` can load the standard `map_server` YAML + PGM/PNG/BMP
+pair used by ROS Nav2:
+
+```python
+from semantic_toponav.conversion import load_occupancy_map, topology_from_occupancy
+
+m = load_occupancy_map("examples/sample_map.yaml")
+graph = topology_from_occupancy(m.free_mask, resolution=m.resolution, origin=m.origin)
+```
+
+`negate`, `free_thresh`, and `occupied_thresh` are honored. The bundled
+`examples/sample_map.{yaml,pgm}` is small enough to skim and produces a
+topology with rooms, a main corridor, and a planned route:
+
+```bash
+python examples/load_map_demo.py
+```
+
+![sample map topology](docs/images/07_sample_map_topology.png)
+
 ## Visualization
 
 Install the optional viz extra and use the `plot` subcommand or the Python helper:

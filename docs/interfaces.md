@@ -131,6 +131,24 @@ Each `SemanticWaypoint` has:
 - `pose`: optional `Pose2D`
 - `properties`: copy of the node's properties
 
+### Loading ROS map_server bundles (optional)
+
+```python
+from semantic_toponav.conversion import load_occupancy_map
+
+m = load_occupancy_map("my_map.yaml")
+m.free_mask     # 2D bool array, True where free
+m.resolution    # meters per cell
+m.origin        # (x, y) of the bottom-left cell, in meters
+m.origin_yaw    # yaw of the origin, in radians (rarely used)
+m.metadata      # {"negate", "free_thresh", "occupied_thresh", "image"}
+```
+
+Honors the standard `map_server` keys (`negate`, `free_thresh`,
+`occupied_thresh`) and supports any image format scikit-image can read
+(PGM, PNG, BMP, ...). Requires the `[map]` extra. Raises `MapLoadError`
+on parse failure or missing image.
+
 ### Occupancy → topology (optional)
 
 ```python

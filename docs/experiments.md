@@ -42,11 +42,11 @@ experiment branch.
 
 - **occupancy grid → topology graph conversion**: implemented in
   `semantic_toponav.conversion.topology_from_occupancy` via
-  skeletonization + junction-cluster merging. See
-  `examples/occupancy_to_topology.py` and the README for a demo. Open
-  follow-ups: PGM/`.yaml` map_server reader, region segmentation for
-  room-aware labels, lossier graph compaction when corridors have many
-  parallel skeleton branches.
+  skeletonization + junction-cluster merging. ROS map_server YAML+PGM
+  bundles can be loaded with `semantic_toponav.conversion.load_occupancy_map`
+  (see `examples/load_map_demo.py`). Open follow-ups: region segmentation
+  for room-aware labels, lossier graph compaction when corridors have
+  many parallel skeleton branches, and door/threshold detection.
 - trajectory log → topology graph (cluster waypoints, merge revisits)
 - VLM-based semantic labeling of map regions
 - CLIP embedding per node for place recognition
