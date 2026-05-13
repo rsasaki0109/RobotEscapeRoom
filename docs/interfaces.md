@@ -412,16 +412,43 @@ Nodes without a `pose` cannot be plotted and raise `MissingPoseError`.
 
 ## ROS2 message strategy
 
-For the MVP the ROS2 adapter publishes waypoints as JSON inside
-`std_msgs/msg/String` on:
+The ROS2 adapter supports two output formats on
+`/semantic_toponav/waypoints`, selected by the
+`output_format` node parameter:
 
-```text
-/semantic_toponav/waypoints
-```
+| `output_format` | wire type | when to use |
+|---|---|---|
+| `json` (default) | `std_msgs/msg/String` carrying a JSON document | zero-dep MVP, quick `ros2 topic echo` debugging |
+| `msg` | `semantic_toponav_msgs/msg/SemanticWaypointArray` | typed fields, `ros2 bag` introspection, downstream subscribers in C++/Python |
 
-This avoids requiring a custom message package during the first iteration.
-Custom messages (`SemanticWaypoint.msg`, `SemanticWaypointArray.msg`,
-`TopologyNode.msg`, `TopologyEdge.msg`) are a planned follow-up.
+Custom message definitions live in `ros2/semantic_toponav_msgs/msg/` and
+mirror the Python dataclasses one-for-one:
+
+| `.msg` | mirrors |
+|---|---|
+| `SemanticWaypoint.msg` | `semantic_toponav.waypoint.SemanticWaypoint` |
+| `SemanticWaypointArray.msg` | header + path + waypoints |
+| `TopologyNode.msg` | `semantic_toponav.graph.types.TopologyNode` |
+| `TopologyEdge.msg` | `semantic_toponav.graph.types.TopologyEdge` |
+| `TopologyGraph.msg` | a full `TopologyGraph` snapshot |
+
+Two layout decisions worth noting:
+
+- **Optional pose**: each message carries `(has_pose: bool, frame_id: string,
+  pose: geometry_msgs/Pose2D)` side-by-side rather than an optional field.
+  `has_pose=false` means downstream consumers should treat the waypoint as
+  pose-less (the `pose` and `frame_id` fields are zeroed).
+- **Heterogeneous properties**: node and edge `properties` dicts can carry
+  strings, numbers, lists, etc. — too irregular for parallel
+  key/value arrays. We serialize them as a single `properties_json` string,
+  which round-trips through `json.loads`/`json.dumps`.
+
+Conversion helpers live in
+`ros2/semantic_toponav_ros/semantic_toponav_ros/msg_conversions.py`. The
+`*_to_fields` / `*_from_fields` functions are pure Python and require no
+sourced ROS environment — they're how the project's regular pytest suite
+validates the wire layout. Thin `*_to_msg` wrappers handle the final copy
+onto the generated message classes inside a ROS workspace.
 
 ## Exceptions
 

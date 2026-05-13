@@ -41,13 +41,15 @@ Autoware). This repository does **not** implement that local executor.
 
 ```bash
 # inside a ROS2 workspace
-colcon build --packages-select semantic_toponav_ros
+colcon build --packages-select semantic_toponav_msgs semantic_toponav_ros
 source install/setup.bash
 ```
 
 The wrapper depends on `semantic-toponav` being importable in the same Python
 environment. Either `pip install -e .` from the repository root, or add the
-repository root to `PYTHONPATH`.
+repository root to `PYTHONPATH`. The `semantic_toponav_msgs` package is only
+required if you switch `waypoint_publisher_node` to `output_format:=msg`
+(see below).
 
 ### Run
 
@@ -80,6 +82,28 @@ ros2 topic echo /semantic_toponav/waypoints
 The payload is a JSON document with `path` and `waypoints` (the same
 structure as `semantic-toponav waypoints --format json`).
 
+### Publishing typed messages instead of JSON
+
+Pass `output_format:=msg` (and build `semantic_toponav_msgs` alongside the
+wrapper) to publish a `semantic_toponav_msgs/SemanticWaypointArray` instead
+of `std_msgs/String`:
+
+```bash
+ros2 run semantic_toponav_ros waypoint_publisher \
+  --ros-args \
+    -p graph_path:=$PWD/examples/indoor_office.yaml \
+    -p start_node:=entrance \
+    -p goal_node:=office_2f \
+    -p output_format:=msg \
+    -p frame_id:=map
+```
+
+The custom message layout mirrors the Python dataclasses one-for-one and is
+documented under [`semantic_toponav_msgs/msg/`](semantic_toponav_msgs/msg/).
+Field-dict conversion helpers (testable without a sourced ROS environment)
+live in
+[`semantic_toponav_ros/semantic_toponav_ros/msg_conversions.py`](semantic_toponav_ros/semantic_toponav_ros/msg_conversions.py).
+
 ## Nav2 integration — MVP
 
 For the first iteration the contract with Nav2 is intentionally minimal:
@@ -95,14 +119,34 @@ on the user's Nav2 stack and is small enough to write per deployment. A
 worked example will live under `ros2/semantic_toponav_ros/semantic_toponav_ros/nav2_demo_node.py`
 in a follow-up.
 
-## Why JSON instead of custom messages
+## JSON vs custom messages
 
-Custom ROS2 message packages add packaging overhead, slow down iteration,
-and require additional build infrastructure. For the MVP we publish JSON
-inside `std_msgs/String` so the wrapper stays a single Python package.
+| | `output_format:=json` (default) | `output_format:=msg` |
+|---|---|---|
+| Wire type | `std_msgs/String` containing a JSON document | `semantic_toponav_msgs/SemanticWaypointArray` |
+| Extra build deps | none | requires building `semantic_toponav_msgs` |
+| Introspection | `ros2 topic echo` shows raw JSON | `ros2 topic echo` shows typed fields; works with `ros2 bag` filters |
+| Schema enforcement | client-side JSON parsing | enforced by the message definition |
 
-Custom messages (`SemanticWaypoint.msg`, `SemanticWaypointArray.msg`,
-`TopologyNode.msg`, `TopologyEdge.msg`) are planned as a follow-up.
+The JSON form is the zero-dependency MVP. The custom-message form is the
+recommended option once your workspace is set up — it gives you typed
+fields, `ros2 bag` introspection, and downstream subscribers that don't
+have to parse JSON.
+
+Message definitions:
+
+| `.msg` | mirrors Python dataclass |
+|---|---|
+| `SemanticWaypoint.msg` | `semantic_toponav.waypoint.SemanticWaypoint` |
+| `SemanticWaypointArray.msg` | a `path: list[str]` + `waypoints` pair |
+| `TopologyNode.msg` | `semantic_toponav.graph.types.TopologyNode` |
+| `TopologyEdge.msg` | `semantic_toponav.graph.types.TopologyEdge` |
+| `TopologyGraph.msg` | a full `TopologyGraph` snapshot |
+
+Heterogeneous `properties` dicts (which can carry strings, ints, lists, etc.)
+are serialized as a JSON document inside a `properties_json` field on each
+message rather than as parallel key/value arrays. Optional `Pose2D` values
+travel as `(has_pose: bool, frame_id: string, pose: geometry_msgs/Pose2D)`.
 
 ## What this wrapper does **not** do
 
