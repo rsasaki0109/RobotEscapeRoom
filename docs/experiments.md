@@ -52,6 +52,10 @@ landed. Each links to the still-relevant follow-up work.
 - Interactive HTML viewer (`semantic-toponav viewer`, plus the
   `to_pyvis_network` / `save_interactive_html` API)
 - Three-floor end-to-end tutorial at `docs/tutorial.md`
+- Hybrid occupancy + trajectory pipeline
+  (`annotate_graph_with_trajectories` — snap recorded runs onto a
+  skeleton-derived graph and tally per-edge `traversal_count` /
+  per-node `visit_count`)
 
 See `docs/decisions.md` D-10 for the original "non-goals" list with
 shipped / deferred markers.
@@ -66,10 +70,11 @@ What's still open. Each is a candidate for an experiment branch.
   room-aware labels, lossier graph compaction when corridors carry
   many parallel skeleton branches, door/threshold detection.
 - **trajectory log → topology** follow-ups: DBSCAN / k-medoids cluster
-  alternatives, time-aware clustering for dwell detection, fusing the
-  occupancy and trajectory pipelines (use a recorded run to *label*
-  nodes/edges produced from the skeleton — currently the two pipelines
-  produce disjoint graphs).
+  alternatives, time-aware clustering for dwell detection. The basic
+  fusion of the two pipelines now ships
+  (`annotate_graph_with_trajectories`); follow-ups for that direction
+  include pruning unused edges by `traversal_count` threshold and
+  promoting unmapped transitions into new candidate edges.
 - **VLM / CLIP labeling of regions**: the retrieval / similarity layer
   (`find_nodes_by_embedding`, `nearest_node_by_embedding`) already
   ships. What's deferred is the *encoder* integration — wiring a
