@@ -275,6 +275,28 @@ Below: same graph, two different cost configurations.
 |------------|-----------------------------------|
 | ![default](docs/images/03_default_to_office_2f.png) | ![accessibility](docs/images/04_avoid_stairs_to_office_2f.png) |
 
+### Interactive web viewer
+
+For exploration in a browser, install the `viz_web` extra (pulls in
+[pyvis](https://pyvis.readthedocs.io/)) and write out a self-contained
+HTML page:
+
+```bash
+pip install -e '.[viz_web]'
+python examples/web_viewer_demo.py     # writes examples/multi_floor_viewer.html
+xdg-open examples/multi_floor_viewer.html
+```
+
+```python
+from semantic_toponav.visualization import save_interactive_html
+
+save_interactive_html(graph, "viewer.html", path=plan)
+```
+
+Nodes are draggable, hovering surfaces type/cost/property tooltips, and
+the highlighted path is overlaid in pink. The generated file is fully
+offline — open it on any machine without re-running Python.
+
 ## Graph schema (v1)
 
 ```yaml

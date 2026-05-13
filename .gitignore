@@ -15,8 +15,12 @@ htmlcov/
 
 # Virtual envs
 .venv/
+.venv-*/
 venv/
 env/
+
+# Generated interactive viewer output (produced by examples/web_viewer_demo.py)
+examples/*_viewer.html
 
 # Editors / OS
 .vscode/
