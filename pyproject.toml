@@ -32,6 +32,7 @@ dependencies = [
 dev = [
     "pytest>=7.0",
     "ruff>=0.4",
+    "jsonschema>=4.0",
 ]
 viz = [
     "matplotlib>=3.5",
@@ -78,3 +79,5 @@ ignore = ["E501"]
 "tests/test_rosbag2_loader.py" = ["E402"]
 "tests/test_trajectory.py" = ["E402"]
 "tests/test_visualization.py" = ["E402"]
+"tests/test_waypoint_schema.py" = ["E402"]
+"tests/test_web_visualization.py" = ["E402"]

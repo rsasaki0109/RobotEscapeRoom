@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/rsasaki0109/semantic-toponav/schemas/semantic_waypoint_array/v1.json",
+  "title": "SemanticWaypointArray",
+  "description": "Wire format for the JSON output of waypoint_publisher_node (output_format='json'). Stable as of v1.",
+  "type": "object",
+  "required": ["path", "waypoints"],
+  "additionalProperties": false,
+  "properties": {
+    "path": {
+      "description": "Ordered list of node ids visited by the planner.",
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 0
+    },
+    "waypoints": {
+      "description": "Ordered list of semantic waypoints, one per node in path.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/SemanticWaypoint" }
+    }
+  },
+  "$defs": {
+    "Pose2D": {
+      "type": "object",
+      "required": ["x", "y", "yaw", "frame_id"],
+      "additionalProperties": false,
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "yaw": { "type": "number", "description": "Heading in radians." },
+        "frame_id": { "type": "string", "default": "map" }
+      }
+    },
+    "SemanticWaypoint": {
+      "type": "object",
+      "required": [
+        "node_id",
+        "node_label",
+        "node_type",
+        "action",
+        "instruction",
+        "properties"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "description": "Identifier of the node this waypoint was derived from."
+        },
+        "node_label": {
+          "type": "string",
+          "description": "Human-readable label of the node."
+        },
+        "node_type": {
+          "type": "string",
+          "description": "Semantic type of the node (e.g. room, corridor, elevator). Free-form — not enumerated to keep custom domains workable."
+        },
+        "action": {
+          "type": "string",
+          "description": "Categorical action the executor should perform at this waypoint. The built-in vocabulary is listed in enum; downstream consumers SHOULD accept additional values for forward compatibility.",
+          "enum": [
+            "start",
+            "arrive",
+            "enter",
+            "proceed_through",
+            "navigate",
+            "take_elevator",
+            "use_stairs",
+            "pass_through"
+          ]
+        },
+        "instruction": {
+          "type": "string",
+          "description": "Single-sentence human-readable instruction for this waypoint."
+        },
+        "pose": {
+          "description": "Optional 2D pose. Absent when the source node has no pose.",
+          "$ref": "#/$defs/Pose2D"
+        },
+        "properties": {
+          "type": "object",
+          "description": "Arbitrary string-keyed properties copied verbatim from the source node. Values may be any JSON type.",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

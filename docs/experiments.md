@@ -57,6 +57,9 @@ landed. Each links to the still-relevant follow-up work.
   (`annotate_graph_with_trajectories` — snap recorded runs onto a
   skeleton-derived graph and tally per-edge `traversal_count` /
   per-node `visit_count`)
+- v1-stable JSON Schema for `SemanticWaypointArray`
+  (`docs/waypoint_schema.md`,
+  `schemas/semantic_waypoint_array.schema.json`)
 
 See `docs/decisions.md` D-10 for the original "non-goals" list with
 shipped / deferred markers.

@@ -545,6 +545,11 @@ labeling, and CLIP embeddings. See
 [`docs/decisions.md`](docs/decisions.md) for the reasoning and
 [`docs/experiments.md`](docs/experiments.md) for future directions.
 
+The JSON wire format produced by `waypoint_publisher_node` and
+`SemanticWaypoint.to_dict()` is documented (and v1-stable) under
+[`docs/waypoint_schema.md`](docs/waypoint_schema.md), with a matching
+JSON Schema in [`schemas/`](schemas/).
+
 ## Tests
 
 ```bash
