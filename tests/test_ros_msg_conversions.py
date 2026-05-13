@@ -212,3 +212,27 @@ def test_path_to_waypoints_round_trip_through_fields() -> None:
     assert fields["path"] == path
     restored = [semantic_waypoint_from_fields(f) for f in fields["waypoints"]]
     assert restored == wps
+
+
+# --------------------- graph publishing payload shape -----------------------
+
+
+def test_graph_publish_payload_round_trip_from_example_yaml() -> None:
+    """The exact field dict that ``graph_loader_node`` would publish should
+    round-trip back to a graph that matches the loaded one.
+
+    This is the unit-test cousin of running the node: we don't need rclpy to
+    confirm the wire layout it would emit is structurally lossless.
+    """
+    graph = load_graph(EXAMPLES_DIR / "multi_floor_office.yaml")
+    fields = topology_graph_to_fields(graph, frame_id="map")
+
+    assert fields["header"] == {"frame_id": "map"}
+    assert len(fields["nodes"]) == len(graph.node_ids())
+    assert len(fields["edges"]) == len(graph.edge_ids())
+
+    restored = topology_graph_from_fields(fields)
+    assert set(restored.node_ids()) == set(graph.node_ids())
+    assert set(restored.edge_ids()) == set(graph.edge_ids())
+    for nid in graph.node_ids():
+        assert restored.get_node(nid) == graph.get_node(nid)
