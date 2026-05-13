@@ -65,3 +65,12 @@ target-version = "py310"
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
 ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests use pytest.importorskip(...) before the imports that depend on the
+# optional packages it gates, so module-level imports are intentionally
+# below other statements.
+"tests/test_map_io.py" = ["E402"]
+"tests/test_occupancy.py" = ["E402"]
+"tests/test_trajectory.py" = ["E402"]
+"tests/test_visualization.py" = ["E402"]

@@ -29,7 +29,6 @@ from collections.abc import Iterable, Sequence
 from semantic_toponav.graph.topology_graph import TopologyGraph
 from semantic_toponav.graph.types import Pose2D, TopologyEdge, TopologyNode
 
-
 Point = tuple[float, float]
 
 

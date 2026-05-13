@@ -12,12 +12,10 @@ a figure showing the raw points alongside the inferred topology graph.
 
 from __future__ import annotations
 
-import math
 import random
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 from semantic_toponav.conversion import topology_from_trajectories
 from semantic_toponav.visualization import plot_graph

@@ -38,21 +38,12 @@ def _write_map(
     yaml_path = tmp_path / yaml_name
     origin = origin if origin is not None else [0.0, 0.0, 0.0]
     yaml_path.write_text(
-        "image: {img}\n"
-        "resolution: {res}\n"
-        "origin: [{ox}, {oy}, {oyaw}]\n"
-        "negate: {neg}\n"
-        "occupied_thresh: {occ}\n"
-        "free_thresh: {free}\n".format(
-            img=img_name,
-            res=resolution,
-            ox=origin[0],
-            oy=origin[1],
-            oyaw=origin[2] if len(origin) >= 3 else 0.0,
-            neg=negate,
-            occ=occupied_thresh,
-            free=free_thresh,
-        ),
+        f"image: {img_name}\n"
+        f"resolution: {resolution}\n"
+        f"origin: [{origin[0]}, {origin[1]}, {origin[2] if len(origin) >= 3 else 0.0}]\n"
+        f"negate: {negate}\n"
+        f"occupied_thresh: {occupied_thresh}\n"
+        f"free_thresh: {free_thresh}\n",
         encoding="utf-8",
     )
     return yaml_path
