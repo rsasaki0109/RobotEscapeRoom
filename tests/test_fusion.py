@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import pytest
+
 from semantic_toponav.conversion import (
     AnnotationResult,
     annotate_graph_with_trajectories,
+    promote_unmapped_transitions,
+    prune_low_traversal_edges,
 )
 from semantic_toponav.graph.topology_graph import TopologyGraph
 from semantic_toponav.graph.types import Pose2D, TopologyEdge, TopologyNode
@@ -189,3 +193,138 @@ def test_custom_property_keys() -> None:
     assert g.get_edge("e_ab").properties["used"] == 1
     assert "visit_count" not in g.get_node("a").properties
     assert "traversal_count" not in g.get_edge("e_ab").properties
+
+
+# --------------------------- prune_low_traversal_edges ---------------------------
+
+
+def test_prune_removes_zero_traversal_edges() -> None:
+    g = _three_node_chain()
+    g.get_edge("e_ab").properties["traversal_count"] = 3
+    # e_bc has no traversal_count, treated as 0.
+    removed = prune_low_traversal_edges(g, min_traversals=1)
+    assert removed == ["e_bc"]
+    assert g.has_edge("e_ab")
+    assert not g.has_edge("e_bc")
+
+
+def test_prune_threshold_above_one() -> None:
+    g = _three_node_chain()
+    g.get_edge("e_ab").properties["traversal_count"] = 5
+    g.get_edge("e_bc").properties["traversal_count"] = 2
+    removed = prune_low_traversal_edges(g, min_traversals=3)
+    assert removed == ["e_bc"]
+    assert g.has_edge("e_ab")
+
+
+def test_prune_respects_keep_edge_types() -> None:
+    g = TopologyGraph()
+    for nid in "ab":
+        g.add_node(
+            TopologyNode(
+                id=nid, label=nid, type="x", pose=Pose2D(x=0.0, y=0.0)
+            )
+        )
+    # Edge "stairs_link" has count=0 but is in the protected set.
+    g.add_edge(
+        TopologyEdge(
+            id="stairs_link",
+            source="a",
+            target="b",
+            type="stairs_up",
+        )
+    )
+    removed = prune_low_traversal_edges(
+        g, min_traversals=1, keep_edge_types=["stairs_up"]
+    )
+    assert removed == []
+    assert g.has_edge("stairs_link")
+
+
+def test_prune_custom_property_key() -> None:
+    g = _three_node_chain()
+    g.get_edge("e_ab").properties["used"] = 5
+    # e_bc has no "used" -> 0.
+    removed = prune_low_traversal_edges(
+        g, min_traversals=1, traversal_count_key="used"
+    )
+    assert removed == ["e_bc"]
+
+
+# --------------------------- promote_unmapped_transitions ---------------------------
+
+
+def test_promote_creates_edge_for_hot_pair() -> None:
+    g = TopologyGraph()
+    for nid, x in [("a", 0.0), ("c", 3.0)]:
+        g.add_node(
+            TopologyNode(
+                id=nid, label=nid, type="x", pose=Pose2D(x=x, y=4.0)
+            )
+        )
+    unmapped = {("a", "c"): 5}
+    added = promote_unmapped_transitions(g, unmapped, min_count=2)
+    assert added == ["promoted_a__c"]
+    edge = g.get_edge("promoted_a__c")
+    # Euclidean: sqrt(9 + 0) = 3
+    assert edge.cost == pytest.approx(3.0)
+    assert edge.properties["traversal_count"] == 5
+    assert edge.bidirectional is True
+
+
+def test_promote_skips_pairs_below_min_count() -> None:
+    g = TopologyGraph()
+    for nid in "ab":
+        g.add_node(
+            TopologyNode(
+                id=nid, label=nid, type="x", pose=Pose2D(x=0.0, y=0.0)
+            )
+        )
+    added = promote_unmapped_transitions(g, {("a", "b"): 1}, min_count=2)
+    assert added == []
+    assert not any(e.type == "promoted" for e in g.edges())
+
+
+def test_promote_skips_pairs_with_missing_nodes() -> None:
+    g = TopologyGraph()
+    g.add_node(TopologyNode(id="a", label="a", type="x"))
+    # b is missing.
+    added = promote_unmapped_transitions(g, {("a", "b"): 5}, min_count=1)
+    assert added == []
+
+
+def test_promote_skips_when_edge_already_exists() -> None:
+    g = _three_node_chain()
+    # e_ab already exists; ("a", "b") should not yield a new edge.
+    added = promote_unmapped_transitions(g, {("a", "b"): 99}, min_count=1)
+    assert added == []
+    assert len([e for e in g.edges() if e.type == "promoted"]) == 0
+
+
+def test_promote_handles_missing_poses_with_unit_cost() -> None:
+    g = TopologyGraph()
+    g.add_node(TopologyNode(id="a", label="a", type="x", pose=None))
+    g.add_node(TopologyNode(id="b", label="b", type="x", pose=None))
+    added = promote_unmapped_transitions(g, {("a", "b"): 3}, min_count=1)
+    assert added == ["promoted_a__b"]
+    assert g.get_edge("promoted_a__b").cost == 1.0
+
+
+def test_promote_round_trips_with_annotation() -> None:
+    # End-to-end: build a graph that's missing one edge, run annotation,
+    # then promote the unmapped transition, then re-annotate -> mapped.
+    g = TopologyGraph()
+    for nid, x in [("a", 0.0), ("c", 3.0)]:
+        g.add_node(
+            TopologyNode(
+                id=nid, label=nid, type="x", pose=Pose2D(x=x, y=0.0)
+            )
+        )
+    traj = _line((0.0, 0.0), (3.0, 0.0), n=11)
+    result = annotate_graph_with_trajectories(g, [traj, traj])
+    assert result.unmapped_transitions == {("a", "c"): 2}
+    promote_unmapped_transitions(g, result.unmapped_transitions, min_count=2)
+    # Now re-annotate: the transition should map.
+    result2 = annotate_graph_with_trajectories(g, [traj])
+    assert result2.transitions_mapped == 1
+    assert result2.unmapped_transitions == {}

@@ -5,6 +5,8 @@ from semantic_toponav.conversion.csv_io import (
 from semantic_toponav.conversion.fusion import (
     AnnotationResult,
     annotate_graph_with_trajectories,
+    promote_unmapped_transitions,
+    prune_low_traversal_edges,
 )
 from semantic_toponav.conversion.map_io import (
     MapLoadError,
@@ -30,6 +32,8 @@ __all__ = [
     "load_occupancy_map",
     "load_trajectories_from_csv",
     "load_trajectories_from_rosbag",
+    "promote_unmapped_transitions",
+    "prune_low_traversal_edges",
     "topology_from_occupancy",
     "topology_from_trajectories",
 ]

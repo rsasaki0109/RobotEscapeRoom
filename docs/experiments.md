@@ -54,9 +54,11 @@ landed. Each links to the still-relevant follow-up work.
   `to_pyvis_network` / `save_interactive_html` API)
 - Three-floor end-to-end tutorial at `docs/tutorial.md`
 - Hybrid occupancy + trajectory pipeline
-  (`annotate_graph_with_trajectories` — snap recorded runs onto a
-  skeleton-derived graph and tally per-edge `traversal_count` /
-  per-node `visit_count`)
+  (`annotate_graph_with_trajectories` + post-processing helpers
+  `prune_low_traversal_edges` and `promote_unmapped_transitions` —
+  snap recorded runs onto a skeleton-derived graph, drop edges that
+  no one used, and promote frequent transitions that had no edge into
+  new candidate edges)
 - v1-stable JSON Schema for `SemanticWaypointArray`
   (`docs/waypoint_schema.md`,
   `schemas/semantic_waypoint_array.schema.json`)
@@ -76,9 +78,10 @@ What's still open. Each is a candidate for an experiment branch.
 - **trajectory log → topology** follow-ups: DBSCAN / k-medoids cluster
   alternatives, time-aware clustering for dwell detection. The basic
   fusion of the two pipelines now ships
-  (`annotate_graph_with_trajectories`); follow-ups for that direction
-  include pruning unused edges by `traversal_count` threshold and
-  promoting unmapped transitions into new candidate edges.
+  (`annotate_graph_with_trajectories` plus
+  `prune_low_traversal_edges` and `promote_unmapped_transitions`);
+  what's still open is iterating the snap/prune/promote cycle until
+  convergence and validating the result on a real recorded run.
 - **VLM / CLIP labeling of regions**: the retrieval / similarity layer
   (`find_nodes_by_embedding`, `nearest_node_by_embedding`) already
   ships. What's deferred is the *encoder* integration — wiring a

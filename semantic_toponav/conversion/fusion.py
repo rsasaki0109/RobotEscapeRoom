@@ -26,6 +26,7 @@ from semantic_toponav.graph.topology_graph import TopologyGraph
 from semantic_toponav.graph.types import TopologyEdge
 
 Point = tuple[float, float]
+_DEFAULT_EDGE_TYPE = "promoted"
 
 
 @dataclass
@@ -162,3 +163,102 @@ def annotate_graph_with_trajectories(
 
     result.nodes_visited = len(visited_node_ids)
     return result
+
+
+def prune_low_traversal_edges(
+    graph: TopologyGraph,
+    *,
+    min_traversals: int = 1,
+    traversal_count_key: str = "traversal_count",
+    keep_edge_types: Iterable[str] = (),
+) -> list[str]:
+    """Remove edges whose ``traversal_count`` is below ``min_traversals``.
+
+    Edges that have *no* ``traversal_count`` property are treated as
+    zero — call this after :func:`annotate_graph_with_trajectories` so
+    well-trodden edges already carry counts and unused ones have none.
+
+    Parameters
+    ----------
+    min_traversals:
+        Edges with strictly fewer traversals are removed.
+    traversal_count_key:
+        The property key on each edge that holds the count.
+    keep_edge_types:
+        Edge types to always preserve regardless of count — useful for
+        keeping structural elements (stairs, elevators) that may rarely
+        appear in recorded runs.
+
+    Mutates ``graph`` in place. Returns the list of removed edge ids.
+    """
+    protected = set(keep_edge_types)
+    removed: list[str] = []
+    for edge in list(graph.edges()):
+        if edge.type in protected:
+            continue
+        count = int(edge.properties.get(traversal_count_key, 0))
+        if count < min_traversals:
+            graph.remove_edge(edge.id)
+            removed.append(edge.id)
+    return removed
+
+
+def promote_unmapped_transitions(
+    graph: TopologyGraph,
+    unmapped_transitions: dict[tuple[str, str], int],
+    *,
+    min_count: int = 2,
+    edge_type: str = _DEFAULT_EDGE_TYPE,
+    traversal_count_key: str = "traversal_count",
+    id_prefix: str = "promoted_",
+) -> list[str]:
+    """Add edges for hot transitions that had no matching edge in the graph.
+
+    Given an ``unmapped_transitions`` mapping (typically taken from
+    :class:`AnnotationResult.unmapped_transitions`), this creates one
+    new bidirectional edge per pair whose count is at least
+    ``min_count``. The new edge's ``cost`` is the Euclidean distance
+    between the endpoints' poses; when a pose is missing the cost
+    falls back to ``1.0``. The pair's traversal count is recorded on
+    the new edge so subsequent passes see it as a "warm" edge.
+
+    Skips pairs whose endpoints are no longer in the graph or that
+    already have an edge between them (defensive — should not happen if
+    the input was produced by the same graph, but allows reuse across
+    sessions).
+
+    Mutates ``graph`` in place. Returns the list of added edge ids.
+    """
+    added: list[str] = []
+    for (a, b), count in unmapped_transitions.items():
+        if count < min_count:
+            continue
+        if not (graph.has_node(a) and graph.has_node(b)):
+            continue
+        if _find_edge_between(graph, a, b) is not None:
+            continue
+        pa = graph.get_node(a).pose
+        pb = graph.get_node(b).pose
+        cost = (
+            math.hypot(pa.x - pb.x, pa.y - pb.y)
+            if pa is not None and pb is not None
+            else 1.0
+        )
+        edge_id = f"{id_prefix}{a}__{b}"
+        suffix = 2
+        while graph.has_edge(edge_id):
+            edge_id = f"{id_prefix}{a}__{b}_v{suffix}"
+            suffix += 1
+        graph.add_edge(
+            TopologyEdge(
+                id=edge_id,
+                source=a,
+                target=b,
+                type=edge_type,
+                cost=cost,
+                bidirectional=True,
+                properties={traversal_count_key: count},
+            )
+        )
+        added.append(edge_id)
+    return added
