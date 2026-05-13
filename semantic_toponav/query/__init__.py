@@ -6,6 +6,11 @@ plain ``TopologyNode`` / ``TopologyNode + path`` results — no LLM, no
 fuzzy matching beyond simple substring search.
 """
 
+from semantic_toponav.query.embedding import (
+    cosine_similarity,
+    find_nodes_by_embedding,
+    nearest_node_by_embedding,
+)
 from semantic_toponav.query.find import (
     NoMatchError,
     find_nodes,
@@ -15,7 +20,10 @@ from semantic_toponav.query.find import (
 
 __all__ = [
     "NoMatchError",
+    "cosine_similarity",
     "find_nodes",
+    "find_nodes_by_embedding",
+    "nearest_node_by_embedding",
     "nearest_node_by_graph_distance",
     "nearest_node_by_pose",
 ]

@@ -270,6 +270,34 @@ nearest_node_by_graph_distance(graph, start_id, **filters) -> tuple[TopologyNode
 `NoMatchError` is raised when no node satisfies the filters (or, for graph
 distance, no matching node is reachable from `start_id`).
 
+#### Embedding-based retrieval
+
+```python
+from semantic_toponav.query import (
+    cosine_similarity,
+    find_nodes_by_embedding,
+    nearest_node_by_embedding,
+)
+
+cosine_similarity(a, b)                        # plain math, no numpy
+
+find_nodes_by_embedding(
+    graph, query,
+    top_k=5,
+    embedding_property="embedding",
+    # Same predicate filters as find_nodes (type / label_* / properties).
+)                                              # -> list[(node, similarity)]
+
+nearest_node_by_embedding(graph, query, **filters)   # single highest match
+```
+
+Embeddings live in `node.properties[embedding_property]` as any sequence
+of floats; the YAML/JSON serializer round-trips them as ordinary lists.
+Nodes without an embedding are silently skipped during retrieval, and a
+dimension mismatch between the query and any candidate raises
+`ValueError`. The encoder itself (CLIP, SigLIP, sentence-transformers,
+custom) is out of scope — attach the vectors ahead of time.
+
 ### Visualization (optional)
 
 ```python
