@@ -8,10 +8,16 @@ import sys
 from collections.abc import Callable, Sequence
 
 from semantic_toponav.cli.editor import register_subcommands as register_editor_subcommands
+from semantic_toponav.cli.memory_cli import register_subcommands as register_memory_subcommands
 from semantic_toponav.cli.query_cli import register_subcommands as register_query_subcommands
 from semantic_toponav.graph.serialization import GraphLoadError, load_graph
 from semantic_toponav.graph.topology_graph import TopologyGraph
 from semantic_toponav.graph.types import GraphValidationError, TopologyEdge
+from semantic_toponav.memory import (
+    avoid_recently_visited,
+    prefer_familiar,
+    prefer_unvisited,
+)
 from semantic_toponav.planner import (
     avoid_restricted,
     avoid_stairs,
@@ -57,6 +63,25 @@ def _build_cost_fn(args: argparse.Namespace, graph=None) -> Callable[[TopologyEd
         penalty = getattr(args, "floor_change_penalty", None)
         if penalty is not None and penalty > 0:
             fns.append(floor_change_penalty(graph, penalty=penalty))
+        # Visit-history memory costs.
+        if getattr(args, "prefer_unvisited", False):
+            fns.append(
+                prefer_unvisited(graph, visited_multiplier=args.visited_multiplier)
+            )
+        if getattr(args, "prefer_familiar", False):
+            fns.append(
+                prefer_familiar(graph, familiar_multiplier=args.familiar_multiplier)
+            )
+        within = getattr(args, "avoid_recent", None)
+        if within is not None:
+            fns.append(
+                avoid_recently_visited(
+                    graph,
+                    within_seconds=within,
+                    recent_multiplier=args.recent_multiplier,
+                    now=getattr(args, "now", None),
+                )
+            )
     if not fns:
         return default_edge_cost
     return compose_costs(*fns)
@@ -214,6 +239,50 @@ def _add_plan_args(p: argparse.ArgumentParser) -> None:
         metavar="EDGE_TYPE",
         help="block all edges of this type (repeatable)",
     )
+    # Visit-history memory costs.
+    p.add_argument(
+        "--prefer-unvisited",
+        action="store_true",
+        help="penalize edges that lead to already-visited nodes",
+    )
+    p.add_argument(
+        "--visited-multiplier",
+        type=float,
+        default=2.0,
+        metavar="M",
+        help="cost multiplier applied with --prefer-unvisited (default: 2.0)",
+    )
+    p.add_argument(
+        "--prefer-familiar",
+        action="store_true",
+        help="discount edges that lead to already-visited nodes",
+    )
+    p.add_argument(
+        "--familiar-multiplier",
+        type=float,
+        default=0.5,
+        metavar="M",
+        help="cost multiplier applied with --prefer-familiar (default: 0.5)",
+    )
+    p.add_argument(
+        "--avoid-recent",
+        type=float,
+        metavar="SECONDS",
+        help="penalize nodes visited within the past SECONDS",
+    )
+    p.add_argument(
+        "--recent-multiplier",
+        type=float,
+        default=5.0,
+        metavar="M",
+        help="cost multiplier applied with --avoid-recent (default: 5.0)",
+    )
+    p.add_argument(
+        "--now",
+        type=float,
+        metavar="TS",
+        help="UNIX timestamp used as 'now' for --avoid-recent (default: wall clock)",
+    )
     p.add_argument(
         "--format",
         choices=["text", "json"],
@@ -262,6 +331,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     register_editor_subcommands(sub)
     register_query_subcommands(sub)
+    register_memory_subcommands(sub)
 
     return parser
 
