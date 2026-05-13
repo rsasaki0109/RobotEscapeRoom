@@ -33,64 +33,73 @@ between node poses, the default Euclidean A* heuristic over-estimates and
 A* may return suboptimal paths. Switching to Dijkstra recovers optimality.
 See `docs/decisions.md` (D-7).
 
+## Shipped since the MVP
+
+Quick index of features that started life on this page and have since
+landed. Each links to the still-relevant follow-up work.
+
+- Occupancy grid → topology + ROS `map_server` loader
+- Trajectory log → topology + CSV loader + rosbag2 loader
+- Visit-history memory layer + embedding-based place retrieval
+- Multi-floor planning (`floor_change_penalty`, `prefer_floor`,
+  `same_floor_only`, `floor_aware_heuristic`)
+- Dynamic edge availability (`block_edges`, `block_edge_types`)
+- Custom ROS2 messages (`semantic_toponav_msgs`) alongside JSON
+- Worked Nav2 example (`nav2_demo_node` bridging `SemanticWaypointArray`
+  to `NavigateThroughPoses`)
+- CLI graph editor (`inspect / add-node / add-edge / rm-node /
+  rm-edge`)
+- Interactive HTML viewer (`semantic-toponav viewer`, plus the
+  `to_pyvis_network` / `save_interactive_html` API)
+- Three-floor end-to-end tutorial at `docs/tutorial.md`
+
+See `docs/decisions.md` D-10 for the original "non-goals" list with
+shipped / deferred markers.
+
 ## Future directions
 
-These are deliberately not in the MVP. Each is a candidate for an
-experiment branch.
+What's still open. Each is a candidate for an experiment branch.
 
 ### Map construction
 
-- **occupancy grid → topology graph conversion**: implemented in
-  `semantic_toponav.conversion.topology_from_occupancy` via
-  skeletonization + junction-cluster merging. ROS map_server YAML+PGM
-  bundles can be loaded with `semantic_toponav.conversion.load_occupancy_map`
-  (see `examples/load_map_demo.py`). Open follow-ups: region segmentation
-  for room-aware labels, lossier graph compaction when corridors have
-  many parallel skeleton branches, and door/threshold detection.
-- **trajectory log → topology**: implemented in
-  `semantic_toponav.conversion.topology_from_trajectories`. Greedy
-  clustering + consecutive-transition edge induction; edges carry a
-  ``traversal_count`` for downstream cost shaping. See
-  `examples/trajectory_to_topology.py`. Open follow-ups: DBSCAN /
-  k-medoids alternatives, time-aware clustering for dwell detection,
-  reading trajectories from rosbag or CSV.
-- VLM-based semantic labeling of map regions
-- **CLIP / SigLIP embedding per node for place recognition**: the
-  retrieval layer is implemented (`find_nodes_by_embedding`,
-  `nearest_node_by_embedding`, `cosine_similarity`) and stores vectors
-  under `node.properties["embedding"]` — encoder integration is out of
-  scope and attached externally. See `examples/embedding_demo.py`.
+- **occupancy grid → topology** follow-ups: region segmentation for
+  room-aware labels, lossier graph compaction when corridors carry
+  many parallel skeleton branches, door/threshold detection.
+- **trajectory log → topology** follow-ups: DBSCAN / k-medoids cluster
+  alternatives, time-aware clustering for dwell detection, fusing the
+  occupancy and trajectory pipelines (use a recorded run to *label*
+  nodes/edges produced from the skeleton — currently the two pipelines
+  produce disjoint graphs).
+- **VLM / CLIP labeling of regions**: the retrieval / similarity layer
+  (`find_nodes_by_embedding`, `nearest_node_by_embedding`) already
+  ships. What's deferred is the *encoder* integration — wiring a
+  concrete CLIP / SigLIP backbone in, batching, and a region segmenter
+  that decides which patches to embed per node.
 
 ### Planning
 
-- **multi-floor planning with floor-aware heuristics**: implemented.
-  `examples/multi_floor_office.yaml` provides a 3-floor topology and the
-  planner exposes ``floor_change_penalty``, ``prefer_floor``,
-  ``same_floor_only`` cost factories plus a ``floor_aware_heuristic``
-  for A*. See ``examples/run_multi_floor_demo.py``.
-- **dynamic graph updates** (closed corridor, busy elevator): implemented
-  via the `block_edges` and `block_edge_types` cost factories plus the
-  `--block-edge` / `--block-edge-type` CLI flags. The graph itself is
-  not mutated, so each plan call can use a different availability set.
 - preference-aware planning (shortest vs scenic vs least-crowded)
-- temporal graphs (time-of-day restrictions)
+- temporal graphs (time-of-day restrictions, scheduled closures)
+- multi-agent / shared-resource planning (one elevator, several robots)
 
 ### Embodied AI
 
-- LLM-augmented waypoint instructions
+- LLM-augmented waypoint instructions on top of the deterministic
+  `path_to_semantic_waypoints` output
 - natural-language goal parsing ("meet me in the second-floor lab")
-- memory graph (episodic memory of past visits)
 - topology graphs as scratchpad for embodied agents
 
 ### Tooling
 
-- web-based graph viewer/editor
-- CLI graph editor with undo/diff
-- visualization helpers (matplotlib/plotly)
+- web-based graph *editor* (the viewer ships; the editor part —
+  add/remove/move nodes from a browser — does not)
+- undo / diff for the CLI graph editor
+- Foxglove panel for live topology + path overlays
 
 ### Integration
 
-- custom ROS2 messages (`SemanticWaypoint.msg`, ...)
-- Nav2 behavior-tree plugin
+- **Nav2 behavior-tree plugin** that consumes `SemanticWaypointArray`
+  natively (today the included `nav2_demo_node` is a one-shot worked
+  example, not a BT plugin)
 - Autoware adapter
-- Foxglove panel for topology graphs
+- ROS1 bridge or shim for legacy deployments
