@@ -51,6 +51,21 @@ def _require_pose(node: TopologyNode) -> tuple[float, float]:
     return node.pose.x, node.pose.y
 
 
+def _display_xy(
+    node: TopologyNode, *, floor_offset: float, floor_property: str
+) -> tuple[float, float]:
+    """Apply optional vertical offset based on the node's floor property."""
+    x, y = _require_pose(node)
+    if floor_offset:
+        floor = node.properties.get(floor_property)
+        if floor is not None:
+            try:
+                y = y + float(int(floor)) * floor_offset
+            except (TypeError, ValueError):
+                pass
+    return x, y
+
+
 def plot_graph(
     graph: TopologyGraph,
     *,
@@ -64,6 +79,8 @@ def plot_graph(
     occupancy_grid: Any = None,
     resolution: float = 1.0,
     origin: tuple[float, float] = (0.0, 0.0),
+    floor_offset: float = 0.0,
+    floor_property: str = "floor",
 ):
     """Render a TopologyGraph and optionally overlay a planned path.
 
@@ -115,8 +132,8 @@ def plot_graph(
     for edge in graph.edges():
         src = graph.get_node(edge.source)
         tgt = graph.get_node(edge.target)
-        x0, y0 = _require_pose(src)
-        x1, y1 = _require_pose(tgt)
+        x0, y0 = _display_xy(src, floor_offset=floor_offset, floor_property=floor_property)
+        x1, y1 = _display_xy(tgt, floor_offset=floor_offset, floor_property=floor_property)
         style = _EDGE_STYLE.get(edge.type, _DEFAULT_EDGE_STYLE)
         ax.plot([x0, x1], [y0, y1], zorder=1, **style)
         if show_edge_ids:
@@ -135,8 +152,8 @@ def plot_graph(
         for a, b in zip(path_list, path_list[1:], strict=False):
             na = graph.get_node(a)
             nb = graph.get_node(b)
-            x0, y0 = _require_pose(na)
-            x1, y1 = _require_pose(nb)
+            x0, y0 = _display_xy(na, floor_offset=floor_offset, floor_property=floor_property)
+            x1, y1 = _display_xy(nb, floor_offset=floor_offset, floor_property=floor_property)
             ax.plot(
                 [x0, x1],
                 [y0, y1],
@@ -149,7 +166,7 @@ def plot_graph(
 
     # Nodes.
     for node in graph.nodes():
-        x, y = _require_pose(node)
+        x, y = _display_xy(node, floor_offset=floor_offset, floor_property=floor_property)
         color = _NODE_COLORS.get(node.type, _DEFAULT_NODE_COLOR)
         ax.scatter([x], [y], s=120, c=color, edgecolors="black", linewidths=0.6, zorder=4)
         if show_labels:

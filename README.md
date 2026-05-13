@@ -91,6 +91,42 @@ graph = topology_from_occupancy(grid, resolution=0.25)
 |-----------------------------------------|----------------------|
 | ![grid](docs/images/05_occupancy_graph.png) | ![path](docs/images/06_occupancy_graph_with_path.png) |
 
+## Multi-floor navigation
+
+When nodes carry a `floor` property, three additional cost helpers and one
+A* heuristic become available:
+
+```python
+from semantic_toponav.planner import (
+    plan_astar, floor_change_penalty, prefer_floor, same_floor_only,
+    floor_aware_heuristic, compose_costs, prefer_elevator,
+)
+
+graph = load_graph("examples/multi_floor_office.yaml")
+
+# Stay on floor 1 unless absolutely necessary.
+path = plan_astar(graph, "entrance", "exec_office_3f",
+                  cost_fn=floor_change_penalty(graph, penalty=50))
+
+# Strictly within-floor planning.
+path = plan_astar(graph, "kitchen_1f", "lab_1f",
+                  cost_fn=same_floor_only(graph))
+
+# Accessibility: prefer elevators with a floor-aware heuristic.
+path = plan_astar(graph, "entrance", "exec_office_3f",
+                  cost_fn=compose_costs(prefer_elevator),
+                  heuristic_fn=floor_aware_heuristic(floor_height=2.0))
+```
+
+The same flags are wired into the CLI: `--prefer-floor N`,
+`--floor-change-penalty P`, `--same-floor-only`.
+
+```bash
+python examples/run_multi_floor_demo.py
+```
+
+![multi-floor plan, elevator route](docs/images/10_mf_elevator.png)
+
 ## Trajectory log → topology
 
 When you don't have an occupancy grid but you do have logs of where the

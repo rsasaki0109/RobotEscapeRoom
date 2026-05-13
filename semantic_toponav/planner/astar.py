@@ -24,6 +24,34 @@ def euclidean_heuristic(graph: TopologyGraph, a_id: str, b_id: str) -> float:
     return math.hypot(a.x - b.x, a.y - b.y)
 
 
+def floor_aware_heuristic(
+    *,
+    floor_property: str = "floor",
+    floor_height: float = 4.0,
+):
+    """Build an A* heuristic that adds an inter-floor distance term.
+
+    Each unit of floor difference between the two nodes contributes
+    ``floor_height`` (meters) to the heuristic, on top of the planar
+    Euclidean distance. Falls back to plain Euclidean when either
+    node lacks the floor property.
+    """
+
+    def heuristic(graph: TopologyGraph, a_id: str, b_id: str) -> float:
+        a = graph.get_node(a_id)
+        b = graph.get_node(b_id)
+        planar = 0.0
+        if a.pose is not None and b.pose is not None:
+            planar = math.hypot(a.pose.x - b.pose.x, a.pose.y - b.pose.y)
+        fa = a.properties.get(floor_property)
+        fb = b.properties.get(floor_property)
+        if fa is None or fb is None:
+            return planar
+        return planar + abs(int(fa) - int(fb)) * floor_height
+
+    return heuristic
+
+
 def plan_astar(
     graph: TopologyGraph,
     start_id: str,

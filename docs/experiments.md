@@ -59,7 +59,11 @@ experiment branch.
 
 ### Planning
 
-- multi-floor planning with floor-aware heuristics
+- **multi-floor planning with floor-aware heuristics**: implemented.
+  `examples/multi_floor_office.yaml` provides a 3-floor topology and the
+  planner exposes ``floor_change_penalty``, ``prefer_floor``,
+  ``same_floor_only`` cost factories plus a ``floor_aware_heuristic``
+  for A*. See ``examples/run_multi_floor_demo.py``.
 - dynamic graph updates (closed corridor, busy elevator)
 - preference-aware planning (shortest vs scenic vs least-crowded)
 - temporal graphs (time-of-day restrictions)

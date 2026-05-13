@@ -102,6 +102,7 @@ pose is missing (so A* degrades to Dijkstra).
 ```python
 from semantic_toponav.planner import (
     default_edge_cost, avoid_restricted, avoid_stairs, prefer_elevator,
+    floor_change_penalty, prefer_floor, same_floor_only,
     compose_costs,
 )
 
@@ -111,6 +112,30 @@ path = plan_astar(graph, "entrance", "office_2f", cost_fn=cost)
 
 `compose_costs` applies each function as a multiplier against the edge's base
 cost; any function returning `math.inf` blocks the edge.
+
+The floor-aware helpers (`floor_change_penalty`, `prefer_floor`,
+`same_floor_only`) are *factories*: they take a graph and return a
+`(edge) -> float` callable. They read the integer `floor` property of each
+endpoint to decide cost.
+
+```python
+cost = compose_costs(prefer_elevator, floor_change_penalty(graph, penalty=10))
+```
+
+### A* heuristics
+
+```python
+from semantic_toponav.planner import plan_astar, floor_aware_heuristic
+
+path = plan_astar(
+    graph, "entrance", "exec_office_3f",
+    heuristic_fn=floor_aware_heuristic(floor_height=2.0),
+)
+```
+
+The default heuristic is planar Euclidean. `floor_aware_heuristic` adds
+`floor_height * abs(delta_floor)` on top, making A* exploration tighter
+on multi-floor graphs.
 
 ### Semantic waypoints
 
