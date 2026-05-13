@@ -188,6 +188,25 @@ python examples/trajectory_to_topology.py
 
 ![trajectory to topology](docs/images/08_trajectory_topology.png)
 
+Trajectories can also be loaded from CSV (stdlib only, no pandas):
+
+```python
+from semantic_toponav.conversion import load_trajectories_from_csv
+
+trajs = load_trajectories_from_csv(
+    "examples/sample_trajectories.csv",
+    x_column="x",
+    y_column="y",
+    trajectory_column="trajectory_id",   # grouping column, optional
+)
+```
+
+Both header-based (`x`, `y`, `trajectory_id`) and headerless / positional
+(integer column indices) layouts are supported. Run
+`python examples/load_csv_demo.py` for an end-to-end demo:
+
+![csv to topology](docs/images/13_csv_trajectory.png)
+
 ### Loading ROS map_server bundles
 
 `semantic-toponav` can load the standard `map_server` YAML + PGM/PNG/BMP
