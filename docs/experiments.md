@@ -71,6 +71,13 @@ landed. Each links to the still-relevant follow-up work.
   tie-breaking. The text-only sibling of the embedding-based
   `find_nodes_by_embedding`. Intended as the offline floor under any
   later LLM resolver.
+- Time-of-day edge / node restrictions
+  (`time_aware(graph, at_time=...)`, plus the `--at-time HH:MM` CLI
+  flag) — edges (and edges incident to closed nodes) carry an
+  optional `closed_during: [[start, end], ...]` property of recurring
+  HH:MM windows; intervals whose end is `<=` start wrap midnight.
+  Composes with the existing `block_edges` / `prefer_elevator` /
+  `floor_change_penalty` family.
 - Three-floor end-to-end tutorial at `docs/tutorial.md`
 - Hybrid occupancy + trajectory pipeline
   (`annotate_graph_with_trajectories` + post-processing helpers
@@ -110,7 +117,10 @@ What's still open. Each is a candidate for an experiment branch.
 ### Planning
 
 - preference-aware planning (shortest vs scenic vs least-crowded)
-- temporal graphs (time-of-day restrictions, scheduled closures)
+- temporal graphs — recurring HH:MM-window restrictions ship
+  (`time_aware` + `--at-time`); what's still open is date-aware /
+  calendar-aware scheduling (holidays, specific dates) and
+  agent-routing under joint time + resource constraints.
 - multi-agent / shared-resource planning (one elevator, several robots)
 
 ### Embodied AI
