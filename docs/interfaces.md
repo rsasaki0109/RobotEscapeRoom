@@ -131,6 +131,28 @@ Each `SemanticWaypoint` has:
 - `pose`: optional `Pose2D`
 - `properties`: copy of the node's properties
 
+### Occupancy → topology (optional)
+
+```python
+from semantic_toponav.conversion import topology_from_occupancy
+
+graph = topology_from_occupancy(
+    occupancy_grid,         # 2D bool/float array, free cells truthy
+    resolution=0.05,
+    origin=(0.0, 0.0),      # ROS map convention: world position of bottom-left cell
+    free_threshold=0.5,     # used when grid is not boolean
+    endpoint_type="endpoint",
+    junction_type="intersection",
+    edge_type="corridor",
+)
+```
+
+Requires NumPy and scikit-image (`pip install 'semantic-toponav[map]'`).
+Skeleton pixels with degree 1 become `endpoint` nodes, degree-3-or-higher
+clusters become a single `intersection` node, and traced segments become
+edges whose `cost` is the segment's pixel-step length scaled by
+`resolution`.
+
 ### Visualization (optional)
 
 ```python
@@ -143,6 +165,9 @@ fig, ax = plot_graph(
     save_path="out.png",      # writes PNG via matplotlib
     show=False,               # set True for interactive window
     show_edge_ids=False,
+    occupancy_grid=grid,      # optional background overlay (2D array)
+    resolution=0.05,          # used with occupancy_grid for extent
+    origin=(0.0, 0.0),        # bottom-left cell position in world coords
 )
 ```
 

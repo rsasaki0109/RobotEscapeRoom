@@ -64,6 +64,33 @@ Or run the full demo (shows how semantic costs change the route):
 python examples/run_indoor_demo.py
 ```
 
+## Occupancy grid → topology
+
+A skeletonization-based converter turns a 2D occupancy grid into a topology
+graph automatically. Endpoints become `endpoint` nodes; junctions become
+`intersection` nodes; everything in between becomes `corridor` edges with
+cost proportional to skeleton length.
+
+```bash
+pip install -e '.[viz,map]'
+python examples/occupancy_to_topology.py
+```
+
+```python
+import numpy as np
+from semantic_toponav.conversion import topology_from_occupancy
+
+grid = np.zeros((30, 60), dtype=bool)
+grid[8:11, 4:55] = True       # horizontal corridor
+grid[22:25, 4:55] = True      # second horizontal corridor
+grid[8:25, 12:14] = True      # vertical link
+graph = topology_from_occupancy(grid, resolution=0.25)
+```
+
+| occupancy grid + auto-generated topology | planned path overlay |
+|-----------------------------------------|----------------------|
+| ![grid](docs/images/05_occupancy_graph.png) | ![path](docs/images/06_occupancy_graph_with_path.png) |
+
 ## Visualization
 
 Install the optional viz extra and use the `plot` subcommand or the Python helper:
