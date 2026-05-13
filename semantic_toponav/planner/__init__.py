@@ -4,6 +4,8 @@ from semantic_toponav.planner.errors import NoPathError, PlanningError
 from semantic_toponav.planner.semantic_costs import (
     avoid_restricted,
     avoid_stairs,
+    block_edge_types,
+    block_edges,
     compose_costs,
     default_edge_cost,
     floor_change_penalty,
@@ -17,6 +19,8 @@ __all__ = [
     "PlanningError",
     "avoid_restricted",
     "avoid_stairs",
+    "block_edge_types",
+    "block_edges",
     "compose_costs",
     "default_edge_cost",
     "floor_aware_heuristic",

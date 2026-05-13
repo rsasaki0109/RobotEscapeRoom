@@ -8,7 +8,7 @@ each function as a multiplier on the base cost.
 from __future__ import annotations
 
 import math
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 
 from semantic_toponav.graph.topology_graph import TopologyGraph
 from semantic_toponav.graph.types import TopologyEdge
@@ -114,6 +114,43 @@ def same_floor_only(
         if src_floor is None or tgt_floor is None:
             return edge.cost
         if src_floor != tgt_floor:
+            return BLOCKED
+        return edge.cost
+
+    return cost_fn
+
+
+def block_edges(edge_ids: Iterable[str]) -> CostFn:
+    """Block a fixed set of edges by id.
+
+    Useful for runtime state like "this corridor is closed for cleaning" or
+    "the freight elevator is out of service" — the underlying graph stays
+    intact and a different :func:`block_edges` call can be used on the next
+    plan.
+
+    Returns a cost function that yields ``math.inf`` for the listed edges
+    and ``edge.cost`` otherwise.
+    """
+    blocked = set(edge_ids)
+
+    def cost_fn(edge: TopologyEdge) -> float:
+        if edge.id in blocked:
+            return BLOCKED
+        return edge.cost
+
+    return cost_fn
+
+
+def block_edge_types(edge_types: Iterable[str]) -> CostFn:
+    """Block all edges whose ``type`` is in ``edge_types``.
+
+    Example: ``block_edge_types({"elevator_connection"})`` to plan around an
+    elevator outage without touching the graph.
+    """
+    blocked = set(edge_types)
+
+    def cost_fn(edge: TopologyEdge) -> float:
+        if edge.type in blocked:
             return BLOCKED
         return edge.cost
 

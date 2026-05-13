@@ -15,6 +15,8 @@ from semantic_toponav.graph.types import GraphValidationError, TopologyEdge
 from semantic_toponav.planner import (
     avoid_restricted,
     avoid_stairs,
+    block_edge_types,
+    block_edges,
     compose_costs,
     default_edge_cost,
     floor_change_penalty,
@@ -39,6 +41,13 @@ def _build_cost_fn(args: argparse.Namespace, graph=None) -> Callable[[TopologyEd
         fns.append(avoid_stairs)
     if args.prefer_elevator:
         fns.append(prefer_elevator)
+    # Dynamic edge availability (id- and type-based blocks).
+    blocked_ids = getattr(args, "block_edge", None)
+    if blocked_ids:
+        fns.append(block_edges(blocked_ids))
+    blocked_types = getattr(args, "block_edge_type", None)
+    if blocked_types:
+        fns.append(block_edge_types(blocked_types))
     # Floor-aware costs require a graph because they look up endpoint floors.
     if graph is not None:
         if getattr(args, "same_floor_only", False):
@@ -192,6 +201,18 @@ def _add_plan_args(p: argparse.ArgumentParser) -> None:
         "--same-floor-only",
         action="store_true",
         help="block edges that cross floors",
+    )
+    p.add_argument(
+        "--block-edge",
+        action="append",
+        metavar="EDGE_ID",
+        help="block a specific edge by id (repeatable)",
+    )
+    p.add_argument(
+        "--block-edge-type",
+        action="append",
+        metavar="EDGE_TYPE",
+        help="block all edges of this type (repeatable)",
     )
     p.add_argument(
         "--format",

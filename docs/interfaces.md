@@ -118,6 +118,15 @@ The floor-aware helpers (`floor_change_penalty`, `prefer_floor`,
 `(edge) -> float` callable. They read the integer `floor` property of each
 endpoint to decide cost.
 
+Two more factories handle *runtime availability*:
+
+- `block_edges(edge_ids)` — return `inf` for the listed edge IDs.
+- `block_edge_types(edge_types)` — return `inf` for any edge whose `type`
+  is in the set.
+
+Both are graph-independent (they only inspect the edge passed in) and
+compose cleanly with the semantic cost functions above.
+
 ```python
 cost = compose_costs(prefer_elevator, floor_change_penalty(graph, penalty=10))
 ```
