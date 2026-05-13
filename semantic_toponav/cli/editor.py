@@ -76,12 +76,29 @@ def _format_for(path: Path) -> str:
     )
 
 
+BACKUP_SUFFIX = ".bak"
+
+
+def _backup_path(path: Path) -> Path:
+    return path.with_name(path.name + BACKUP_SUFFIX)
+
+
+def _create_backup(target_path: Path) -> Path | None:
+    """Copy target to target.bak if target exists. Returns the backup path."""
+    if not target_path.exists():
+        return None
+    backup = _backup_path(target_path)
+    backup.write_bytes(target_path.read_bytes())
+    return backup
+
+
 def _write_or_print(
     graph: TopologyGraph,
     *,
     source: Path,
     out: str | None,
     in_place: bool,
+    no_backup: bool = False,
 ) -> int:
     """Write the graph to `out` / `source` / stdout. Returns a CLI exit code."""
     if out and in_place:
@@ -95,6 +112,10 @@ def _write_or_print(
         target_path = Path(out)
 
     if target_path is not None:
+        if not no_backup:
+            backup = _create_backup(target_path)
+            if backup is not None:
+                print(f"backup: {backup}", file=sys.stderr)
         text = _serialize(graph, _format_for(target_path))
         target_path.write_text(text, encoding="utf-8")
         print(f"wrote {target_path}", file=sys.stderr)
@@ -188,7 +209,11 @@ def cmd_add_node(args: argparse.Namespace) -> int:
         return 2
 
     return _write_or_print(
-        graph, source=Path(args.graph), out=args.out, in_place=args.in_place
+        graph,
+        source=Path(args.graph),
+        out=args.out,
+        in_place=args.in_place,
+        no_backup=getattr(args, "no_backup", False),
     )
 
 
@@ -222,7 +247,11 @@ def cmd_add_edge(args: argparse.Namespace) -> int:
         return 2
 
     return _write_or_print(
-        graph, source=Path(args.graph), out=args.out, in_place=args.in_place
+        graph,
+        source=Path(args.graph),
+        out=args.out,
+        in_place=args.in_place,
+        no_backup=getattr(args, "no_backup", False),
     )
 
 
@@ -243,7 +272,11 @@ def cmd_rm_node(args: argparse.Namespace) -> int:
             file=sys.stderr,
         )
     return _write_or_print(
-        graph, source=Path(args.graph), out=args.out, in_place=args.in_place
+        graph,
+        source=Path(args.graph),
+        out=args.out,
+        in_place=args.in_place,
+        no_backup=getattr(args, "no_backup", False),
     )
 
 
@@ -259,8 +292,189 @@ def cmd_rm_edge(args: argparse.Namespace) -> int:
         print(f"error: {exc}", file=sys.stderr)
         return 2
     return _write_or_print(
-        graph, source=Path(args.graph), out=args.out, in_place=args.in_place
+        graph,
+        source=Path(args.graph),
+        out=args.out,
+        in_place=args.in_place,
+        no_backup=getattr(args, "no_backup", False),
     )
+
+
+def cmd_undo(args: argparse.Namespace) -> int:
+    target = Path(args.graph)
+    backup = _backup_path(target)
+    if not backup.exists():
+        print(f"error: no backup found at {backup}", file=sys.stderr)
+        return 2
+
+    if not target.exists():
+        # No current file — just rename the backup back.
+        backup.rename(target)
+        print(f"restored {target} from {backup}", file=sys.stderr)
+        return 0
+
+    # Swap target <-> backup so undo is reversible (call again to redo).
+    current_bytes = target.read_bytes()
+    backup_bytes = backup.read_bytes()
+    target.write_bytes(backup_bytes)
+    backup.write_bytes(current_bytes)
+    print(f"swapped {target} and {backup}", file=sys.stderr)
+    return 0
+
+
+def _node_summary(node: TopologyNode) -> str:
+    pose = ""
+    if node.pose is not None:
+        pose = f", pose=({node.pose.x:.2f}, {node.pose.y:.2f})"
+    return f"type={node.type}, label={node.label!r}{pose}"
+
+
+def _edge_summary(edge: TopologyEdge) -> str:
+    arrow = "<->" if edge.bidirectional else "->"
+    return (
+        f"{edge.source} {arrow} {edge.target}, type={edge.type}, cost={edge.cost}"
+    )
+
+
+def _node_fields(node: TopologyNode) -> dict[str, Any]:
+    pose: tuple[float, float, float, str] | None = None
+    if node.pose is not None:
+        pose = (node.pose.x, node.pose.y, node.pose.yaw, node.pose.frame_id)
+    return {
+        "label": node.label,
+        "type": node.type,
+        "pose": pose,
+        "properties": dict(node.properties),
+    }
+
+
+def _edge_fields(edge: TopologyEdge) -> dict[str, Any]:
+    return {
+        "source": edge.source,
+        "target": edge.target,
+        "type": edge.type,
+        "cost": edge.cost,
+        "bidirectional": edge.bidirectional,
+        "properties": dict(edge.properties),
+    }
+
+
+def _graph_diff_lines(
+    left: TopologyGraph, right: TopologyGraph
+) -> list[str]:
+    """Return a structural diff between two graphs as printable lines."""
+    lines: list[str] = []
+
+    left_nodes = {n.id: n for n in left.nodes()}
+    right_nodes = {n.id: n for n in right.nodes()}
+    added_n = sorted(set(right_nodes) - set(left_nodes))
+    removed_n = sorted(set(left_nodes) - set(right_nodes))
+    common_n = sorted(set(left_nodes) & set(right_nodes))
+    modified_n: list[tuple[str, dict[str, tuple[Any, Any]]]] = []
+    for nid in common_n:
+        lf, rf = _node_fields(left_nodes[nid]), _node_fields(right_nodes[nid])
+        if lf != rf:
+            changed = {k: (lf[k], rf[k]) for k in lf if lf[k] != rf[k]}
+            modified_n.append((nid, changed))
+
+    left_edges = {e.id: e for e in left.edges()}
+    right_edges = {e.id: e for e in right.edges()}
+    added_e = sorted(set(right_edges) - set(left_edges))
+    removed_e = sorted(set(left_edges) - set(right_edges))
+    common_e = sorted(set(left_edges) & set(right_edges))
+    modified_e: list[tuple[str, dict[str, tuple[Any, Any]]]] = []
+    for eid in common_e:
+        lf, rf = _edge_fields(left_edges[eid]), _edge_fields(right_edges[eid])
+        if lf != rf:
+            changed = {k: (lf[k], rf[k]) for k in lf if lf[k] != rf[k]}
+            modified_e.append((eid, changed))
+
+    if not (added_n or removed_n or modified_n or added_e or removed_e or modified_e):
+        return ["(graphs are identical)"]
+
+    if added_n or removed_n or modified_n:
+        lines.append("nodes:")
+        for nid in removed_n:
+            lines.append(f"  - {nid}  ({_node_summary(left_nodes[nid])})")
+        for nid in added_n:
+            lines.append(f"  + {nid}  ({_node_summary(right_nodes[nid])})")
+        for nid, changed in modified_n:
+            lines.append(f"  ~ {nid}")
+            for key, (lv, rv) in changed.items():
+                lines.append(f"      {key}: {lv!r} -> {rv!r}")
+
+    if added_e or removed_e or modified_e:
+        lines.append("edges:")
+        for eid in removed_e:
+            lines.append(f"  - {eid}  ({_edge_summary(left_edges[eid])})")
+        for eid in added_e:
+            lines.append(f"  + {eid}  ({_edge_summary(right_edges[eid])})")
+        for eid, changed in modified_e:
+            lines.append(f"  ~ {eid}")
+            for key, (lv, rv) in changed.items():
+                lines.append(f"      {key}: {lv!r} -> {rv!r}")
+
+    return lines
+
+
+def _load_graph_relaxed(path: Path) -> TopologyGraph:
+    """Like ``load_graph`` but tolerates a ``.bak`` suffix.
+
+    When the path ends in ``.bak`` we look at the *previous* extension to
+    pick the loader. This lets ``diff`` and ``undo`` compare against the
+    backup file directly without renaming.
+    """
+    real = path
+    if path.suffix == BACKUP_SUFFIX:
+        stem = path.with_suffix("")  # strip .bak
+        if stem.suffix.lower() in {".yaml", ".yml", ".json"}:
+            real = stem  # only used to decide format; actual bytes still read from `path`
+            import tempfile
+
+            data = path.read_bytes()
+            with tempfile.NamedTemporaryFile(
+                suffix=real.suffix, delete=False
+            ) as fh:
+                fh.write(data)
+                tmp = Path(fh.name)
+            try:
+                return load_graph(tmp)
+            finally:
+                tmp.unlink(missing_ok=True)
+    return load_graph(real)
+
+
+def cmd_diff(args: argparse.Namespace) -> int:
+    """Show the structural difference between two graph files.
+
+    With one positional arg, the graph is compared against its ``.bak``
+    backup. With two positional args, ``diff A B`` treats ``A`` as the
+    base and ``B`` as the new file (same convention as unix ``diff``).
+    """
+    if args.other is None:
+        new_path = Path(args.graph)
+        base_path = _backup_path(new_path)
+    else:
+        base_path = Path(args.graph)
+        new_path = Path(args.other)
+
+    for label, p in (("base", base_path), ("new", new_path)):
+        if not p.exists():
+            print(f"error: {label} graph not found at {p}", file=sys.stderr)
+            return 2
+    try:
+        base = _load_graph_relaxed(base_path)
+        new = _load_graph_relaxed(new_path)
+    except (GraphLoadError, GraphValidationError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    lines = _graph_diff_lines(base, new)
+    print(f"--- {base_path}")
+    print(f"+++ {new_path}")
+    for line in lines:
+        print(line)
+    return 0 if lines == ["(graphs are identical)"] else 1
 
 
 def _add_output_args(p: argparse.ArgumentParser) -> None:
@@ -269,6 +483,11 @@ def _add_output_args(p: argparse.ArgumentParser) -> None:
         "--in-place",
         action="store_true",
         help="overwrite the input file in place",
+    )
+    p.add_argument(
+        "--no-backup",
+        action="store_true",
+        help="skip writing a .bak file before overwriting",
     )
 
 
@@ -321,3 +540,22 @@ def register_subcommands(sub: argparse._SubParsersAction) -> None:
     p.add_argument("id", help="edge id to remove")
     _add_output_args(p)
     p.set_defaults(func=cmd_rm_edge)
+
+    p = sub.add_parser(
+        "undo",
+        help="revert the most recent in-place edit by swapping with its .bak",
+    )
+    p.add_argument("graph")
+    p.set_defaults(func=cmd_undo)
+
+    p = sub.add_parser(
+        "diff",
+        help="show the structural diff between two graphs (or against .bak)",
+    )
+    p.add_argument("graph")
+    p.add_argument(
+        "other",
+        nargs="?",
+        help="second graph (default: <graph>.bak)",
+    )
+    p.set_defaults(func=cmd_diff)

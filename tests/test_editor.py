@@ -245,6 +245,123 @@ def test_rm_edge_unknown_errors(tmp_path, capsys) -> None:
     assert "unknown" in err
 
 
+# --------------------------- CLI: backup / undo ---------------------------
+
+
+def test_in_place_edit_creates_backup(tmp_path) -> None:
+    target = _fresh_copy(tmp_path)
+    original = target.read_text(encoding="utf-8")
+    rc = main(["rm-edge", str(target), "corridor_to_meeting_shortcut", "--in-place"])
+    assert rc == 0
+    backup = target.with_name(target.name + ".bak")
+    assert backup.exists()
+    assert backup.read_text(encoding="utf-8") == original
+    # Current file should be modified.
+    assert target.read_text(encoding="utf-8") != original
+
+
+def test_no_backup_flag_suppresses_backup(tmp_path) -> None:
+    target = _fresh_copy(tmp_path)
+    rc = main(
+        [
+            "rm-edge",
+            str(target),
+            "corridor_to_meeting_shortcut",
+            "--in-place",
+            "--no-backup",
+        ]
+    )
+    assert rc == 0
+    backup = target.with_name(target.name + ".bak")
+    assert not backup.exists()
+
+
+def test_undo_restores_previous_state(tmp_path) -> None:
+    target = _fresh_copy(tmp_path)
+    original = target.read_text(encoding="utf-8")
+    main(["rm-edge", str(target), "corridor_to_meeting_shortcut", "--in-place"])
+    assert target.read_text(encoding="utf-8") != original
+    rc = main(["undo", str(target)])
+    assert rc == 0
+    assert target.read_text(encoding="utf-8") == original
+
+
+def test_undo_is_reversible(tmp_path) -> None:
+    target = _fresh_copy(tmp_path)
+    original = target.read_text(encoding="utf-8")
+    main(["rm-edge", str(target), "corridor_to_meeting_shortcut", "--in-place"])
+    modified = target.read_text(encoding="utf-8")
+    main(["undo", str(target)])
+    assert target.read_text(encoding="utf-8") == original
+    # Undo again redoes the edit.
+    main(["undo", str(target)])
+    assert target.read_text(encoding="utf-8") == modified
+
+
+def test_undo_without_backup_errors(tmp_path, capsys) -> None:
+    target = _fresh_copy(tmp_path)
+    rc = main(["undo", str(target)])
+    err = capsys.readouterr().err
+    assert rc != 0
+    assert "no backup" in err
+
+
+# --------------------------- CLI: diff ---------------------------
+
+
+def test_diff_against_backup_after_rm_edge(tmp_path, capsys) -> None:
+    target = _fresh_copy(tmp_path)
+    main(["rm-edge", str(target), "corridor_to_meeting_shortcut", "--in-place"])
+    rc = main(["diff", str(target)])
+    out = capsys.readouterr().out
+    # rm-edge means the edge is *missing* in the new file => "- removed_edge"
+    assert rc == 1  # diff means non-zero
+    assert "- corridor_to_meeting_shortcut" in out
+    assert "edges:" in out
+
+
+def test_diff_identical_returns_zero(tmp_path, capsys) -> None:
+    target = _fresh_copy(tmp_path)
+    twin = tmp_path / "twin.yaml"
+    twin.write_bytes(target.read_bytes())
+    rc = main(["diff", str(target), str(twin)])
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert "identical" in out
+
+
+def test_diff_two_files_shows_added_node(tmp_path, capsys) -> None:
+    base = _fresh_copy(tmp_path)
+    new = tmp_path / "new.yaml"
+    new.write_bytes(base.read_bytes())
+    main(
+        [
+            "add-node",
+            str(new),
+            "supply_closet",
+            "--type",
+            "room",
+            "--label",
+            "Supply Closet",
+            "--in-place",
+            "--no-backup",
+        ]
+    )
+    rc = main(["diff", str(base), str(new)])
+    out = capsys.readouterr().out
+    assert rc == 1
+    assert "+ supply_closet" in out
+    assert "nodes:" in out
+
+
+def test_diff_missing_other_errors(tmp_path, capsys) -> None:
+    target = _fresh_copy(tmp_path)
+    rc = main(["diff", str(target)])  # no .bak yet
+    err = capsys.readouterr().err
+    assert rc != 0
+    assert "not found" in err
+
+
 def test_out_and_in_place_mutually_exclusive(tmp_path, capsys) -> None:
     target = _fresh_copy(tmp_path)
     rc = main(
