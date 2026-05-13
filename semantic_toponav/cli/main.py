@@ -175,6 +175,46 @@ def cmd_plot(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_viewer(args: argparse.Namespace) -> int:
+    try:
+        graph = load_graph(args.graph)
+    except (GraphLoadError, GraphValidationError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    path: list[str] | None = None
+    if args.start and args.goal:
+        try:
+            path = _run_plan(graph, args)
+        except (PlanningError, NoPathError) as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
+    elif args.start or args.goal:
+        print("error: --start and --goal must be provided together", file=sys.stderr)
+        return 2
+
+    try:
+        from semantic_toponav.visualization.web import save_interactive_html
+    except ImportError as exc:
+        print(
+            f"error: pyvis is required for `viewer`. Install with "
+            f"`pip install 'semantic-toponav[viz_web]'` ({exc})",
+            file=sys.stderr,
+        )
+        return 2
+
+    out = save_interactive_html(
+        graph,
+        args.output,
+        path=path,
+        use_pose_layout=not args.no_pose_layout,
+    )
+    print(f"saved {out}")
+    if path is not None:
+        print(f"highlighted path: {' -> '.join(path)}")
+    return 0
+
+
 def cmd_waypoints(args: argparse.Namespace) -> int:
     try:
         graph = load_graph(args.graph)
@@ -328,6 +368,35 @@ def build_parser() -> argparse.ArgumentParser:
     p_plot.add_argument("--edge-ids", action="store_true", help="annotate edge ids")
     p_plot.add_argument("--title", help="override plot title")
     p_plot.set_defaults(func=cmd_plot)
+
+    p_viewer = sub.add_parser(
+        "viewer",
+        help="render a graph (and optional path) as an interactive HTML page",
+    )
+    p_viewer.add_argument("graph", help="path to YAML or JSON topology graph file")
+    p_viewer.add_argument(
+        "--output",
+        "-o",
+        default="viewer.html",
+        help="output HTML file (default: viewer.html in cwd)",
+    )
+    p_viewer.add_argument("--start", help="start node id (optional)")
+    p_viewer.add_argument("--goal", help="goal node id (optional)")
+    p_viewer.add_argument(
+        "--algorithm",
+        choices=["astar", "dijkstra"],
+        default="astar",
+        help="planner algorithm when --start/--goal are given (default: astar)",
+    )
+    p_viewer.add_argument("--avoid-restricted", action="store_true")
+    p_viewer.add_argument("--avoid-stairs", action="store_true")
+    p_viewer.add_argument("--prefer-elevator", action="store_true")
+    p_viewer.add_argument(
+        "--no-pose-layout",
+        action="store_true",
+        help="ignore node poses and let pyvis lay nodes out via physics",
+    )
+    p_viewer.set_defaults(func=cmd_viewer)
 
     register_editor_subcommands(sub)
     register_query_subcommands(sub)
