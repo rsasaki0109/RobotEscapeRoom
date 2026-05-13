@@ -1,3 +1,4 @@
+from semantic_toponav.graph.builder import GraphBuilder
 from semantic_toponav.graph.topology_graph import TopologyGraph
 from semantic_toponav.graph.types import (
     GraphValidationError,
@@ -7,6 +8,7 @@ from semantic_toponav.graph.types import (
 )
 
 __all__ = [
+    "GraphBuilder",
     "GraphValidationError",
     "Pose2D",
     "TopologyEdge",
