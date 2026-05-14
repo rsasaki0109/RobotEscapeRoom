@@ -1,6 +1,13 @@
 from semantic_toponav.planner.astar import floor_aware_heuristic, plan_astar
 from semantic_toponav.planner.dijkstra import plan_dijkstra
 from semantic_toponav.planner.errors import NoPathError, PlanningError
+from semantic_toponav.planner.reservations import (
+    Reservation,
+    ReservationLoadError,
+    ReservationTable,
+    load_reservations,
+    reservation_aware,
+)
 from semantic_toponav.planner.semantic_costs import (
     avoid_restricted,
     avoid_stairs,
@@ -18,6 +25,9 @@ from semantic_toponav.planner.semantic_costs import (
 __all__ = [
     "NoPathError",
     "PlanningError",
+    "Reservation",
+    "ReservationLoadError",
+    "ReservationTable",
     "avoid_restricted",
     "avoid_stairs",
     "block_edge_types",
@@ -26,10 +36,12 @@ __all__ = [
     "default_edge_cost",
     "floor_aware_heuristic",
     "floor_change_penalty",
+    "load_reservations",
     "plan_astar",
     "plan_dijkstra",
     "prefer_elevator",
     "prefer_floor",
+    "reservation_aware",
     "same_floor_only",
     "time_aware",
 ]
