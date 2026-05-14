@@ -215,6 +215,38 @@ def cmd_viewer(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_live_viewer(args: argparse.Namespace) -> int:
+    # Validate the graph once up front so a typo doesn't surface only on the
+    # first browser hit. Real loading happens on every request anyway.
+    try:
+        load_graph(args.graph)
+    except (GraphLoadError, GraphValidationError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    try:
+        from semantic_toponav.visualization.live import serve
+    except ImportError as exc:
+        print(
+            f"error: live-viewer requires pyvis. Install with "
+            f"`pip install 'semantic-toponav[viz_web]'` ({exc})",
+            file=sys.stderr,
+        )
+        return 2
+
+    print(
+        f"serving live view of {args.graph} on http://{args.host}:{args.port} "
+        f"(reload check every {args.interval_ms}ms; Ctrl+C to stop)"
+    )
+    serve(
+        args.graph,
+        host=args.host,
+        port=args.port,
+        interval_ms=args.interval_ms,
+    )
+    return 0
+
+
 def cmd_waypoints(args: argparse.Namespace) -> int:
     try:
         graph = load_graph(args.graph)
@@ -397,6 +429,25 @@ def build_parser() -> argparse.ArgumentParser:
         help="ignore node poses and let pyvis lay nodes out via physics",
     )
     p_viewer.set_defaults(func=cmd_viewer)
+
+    p_live = sub.add_parser(
+        "live-viewer",
+        help="run a local HTTP server that auto-refreshes when the graph file changes",
+    )
+    p_live.add_argument("graph", help="path to YAML or JSON topology graph file")
+    p_live.add_argument(
+        "--host", default="127.0.0.1", help="interface to bind (default: 127.0.0.1)"
+    )
+    p_live.add_argument(
+        "--port", type=int, default=8765, help="port to listen on (default: 8765)"
+    )
+    p_live.add_argument(
+        "--interval-ms",
+        type=int,
+        default=1000,
+        help="how often the browser polls for changes (default: 1000ms)",
+    )
+    p_live.set_defaults(func=cmd_live_viewer)
 
     register_editor_subcommands(sub)
     register_query_subcommands(sub)

@@ -52,6 +52,10 @@ landed. Each links to the still-relevant follow-up work.
   in-place mutation)
 - Interactive HTML viewer (`semantic-toponav viewer`, plus the
   `to_pyvis_network` / `save_interactive_html` API)
+- Local live-reloading viewer (`semantic-toponav live-viewer GRAPH`
+  serves a single page that polls `/mtime.json` and reloads when the
+  graph file on disk changes; pairs with the CLI editor for a
+  development loop)
 - Three-floor end-to-end tutorial at `docs/tutorial.md`
 - Hybrid occupancy + trajectory pipeline
   (`annotate_graph_with_trajectories` + post-processing helpers
@@ -105,7 +109,9 @@ What's still open. Each is a candidate for an experiment branch.
 
 - web-based graph *editor* (the viewer ships; the editor part —
   add/remove/move nodes from a browser — does not)
-- Foxglove panel for live topology + path overlays
+- Foxglove panel for live topology + path overlays (out-of-repo, would
+  live as a separate npm package consuming the v1 JSON wire format;
+  the in-repo `live-viewer` covers the local dev loop today)
 
 ### Integration
 
