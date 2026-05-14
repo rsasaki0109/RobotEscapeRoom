@@ -87,10 +87,14 @@ def plot_graph(
                 f"occupancy_grid must be 2D, got shape {arr.shape}"
             )
         h, w = arr.shape
+        # Treat input as a "traversability" array: higher = more free.
+        # Matches topology_from_occupancy's free_threshold semantics.
+        # cmap="gray" maps 0 -> black, 1 -> white, so walls render dark and
+        # free space renders light.
         if arr.dtype == bool:
-            display = (~arr).astype(float)
+            display = arr.astype(float)
         else:
-            display = 1.0 - np.clip(arr.astype(float), 0.0, 1.0)
+            display = np.clip(arr.astype(float), 0.0, 1.0)
         extent = (
             origin[0],
             origin[0] + w * resolution,
@@ -102,7 +106,7 @@ def plot_graph(
             cmap="gray",
             extent=extent,
             origin="lower",
-            alpha=0.5,
+            alpha=0.85,
             zorder=0,
             interpolation="nearest",
         )
