@@ -108,3 +108,46 @@ def test_plot_rejects_start_without_goal(capsys) -> None:
     err = capsys.readouterr().err
     assert rc != 0
     assert "must be provided together" in err
+
+
+def test_viewer_writes_html(tmp_path, capsys) -> None:
+    pytest.importorskip("pyvis")
+    target = tmp_path / "viewer.html"
+    rc = main(["viewer", EXAMPLE_YAML, "--output", str(target)])
+    assert rc == 0
+    assert target.exists()
+    contents = target.read_text(encoding="utf-8")
+    assert contents.startswith("<")
+    assert "vis-network" in contents or "DataSet" in contents
+    out = capsys.readouterr().out
+    assert "saved" in out
+
+
+def test_viewer_with_start_and_goal_highlights_path(tmp_path, capsys) -> None:
+    pytest.importorskip("pyvis")
+    target = tmp_path / "viewer.html"
+    rc = main(
+        [
+            "viewer",
+            EXAMPLE_YAML,
+            "--start",
+            "entrance",
+            "--goal",
+            "meeting_room",
+            "--output",
+            str(target),
+        ]
+    )
+    assert rc == 0
+    assert target.exists()
+    out = capsys.readouterr().out
+    assert "highlighted path" in out
+    assert "entrance" in out
+
+
+def test_viewer_rejects_start_without_goal(capsys) -> None:
+    pytest.importorskip("pyvis")
+    rc = main(["viewer", EXAMPLE_YAML, "--start", "entrance"])
+    err = capsys.readouterr().err
+    assert rc != 0
+    assert "must be provided together" in err

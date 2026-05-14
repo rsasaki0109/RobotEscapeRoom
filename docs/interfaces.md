@@ -462,6 +462,19 @@ specified node sequence in pink. Requires
 `pip install 'semantic-toponav[viz_web]'` (pulls `pyvis>=0.3`); missing
 deps raise `WebViewerImportError`.
 
+The viewer is also reachable from the CLI:
+
+```bash
+semantic-toponav viewer GRAPH [--output PATH] [--start ID --goal ID]
+    [--algorithm {astar,dijkstra}]
+    [--avoid-restricted] [--avoid-stairs] [--prefer-elevator]
+    [--no-pose-layout]
+```
+
+When `--start` and `--goal` are both given, the planned path is
+highlighted and printed alongside the saved-file message. Output
+defaults to `viewer.html` in the working directory.
+
 ## ROS2 message strategy
 
 The ROS2 adapter supports two output formats on
