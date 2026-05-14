@@ -207,6 +207,28 @@ Both header-based (`x`, `y`, `trajectory_id`) and headerless / positional
 
 ![csv to topology](docs/images/13_csv_trajectory.png)
 
+### Loading trajectories directly from a rosbag2 recording
+
+If you have a ROS2 environment sourced, you can skip the CSV step
+entirely and read trajectories straight out of a `ros2 bag record` output:
+
+```python
+from semantic_toponav.conversion import (
+    load_trajectories_from_rosbag,
+    topology_from_trajectories,
+)
+
+trajs = load_trajectories_from_rosbag("my_run")    # directory or .db3 file
+graph = topology_from_trajectories(trajs, eps=0.5, min_samples=3)
+```
+
+Supported topic types are `nav_msgs/msg/Odometry`,
+`geometry_msgs/msg/PoseStamped`, and
+`geometry_msgs/msg/PoseWithCovarianceStamped`; each topic becomes one
+trajectory in the returned list. The loader imports `rosbag2_py` and
+`rclpy` lazily, so the rest of the package keeps working without ROS2
+installed.
+
 ### Loading ROS map_server bundles
 
 `semantic-toponav` can load the standard `map_server` YAML + PGM/PNG/BMP

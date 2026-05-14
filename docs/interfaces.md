@@ -227,6 +227,30 @@ Returns ``list[list[tuple[float, float]]]`` — pass directly to
 ``topology_from_trajectories``. Raises ``CsvTrajectoryLoadError`` on
 parse failure or unknown columns. Uses only :mod:`csv` from stdlib.
 
+#### Loading trajectories from a rosbag2 recording (optional)
+
+```python
+from semantic_toponav.conversion import load_trajectories_from_rosbag
+
+trajectories = load_trajectories_from_rosbag(
+    "my_run",          # directory created by `ros2 bag record`, or a .db3 file
+    topics=None,       # None = pick up every supported topic in the bag
+    storage_id="sqlite3",
+    serialization_format="cdr",
+)
+```
+
+Same return shape as the CSV loader — each topic becomes one trajectory,
+in alphabetical topic order. Supported message types are
+``nav_msgs/msg/Odometry``, ``geometry_msgs/msg/PoseStamped``, and
+``geometry_msgs/msg/PoseWithCovarianceStamped``; topics carrying other
+types are silently skipped unless requested explicitly via ``topics=``.
+
+Imports of ``rosbag2_py`` / ``rclpy`` / message packages are deferred to
+the function body so the rest of `semantic-toponav` keeps working without
+a ROS2 install. Calling this function without a sourced ROS2 environment
+raises ``RosbagTrajectoryLoadError``.
+
 ### Loading ROS map_server bundles (optional)
 
 ```python

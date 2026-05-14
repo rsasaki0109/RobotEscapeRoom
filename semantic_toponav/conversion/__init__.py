@@ -8,14 +8,22 @@ from semantic_toponav.conversion.map_io import (
     load_occupancy_map,
 )
 from semantic_toponav.conversion.occupancy import topology_from_occupancy
+from semantic_toponav.conversion.rosbag2 import (
+    SUPPORTED_MESSAGE_TYPES,
+    RosbagTrajectoryLoadError,
+    load_trajectories_from_rosbag,
+)
 from semantic_toponav.conversion.trajectory import topology_from_trajectories
 
 __all__ = [
+    "SUPPORTED_MESSAGE_TYPES",
     "CsvTrajectoryLoadError",
     "MapLoadError",
     "OccupancyMap",
+    "RosbagTrajectoryLoadError",
     "load_occupancy_map",
     "load_trajectories_from_csv",
+    "load_trajectories_from_rosbag",
     "topology_from_occupancy",
     "topology_from_trajectories",
 ]
