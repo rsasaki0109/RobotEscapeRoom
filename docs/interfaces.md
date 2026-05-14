@@ -450,6 +450,17 @@ sourced ROS environment — they're how the project's regular pytest suite
 validates the wire layout. Thin `*_to_msg` wrappers handle the final copy
 onto the generated message classes inside a ROS workspace.
 
+### Graph publishing
+
+`graph_loader_node` publishes the validated graph once at startup on
+`/semantic_toponav/graph` as a `semantic_toponav_msgs/TopologyGraph`. The
+publisher uses `TRANSIENT_LOCAL` durability with depth 1, so subscribers
+that connect after the publish still receive the most recent snapshot
+(the standard "latched topic" idiom in ROS2 for slow-changing state like
+maps). The topic name is configurable via the `topic` parameter, and the
+publish step can be disabled with `publish_graph:=false` if you only
+want the load-and-validate behavior.
+
 ## Exceptions
 
 | exception | raised by |

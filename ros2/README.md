@@ -34,7 +34,7 @@ Autoware). This repository does **not** implement that local executor.
 
 | node | binary | purpose |
 |------|--------|---------|
-| `graph_loader_node` | `graph_loader` | load and validate a topology graph at startup |
+| `graph_loader_node` | `graph_loader` | load and validate a topology graph at startup, and publish it as a latched `TopologyGraph` |
 | `waypoint_publisher_node` | `waypoint_publisher` | plan a route and publish semantic waypoints |
 
 ### Build
@@ -53,11 +53,22 @@ required if you switch `waypoint_publisher_node` to `output_format:=msg`
 
 ### Run
 
-Load and validate a graph:
+Load, validate, and publish a graph as a latched
+`semantic_toponav_msgs/TopologyGraph` on `/semantic_toponav/graph`:
 
 ```bash
 ros2 run semantic_toponav_ros graph_loader \
   --ros-args -p graph_path:=$PWD/examples/indoor_office.yaml
+```
+
+The publisher uses `TRANSIENT_LOCAL` durability, so subscribers that connect
+after the node starts still receive the most recent snapshot. To suppress
+publishing (load and validate only), pass `-p publish_graph:=false`.
+
+Inspect the topic:
+
+```bash
+ros2 topic echo /semantic_toponav/graph --once --qos-durability transient_local
 ```
 
 Plan a route and publish semantic waypoints as JSON on
