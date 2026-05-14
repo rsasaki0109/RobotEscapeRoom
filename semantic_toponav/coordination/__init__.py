@@ -48,6 +48,14 @@ from semantic_toponav.coordination.policies import (
     first_come_first_served,
     priority_based,
 )
+from semantic_toponav.coordination.rpc import (
+    LocalTransport,
+    RpcError,
+    SchedulerClient,
+    SchedulerProtocol,
+    SchedulerService,
+    Transport,
+)
 from semantic_toponav.coordination.scheduler import (
     ClaimRequest,
     ClaimResult,
@@ -67,10 +75,16 @@ __all__ = [
     "FleetRequest",
     "JointPlanResult",
     "JointPlanTrial",
+    "LocalTransport",
     "PlanWithSchedulerResult",
+    "RpcError",
+    "SchedulerClient",
     "SchedulerError",
+    "SchedulerProtocol",
+    "SchedulerService",
     "SharedScheduler",
     "Strategy",
+    "Transport",
     "first_come_first_served",
     "plan_fleet",
     "plan_fleet_bnb",
