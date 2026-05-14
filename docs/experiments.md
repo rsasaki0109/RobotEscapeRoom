@@ -376,6 +376,19 @@ shipped / deferred markers.
   fails loudly, and `RegionEmbeddingResult.source` records whether
   patches came from `"occupancy"` or `"rgb_source"`.
 
+- **Protocol conformance suites** (`semantic_toponav.testing.conformance`)
+  ship as a public, importable package — one `run_<name>_conformance`
+  function per Protocol (`LLMBackend`, encoder `Backend`,
+  `AlignedRgbSource`, `SchedulerProtocol`, `Transport`, the
+  `ConflictPolicy` callable). The suites raise `AssertionError` on
+  contract violation, so out-of-tree adapter authors
+  (`semantic-toponav-mast3r`, custom NATS transports, deadline-aware
+  policies) get the same checks the built-in implementations are
+  validated against in `tests/test_conformance_builtins.py`. This
+  is the "raise the floor on existing protocols" follow-up to the
+  policy in `decisions.md` — no new protocols, more depth on the
+  ones already shipped. See [conformance.md](conformance.md).
+
 ## Future directions
 
 What's still open. Each is a candidate for an experiment branch.
