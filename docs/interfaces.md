@@ -186,6 +186,25 @@ core graph needs. Edges expose a ``traversal_count`` property indicating
 how many trajectories used that transition (useful as a downstream
 cost-function input — e.g. prefer well-trodden routes).
 
+#### Loading trajectories from CSV
+
+```python
+from semantic_toponav.conversion import load_trajectories_from_csv
+
+trajectories = load_trajectories_from_csv(
+    path,
+    x_column="x",                       # str (header mode) or int (positional)
+    y_column="y",
+    trajectory_column="trajectory_id",  # None for single trajectory
+    has_header=True,                    # set False for positional indices
+    delimiter=",",
+)
+```
+
+Returns ``list[list[tuple[float, float]]]`` — pass directly to
+``topology_from_trajectories``. Raises ``CsvTrajectoryLoadError`` on
+parse failure or unknown columns. Uses only :mod:`csv` from stdlib.
+
 ### Loading ROS map_server bundles (optional)
 
 ```python
