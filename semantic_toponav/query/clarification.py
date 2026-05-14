@@ -21,22 +21,34 @@ ambiguity without committing to a full multi-turn dialog framework:
 * :class:`AmbiguousGoalError` — raise this when the caller has
   asked for strict mode (``raise_on_ambiguous=True``) and the
   resolver can't pick confidently.
+* :class:`DialogSession` — multi-turn driver that wraps
+  :func:`llm_resolve_goal` and accumulates ``free_text`` hints
+  across replies. Where the one-shot resolver only sees the
+  current call's answer, the session keeps the *running* query
+  history so each reply narrows further rather than starting over.
 
 These are intentionally small, frozen, and JSON-friendly so they
 can be passed through queues / RPCs / argparse without extra
 plumbing. (They aren't hashable because :class:`GoalCandidate`
 isn't — a future change could make both frozen and hashable, but
-the current dialog flows don't need it.) The richer "session
-state across multiple turns" or "mid-traversal rewrite" work
-belongs in a later PR; this one just adds the primitive that makes
-the rest of that work expressible.
+the current dialog flows don't need it.)
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from semantic_toponav.query.resolve import GoalCandidate
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from semantic_toponav.encoders.backends import Backend as EncoderBackend
+    from semantic_toponav.graph.topology_graph import TopologyGraph
+    from semantic_toponav.graph.types import TopologyNode
+    from semantic_toponav.llm.backends import LLMBackend
+    from semantic_toponav.query.llm_resolve import LLMResolveResult
 
 
 @dataclass(frozen=True)
@@ -100,6 +112,221 @@ class AmbiguousGoalError(Exception):
         self.question = question
 
 
+@dataclass
+class DialogTurn:
+    """One round of question/answer inside a :class:`DialogSession`.
+
+    Attributes
+    ----------
+    effective_query:
+        The query string the resolver actually saw on this turn —
+        the original prompt plus any accumulated ``free_text`` hints
+        from prior turns, joined with " " inside parentheses.
+    answer:
+        The reply that *initiated* this turn (``None`` for the first
+        turn, since the user starts the dialog with the bare query
+        rather than an answer). Subsequent turns hold the answer the
+        caller passed to :meth:`DialogSession.reply` before the turn
+        ran.
+    result:
+        The :class:`LLMResolveResult` the resolver returned for the
+        effective query. ``result.clarification`` is non-``None``
+        when this turn ended with another follow-up question.
+    """
+
+    effective_query: str
+    answer: ClarificationAnswer | None
+    result: LLMResolveResult
+
+
+class DialogSession:
+    """Stateful multi-turn wrapper around :func:`llm_resolve_goal`.
+
+    The one-shot resolver only looks at the current call's
+    :class:`ClarificationAnswer`. A real dialog needs to *remember*
+    that the user already said "the second floor one" two turns ago
+    when they now say "the one with windows" — the resolver's job is
+    to keep narrowing rather than restart on every reply.
+
+    Usage::
+
+        session = DialogSession(graph, backend)
+        result = session.start("find the meeting room")
+        while not session.is_resolved():
+            question = session.question()
+            user_reply = ask_user(question)
+            result = session.reply(ClarificationAnswer(free_text=user_reply))
+        chosen = session.chosen()
+
+    The session keeps the **running query** in two parts:
+
+    * the original prompt the caller passed to :meth:`start`,
+    * a list of ``free_text`` hints accumulated across replies.
+
+    Every resolver call uses the original prompt as the base and
+    appends every accumulated hint, parenthesized, so the LLM always
+    sees the full disambiguating context. ``chosen_id`` only applies
+    to the *current* turn — the resolver narrows the candidate pool
+    on that call only, mirroring the one-shot behaviour.
+    """
+
+    def __init__(
+        self,
+        graph: TopologyGraph,
+        backend: LLMBackend,
+        *,
+        top_k: int = 5,
+        candidates: Iterable[TopologyNode] | None = None,
+        system: str | None = None,
+        query_encoder: EncoderBackend | None = None,
+        embedding_property: str = "embedding",
+        ambiguity_threshold: float = 0.5,
+        raise_on_ambiguous: bool = False,
+    ) -> None:
+        self._graph = graph
+        self._backend = backend
+        self._top_k = top_k
+        # Materialize candidates once so re-running across turns sees
+        # the same pool (the resolver accepts an iterable; tolerating
+        # one-shot iterators would silently empty the pool on turn 2).
+        self._candidates = (
+            list(candidates) if candidates is not None else None
+        )
+        self._system = system
+        self._query_encoder = query_encoder
+        self._embedding_property = embedding_property
+        self._ambiguity_threshold = ambiguity_threshold
+        self._raise_on_ambiguous = raise_on_ambiguous
+
+        self._original_query: str | None = None
+        self._free_text_hints: list[str] = []
+        self._turns: list[DialogTurn] = []
+
+    # ----- public state ------------------------------------------------------
+
+    @property
+    def turns(self) -> list[DialogTurn]:
+        """Read-only view of the conversation history."""
+        return list(self._turns)
+
+    @property
+    def free_text_hints(self) -> list[str]:
+        """Hints accumulated from every ``ClarificationAnswer.free_text``."""
+        return list(self._free_text_hints)
+
+    def last_result(self) -> LLMResolveResult | None:
+        """Most recent :class:`LLMResolveResult`, or ``None`` before start."""
+        return self._turns[-1].result if self._turns else None
+
+    def question(self) -> ClarificationQuestion | None:
+        """Pending :class:`ClarificationQuestion`, or ``None`` when resolved."""
+        last = self.last_result()
+        return last.clarification if last is not None else None
+
+    def is_resolved(self) -> bool:
+        """``True`` iff the last turn returned a confident pick (no question)."""
+        last = self.last_result()
+        return last is not None and last.clarification is None
+
+    def chosen(self) -> GoalCandidate | None:
+        """Top candidate from the last turn, or ``None`` until resolved."""
+        if not self.is_resolved():
+            return None
+        last = self.last_result()
+        assert last is not None
+        return last.candidates[0] if last.candidates else None
+
+    # ----- turn drivers ------------------------------------------------------
+
+    def start(self, text: str) -> LLMResolveResult:
+        """Begin (or restart) the dialog with the original query.
+
+        Calling :meth:`start` clears any accumulated free-text hints
+        and turn history, so the same session object can be re-used
+        across distinct goals.
+        """
+        self._original_query = text
+        self._free_text_hints = []
+        self._turns = []
+        return self._run_turn(answer=None)
+
+    def reply(self, answer: ClarificationAnswer) -> LLMResolveResult:
+        """Pass an answer to the previous turn's clarification.
+
+        ``answer.free_text`` (when set) is appended to the running
+        hint list; ``answer.chosen_id`` is used only for *this* turn
+        (the resolver narrows the candidate pool on that call only,
+        so the next turn sees the full top-k again).
+
+        Raises
+        ------
+        RuntimeError
+            If called before :meth:`start` or when the previous turn
+            already resolved confidently (no clarification pending).
+        """
+        if self._original_query is None:
+            raise RuntimeError(
+                "DialogSession.reply called before start; "
+                "call start(text) first"
+            )
+        if self.is_resolved():
+            raise RuntimeError(
+                "DialogSession.reply called but the dialog is already "
+                "resolved; call start(text) to begin a new dialog"
+            )
+        if answer.free_text:
+            self._free_text_hints.append(answer.free_text)
+        return self._run_turn(answer=answer)
+
+    # ----- internals ---------------------------------------------------------
+
+    def _build_effective_query(self) -> str:
+        """Original query + every accumulated ``free_text`` hint."""
+        assert self._original_query is not None
+        if not self._free_text_hints:
+            return self._original_query
+        return (
+            f"{self._original_query} "
+            f"({' '.join(self._free_text_hints)})"
+        )
+
+    def _run_turn(self, *, answer: ClarificationAnswer | None) -> LLMResolveResult:
+        # Local import keeps clarification.py importable without a
+        # cycle through llm_resolve.py (which imports back from here).
+        from semantic_toponav.query.llm_resolve import llm_resolve_goal
+
+        effective = self._build_effective_query()
+        # The resolver appends free_text on its own, so to avoid
+        # double-appending we pass a clarification with no free_text
+        # (we already baked the hints into ``effective``). chosen_id
+        # is still forwarded because it narrows the candidate pool.
+        forwarded: ClarificationAnswer | None = None
+        if answer is not None and answer.chosen_id is not None:
+            forwarded = ClarificationAnswer(chosen_id=answer.chosen_id)
+
+        result = llm_resolve_goal(
+            self._graph,
+            effective,
+            self._backend,
+            top_k=self._top_k,
+            candidates=self._candidates,
+            system=self._system,
+            query_encoder=self._query_encoder,
+            embedding_property=self._embedding_property,
+            clarification=forwarded,
+            ambiguity_threshold=self._ambiguity_threshold,
+            raise_on_ambiguous=self._raise_on_ambiguous,
+        )
+        self._turns.append(
+            DialogTurn(
+                effective_query=effective,
+                answer=answer,
+                result=result,
+            )
+        )
+        return result
+
+
 # ``field`` is exported only to keep import statements stable across
 # future additions to this module — frozen dataclasses don't need it
 # today but linters that import the symbol shouldn't break tomorrow.
@@ -109,4 +336,6 @@ __all__ = [
     "AmbiguousGoalError",
     "ClarificationAnswer",
     "ClarificationQuestion",
+    "DialogSession",
+    "DialogTurn",
 ]
