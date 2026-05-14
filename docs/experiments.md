@@ -48,7 +48,8 @@ landed. Each links to the still-relevant follow-up work.
 - Worked Nav2 example (`nav2_demo_node` bridging `SemanticWaypointArray`
   to `NavigateThroughPoses`)
 - CLI graph editor (`inspect / add-node / add-edge / rm-node /
-  rm-edge`)
+  rm-edge / undo / diff`, with automatic `.bak` snapshots on every
+  in-place mutation)
 - Interactive HTML viewer (`semantic-toponav viewer`, plus the
   `to_pyvis_network` / `save_interactive_html` API)
 - Three-floor end-to-end tutorial at `docs/tutorial.md`
@@ -98,7 +99,6 @@ What's still open. Each is a candidate for an experiment branch.
 
 - web-based graph *editor* (the viewer ships; the editor part —
   add/remove/move nodes from a browser — does not)
-- undo / diff for the CLI graph editor
 - Foxglove panel for live topology + path overlays
 
 ### Integration
