@@ -15,6 +15,7 @@ pytest.importorskip("skimage")
 pytest.importorskip("scipy")
 
 from semantic_toponav.conversion.occupancy import (
+    annotate_regions,
     mark_doors_by_clearance,
     topology_from_occupancy,
 )
@@ -221,3 +222,138 @@ def test_door_detection_auto_threshold_marks_a_subset() -> None:
     total = sum(1 for _ in g.nodes()) + sum(1 for _ in g.edges())
     flagged = len(out.node_ids) + len(out.edge_ids)
     assert 0 < flagged <= total
+
+
+# ------------------------------ annotate_regions ------------------------------
+
+
+def _empty_graph():
+    from semantic_toponav.graph.topology_graph import TopologyGraph
+    return TopologyGraph()
+
+
+def test_regions_single_room_one_region() -> None:
+    grid = np.zeros((9, 11), dtype=bool)
+    grid[2:7, 2:9] = True
+    g = topology_from_occupancy(grid, resolution=1.0)
+    out = annotate_regions(g, grid, resolution=1.0)
+    assert len(out.regions) == 1
+    (rid,) = out.regions.keys()
+    assert out.regions[rid].area_cells == 5 * 7
+    assert math.isclose(out.regions[rid].area_m2, 35.0)
+
+
+def test_regions_empty_grid_returns_empty() -> None:
+    grid = np.zeros((6, 6), dtype=bool)
+    g = topology_from_occupancy(grid)
+    out = annotate_regions(g, grid, resolution=1.0)
+    assert out.regions == {}
+    assert out.node_ids == []
+    assert out.doorway_node_ids == []
+
+
+def test_regions_two_disconnected_rooms_yield_two_regions() -> None:
+    grid = np.zeros((11, 21), dtype=bool)
+    grid[2:9, 1:8] = True   # left room
+    grid[2:9, 13:20] = True  # right room (no doorway)
+    g = topology_from_occupancy(grid, resolution=1.0)
+    out = annotate_regions(g, grid, resolution=1.0)
+    assert len(out.regions) == 2
+    # Each room is 7x7 = 49 cells.
+    assert {r.area_cells for r in out.regions.values()} == {49}
+
+
+def test_regions_pinching_separates_two_rooms_through_doorway() -> None:
+    grid, resolution = _two_rooms_with_doorway()
+    g = topology_from_occupancy(grid, resolution=resolution)
+    out = annotate_regions(
+        g, grid, resolution=resolution, clearance_threshold=1.5
+    )
+    # Without pinching the doorway connects both rooms → 1 region.
+    # With a 1.5 m threshold the 1-cell-wide passage (clearance ~1.0)
+    # is pinched off, so we get the two rooms as separate regions.
+    assert len(out.regions) == 2
+
+
+def test_regions_without_pinching_yields_single_region() -> None:
+    grid, resolution = _two_rooms_with_doorway()
+    g = topology_from_occupancy(grid, resolution=resolution)
+    out = annotate_regions(g, grid, resolution=resolution)
+    # No pinching → corridor connects both rooms.
+    assert len(out.regions) == 1
+
+
+def test_regions_stamps_region_id_on_graph_nodes() -> None:
+    grid = np.zeros((11, 21), dtype=bool)
+    grid[2:9, 1:8] = True
+    grid[2:9, 13:20] = True
+    g = topology_from_occupancy(grid, resolution=1.0)
+    out = annotate_regions(g, grid, resolution=1.0)
+    nodes_with_cells = [n for n in g.nodes() if "row" in n.properties]
+    assert nodes_with_cells, "expected nodes derived from cells"
+    for node in nodes_with_cells:
+        if node.id in out.node_ids:
+            assert node.properties["region_id"] in out.regions
+
+
+def test_regions_nodes_in_pinched_doorway_become_doorways() -> None:
+    grid, resolution = _two_rooms_with_doorway()
+    g = topology_from_occupancy(grid, resolution=resolution)
+    out = annotate_regions(
+        g, grid, resolution=resolution, clearance_threshold=1.5
+    )
+    # The narrow doorway gets pinched out. Endpoint nodes sit in the
+    # rooms (so they end up in regions); any node that happens to land
+    # on a pinched cell would go to doorway_node_ids.
+    assert len(out.regions) == 2
+    for node_id in out.doorway_node_ids:
+        assert "region_id" not in g.get_node(node_id).properties
+
+
+def test_regions_min_area_filters_noise() -> None:
+    grid = np.zeros((9, 14), dtype=bool)
+    grid[2:7, 2:6] = True  # 5x4 = 20-cell room
+    grid[5, 9] = True      # single-cell speck
+    out = annotate_regions(
+        _empty_graph(), grid, resolution=1.0, min_region_area=2
+    )
+    assert len(out.regions) == 1
+    (info,) = out.regions.values()
+    assert info.area_cells == 20
+
+
+def test_regions_resolution_scales_area() -> None:
+    grid = np.zeros((8, 8), dtype=bool)
+    grid[2:6, 2:6] = True  # 4x4 cells
+    out_fine = annotate_regions(
+        _empty_graph(), grid, resolution=0.5
+    )
+    (info,) = out_fine.regions.values()
+    assert math.isclose(info.area_m2, 16 * 0.25)
+
+
+def test_regions_centroid_within_bbox() -> None:
+    grid = np.zeros((9, 11), dtype=bool)
+    grid[2:7, 2:9] = True
+    out = annotate_regions(
+        _empty_graph(), grid, resolution=1.0
+    )
+    (info,) = out.regions.values()
+    rmin, cmin, rmax, cmax = info.bbox_cells
+    assert rmin == 2 and cmin == 2
+    assert rmax == 6 and cmax == 8
+    # centroid lives somewhere within the bbox in world coords
+    cx, cy = info.centroid_world
+    assert 2.0 <= cx <= 9.0
+    assert 2.0 <= cy <= 7.0
+
+
+def test_regions_auto_threshold_from_percentile() -> None:
+    grid, resolution = _two_rooms_with_doorway()
+    g = topology_from_occupancy(grid, resolution=resolution)
+    out = annotate_regions(
+        g, grid, resolution=resolution, clearance_percentile=50.0
+    )
+    # The 50th percentile of free-cell clearance lands well above the
+    # 1.0 m doorway clearance, so pinching kicks in and gives 2 rooms.
+    assert len(out.regions) == 2

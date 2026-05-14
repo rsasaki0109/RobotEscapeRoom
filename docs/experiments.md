@@ -43,7 +43,11 @@ landed. Each links to the still-relevant follow-up work.
   (`mark_doors_by_clearance`) that uses a distance transform of the
   binarized grid to flag narrow-passage nodes (typed `door`) and
   edges whose straight-line minimum clearance falls below an explicit
-  or auto-percentile threshold
+  or auto-percentile threshold, and a connected-component region
+  annotator (`annotate_regions`) that labels free-space components
+  with optional doorway pinching (so each pinched room becomes a
+  distinct `region_id` stamped onto every node) — pairs naturally
+  with the door detector for room-aware graphs
 - Trajectory log → topology + CSV loader + rosbag2 loader
 - Visit-history memory layer + embedding-based place retrieval
 - Multi-floor planning (`floor_change_penalty`, `prefer_floor`,
@@ -106,10 +110,11 @@ What's still open. Each is a candidate for an experiment branch.
 
 ### Map construction
 
-- **occupancy grid → topology** follow-ups: region segmentation for
-  room-aware labels, lossier graph compaction when corridors carry
-  many parallel skeleton branches. Door / threshold detection ships
-  (`mark_doors_by_clearance` — see below).
+- **occupancy grid → topology** follow-ups: lossier graph compaction
+  when corridors carry many parallel skeleton branches. Door /
+  threshold detection ships (`mark_doors_by_clearance`) and region
+  segmentation for room-aware labels ships (`annotate_regions`,
+  see below).
 - **trajectory log → topology** follow-ups: DBSCAN / k-medoids cluster
   alternatives, time-aware clustering for dwell detection. The basic
   fusion of the two pipelines now ships
