@@ -402,6 +402,39 @@ semantic-toponav fleet-plan examples/indoor_office.yaml \
     --strategy deadline
 ```
 
+#### Branch-and-bound ordering search
+
+`plan_fleet_joint` enumerates every permutation when `n! ≤ 120` and
+falls back to four heuristic orderings beyond that. `plan_fleet_bnb`
+is the pruned cousin: a DFS over partial agent orderings that scores
+each leaf by `(granted_count, total_path_cost)` and cuts subtrees
+that can't beat the running best. Three pruners fire — grants upper
+bound, cost tie-break lower bound, and a hard `max_nodes` /
+`time_budget_ms` budget — so the call stays bounded even on
+adversarial inputs. On the synthetic eval suite (`n=4`, all four
+scenarios) BnB matches `joint` on both grants and cost while running
+about 2× faster, exactly the pruning win the design predicts.
+
+```python
+from semantic_toponav.coordination import plan_fleet_bnb
+
+result = plan_fleet_bnb(
+    graph, requests, scheduler,
+    hold_start="10:00", hold_end="11:00",
+    admission="hard",
+    max_nodes=10_000,
+)
+# result.chosen_order, result.stats.nodes_pruned_by_{grants,cost},
+# result.conflict_explanations  # CBS-lite "who blocked whom"
+```
+
+`plan_fleet_bnb` also returns a list of `ConflictExplanation` records
+— a lightweight, descriptive analogue of CBS conflict-tree nodes
+("agent X was blocked by holds from agents A, B on resources …") so
+operators can diagnose admission failures without re-running the
+search. CLI parity: `semantic-toponav fleet-plan ... --strategy bnb`
+and `eval-synthetic --strategy bnb`.
+
 #### Hard deadline admission control
 
 `FleetRequest.deadline` started life as a sort key for the

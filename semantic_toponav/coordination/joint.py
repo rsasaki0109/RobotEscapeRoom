@@ -45,7 +45,7 @@ from semantic_toponav.coordination.scheduler import SharedScheduler
 from semantic_toponav.graph.topology_graph import TopologyGraph
 from semantic_toponav.planner.semantic_costs import CostFn, _as_time
 
-Strategy = Literal["greedy", "priority", "deadline", "joint"]
+Strategy = Literal["greedy", "priority", "deadline", "joint", "bnb"]
 
 
 @dataclass
@@ -399,6 +399,26 @@ def plan_fleet_with_strategy(
             minutes_per_cost_unit=minutes_per_cost_unit,
         )
         return joint.fleet_result
+    elif strategy == "bnb":
+        # Local import keeps the joint module from depending on
+        # branch_and_bound (which itself imports from fleet).
+        from semantic_toponav.coordination.branch_and_bound import plan_fleet_bnb
+
+        bnb = plan_fleet_bnb(
+            graph,
+            req_list,
+            scheduler,
+            hold_start=hold_start,
+            hold_end=hold_end,
+            at_time=at_time,
+            base_cost_fn=base_cost_fn,
+            algorithm=algorithm,
+            claim_nodes=claim_nodes,
+            claim_edges=claim_edges,
+            admission=admission,
+            minutes_per_cost_unit=minutes_per_cost_unit,
+        )
+        return bnb.fleet_result
     else:  # pragma: no cover - unreachable under Literal typing
         raise ValueError(f"unknown strategy {strategy!r}")
 

@@ -22,6 +22,12 @@ network. Production users wire it into whatever messaging / RPC layer
 they prefer; this module just provides the contract.
 """
 
+from semantic_toponav.coordination.branch_and_bound import (
+    BnBPlanResult,
+    BnBStats,
+    ConflictExplanation,
+    plan_fleet_bnb,
+)
 from semantic_toponav.coordination.fleet import (
     FleetPlanResult,
     FleetRequest,
@@ -50,9 +56,12 @@ from semantic_toponav.coordination.scheduler import (
 )
 
 __all__ = [
+    "BnBPlanResult",
+    "BnBStats",
     "ClaimDecision",
     "ClaimRequest",
     "ClaimResult",
+    "ConflictExplanation",
     "ConflictPolicy",
     "FleetPlanResult",
     "FleetRequest",
@@ -64,6 +73,7 @@ __all__ = [
     "Strategy",
     "first_come_first_served",
     "plan_fleet",
+    "plan_fleet_bnb",
     "plan_fleet_joint",
     "plan_fleet_with_strategy",
     "plan_with_scheduler",

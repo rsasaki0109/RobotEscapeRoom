@@ -34,7 +34,7 @@ from semantic_toponav.eval.runner import TrialResult
 
 # Strategy order used by both the JSONL writer and the markdown
 # pivot so the table columns are stable across runs.
-_COLUMN_ORDER: tuple[str, ...] = ("greedy", "priority", "deadline", "joint")
+_COLUMN_ORDER: tuple[str, ...] = ("greedy", "priority", "deadline", "joint", "bnb")
 
 # Metrics that show up in the pivoted markdown table. Listed in
 # display order; (key, label, format-spec) tuples.
