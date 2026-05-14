@@ -29,14 +29,17 @@ from semantic_toponav.planner import (
     compose_costs,
     default_edge_cost,
     floor_change_penalty,
+    load_reservations,
     plan_astar,
     plan_dijkstra,
     prefer_elevator,
     prefer_floor,
+    reservation_aware,
     same_floor_only,
     time_aware,
 )
 from semantic_toponav.planner.errors import NoPathError, PlanningError
+from semantic_toponav.planner.reservations import ReservationLoadError
 from semantic_toponav.waypoint.describe import describe_path, path_to_steps
 from semantic_toponav.waypoint.semantic_waypoint import (
     SemanticWaypoint,
@@ -90,6 +93,18 @@ def _build_cost_fn(args: argparse.Namespace, graph=None) -> Callable[[TopologyEd
         at_time = getattr(args, "at_time", None)
         if at_time is not None:
             fns.append(time_aware(graph, at_time=at_time))
+        reservations_path = getattr(args, "reservations", None)
+        if reservations_path is not None:
+            if at_time is None:
+                raise PlanningError(
+                    "--reservations requires --at-time so the planner knows "
+                    "which interval to evaluate"
+                )
+            try:
+                table = load_reservations(reservations_path)
+            except ReservationLoadError as exc:
+                raise PlanningError(str(exc)) from exc
+            fns.append(reservation_aware(table, at_time=at_time))
     if not fns:
         return default_edge_cost
     return compose_costs(*fns)
@@ -398,6 +413,15 @@ def _add_plan_args(p: argparse.ArgumentParser) -> None:
         help=(
             "treat edges/nodes whose 'closed_during' property covers this "
             "time as blocked (time-of-day, recurring; HH:MM or HH:MM:SS)"
+        ),
+    )
+    p.add_argument(
+        "--reservations",
+        metavar="FILE",
+        help=(
+            "path to a YAML/JSON reservation table; combined with --at-time, "
+            "blocks any edge or node whose id is reserved at that moment "
+            "(multi-agent shared-resource planning)"
         ),
     )
     p.add_argument(
