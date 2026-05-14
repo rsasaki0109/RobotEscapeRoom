@@ -634,6 +634,52 @@ semantic-toponav embed-regions graph.yaml map.yaml \
     --backend clip --image rendered.png --pad-cells 2 --in-place
 ```
 
+### LLM-augmented describe-path / resolve
+
+The deterministic `describe_path` / `resolve_goal` always run first;
+an optional LLM layer can rewrite the narration into natural prose or
+re-rank the top-k candidates by reading their labels. The LLM is
+never allowed to invent a step or a node id — unparseable replies
+or out-of-pool picks transparently fall back to the deterministic
+output.
+
+```python
+from semantic_toponav.llm import EchoBackend, AnthropicBackend
+from semantic_toponav.waypoint import llm_describe_path
+from semantic_toponav.query import llm_resolve_goal
+
+# Tests / offline demos: EchoBackend takes a scripted list of replies.
+backend = EchoBackend(script=[
+    "1. Walk in through the entrance.\n2. Head down the main corridor.\n"
+    "3. Step into the meeting room.",
+])
+result = llm_describe_path(graph, ["entrance", "corridor_main", "meeting_room"], backend)
+print(result.steps)            # rewritten prose, one entry per deterministic step
+print(result.used_fallback)    # False; rewrite was accepted
+
+# Real backend: requires the [llm] extra and ANTHROPIC_API_KEY.
+backend = AnthropicBackend()  # picks ANTHROPIC_API_KEY from env
+res = llm_resolve_goal(graph, "the conference room on the second floor", backend, top_k=5)
+print(res.candidates[0].node_id, res.llm_reason)
+```
+
+CLI form (opt-in via `--llm-backend`):
+
+```bash
+# Echo backend is dependency-free and useful for scripted demos.
+semantic-toponav describe-path examples/indoor_office.yaml entrance meeting_room \
+    --llm-backend echo \
+    --llm-script "1. Walk in.\n2. Head into the corridor.\n3. Settle into the meeting room."
+
+# Real rewrite via Anthropic (needs ANTHROPIC_API_KEY + the [llm] extra).
+semantic-toponav describe-path examples/indoor_office.yaml entrance meeting_room \
+    --llm-backend anthropic --llm-style friendly
+
+# Re-rank free-text goal candidates.
+semantic-toponav resolve examples/indoor_office.yaml "the conference room on the second floor" \
+    --llm-backend anthropic
+```
+
 ### Visit-history memory
 
 A small memory layer records when each node was last visited, then lets

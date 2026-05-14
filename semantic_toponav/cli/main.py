@@ -8,6 +8,7 @@ import sys
 from collections.abc import Callable, Sequence
 
 from semantic_toponav.cli.editor import register_subcommands as register_editor_subcommands
+from semantic_toponav.cli.llm_cli import add_llm_args, build_llm_backend_from_args
 from semantic_toponav.cli.memory_cli import register_subcommands as register_memory_subcommands
 from semantic_toponav.cli.occupancy_cli import (
     register_subcommands as register_occupancy_subcommands,
@@ -42,6 +43,7 @@ from semantic_toponav.planner import (
 from semantic_toponav.planner.errors import NoPathError, PlanningError
 from semantic_toponav.planner.reservations import ReservationLoadError
 from semantic_toponav.waypoint.describe import describe_path, path_to_steps
+from semantic_toponav.waypoint.llm_describe import llm_describe_path
 from semantic_toponav.waypoint.semantic_waypoint import (
     SemanticWaypoint,
     path_to_semantic_waypoints,
@@ -279,24 +281,50 @@ def cmd_describe_path(args: argparse.Namespace) -> int:
         print(f"error: {exc}", file=sys.stderr)
         return 2
 
+    try:
+        backend = build_llm_backend_from_args(args)
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    llm_result = None
+    if backend is not None:
+        try:
+            llm_result = llm_describe_path(
+                graph,
+                path,
+                backend,
+                style=getattr(args, "llm_style", None),
+            )
+        except ImportError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
+
     if args.format == "json":
         steps = path_to_steps(graph, path)
-        print(
-            json.dumps(
-                {
-                    "path": path,
-                    "steps": [s.to_dict() for s in steps],
-                },
-                ensure_ascii=False,
-                indent=2,
-            )
-        )
+        payload: dict[str, object] = {
+            "path": path,
+            "steps": [s.to_dict() for s in steps],
+        }
+        if llm_result is not None:
+            payload["llm"] = {
+                "steps": list(llm_result.steps),
+                "raw_response": llm_result.raw_response,
+                "used_fallback": llm_result.used_fallback,
+            }
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
     else:
         print(_format_path_text(path))
         print()
         print("Instructions:")
         for line in describe_path(graph, path):
             print(f"  {line}")
+        if llm_result is not None:
+            print()
+            label = "LLM rewrite (fallback)" if llm_result.used_fallback else "LLM rewrite"
+            print(f"{label}:")
+            for i, text in enumerate(llm_result.steps, start=1):
+                print(f"  {i}. {text}.")
     return 0
 
 
@@ -457,6 +485,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="generate a human-readable step-by-step description of a plan",
     )
     _add_plan_args(p_describe)
+    add_llm_args(p_describe, with_style=True)
     p_describe.set_defaults(func=cmd_describe_path)
 
     p_plot = sub.add_parser("plot", help="render a graph (and optional path) with matplotlib")
