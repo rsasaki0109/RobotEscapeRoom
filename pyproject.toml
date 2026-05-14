@@ -36,6 +36,9 @@ dev = [
 viz = [
     "matplotlib>=3.5",
 ]
+viz_web = [
+    "pyvis>=0.3",
+]
 map = [
     "numpy>=1.22",
     "scikit-image>=0.20",
