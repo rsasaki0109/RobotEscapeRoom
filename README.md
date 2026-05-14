@@ -472,14 +472,16 @@ semantic-toponav waypoints scratch.yaml a c
 ## ROS2 integration
 
 The core Python package is ROS-independent. The ROS2 wrapper lives under
-`ros2/semantic_toponav_ros/`. See [`ros2/README.md`](ros2/README.md) for the
-adapter design and the Nav2 integration boundary.
+`ros2/semantic_toponav_ros/` and the custom message definitions under
+`ros2/semantic_toponav_msgs/`. See [`ros2/README.md`](ros2/README.md) for the
+adapter design, the JSON vs typed-message comparison, and the Nav2
+integration boundary.
 
 ## Project status
 
-This is the MVP. Things explicitly out of scope for the first version include
-custom ROS messages, a behavior-tree Nav2 plugin, occupancy-to-topology
-conversion, VLM labeling, and CLIP embeddings. See
+This is the MVP. Things explicitly out of scope for the first version
+include a behavior-tree Nav2 plugin, occupancy-to-topology conversion, VLM
+labeling, and CLIP embeddings. See
 [`docs/decisions.md`](docs/decisions.md) for the reasoning and
 [`docs/experiments.md`](docs/experiments.md) for future directions.
 
