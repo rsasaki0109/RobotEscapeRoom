@@ -31,6 +31,7 @@ from semantic_toponav.planner import (
     prefer_elevator,
     prefer_floor,
     same_floor_only,
+    time_aware,
 )
 from semantic_toponav.planner.errors import NoPathError, PlanningError
 from semantic_toponav.waypoint.describe import describe_path, path_to_steps
@@ -83,6 +84,9 @@ def _build_cost_fn(args: argparse.Namespace, graph=None) -> Callable[[TopologyEd
                     now=getattr(args, "now", None),
                 )
             )
+        at_time = getattr(args, "at_time", None)
+        if at_time is not None:
+            fns.append(time_aware(graph, at_time=at_time))
     if not fns:
         return default_edge_cost
     return compose_costs(*fns)
@@ -384,6 +388,14 @@ def _add_plan_args(p: argparse.ArgumentParser) -> None:
         type=float,
         metavar="TS",
         help="UNIX timestamp used as 'now' for --avoid-recent (default: wall clock)",
+    )
+    p.add_argument(
+        "--at-time",
+        metavar="HH:MM",
+        help=(
+            "treat edges/nodes whose 'closed_during' property covers this "
+            "time as blocked (time-of-day, recurring; HH:MM or HH:MM:SS)"
+        ),
     )
     p.add_argument(
         "--format",
