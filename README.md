@@ -95,6 +95,38 @@ graph = topology_from_occupancy(grid, resolution=0.25)
 |-----------------------------------------|----------------------|
 | ![grid](docs/images/05_occupancy_graph.png) | ![path](docs/images/06_occupancy_graph_with_path.png) |
 
+## Dynamic edge availability
+
+Block specific edges or whole edge types at plan time without mutating the
+graph. Useful for runtime state — "this corridor is closed for cleaning",
+"the freight elevator is down" — that should affect *this* plan but not
+the next one.
+
+```python
+from semantic_toponav.planner import (
+    plan_astar, block_edges, block_edge_types, compose_costs, prefer_elevator,
+)
+
+# Plan as if the freight elevator and one stairwell were unusable.
+path = plan_astar(
+    graph, "entrance", "exec_office_3f",
+    cost_fn=compose_costs(
+        prefer_elevator,
+        block_edges(["elevator_link_freight"]),
+        block_edge_types({"stairs_up"}),
+    ),
+)
+```
+
+```bash
+semantic-toponav plan multi_floor_office.yaml entrance exec_office_3f \
+    --block-edge-type stairs_up \
+    --block-edge e_corridor_2f_to_office_2f
+```
+
+Both flags are repeatable. A blocked edge returns `math.inf` from the cost
+function and `NoPathError` is raised if blocking removes the last route.
+
 ## Multi-floor navigation
 
 When nodes carry a `floor` property, three additional cost helpers and one
