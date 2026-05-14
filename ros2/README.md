@@ -36,6 +36,7 @@ Autoware). This repository does **not** implement that local executor.
 |------|--------|---------|
 | `graph_loader_node` | `graph_loader` | load and validate a topology graph at startup, and publish it as a latched `TopologyGraph` |
 | `waypoint_publisher_node` | `waypoint_publisher` | plan a route and publish semantic waypoints |
+| `nav2_demo_node` | `nav2_demo` | worked example: forward semantic waypoints to Nav2's `NavigateThroughPoses` action |
 
 ### Build
 
@@ -117,18 +118,43 @@ live in
 
 ## Nav2 integration — MVP
 
-For the first iteration the contract with Nav2 is intentionally minimal:
+The contract with Nav2 is intentionally minimal:
 
 1. `waypoint_publisher_node` plans on the topology graph.
-2. It publishes `path` + `waypoints` (each with optional `pose`) as JSON on
-   `/semantic_toponav/waypoints`.
-3. A user-provided adapter subscribes to that topic, extracts poses, and
-   sends them to Nav2 (typically `NavigateThroughPoses`).
+2. It publishes `path` + `waypoints` (each with optional `pose`) on
+   `/semantic_toponav/waypoints` — either as a `SemanticWaypointArray`
+   (`output_format:=msg`) or as a JSON `std_msgs/String` (default).
+3. An adapter subscribes, extracts poses, and sends them to Nav2 (typically
+   `NavigateThroughPoses`).
 
-The adapter is intentionally **not** included in this repository. It depends
-on the user's Nav2 stack and is small enough to write per deployment. A
-worked example will live under `ros2/semantic_toponav_ros/semantic_toponav_ros/nav2_demo_node.py`
-in a follow-up.
+A reference implementation of step 3 ships as
+[`nav2_demo_node`](semantic_toponav_ros/semantic_toponav_ros/nav2_demo_node.py).
+It expects the typed `SemanticWaypointArray` form, converts each pose-bearing
+waypoint into a `geometry_msgs/PoseStamped` (the planar yaw → quaternion
+conversion uses [`yaw_to_quaternion`](semantic_toponav_ros/semantic_toponav_ros/msg_conversions.py)),
+and sends a one-shot goal to the Nav2 action server. Pose-less waypoints
+(start/abstract/pass-through) are skipped.
+
+```bash
+# Terminal 1: publish the typed waypoint array.
+ros2 run semantic_toponav_ros waypoint_publisher \
+  --ros-args \
+    -p graph_path:=$PWD/examples/indoor_office.yaml \
+    -p start_node:=entrance \
+    -p goal_node:=office_2f \
+    -p output_format:=msg
+
+# Terminal 2: bridge it into Nav2.
+ros2 run semantic_toponav_ros nav2_demo \
+  --ros-args \
+    -p waypoints_topic:=/semantic_toponav/waypoints \
+    -p action_name:=navigate_through_poses
+```
+
+`nav2_demo_node` requires `nav2_msgs` to be on the workspace path; the
+repository does **not** declare it as a build dependency so that the
+adapter package still builds on robots without Nav2. The node fails fast
+with a clear error message if `nav2_msgs` is not importable at runtime.
 
 ## JSON vs custom messages
 

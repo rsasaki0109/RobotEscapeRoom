@@ -9,9 +9,11 @@ environment; they are out of scope here.
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 
 from semantic_toponav_ros.msg_conversions import (
+    pose2d_to_pose_stamped_fields,
     semantic_waypoint_array_to_fields,
     semantic_waypoint_from_fields,
     semantic_waypoint_to_fields,
@@ -21,6 +23,7 @@ from semantic_toponav_ros.msg_conversions import (
     topology_graph_to_fields,
     topology_node_from_fields,
     topology_node_to_fields,
+    yaw_to_quaternion,
 )
 
 from semantic_toponav.graph.serialization import load_graph
@@ -236,3 +239,39 @@ def test_graph_publish_payload_round_trip_from_example_yaml() -> None:
     assert set(restored.edge_ids()) == set(graph.edge_ids())
     for nid in graph.node_ids():
         assert restored.get_node(nid) == graph.get_node(nid)
+
+
+# --------------------------- Nav2 bridge helpers ----------------------------
+
+
+def test_yaw_to_quaternion_identity_at_zero() -> None:
+    assert yaw_to_quaternion(0.0) == (0.0, 0.0, 0.0, 1.0)
+
+
+def test_yaw_to_quaternion_quarter_turn() -> None:
+    qx, qy, qz, qw = yaw_to_quaternion(math.pi / 2)
+    assert qx == 0.0
+    assert qy == 0.0
+    assert math.isclose(qz, math.sqrt(0.5))
+    assert math.isclose(qw, math.sqrt(0.5))
+
+
+def test_yaw_to_quaternion_is_unit_norm() -> None:
+    for yaw in (-math.pi, -1.5, -0.3, 0.0, 0.3, 1.5, math.pi):
+        qx, qy, qz, qw = yaw_to_quaternion(yaw)
+        assert math.isclose(qx**2 + qy**2 + qz**2 + qw**2, 1.0, abs_tol=1e-12)
+
+
+def test_pose2d_to_pose_stamped_fields_uses_pose_frame_by_default() -> None:
+    pose = Pose2D(x=1.0, y=-2.0, yaw=math.pi, frame_id="odom")
+    fields = pose2d_to_pose_stamped_fields(pose)
+    assert fields["header"] == {"frame_id": "odom"}
+    assert fields["pose"]["position"] == {"x": 1.0, "y": -2.0, "z": 0.0}
+    qx, qy, qz, qw = yaw_to_quaternion(math.pi)
+    assert fields["pose"]["orientation"] == {"x": qx, "y": qy, "z": qz, "w": qw}
+
+
+def test_pose2d_to_pose_stamped_fields_frame_override_wins() -> None:
+    pose = Pose2D(x=0.0, y=0.0, yaw=0.0, frame_id="odom")
+    fields = pose2d_to_pose_stamped_fields(pose, frame_id="map")
+    assert fields["header"] == {"frame_id": "map"}
