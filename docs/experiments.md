@@ -115,6 +115,21 @@ landed. Each links to the still-relevant follow-up work.
   differ in length, `--keep-strategy shortest|longest|first` for which
   edge survives. Targets the parallel-skeleton-branch artifact that
   `topology_from_occupancy` leaves behind in wide corridors.
+- VLM / CLIP encoder integration — pluggable
+  `semantic_toponav.encoders.Backend` protocol with two concrete
+  encoders (`HashingBackend`: deterministic, dependency-free, ideal
+  for CI / smoke tests; `CLIPBackend`: lazy HuggingFace
+  `transformers.CLIPModel` wrapper gated on the `[vlm]` extra) plus a
+  `conversion.vlm.embed_region_patches` bridge that consumes
+  `annotate_regions`' `RegionInfo.bbox_cells`, crops one patch per
+  labeled component, embeds it, and stamps the resulting L2-normalized
+  vector onto every node carrying the matching `region_id`. The text-
+  and image-vectors live in the same protocol so a NL query embedded
+  with the same backend rides the existing
+  `find_nodes_by_embedding` / `nearest_node_by_embedding` similarity
+  helpers without extra glue. Reachable from the CLI as
+  `semantic-toponav embed-regions GRAPH MAP --backend hashing|clip
+  [--image RGB.png --pad-cells N --include-region RID --in-place]`.
 - Multi-agent shared-resource reservations (`Reservation` /
   `ReservationTable` / `reservation_aware`, plus the
   `--reservations FILE` CLI flag on `plan` / `waypoints` /
@@ -154,11 +169,16 @@ What's still open. Each is a candidate for an experiment branch.
   :class:`IterativeFusionResult` with per-iteration history and a
   converged flag, oscillation-safe via `max_iterations`). What's
   still open is validating the result on a real recorded run.
-- **VLM / CLIP labeling of regions**: the retrieval / similarity layer
-  (`find_nodes_by_embedding`, `nearest_node_by_embedding`) already
-  ships. What's deferred is the *encoder* integration — wiring a
-  concrete CLIP / SigLIP backbone in, batching, and a region segmenter
-  that decides which patches to embed per node.
+- **VLM / CLIP labeling of regions** follow-ups: the encoder layer
+  now ships (see the "Shipped" entry — `HashingBackend` for tests +
+  `CLIPBackend` for real semantics, batched, plus
+  `embed_region_patches` keying off `annotate_regions` bboxes). What's
+  still open is *learned* region segmentation — today the patch
+  anchors are connected-component bboxes from a binarized occupancy
+  grid, so the encoder embeds geometric extents rather than rendered
+  RGB photographs of the actual rooms. Wiring an aligned-RGB pipeline
+  (Mast3R / mesh-render / robot-camera keyframes) and a finer-grained
+  patch segmenter on top of it is the natural next step.
 
 ### Planning
 

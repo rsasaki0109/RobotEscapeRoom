@@ -13,6 +13,7 @@ from semantic_toponav.cli.occupancy_cli import (
     register_subcommands as register_occupancy_subcommands,
 )
 from semantic_toponav.cli.query_cli import register_subcommands as register_query_subcommands
+from semantic_toponav.cli.vlm_cli import register_subcommands as register_vlm_subcommands
 from semantic_toponav.graph.serialization import GraphLoadError, load_graph
 from semantic_toponav.graph.topology_graph import TopologyGraph
 from semantic_toponav.graph.types import GraphValidationError, TopologyEdge
@@ -529,6 +530,7 @@ def build_parser() -> argparse.ArgumentParser:
     register_query_subcommands(sub)
     register_memory_subcommands(sub)
     register_occupancy_subcommands(sub)
+    register_vlm_subcommands(sub)
 
     return parser
 
