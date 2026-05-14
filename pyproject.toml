@@ -44,6 +44,11 @@ map = [
     "numpy>=1.22",
     "scikit-image>=0.20",
 ]
+vlm = [
+    "transformers>=4.30",
+    "torch>=2.0",
+    "Pillow>=9.0",
+]
 
 [project.scripts]
 semantic-toponav = "semantic_toponav.cli.main:main"
@@ -83,3 +88,4 @@ ignore = ["E501"]
 "tests/test_live_viewer.py" = ["E402"]
 "tests/test_waypoint_schema.py" = ["E402"]
 "tests/test_web_visualization.py" = ["E402"]
+"tests/test_vlm_embed.py" = ["E402"]

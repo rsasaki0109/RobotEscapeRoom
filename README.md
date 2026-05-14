@@ -594,6 +594,46 @@ goal = nearest_node_by_embedding(graph, query_vec, type="room")
 `python examples/embedding_demo.py` runs a self-contained demo using
 deterministic toy embeddings.
 
+### VLM / CLIP encoder integration
+
+Vectors don't have to be hand-rolled. The `semantic_toponav.encoders`
+subpackage exposes a `Backend` protocol with two concrete encoders:
+
+- `HashingBackend` — deterministic SHA-derived encoder. Zero
+  dependencies. Same input always produces the same L2-normalized
+  vector — useful for tests, demos, and as a smoke-test backend when
+  the heavier deps aren't available.
+- `CLIPBackend` — lazy `transformers.CLIPModel` wrapper. Requires the
+  `[vlm]` extra (`pip install 'semantic-toponav[vlm]'`); model +
+  processor load on the first `embed_*` call.
+
+The natural pair is `embed_region_patches`, which crops one image
+patch per `annotate_regions` component, embeds it, and stamps the
+result onto every graph node carrying that region id:
+
+```python
+from semantic_toponav.conversion.occupancy import annotate_regions
+from semantic_toponav.conversion.vlm import embed_region_patches
+from semantic_toponav.encoders import HashingBackend, CLIPBackend
+
+regions = annotate_regions(graph, occ.free_mask, resolution=occ.resolution)
+backend = CLIPBackend()  # or HashingBackend(dim=64) for tests
+embed_region_patches(graph, occ.free_mask, regions, backend)
+
+# Every node now carries node.properties["embedding"], so the existing
+# find_nodes_by_embedding query helper works out of the box.
+```
+
+CLI form:
+
+```bash
+semantic-toponav embed-regions graph.yaml map.yaml \
+    --backend hashing --dim 64 --in-place
+# or with a real RGB photo aligned to the floor plan:
+semantic-toponav embed-regions graph.yaml map.yaml \
+    --backend clip --image rendered.png --pad-cells 2 --in-place
+```
+
 ### Visit-history memory
 
 A small memory layer records when each node was last visited, then lets
