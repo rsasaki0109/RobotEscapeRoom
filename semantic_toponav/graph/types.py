@@ -27,7 +27,7 @@ class Pose2D:
         return {"x": self.x, "y": self.y, "yaw": self.yaw, "frame_id": self.frame_id}
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Pose2D":
+    def from_dict(cls, data: dict[str, Any]) -> Pose2D:
         return cls(
             x=float(data["x"]),
             y=float(data["y"]),
