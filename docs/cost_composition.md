@@ -72,6 +72,45 @@ path = plan_astar(graph, "entrance", "kitchen",
 
 `time_aware` composes with the other cost functions via `compose_costs`.
 
+### Calendar-aware closures
+
+Pair `--at-time` with `--at-date YYYY-MM-DD` to unlock weekday filters
+and per-date overrides:
+
+```yaml
+edges:
+  - id: corridor_clean
+    source: lobby
+    target: corridor_main
+    type: traversable
+    properties:
+      # Three-element form: [start, end, weekdays]. weekdays is a list
+      # of ints (Mon=0..Sun=6) or three-letter names ('mon'..'sun').
+      closed_during: [["09:00", "17:00", ["mon","tue","wed","thu","fri"]]]
+      # Full-day closures on specific ISO dates (holidays, maintenance).
+      closed_on_dates: ["2026-12-25", "2026-01-01"]
+```
+
+```bash
+semantic-toponav plan office.yaml entrance kitchen \
+    --at-time 10:00 --at-date 2026-05-15
+```
+
+```python
+from datetime import date
+path = plan_astar(graph, "entrance", "kitchen",
+                  cost_fn=time_aware(graph, at_time="10:00",
+                                     at_date=date(2026, 5, 15)))
+# Or pass a datetime — the date is derived automatically:
+from datetime import datetime
+cost = time_aware(graph, at_time=datetime(2026, 5, 15, 10, 0))
+```
+
+Two-element `[start, end]` entries remain backward compatible and
+apply every day. A weekday-filtered entry seen without `at_date`
+raises `ValueError` rather than silently letting the planner route
+through what may be a closed edge.
+
 ## Static multi-agent reservations
 
 For the static "another agent has already booked this resource" case

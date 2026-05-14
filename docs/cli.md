@@ -10,7 +10,8 @@ subcommand with `--help` for the full per-command flag list.
 semantic-toponav validate  GRAPH
 semantic-toponav plan      GRAPH START GOAL [--algorithm astar|dijkstra]
                                             [--avoid-restricted] [--avoid-stairs]
-                                            [--prefer-elevator] [--at-time HH:MM]
+                                            [--prefer-elevator]
+                                            [--at-time HH:MM [--at-date YYYY-MM-DD]]
                                             [--prefer-unvisited [--visited-multiplier M]]
                                             [--prefer-familiar [--familiar-multiplier M]]
                                             [--avoid-recent SECONDS [--recent-multiplier M] [--now TS]]
