@@ -102,12 +102,24 @@ def _build_prompt(
     steps: Sequence[PathStep],
     *,
     style: str | None,
+    situation: str | None,
+    is_partial: bool,
 ) -> str:
     lines = [
         "Rewrite the following navigation steps into natural prose for "
         "a human reader. Keep exactly the same numbering and step count.",
         "",
     ]
+    if is_partial:
+        lines.append(
+            "The reader has already completed earlier steps in a longer "
+            "plan; rewrite only the remaining steps below and keep their "
+            "original step numbers as shown."
+        )
+        lines.append("")
+    if situation:
+        lines.append(f"Current situation: {situation}")
+        lines.append("")
     if style:
         lines.append(f"Target style: {style}.")
         lines.append("")
@@ -123,13 +135,13 @@ def _build_prompt(
     return "\n".join(lines)
 
 
-def _parse_numbered_lines(text: str, expected: int) -> list[str] | None:
+def _parse_numbered_lines(text: str, expected_indices: Sequence[int]) -> list[str] | None:
     """Parse ``N. <text>`` lines out of the response.
 
-    Returns ``None`` when the response does not contain exactly
-    ``expected`` such lines — the caller falls back to deterministic
-    text in that case so a malformed reply never loses or duplicates
-    a step.
+    Returns ``None`` when the response does not contain exactly the
+    indices in ``expected_indices`` (in order) — the caller falls back
+    to deterministic text in that case so a malformed reply never
+    loses, duplicates, or renumbers a step.
     """
     out: list[str] = []
     seen_indices: list[int] = []
@@ -139,9 +151,7 @@ def _parse_numbered_lines(text: str, expected: int) -> list[str] | None:
             continue
         seen_indices.append(int(m.group(1)))
         out.append(m.group(2))
-    if len(out) != expected:
-        return None
-    if seen_indices != list(range(1, expected + 1)):
+    if seen_indices != list(expected_indices):
         return None
     return out
 
@@ -154,6 +164,8 @@ def llm_describe_path(
     style: str | None = None,
     include_floor_changes: bool = True,
     system: str | None = None,
+    start_index: int = 0,
+    situation: str | None = None,
 ) -> LLMDescribeResult:
     """Rewrite a deterministic path narration via an LLM backend.
 
@@ -181,6 +193,21 @@ def llm_describe_path(
         instruction tells the model not to merge / split / reorder
         steps; pass a custom one only if you intentionally want
         different behavior.
+    start_index:
+        Index into ``path`` of the first node the rewrite should cover.
+        ``0`` (the default) rewrites the whole plan from the start.
+        Larger values are for **mid-traversal rewrites**: the agent has
+        already visited ``path[:start_index]``, and only ``path[start_index:]``
+        should be rewritten. Step numbering is preserved from the full
+        plan — if the LLM is rewriting step 4 and 5, the response is
+        expected to start with ``4.``. ``start_index >= len(path)``
+        returns an empty result without calling the backend.
+    situation:
+        Optional natural-language context for the LLM about why the
+        rewrite was requested mid-traversal — e.g. ``"corridor_main
+        is closed for cleaning"`` or ``"running 5 minutes behind
+        schedule"``. Injected verbatim into the prompt so the model
+        can take it into account when rephrasing the remaining steps.
 
     Returns
     -------
@@ -188,18 +215,40 @@ def llm_describe_path(
         ``steps`` holds the rewritten lines (or deterministic fallback
         when the reply was unparseable); ``raw_response`` carries the
         unmodified backend output; ``base_steps`` is the deterministic
-        floor; ``used_fallback`` records whether the rewrite was
-        accepted.
+        floor for the rewritten slice (step indices preserved from the
+        full plan when ``start_index > 0``); ``used_fallback`` records
+        whether the rewrite was accepted.
     """
-    base = path_to_steps(graph, path, include_floor_changes=include_floor_changes)
-    if not base:
+    if start_index < 0:
+        raise ValueError(f"start_index must be >= 0, got {start_index}")
+
+    full = path_to_steps(graph, path, include_floor_changes=include_floor_changes)
+    if not full:
         return LLMDescribeResult(steps=[], raw_response="", base_steps=[])
 
-    prompt = _build_prompt(graph, base, style=style)
+    if start_index >= len(path):
+        return LLMDescribeResult(steps=[], raw_response="", base_steps=[])
+
+    if start_index == 0:
+        base = full
+    else:
+        target_node = path[start_index]
+        slice_start: int | None = None
+        for i, step in enumerate(full):
+            if step.node_id == target_node:
+                slice_start = i
+                break
+        if slice_start is None:
+            return LLMDescribeResult(steps=[], raw_response="", base_steps=[])
+        base = full[slice_start:]
+
+    is_partial = start_index > 0
+    prompt = _build_prompt(graph, base, style=style, situation=situation, is_partial=is_partial)
     sys_msg = system if system is not None else _DEFAULT_SYSTEM
     raw = backend.generate(prompt, system=sys_msg)
 
-    parsed = _parse_numbered_lines(raw, expected=len(base))
+    expected_indices = [step.index for step in base]
+    parsed = _parse_numbered_lines(raw, expected_indices)
     if parsed is None:
         fallback = [step.text for step in base]
         return LLMDescribeResult(
