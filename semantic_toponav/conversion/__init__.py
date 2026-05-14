@@ -4,7 +4,10 @@ from semantic_toponav.conversion.csv_io import (
 )
 from semantic_toponav.conversion.fusion import (
     AnnotationResult,
+    IterativeFusionResult,
+    IterativeFusionStep,
     annotate_graph_with_trajectories,
+    fuse_trajectories_iteratively,
     promote_unmapped_transitions,
     prune_low_traversal_edges,
 )
@@ -25,10 +28,13 @@ __all__ = [
     "SUPPORTED_MESSAGE_TYPES",
     "AnnotationResult",
     "CsvTrajectoryLoadError",
+    "IterativeFusionResult",
+    "IterativeFusionStep",
     "MapLoadError",
     "OccupancyMap",
     "RosbagTrajectoryLoadError",
     "annotate_graph_with_trajectories",
+    "fuse_trajectories_iteratively",
     "load_occupancy_map",
     "load_trajectories_from_csv",
     "load_trajectories_from_rosbag",

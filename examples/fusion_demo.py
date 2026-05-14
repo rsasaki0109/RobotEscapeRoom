@@ -21,6 +21,7 @@ import numpy as np
 
 from semantic_toponav.conversion import (
     annotate_graph_with_trajectories,
+    fuse_trajectories_iteratively,
     topology_from_occupancy,
 )
 
@@ -81,6 +82,25 @@ def main() -> None:
         print(
             f"  {edge.id:<30s} count={count}  "
             f"({src.x:.2f},{src.y:.2f}) -> ({tgt.x:.2f},{tgt.y:.2f})"
+        )
+
+    # Now show the high-level wrapper on a fresh skeleton: it loops
+    # annotate -> prune -> promote until the topology stabilises.
+    graph2 = topology_from_occupancy(grid, resolution=resolution)
+    out = fuse_trajectories_iteratively(
+        graph2, trajectories, max_snap_distance=1.0, prune_min_traversals=1
+    )
+    print(
+        f"\niterative: {out.iterations} iteration(s), "
+        f"converged={out.converged}, "
+        f"final graph has {len(graph2.node_ids())} nodes "
+        f"and {len(graph2.edge_ids())} edges"
+    )
+    for step in out.history:
+        print(
+            f"  iter {step.iteration}: "
+            f"+{len(step.promoted_edge_ids)} promoted, "
+            f"-{len(step.pruned_edge_ids)} pruned"
         )
 
 
