@@ -95,14 +95,19 @@ landed. Each links to the still-relevant follow-up work.
   `clamp(1.0 - Σ(weight × score), min_multiplier, max_multiplier)`.
   The clamp (default `0.1` floor, `10.0` ceiling) keeps any single
   strong preference from fully zeroing an edge or sending the cost
-  to infinity — use `block_edges` / `time_aware` for hard cuts.
-  Composes with the rest of the cost-function family so a single
-  query can honor restricted-edge bans, time-of-day closures,
-  reservations, *and* a scenic-vs-crowded preference at the same
-  time. The "shortest vs scenic vs least-crowded の自然な抽象化"
-  Future Direction is now organized as exactly this generic
-  preference blender with caller-defined keys, rather than as
-  named per-dimension cost helpers.
+  to infinity — use `block_edges` / `time_aware` for hard cuts. Nodes
+  may also carry the same `preferences` mapping: incident edges that
+  don't specify a value for a given key inherit the average over any
+  endpoint nodes that carry the key, so a whole "scenic park" region
+  can be tagged on one or two nodes rather than every edge — disable
+  with `use_node_defaults=False`. Composes with the rest of the
+  cost-function family so a single query can honor restricted-edge
+  bans, time-of-day closures, reservations, *and* a
+  scenic-vs-crowded preference at the same time. The "shortest vs
+  scenic vs least-crowded の自然な抽象化" Future Direction is now
+  organized as exactly this generic preference blender with
+  caller-defined keys, rather than as named per-dimension cost
+  helpers.
 - Time-of-day edge / node restrictions
   (`time_aware(graph, at_time=...)`, plus the `--at-time HH:MM` CLI
   flag) — edges (and edges incident to closed nodes) carry an

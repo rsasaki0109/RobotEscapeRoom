@@ -150,13 +150,51 @@ cost = preference_aware(graph, preferences={"scenic": 1.0, "crowded": -0.5})
 path = plan_astar(graph, "entrance", "courtyard", cost_fn=cost)
 ```
 
-For each edge, `score = Σ(weight[k] * edge.preferences.get(k, 0))`,
-the cost multiplier is `clamp(1.0 - score, min_multiplier=0.1,
+For each edge, `score = Σ(weight[k] * value[k])`, where `value[k]` is
+the edge's own `preferences[k]` if present, otherwise the average over
+any endpoint nodes that carry the same key (the next section). The
+cost multiplier is `clamp(1.0 - score, min_multiplier=0.1,
 max_multiplier=10.0)`, and the final cost is `edge.cost * multiplier`.
 Missing keys on the edge contribute `0` (a typo'd preference name is
 simply inert rather than an error). Use `block_edges` / `time_aware`
 for hard cuts — `preference_aware` deliberately can't fully zero an
 edge.
+
+### Node-level preference defaults
+
+Annotate whole rooms or regions instead of every edge: put the same
+`preferences` mapping on a node, and incident edges that don't specify
+their own value for a key inherit the average over the endpoints that
+do.
+
+```yaml
+nodes:
+  - id: park_center
+    label: Park
+    type: room
+    properties:
+      preferences: {scenic: 1.0}
+edges:
+  - id: park_entry
+    source: entrance
+    target: park_center
+    type: traversable
+    cost: 5.0
+    # no preferences on the edge — scenic inherited from park_center
+```
+
+Rules:
+
+- The edge's own `preferences[k]` wins per-key when present (you can
+  override a region default for one specific corridor).
+- When neither endpoint carries the key, the contribution is `0`
+  (matching the edge-only behavior). You only annotate the noteworthy
+  nodes — untagged nodes are "no opinion," not "explicit zero."
+- An endpoint with `scenic: 0.0` *is* an opinion and dilutes the
+  average (use this to mark "definitely not scenic" boundaries).
+
+Disable the inheritance with `use_node_defaults=False` on the Python
+API if you want strictly edge-only scoring.
 
 `preference_aware` composes with the rest of the cost-function family,
 so a single query can honor restricted-edge bans, time-of-day

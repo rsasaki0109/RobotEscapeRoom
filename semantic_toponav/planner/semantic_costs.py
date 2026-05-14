@@ -172,6 +172,7 @@ def preference_aware(
     preference_property: str = DEFAULT_PREFERENCES_PROPERTY,
     min_multiplier: float = 0.1,
     max_multiplier: float = 10.0,
+    use_node_defaults: bool = True,
 ) -> CostFn:
     """Blend soft per-edge preference scores into the cost.
 
@@ -184,10 +185,23 @@ def preference_aware(
     negative for "I want less" — and the per-edge contribution is the
     dot product::
 
-        score(edge) = sum(weight[k] * preferences[k] for k in weight)
+        score(edge) = sum(weight[k] * value[k] for k in weight)
 
-    Missing keys on the edge contribute ``0`` (the default for "unknown
-    preference"). The returned cost is the edge's base cost scaled by a
+    where ``value[k]`` is taken from the edge's preferences if present,
+    otherwise (when ``use_node_defaults=True``, the default) from the
+    average over any endpoint nodes that carry the same key. So tagging
+    a whole "park" node ``{scenic: 1.0}`` lets every edge incident on
+    that node inherit a scenic score of ``1.0``; an edge between two
+    park nodes also inherits ``1.0`` (average over both); an edge
+    between a park node and a node tagged ``{scenic: 0.0}`` inherits
+    ``0.5`` (the real average). Endpoints that do not carry the key at
+    all are treated as "no opinion" and skipped from the average — so
+    you can annotate only the noteworthy nodes. An edge's own
+    ``preferences`` override the inherited value per-key. Keys absent
+    from both the edge and its endpoints contribute ``0`` (the default
+    for "unknown preference").
+
+    The returned cost is the edge's base cost scaled by a
     linear-clamped multiplier::
 
         multiplier = clamp(1.0 - score, min_multiplier, max_multiplier)
@@ -204,23 +218,25 @@ def preference_aware(
     Parameters
     ----------
     graph:
-        The graph (unused except for the parameter symmetry with the
-        other graph-aware cost helpers, in case future versions want
-        to read node-level preference defaults).
+        The graph. Used to read node-level preference defaults when
+        ``use_node_defaults=True``.
     preferences:
         Mapping from preference key to weight. Weights are unbounded
         floats; values are typically in ``[-1, 1]`` to keep multipliers
         in a reasonable range, but the caller decides.
     preference_property:
-        Edge property name to read the per-edge score dict from. Defaults
-        to ``"preferences"``.
+        Property name to read the per-edge AND per-node score dict from.
+        Defaults to ``"preferences"``.
     min_multiplier, max_multiplier:
         Lower and upper bounds on the cost multiplier. Defaults to
         ``0.1`` (90% discount cap) and ``10.0`` (10x penalty cap) so a
         single very-strong preference cannot fully zero out an edge or
         send the cost to infinity — use :func:`block_edges` for that.
+    use_node_defaults:
+        When True (default), unspecified per-edge values fall back to
+        the average of any endpoint nodes that carry the same key.
+        Set False to use edge preferences only.
     """
-    del graph  # reserved for future node-default support
     if not isinstance(preferences, Mapping):
         raise TypeError(
             f"preferences must be a mapping of key -> weight, got "
@@ -249,30 +265,72 @@ def preference_aware(
             )
         weights[key] = float(weight)
 
-    def _score(edge_prefs: object) -> float:
+    node_prefs: dict[str, dict[str, float]] = {}
+    if use_node_defaults:
+        for node in graph.nodes():
+            raw = node.properties.get(preference_property)
+            if raw is None:
+                continue
+            if not isinstance(raw, Mapping):
+                raise ValueError(
+                    f"node {node.id!r} {preference_property!r} must be a "
+                    f"mapping of key -> score, got {type(raw).__name__}"
+                )
+            entry: dict[str, float] = {}
+            for k, v in raw.items():
+                if not isinstance(k, str):
+                    raise ValueError(
+                        f"node {node.id!r} preference key must be str, "
+                        f"got {type(k).__name__}"
+                    )
+                if isinstance(v, bool) or not isinstance(v, (int, float)):
+                    raise ValueError(
+                        f"node {node.id!r} preference {k!r} must be numeric, "
+                        f"got {type(v).__name__}"
+                    )
+                entry[k] = float(v)
+            if entry:
+                node_prefs[node.id] = entry
+
+    def _node_default(src_id: str, tgt_id: str, key: str) -> float | None:
+        values: list[float] = []
+        for nid in (src_id, tgt_id):
+            d = node_prefs.get(nid)
+            if d is not None and key in d:
+                values.append(d[key])
+        if not values:
+            return None
+        return sum(values) / len(values)
+
+    def _edge_value(edge_prefs: object, key: str) -> float | None:
         if edge_prefs is None:
-            return 0.0
+            return None
         if not isinstance(edge_prefs, Mapping):
             raise ValueError(
                 f"edge {preference_property!r} must be a mapping of "
                 f"key -> score, got {type(edge_prefs).__name__}"
             )
-        total = 0.0
-        for key, weight in weights.items():
-            value = edge_prefs.get(key)
-            if value is None:
-                continue
-            if isinstance(value, bool) or not isinstance(value, (int, float)):
-                raise ValueError(
-                    f"edge preference {key!r} must be numeric, got "
-                    f"{type(value).__name__}"
-                )
-            total += weight * float(value)
-        return total
+        if key not in edge_prefs:
+            return None
+        value = edge_prefs[key]
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise ValueError(
+                f"edge preference {key!r} must be numeric, got "
+                f"{type(value).__name__}"
+            )
+        return float(value)
 
     def cost_fn(edge: TopologyEdge) -> float:
-        score = _score(edge.properties.get(preference_property))
-        raw_multiplier = 1.0 - score
+        edge_prefs = edge.properties.get(preference_property)
+        total = 0.0
+        for key, weight in weights.items():
+            value = _edge_value(edge_prefs, key)
+            if value is None and use_node_defaults:
+                value = _node_default(edge.source, edge.target, key)
+            if value is None:
+                continue
+            total += weight * value
+        raw_multiplier = 1.0 - total
         multiplier = max(min_multiplier, min(max_multiplier, raw_multiplier))
         return edge.cost * multiplier
 
