@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from semantic_toponav.cli.main import main
 
 
@@ -182,6 +184,65 @@ def test_eval_synthetic_soft_admission_zero_deadline_misses(
     ]
     # Soft admission never produces deadline_miss reason codes.
     assert all(row["metrics"]["deadline_miss_count"] == 0 for row in lines)
+
+
+def test_eval_synthetic_bnb_objective_minimax_runs(tmp_path: Path) -> None:
+    """--bnb-objective minimax_cost runs the BnB strategy under the
+    minimax-cost score function. The CLI should accept the flag and
+    write a row tagged with the bnb strategy."""
+    out_path = tmp_path / "minimax.jsonl"
+    rc = main(
+        [
+            "eval-synthetic",
+            "--scenario", "chain",
+            "--n-agents", "3",
+            "--seed", "0",
+            "--strategy", "bnb",
+            "--bnb-objective", "minimax_cost",
+            "--out", str(out_path),
+        ]
+    )
+    assert rc == 0
+    import json
+    rows = [
+        json.loads(ln)
+        for ln in out_path.read_text(encoding="utf-8").splitlines()
+        if ln.strip()
+    ]
+    assert len(rows) == 1
+    assert rows[0]["strategy"] == "bnb"
+
+
+def test_eval_synthetic_bnb_objective_max_fairness_runs(tmp_path: Path) -> None:
+    """--bnb-objective max_fairness runs the BnB strategy under the
+    Jain-fairness score function."""
+    out_path = tmp_path / "fair.jsonl"
+    rc = main(
+        [
+            "eval-synthetic",
+            "--scenario", "chain",
+            "--n-agents", "3",
+            "--seed", "0",
+            "--strategy", "bnb",
+            "--bnb-objective", "max_fairness",
+            "--out", str(out_path),
+        ]
+    )
+    assert rc == 0
+
+
+def test_eval_synthetic_bnb_objective_invalid_choice_rejected(capsys) -> None:
+    """An unknown bnb_objective value should fail the CLI parser."""
+    with pytest.raises(SystemExit):
+        main(
+            [
+                "eval-synthetic",
+                "--scenario", "chain",
+                "--n-agents", "2",
+                "--strategy", "bnb",
+                "--bnb-objective", "not_a_mode",
+            ]
+        )
 
 
 def test_eval_synthetic_strategy_bnb_opt_in(tmp_path: Path) -> None:
