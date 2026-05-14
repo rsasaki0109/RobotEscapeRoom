@@ -78,6 +78,40 @@ def test_waypoints_json(capsys) -> None:
     assert payload["waypoints"][0]["node_id"] == "entrance"
 
 
+def test_resolve_text(capsys) -> None:
+    rc = main(["resolve", EXAMPLE_YAML, "second", "floor", "office"])
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert "office_2f" in out
+    assert "floor 2 matches" in out
+    assert "label matches 'office'" in out
+
+
+def test_resolve_json(capsys) -> None:
+    rc = main(["resolve", EXAMPLE_YAML, "kitchen", "--format", "json"])
+    out = capsys.readouterr().out
+    assert rc == 0
+    payload = json.loads(out)
+    assert payload["query"] == "kitchen"
+    assert payload["candidates"][0]["node_id"] == "kitchen"
+    assert payload["candidates"][0]["score"] >= 2.0
+
+
+def test_resolve_no_match_prints_message(capsys) -> None:
+    rc = main(["resolve", EXAMPLE_YAML, "the", "secret", "garden"])
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert "no matches" in out
+
+
+def test_resolve_top_k_limits(capsys) -> None:
+    rc = main(["resolve", EXAMPLE_YAML, "floor", "2", "--top-k", "2", "--format", "json"])
+    out = capsys.readouterr().out
+    assert rc == 0
+    payload = json.loads(out)
+    assert len(payload["candidates"]) == 2
+
+
 def test_describe_path_text(capsys) -> None:
     rc = main(["describe-path", EXAMPLE_YAML, "entrance", "meeting_room"])
     out = capsys.readouterr().out

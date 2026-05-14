@@ -514,6 +514,19 @@ semantic-toponav find      GRAPH [--type T] [--label-contains S] [--label-equals
                                  [--prop KEY=VALUE ...] [--format text|json]
 semantic-toponav nearest   GRAPH (--from-pose X Y | --from-node ID)
                                  [...same filter flags as `find`...]
+semantic-toponav resolve   GRAPH "natural language goal text"
+                                 [--top-k N] [--format text|json]
+```
+
+`resolve` is a deterministic (no-LLM) free-text node lookup. It
+tokenizes the query, parses floor references (`2F` / `floor 2` /
+`second floor` / `2nd floor`), and ranks nodes by label / type token
+overlap plus floor match — useful as the offline floor under a later
+LLM resolver.
+
+```bash
+semantic-toponav resolve examples/indoor_office.yaml "the kitchen"
+semantic-toponav resolve examples/indoor_office.yaml "second floor office"
 ```
 
 Build a tiny graph from scratch:

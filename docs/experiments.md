@@ -63,6 +63,14 @@ landed. Each links to the still-relevant follow-up work.
   elevators / stairs / restricted edges and explicit floor-change
   call-outs. Intended as the deterministic floor under any later
   LLM-augmented instruction layer.
+- Deterministic natural-language goal resolution
+  (`semantic-toponav resolve GRAPH "second floor office"`, plus the
+  `resolve_goal` / `GoalCandidate` API) — bag-of-words scorer with
+  label/type token matches and floor-reference parsing (`2F` /
+  `floor 2` / `second floor` / `2nd floor`), with deterministic
+  tie-breaking. The text-only sibling of the embedding-based
+  `find_nodes_by_embedding`. Intended as the offline floor under any
+  later LLM resolver.
 - Three-floor end-to-end tutorial at `docs/tutorial.md`
 - Hybrid occupancy + trajectory pipeline
   (`annotate_graph_with_trajectories` + post-processing helpers
@@ -110,7 +118,10 @@ What's still open. Each is a candidate for an experiment branch.
 - LLM-augmented waypoint instructions on top of the deterministic
   `describe_path` output (the deterministic narration ships; the LLM
   rewriting layer that would consume those steps does not)
-- natural-language goal parsing ("meet me in the second-floor lab")
+- natural-language goal parsing — a deterministic resolver ships
+  (`resolve_goal` + `semantic-toponav resolve`). What's deferred is
+  the LLM layer that would take *its* top-k candidates plus the
+  user's full utterance and disambiguate / refine the choice.
 - topology graphs as scratchpad for embodied agents
 
 ### Tooling
