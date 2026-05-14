@@ -115,6 +115,17 @@ landed. Each links to the still-relevant follow-up work.
   differ in length, `--keep-strategy shortest|longest|first` for which
   edge survives. Targets the parallel-skeleton-branch artifact that
   `topology_from_occupancy` leaves behind in wide corridors.
+- Multi-agent shared-resource reservations (`Reservation` /
+  `ReservationTable` / `reservation_aware`, plus the
+  `--reservations FILE` CLI flag on `plan` / `waypoints` /
+  `describe-path`) — accepts a YAML/JSON table of
+  `(resource_id, [start, end])` claims (`resource_id` matches a node
+  *or* an edge id) and blocks any edge whose own id, or whose
+  source / target node id, is held at `--at-time`. Reads the same
+  `HH:MM` / midnight-wrap clock semantics as `time_aware` and composes
+  with the rest of the cost-function family — one query can honor
+  static cleaning windows on the graph *and* live claims from a
+  shared scheduler simultaneously.
 
 See `docs/decisions.md` D-10 for the original "non-goals" list with
 shipped / deferred markers.
@@ -154,9 +165,14 @@ What's still open. Each is a candidate for an experiment branch.
 - preference-aware planning (shortest vs scenic vs least-crowded)
 - temporal graphs — recurring HH:MM-window restrictions ship
   (`time_aware` + `--at-time`); what's still open is date-aware /
-  calendar-aware scheduling (holidays, specific dates) and
-  agent-routing under joint time + resource constraints.
-- multi-agent / shared-resource planning (one elevator, several robots)
+  calendar-aware scheduling (holidays, specific dates).
+- multi-agent / shared-resource planning — single-snapshot
+  reservations now ship (`reservation_aware` + `--reservations`, see
+  the "Shipped since the MVP" entry). What's still open is *online*
+  coordination: a shared scheduler that hands out and revokes claims
+  during execution, conflict resolution between simultaneous planners,
+  and joint optimization across an agent fleet rather than the
+  serial-after-publish model the reservation table assumes.
 
 ### Embodied AI
 

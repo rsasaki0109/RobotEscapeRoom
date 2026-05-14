@@ -256,6 +256,47 @@ path = plan_astar(graph, "entrance", "kitchen",
 
 `time_aware` composes with the other cost functions via `compose_costs`.
 
+### Multi-agent resource reservations
+
+`time_aware` reads recurring closures that live *on the graph*.
+`reservation_aware` handles claims that live *outside the graph* — another
+agent has booked a corridor, elevator, or room for a specific interval and
+this planner needs to route around the claim without editing the shared
+YAML.
+
+A reservation file is a flat list of `(resource_id, [start, end])` entries.
+`resource_id` may name either a node OR an edge — when the cost function is
+queried, the active set at `--at-time` is computed once, and any edge whose
+own id or whose endpoint is in that set is blocked.
+
+```yaml
+# reservations.yaml
+version: 1
+reservations:
+  - {resource_id: corridor_main, start: "10:00", end: "10:03", agent_id: robot_a}
+  - {resource_id: elevator_E1,   start: "10:01", end: "10:05", agent_id: robot_a}
+  - {resource_id: kitchen,       start: "12:00", end: "12:15", agent_id: robot_b}
+```
+
+```bash
+semantic-toponav plan office.yaml entrance lab_1f \
+    --reservations reservations.yaml --at-time 10:02
+```
+
+```python
+from semantic_toponav.planner import (
+    plan_astar, load_reservations, reservation_aware,
+)
+
+table = load_reservations("reservations.yaml")
+path = plan_astar(graph, "entrance", "lab_1f",
+                  cost_fn=reservation_aware(table, at_time="10:02"))
+```
+
+Reservations and time-of-day closures compose freely via `compose_costs`,
+so an `--at-time` query can simultaneously honor static cleaning windows
+on the graph and live claims from a shared scheduler.
+
 ## Multi-floor navigation
 
 When nodes carry a `floor` property, three additional cost helpers and one
