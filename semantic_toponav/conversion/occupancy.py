@@ -40,6 +40,26 @@ class DoorDetectionResult:
     node_ids: list[str] = field(default_factory=list)
     edge_ids: list[str] = field(default_factory=list)
 
+
+@dataclass
+class RegionInfo:
+    """Per-region metadata returned by :func:`annotate_regions`."""
+
+    region_id: int
+    area_cells: int
+    area_m2: float
+    centroid_world: tuple[float, float]
+    bbox_cells: tuple[int, int, int, int]
+
+
+@dataclass
+class RegionAnnotationResult:
+    """Summary returned by :func:`annotate_regions`."""
+
+    regions: dict[int, RegionInfo] = field(default_factory=dict)
+    node_ids: list[str] = field(default_factory=list)
+    doorway_node_ids: list[str] = field(default_factory=list)
+
 _NEIGHBOR_OFFSETS = [
     (dy, dx) for dy in (-1, 0, 1) for dx in (-1, 0, 1) if (dy, dx) != (0, 0)
 ]
@@ -413,5 +433,123 @@ def mark_doors_by_clearance(
         if c < threshold:
             graph.get_edge(edge_id).type = door_edge_type
             result.edge_ids.append(edge_id)
+
+    return result
+
+
+def annotate_regions(
+    graph: TopologyGraph,
+    grid: Any,
+    *,
+    resolution: float = 1.0,
+    origin: tuple[float, float] = (0.0, 0.0),
+    free_threshold: float = 0.5,
+    clearance_threshold: float | None = None,
+    clearance_percentile: float | None = None,
+    min_region_area: int = 0,
+    region_property: str = "region_id",
+    row_property: str = "row",
+    col_property: str = "col",
+) -> RegionAnnotationResult:
+    """Stamp connected-component region ids onto graph nodes.
+
+    Workflow:
+
+    1. Binarize ``grid`` with ``free_threshold``.
+    2. Optionally pinch off narrow passages: when ``clearance_threshold``
+       (or ``clearance_percentile`` for an auto value) is supplied, cells
+       whose Euclidean clearance to the nearest wall is below the
+       threshold are treated as walls, so rooms separated by doorways
+       become distinct components.
+    3. Label the remaining free mask with 4-connectivity. Components
+       smaller than ``min_region_area`` cells are dropped as noise.
+    4. For every node carrying ``row`` and ``col`` properties, look up
+       the region id at that cell and write it under
+       ``properties[region_property]``. Nodes whose cell falls inside a
+       pinched-off doorway (no region) are recorded in
+       ``doorway_node_ids`` and do **not** get a region id stamped.
+
+    The integer region ids are 1-based and stable for a given input
+    grid (consecutive ids from the underlying labeler). The walls in the
+    label array are 0 and never appear in :attr:`regions`.
+
+    Requires NumPy and scikit-image (and SciPy when clearance pinching
+    is enabled). Mutates the graph in place.
+    """
+    try:
+        import numpy as np
+        from skimage.measure import label, regionprops
+    except ImportError as exc:
+        raise ImportError(
+            "annotate_regions requires numpy and scikit-image. Install with "
+            "`pip install 'semantic-toponav[map]'`"
+        ) from exc
+
+    free = _binarize(grid, free_threshold)
+    if free.ndim != 2:
+        raise ValueError(f"grid must be 2D, got shape {free.shape}")
+    result = RegionAnnotationResult()
+    if not free.any():
+        return result
+
+    h, w = free.shape
+
+    mask = free
+    if clearance_threshold is not None or clearance_percentile is not None:
+        try:
+            from scipy.ndimage import distance_transform_edt
+        except ImportError as exc:
+            raise ImportError(
+                "annotate_regions with clearance pinching requires scipy. "
+                "Install with `pip install 'semantic-toponav[map]'`"
+            ) from exc
+        clearance_cells = distance_transform_edt(free)
+        clearance_m = clearance_cells * resolution
+        if clearance_threshold is None:
+            free_values = clearance_m[free]
+            threshold = float(
+                np.percentile(free_values, float(clearance_percentile))
+            )
+        else:
+            threshold = float(clearance_threshold)
+        mask = free & (clearance_m >= threshold)
+
+    labels = label(mask.astype(np.uint8), connectivity=1)
+
+    keep_ids: dict[int, int] = {}
+    next_id = 1
+    for props in regionprops(labels):
+        if props.area < min_region_area:
+            continue
+        keep_ids[int(props.label)] = next_id
+        cy, cx = props.centroid
+        wx, wy = _cell_to_world(
+            int(round(cy)), int(round(cx)),
+            height=h, resolution=resolution, origin=origin,
+        )
+        minr, minc, maxr, maxc = props.bbox
+        result.regions[next_id] = RegionInfo(
+            region_id=next_id,
+            area_cells=int(props.area),
+            area_m2=float(props.area) * resolution * resolution,
+            centroid_world=(wx, wy),
+            bbox_cells=(int(minr), int(minc), int(maxr) - 1, int(maxc) - 1),
+        )
+        next_id += 1
+
+    for node in graph.nodes():
+        ry = node.properties.get(row_property)
+        rx = node.properties.get(col_property)
+        if not (isinstance(ry, int) and isinstance(rx, int)):
+            continue
+        if not (0 <= ry < h and 0 <= rx < w):
+            continue
+        raw = int(labels[ry, rx])
+        mapped = keep_ids.get(raw, 0) if raw > 0 else 0
+        if mapped == 0:
+            result.doorway_node_ids.append(node.id)
+            continue
+        node.properties[region_property] = mapped
+        result.node_ids.append(node.id)
 
     return result

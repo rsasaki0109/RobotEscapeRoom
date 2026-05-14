@@ -124,6 +124,26 @@ result = mark_doors_by_clearance(graph, grid, resolution=0.05,
 print(result.node_ids, result.edge_ids)
 ```
 
+### Region segmentation (room-aware labels)
+
+`annotate_regions` runs connected-component labeling on free space and
+stamps `region_id` on every node-with-cells. When `clearance_threshold`
+(or `clearance_percentile`) is supplied the same distance transform
+used by the door detector pinches narrow passages off, so each room
+becomes a distinct component instead of one giant blob spanning the
+whole floor.
+
+```python
+from semantic_toponav.conversion import (
+    annotate_regions, topology_from_occupancy,
+)
+graph = topology_from_occupancy(grid, resolution=0.05)
+result = annotate_regions(graph, grid, resolution=0.05,
+                          clearance_threshold=0.6)  # pinch doorways
+for rid, info in result.regions.items():
+    print(rid, info.area_m2, info.centroid_world)
+```
+
 ## Dynamic edge availability
 
 Block specific edges or whole edge types at plan time without mutating the
