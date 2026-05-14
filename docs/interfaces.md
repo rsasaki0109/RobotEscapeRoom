@@ -320,6 +320,60 @@ dimension mismatch between the query and any candidate raises
 `ValueError`. The encoder itself (CLIP, SigLIP, sentence-transformers,
 custom) is out of scope — attach the vectors ahead of time.
 
+### Visit-history memory
+
+```python
+from semantic_toponav.memory import (
+    record_visit, record_path, clear_history,
+    visit_count, last_visited, time_since_visit,
+    prefer_unvisited, prefer_familiar, avoid_recently_visited,
+)
+
+record_visit(graph, "kitchen", now=None)              # now=None -> time.time()
+record_path(graph, ["a", "b", "c"], now=None)         # single timestamp for all
+visit_count(graph, "kitchen")                         # -> int (0 if never)
+last_visited(graph, "kitchen")                        # -> float | None
+time_since_visit(graph, "kitchen", now=None)          # -> float | None
+clear_history(graph, node_ids=None)                   # default: every node
+```
+
+Visit data is stored on `node.properties` (keys `visit_count`,
+`last_visited`) so it round-trips through the YAML/JSON serializer with
+no schema change. Both key names are configurable via `count_key=` /
+`timestamp_key=` if a graph already uses different conventions.
+
+The memory-aware cost factories follow the same pattern as the floor
+helpers — `f(graph, ...) -> (edge) -> float`:
+
+```python
+from semantic_toponav.memory import (
+    prefer_unvisited, prefer_familiar, avoid_recently_visited,
+)
+from semantic_toponav.planner import compose_costs, plan_astar
+
+# Bias the planner toward unexplored nodes (coverage / patrol).
+cost = prefer_unvisited(graph, visited_multiplier=2.0)
+
+# Retrace already-known routes (safer if unfamiliar nodes are risky).
+cost = prefer_familiar(graph, familiar_multiplier=0.5)
+
+# Penalize nodes visited within the last 60 seconds.
+cost = avoid_recently_visited(graph, within_seconds=60.0, recent_multiplier=5.0)
+
+# Compose with the rest of the cost stack.
+cost = compose_costs(
+    prefer_unvisited(graph),
+    avoid_recently_visited(graph, within_seconds=60.0),
+)
+path = plan_astar(graph, "entrance", "lab", cost_fn=cost)
+```
+
+All three factories key off the *target* endpoint of each edge — the
+node the robot would arrive at — which is the natural choice for "where
+have I been recently?" reasoning. `now=` is read once when the factory
+is called, not on every edge evaluation, so a single plan call sees a
+consistent clock.
+
 ### Visualization (optional)
 
 ```python

@@ -373,6 +373,36 @@ goal = nearest_node_by_embedding(graph, query_vec, type="room")
 `python examples/embedding_demo.py` runs a self-contained demo using
 deterministic toy embeddings.
 
+### Visit-history memory
+
+A small memory layer records when each node was last visited, then lets
+the planner reason over that history. Visit data lives in
+`node.properties` so it round-trips through YAML/JSON with no schema
+change.
+
+```python
+from semantic_toponav.memory import (
+    record_path, prefer_unvisited, prefer_familiar, avoid_recently_visited,
+)
+from semantic_toponav.planner import plan_astar
+
+# Record the path the robot actually traversed.
+record_path(graph, executed_path)
+
+# Bias the next plan toward unexplored nodes (coverage / patrol).
+path = plan_astar(graph, "entrance", "lab", cost_fn=prefer_unvisited(graph))
+
+# Or retrace a familiar route, or avoid nodes touched in the last minute.
+plan_astar(graph, "entrance", "lab", cost_fn=prefer_familiar(graph))
+plan_astar(
+    graph, "entrance", "lab",
+    cost_fn=avoid_recently_visited(graph, within_seconds=60.0),
+)
+```
+
+`python examples/memory_demo.py` walks through coverage, retrace, and
+time-decay scenarios on the multi-floor example graph.
+
 ## CLI
 
 ```text
