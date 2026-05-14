@@ -171,6 +171,31 @@ clusters become a single `intersection` node, and traced segments become
 edges whose `cost` is the segment's pixel-step length scaled by
 `resolution`.
 
+### Semantic queries
+
+```python
+from semantic_toponav.query import (
+    NoMatchError,
+    find_nodes,
+    nearest_node_by_pose,
+    nearest_node_by_graph_distance,
+)
+
+find_nodes(
+    graph,
+    type=None,                # exact node-type match
+    label_contains=None,      # case-insensitive substring match on label
+    label_equals=None,        # exact label match
+    properties=None,          # dict of {key: expected_value}, all must match
+) -> list[TopologyNode]
+
+nearest_node_by_pose(graph, pose, **filters) -> TopologyNode
+nearest_node_by_graph_distance(graph, start_id, **filters) -> tuple[TopologyNode, list[str]]
+```
+
+`NoMatchError` is raised when no node satisfies the filters (or, for graph
+distance, no matching node is reachable from `start_id`).
+
 ### Visualization (optional)
 
 ```python
