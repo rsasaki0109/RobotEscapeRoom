@@ -47,7 +47,13 @@ landed. Each links to the still-relevant follow-up work.
   annotator (`annotate_regions`) that labels free-space components
   with optional doorway pinching (so each pinched room becomes a
   distinct `region_id` stamped onto every node) — pairs naturally
-  with the door detector for room-aware graphs
+  with the door detector for room-aware graphs. The whole pipeline
+  is also reachable from the CLI without writing Python:
+  `semantic-toponav from-occupancy MAP.yaml --out g.yaml`,
+  `semantic-toponav mark-doors GRAPH MAP.yaml --in-place`, and
+  `semantic-toponav annotate-regions GRAPH MAP.yaml --in-place` (with
+  `--clearance-threshold` / `--clearance-percentile` / `--min-region-area`
+  knobs and automatic `.bak` snapshots on overwrite).
 - Trajectory log → topology + CSV loader + rosbag2 loader
 - Visit-history memory layer + embedding-based place retrieval
 - Multi-floor planning (`floor_change_penalty`, `prefer_floor`,

@@ -144,6 +144,27 @@ for rid, info in result.regions.items():
     print(rid, info.area_m2, info.centroid_world)
 ```
 
+### Occupancy pipeline from the CLI
+
+The same three steps are exposed as subcommands so you can go from a
+ROS `map_server` bundle to a room-aware graph without writing Python.
+In-place mutations write a `.bak` first (pass `--no-backup` to skip),
+and either `--clearance-threshold METERS` or `--clearance-percentile P`
+(but not both) pins the doorway-pinching cutoff.
+
+```sh
+# Skeletonize an occupancy bundle into a topology graph.
+semantic-toponav from-occupancy map.yaml --out office.yaml
+
+# Re-type narrow-passage nodes / edges as doors.
+semantic-toponav mark-doors office.yaml map.yaml \
+    --clearance-threshold 0.6 --in-place
+
+# Stamp region_id on every node, splitting rooms at the doorways.
+semantic-toponav annotate-regions office.yaml map.yaml \
+    --clearance-threshold 0.6 --show-regions --in-place
+```
+
 ## Dynamic edge availability
 
 Block specific edges or whole edge types at plan time without mutating the

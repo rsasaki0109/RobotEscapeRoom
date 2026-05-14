@@ -9,6 +9,9 @@ from collections.abc import Callable, Sequence
 
 from semantic_toponav.cli.editor import register_subcommands as register_editor_subcommands
 from semantic_toponav.cli.memory_cli import register_subcommands as register_memory_subcommands
+from semantic_toponav.cli.occupancy_cli import (
+    register_subcommands as register_occupancy_subcommands,
+)
 from semantic_toponav.cli.query_cli import register_subcommands as register_query_subcommands
 from semantic_toponav.graph.serialization import GraphLoadError, load_graph
 from semantic_toponav.graph.topology_graph import TopologyGraph
@@ -501,6 +504,7 @@ def build_parser() -> argparse.ArgumentParser:
     register_editor_subcommands(sub)
     register_query_subcommands(sub)
     register_memory_subcommands(sub)
+    register_occupancy_subcommands(sub)
 
     return parser
 
