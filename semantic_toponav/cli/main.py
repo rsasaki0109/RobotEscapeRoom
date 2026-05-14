@@ -11,6 +11,7 @@ from semantic_toponav.cli.coordination_cli import (
     register_subcommands as register_coordination_subcommands,
 )
 from semantic_toponav.cli.editor import register_subcommands as register_editor_subcommands
+from semantic_toponav.cli.eval_cli import register_subcommands as register_eval_subcommands
 from semantic_toponav.cli.llm_cli import add_llm_args, build_llm_backend_from_args
 from semantic_toponav.cli.memory_cli import register_subcommands as register_memory_subcommands
 from semantic_toponav.cli.occupancy_cli import (
@@ -564,6 +565,7 @@ def build_parser() -> argparse.ArgumentParser:
     register_occupancy_subcommands(sub)
     register_vlm_subcommands(sub)
     register_coordination_subcommands(sub)
+    register_eval_subcommands(sub)
 
     return parser
 

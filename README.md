@@ -402,6 +402,36 @@ semantic-toponav fleet-plan examples/indoor_office.yaml \
     --strategy deadline
 ```
 
+### Synthetic evaluation suite
+
+Functional tests prove the planner *runs*; the synthetic eval suite
+measures *how well* each strategy does. Four canonical graphs
+(chain, star, doorway, multi-floor) plus deterministic, seed-driven
+fleet generators feed `plan_fleet_with_strategy` and emit a pivoted
+markdown table over the four strategies:
+
+```bash
+semantic-toponav eval-synthetic \
+    --scenario all --n-agents 3 --seed 0 \
+    --hold-start 10:00 --hold-end 11:00 --summary
+```
+
+Persist results to JSONL and reprint later without re-running the
+planner:
+
+```bash
+semantic-toponav eval-synthetic --scenario all --n-agents 4 \
+    --hold-start 10:00 --hold-end 11:00 --out trials.jsonl
+semantic-toponav eval-report trials.jsonl --summary
+```
+
+The metrics block reports grant rate, total path cost, coordination
+makespan, max wait, Jain's fairness, conflict count, and per-strategy
+latency p50 / max. Python API mirror: `from semantic_toponav.eval
+import Scenario, run_sweep, trials_to_markdown_table`. Use this
+suite to validate that a strategy change actually helps — and on
+which scenarios it doesn't.
+
 ## Multi-floor navigation
 
 When nodes carry a `floor` property, three additional cost helpers and one
