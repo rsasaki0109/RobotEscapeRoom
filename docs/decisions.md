@@ -80,23 +80,66 @@ beyond `NoPathError <: PlanningError`. No exception framework, no error codes.
 
 ## D-9: ROS2 wrapper uses `std_msgs/String` for waypoints initially
 
-Custom ROS messages add packaging overhead and slow iteration. The first
-version of the ROS2 wrapper publishes waypoints as JSON on a
-`std_msgs/msg/String` topic. Custom messages (`SemanticWaypoint.msg`, etc.)
-are a planned follow-up.
+*Superseded by [D-11](#d-11-custom-ros2-messages-alongside-json).*
+
+Originally the ROS2 wrapper published waypoints as JSON on a
+`std_msgs/msg/String` topic to keep packaging overhead low. The custom
+`semantic_toponav_msgs` package has since shipped; this decision is kept
+for historical context.
 
 ## D-10: Stretch features deferred
 
-The MVP intentionally excludes:
+The MVP intentionally excluded the items below. Several have since shipped
+— they are kept in this list with a status marker so the trail from
+"explicit non-goal" → "now shipped" is visible:
 
-- topology editor UI (CLI or web)
-- occupancy-to-topology conversion
-- trajectory-to-topology generation
-- VLM/CLIP labeling
-- semantic memory layer / place recognition
-- dynamic graph updates
-- Nav2 behavior-tree plugin
-- custom ROS messages
-- multi-floor planning beyond the office example
+- topology editor — shipped (CLI subcommands `inspect / add-node /
+  add-edge / rm-node / rm-edge`); web editor still deferred
+- occupancy-to-topology conversion — shipped
+  (`topology_from_occupancy`, plus `load_occupancy_map` for ROS
+  `map_server` YAML+PGM bundles)
+- trajectory-to-topology generation — shipped
+  (`topology_from_trajectories`; CSV via `load_trajectories_from_csv`,
+  rosbag2 via `load_trajectories_from_rosbag`)
+- semantic memory layer / place recognition — shipped (`memory/`
+  module with visit-history cost helpers and embedding-based
+  retrieval)
+- custom ROS messages — shipped (`semantic_toponav_msgs`)
+- multi-floor planning — shipped (`examples/multi_floor_office.yaml`,
+  `floor_change_penalty`, `prefer_floor`, `same_floor_only`,
+  `floor_aware_heuristic`)
+- dynamic graph updates — shipped without mutating the graph itself
+  (`block_edges`, `block_edge_types` cost factories plus
+  `--block-edge` / `--block-edge-type` CLI flags)
+- VLM/CLIP labeling — *still deferred* (retrieval layer ships, encoder
+  integration is out of scope)
+- Nav2 behavior-tree plugin — *still deferred* (`nav2_demo_node`
+  ships as a worked example, not as a BT plugin)
 
-These are listed in `docs/experiments.md` as future directions.
+See `docs/experiments.md` for the open items and their status.
+
+## D-11: Custom ROS2 messages alongside JSON
+
+The ROS2 adapter ships a dedicated `semantic_toponav_msgs` package
+defining `SemanticWaypoint`, `SemanticWaypointArray`, `TopologyNode`,
+`TopologyEdge`, and `TopologyGraph`. Custom messages give downstream
+nodes (planners, behavior trees, telemetry) typed access to the
+semantic content without re-parsing JSON.
+
+JSON output is *not* removed: `waypoint_publisher_node` exposes an
+`output_format` parameter (`semantic` | `json` | `both`) so consumers
+that prefer the original `std_msgs/String` wire format keep working.
+This dual mode keeps backwards-compatibility while making the typed
+path the recommended default.
+
+The Python core ships in two layers:
+
+1. Pure-Python field-dict helpers (`*_to_fields` / `*_from_fields`) in
+   `semantic_toponav_ros.msg_conversions` that depend only on the
+   dataclass core and are exercised by the regular pytest suite.
+2. Thin `*_to_msg` wrappers in the same module that populate generated
+   message classes. These require a sourced ROS2 environment and are
+   only callable inside the wrapper package.
+
+This split lets contributors validate the wire layout (round-trip
+tests on the field-dict layer) without a ROS install.
