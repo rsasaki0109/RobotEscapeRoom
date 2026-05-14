@@ -26,10 +26,19 @@ position of the bottom-left cell.
 from __future__ import annotations
 
 import math
+from dataclasses import dataclass, field
 from typing import Any
 
 from semantic_toponav.graph.topology_graph import TopologyGraph
 from semantic_toponav.graph.types import Pose2D, TopologyEdge, TopologyNode
+
+
+@dataclass
+class DoorDetectionResult:
+    """Summary returned by :func:`mark_doors_by_clearance`."""
+
+    node_ids: list[str] = field(default_factory=list)
+    edge_ids: list[str] = field(default_factory=list)
 
 _NEIGHBOR_OFFSETS = [
     (dy, dx) for dy in (-1, 0, 1) for dx in (-1, 0, 1) if (dy, dx) != (0, 0)
@@ -267,3 +276,142 @@ def topology_from_occupancy(
         )
 
     return graph
+
+
+def _world_to_cell(
+    x: float,
+    y: float,
+    *,
+    height: int,
+    resolution: float,
+    origin: tuple[float, float],
+) -> tuple[int, int]:
+    """Inverse of :func:`_cell_to_world` (round to nearest cell)."""
+    col = int(round((x - origin[0]) / resolution - 0.5))
+    row = int(round(height - 0.5 - (y - origin[1]) / resolution))
+    return row, col
+
+
+def mark_doors_by_clearance(
+    graph: TopologyGraph,
+    grid: Any,
+    *,
+    resolution: float = 1.0,
+    origin: tuple[float, float] = (0.0, 0.0),
+    free_threshold: float = 0.5,
+    clearance_threshold: float | None = None,
+    clearance_percentile: float = 30.0,
+    door_node_type: str = "door",
+    door_edge_type: str = "door",
+    clearance_property: str = "min_clearance",
+    mark_edges: bool = True,
+    edge_samples: int = 32,
+    row_property: str = "row",
+    col_property: str = "col",
+) -> DoorDetectionResult:
+    """Re-type narrow-passage nodes and edges as doors based on clearance.
+
+    Workflow:
+
+    1. Binarize ``grid`` and compute a Euclidean distance transform —
+       each free cell's distance to the nearest non-free cell, in meters
+       (cells \\* ``resolution``).
+    2. For every node carrying ``row`` and ``col`` properties (stamped by
+       :func:`topology_from_occupancy`), look up its clearance and record
+       it under ``properties[clearance_property]``.
+    3. For every edge whose endpoints both have poses, sample
+       ``edge_samples`` points along the straight line between them in
+       world coordinates, look up the clearance at each, and take the
+       minimum. Record it under ``properties[clearance_property]``.
+    4. Resolve ``clearance_threshold`` (use it directly if given,
+       otherwise auto-pick the ``clearance_percentile`` of the combined
+       node + edge clearance distribution).
+    5. Nodes with clearance strictly below the threshold get their
+       ``type`` changed to ``door_node_type``; edges (when ``mark_edges``
+       is ``True``) get ``door_edge_type``.
+
+    The straight-line sample approximates the underlying skeleton path,
+    which is reasonable for short edges. For long curved corridors, an
+    edge's minimum clearance may understate the truly traversable width
+    — treat the auto-threshold output as a *candidate* set and tune
+    ``clearance_threshold`` for production graphs.
+
+    Requires NumPy and SciPy (transitively available with the
+    ``[map]`` extra). Mutates the graph in place.
+    """
+    try:
+        import numpy as np
+        from scipy.ndimage import distance_transform_edt
+    except ImportError as exc:
+        raise ImportError(
+            "mark_doors_by_clearance requires numpy and scipy. Install with "
+            "`pip install 'semantic-toponav[map]'`"
+        ) from exc
+
+    free = _binarize(grid, free_threshold)
+    if free.ndim != 2:
+        raise ValueError(f"grid must be 2D, got shape {free.shape}")
+    result = DoorDetectionResult()
+    if not free.any():
+        return result
+
+    clearance_cells = distance_transform_edt(free)
+    h, w = free.shape
+
+    def _clearance_at(ry: int, rx: int) -> float:
+        if 0 <= ry < h and 0 <= rx < w:
+            return float(clearance_cells[ry, rx]) * resolution
+        return 0.0
+
+    node_clearance: dict[str, float] = {}
+    for node in graph.nodes():
+        ry = node.properties.get(row_property)
+        rx = node.properties.get(col_property)
+        if isinstance(ry, int) and isinstance(rx, int):
+            c = _clearance_at(ry, rx)
+            node_clearance[node.id] = c
+            node.properties[clearance_property] = c
+
+    edge_clearance: dict[str, float] = {}
+    if mark_edges and edge_samples >= 2:
+        for edge in graph.edges():
+            src = graph.get_node(edge.source).pose
+            tgt = graph.get_node(edge.target).pose
+            if src is None or tgt is None:
+                continue
+            min_c = math.inf
+            for i in range(edge_samples):
+                t = i / (edge_samples - 1)
+                x = src.x + (tgt.x - src.x) * t
+                y = src.y + (tgt.y - src.y) * t
+                ry, rx = _world_to_cell(
+                    x, y, height=h, resolution=resolution, origin=origin
+                )
+                c = _clearance_at(ry, rx)
+                if c < min_c:
+                    min_c = c
+            if math.isinf(min_c):
+                continue
+            edge_clearance[edge.id] = min_c
+            edge.properties[clearance_property] = min_c
+
+    samples: list[float] = list(node_clearance.values()) + list(edge_clearance.values())
+    if not samples:
+        return result
+
+    if clearance_threshold is None:
+        threshold = float(np.percentile(np.asarray(samples, dtype=float), clearance_percentile))
+    else:
+        threshold = float(clearance_threshold)
+
+    for node_id, c in node_clearance.items():
+        if c < threshold:
+            graph.get_node(node_id).type = door_node_type
+            result.node_ids.append(node_id)
+
+    for edge_id, c in edge_clearance.items():
+        if c < threshold:
+            graph.get_edge(edge_id).type = door_edge_type
+            result.edge_ids.append(edge_id)
+
+    return result

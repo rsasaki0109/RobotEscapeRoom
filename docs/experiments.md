@@ -38,7 +38,12 @@ See `docs/decisions.md` (D-7).
 Quick index of features that started life on this page and have since
 landed. Each links to the still-relevant follow-up work.
 
-- Occupancy grid → topology + ROS `map_server` loader
+- Occupancy grid → topology + ROS `map_server` loader, plus a
+  post-processing door / threshold detector
+  (`mark_doors_by_clearance`) that uses a distance transform of the
+  binarized grid to flag narrow-passage nodes (typed `door`) and
+  edges whose straight-line minimum clearance falls below an explicit
+  or auto-percentile threshold
 - Trajectory log → topology + CSV loader + rosbag2 loader
 - Visit-history memory layer + embedding-based place retrieval
 - Multi-floor planning (`floor_change_penalty`, `prefer_floor`,
@@ -103,7 +108,8 @@ What's still open. Each is a candidate for an experiment branch.
 
 - **occupancy grid → topology** follow-ups: region segmentation for
   room-aware labels, lossier graph compaction when corridors carry
-  many parallel skeleton branches, door/threshold detection.
+  many parallel skeleton branches. Door / threshold detection ships
+  (`mark_doors_by_clearance` — see below).
 - **trajectory log → topology** follow-ups: DBSCAN / k-medoids cluster
   alternatives, time-aware clustering for dwell detection. The basic
   fusion of the two pipelines now ships
