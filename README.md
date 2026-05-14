@@ -11,7 +11,11 @@ motion stack decides *how to move*. Pure Python core, optional ROS2
 adapter, no model dependencies in the core.
 
 <p align="center">
-  <img src="docs/images/10_mf_elevator.png" width="640" alt="multi-floor accessibility route via elevator">
+  <img src="docs/images/demo.gif" width="720" alt="multi-floor planner cycling through four cost configurations">
+</p>
+
+<p align="center">
+  <sub>Same 3-floor graph, four cost configurations: default A* → prefer_elevator → floor_change_penalty → same_floor_only.</sub>
 </p>
 
 ## What it does
