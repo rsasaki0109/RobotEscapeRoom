@@ -11,7 +11,7 @@ from semantic_toponav.cli.editor import _coerce_value, _parse_props
 from semantic_toponav.cli.main import main
 from semantic_toponav.graph.serialization import load_graph
 from semantic_toponav.graph.topology_graph import TopologyGraph
-from semantic_toponav.graph.types import Pose2D, TopologyEdge, TopologyNode
+from semantic_toponav.graph.types import TopologyEdge, TopologyNode
 
 EXAMPLE_YAML = Path(__file__).resolve().parents[1] / "examples" / "indoor_office.yaml"
 

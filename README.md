@@ -1,5 +1,9 @@
 # semantic-toponav
 
+[![test](https://github.com/rsasaki0109/semantic-toponav/actions/workflows/test.yml/badge.svg)](https://github.com/rsasaki0109/semantic-toponav/actions/workflows/test.yml)
+[![python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+
 Open-source robotics navigation built around **Semantic Topological Maps**.
 
 `semantic-toponav` is the *global, semantic, graph-level* planning layer that

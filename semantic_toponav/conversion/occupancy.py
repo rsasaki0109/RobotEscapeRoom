@@ -210,7 +210,6 @@ def topology_from_occupancy(
             "topology_from_occupancy requires scikit-image. Install with "
             "`pip install 'semantic-toponav[map]'`"
         ) from exc
-    import numpy as np
 
     free = _binarize(grid, free_threshold)
     skel = skeletonize(free)

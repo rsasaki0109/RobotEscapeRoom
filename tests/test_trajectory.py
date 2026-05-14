@@ -64,7 +64,7 @@ def test_node_pose_is_cluster_centroid() -> None:
     jittered = [(x + random.gauss(0, 0.01), y + random.gauss(0, 0.01)) for x, y in pts]
     g = topology_from_trajectories([jittered], eps=1.0, min_samples=3)
     assert len(g.node_ids()) == 2
-    poses = sorted(((n.pose.x, n.pose.y) for n in g.nodes()))
+    poses = sorted((n.pose.x, n.pose.y) for n in g.nodes())
     assert abs(poses[0][0] - 0.0) < 0.1
     assert abs(poses[1][0] - 10.0) < 0.1
 
