@@ -171,6 +171,89 @@ def test_resolve_with_vlm_backend_attaches_embedding_scores(capsys) -> None:
     assert payload["llm"]["embedding_scores"] == {}
 
 
+def test_resolve_llm_clarify_surfaces_question_in_json(capsys) -> None:
+    rc = main(
+        [
+            "resolve",
+            EXAMPLE_YAML,
+            "meeting room",
+            "--format",
+            "json",
+            "--llm-backend",
+            "echo",
+            "--llm-script",
+            "Clarify: which floor did you mean?",
+        ]
+    )
+    out = capsys.readouterr().out
+    assert rc == 0
+    payload = json.loads(out)
+    assert payload["llm"]["clarification"] is not None
+    assert "which floor" in payload["llm"]["clarification"]["question"]
+    assert isinstance(payload["llm"]["clarification"]["candidate_ids"], list)
+
+
+def test_resolve_clarify_with_threads_chosen_id(capsys) -> None:
+    rc = main(
+        [
+            "resolve",
+            EXAMPLE_YAML,
+            "meeting room",
+            "--format",
+            "json",
+            "--llm-backend",
+            "echo",
+            "--llm-script",
+            "Top match: meeting_room\nReason: chosen by user.",
+            "--clarify-with",
+            "meeting_room",
+        ]
+    )
+    out = capsys.readouterr().out
+    payload = json.loads(out)
+    assert rc == 0
+    # The pool was narrowed to the chosen id; only one candidate remains.
+    assert len(payload["candidates"]) == 1
+    assert payload["candidates"][0]["node_id"] == "meeting_room"
+
+
+def test_resolve_clarify_free_appends_to_query(capsys) -> None:
+    rc = main(
+        [
+            "resolve",
+            EXAMPLE_YAML,
+            "office",
+            "--format",
+            "json",
+            "--llm-backend",
+            "echo",
+            "--llm-script",
+            "Top match: office_2f\nReason: second floor.",
+            "--clarify-free",
+            "on the second floor",
+        ]
+    )
+    out = capsys.readouterr().out
+    payload = json.loads(out)
+    assert rc == 0
+    assert "second floor" in payload["query"]
+
+
+def test_resolve_clarify_with_without_llm_warns(capsys) -> None:
+    rc = main(
+        [
+            "resolve",
+            EXAMPLE_YAML,
+            "meeting room",
+            "--clarify-with",
+            "meeting_room",
+        ]
+    )
+    err = capsys.readouterr().err
+    assert rc == 0
+    assert "ignored without --llm-backend" in err
+
+
 def test_resolve_vlm_backend_without_llm_warns(capsys) -> None:
     """--vlm-backend without --llm-backend is a no-op; emit a warning."""
     rc = main(

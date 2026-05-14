@@ -12,6 +12,7 @@ from semantic_toponav.cli.llm_cli import add_llm_args, build_llm_backend_from_ar
 from semantic_toponav.graph.serialization import GraphLoadError, load_graph
 from semantic_toponav.graph.types import GraphValidationError, TopologyNode
 from semantic_toponav.query import (
+    ClarificationAnswer,
     NoMatchError,
     find_nodes,
     llm_resolve_goal,
@@ -185,6 +186,13 @@ def cmd_resolve(args: argparse.Namespace) -> int:
         print(exc.code, file=sys.stderr)
         return 2
 
+    clarification: ClarificationAnswer | None = None
+    if getattr(args, "clarify_with", None) or getattr(args, "clarify_free", None):
+        clarification = ClarificationAnswer(
+            chosen_id=getattr(args, "clarify_with", None),
+            free_text=getattr(args, "clarify_free", None),
+        )
+
     llm_result = None
     if backend is None:
         # Without an LLM backend, --vlm-backend has nothing to attach to.
@@ -195,6 +203,13 @@ def cmd_resolve(args: argparse.Namespace) -> int:
                 "(the embedding scores are an LLM-prompt augmentation).",
                 file=sys.stderr,
             )
+        if clarification is not None:
+            print(
+                "warning: --clarify-with / --clarify-free are ignored "
+                "without --llm-backend (clarification dialog is an "
+                "LLM-rerank feature).",
+                file=sys.stderr,
+            )
         candidates = resolve_goal(graph, text, top_k=args.top_k)
     else:
         try:
@@ -202,6 +217,7 @@ def cmd_resolve(args: argparse.Namespace) -> int:
                 graph, text, backend,
                 top_k=args.top_k,
                 query_encoder=query_encoder,
+                clarification=clarification,
             )
         except ImportError as exc:
             print(f"error: {exc}", file=sys.stderr)
@@ -210,7 +226,7 @@ def cmd_resolve(args: argparse.Namespace) -> int:
 
     if args.format == "json":
         payload: dict[str, object] = {
-            "query": text,
+            "query": llm_result.query if llm_result is not None else text,
             "candidates": [
                 {
                     "node_id": c.node_id,
@@ -229,6 +245,12 @@ def cmd_resolve(args: argparse.Namespace) -> int:
                 "raw_response": llm_result.raw_response,
                 "embedding_scores": dict(llm_result.embedding_scores),
             }
+            if llm_result.clarification is not None:
+                q = llm_result.clarification
+                payload["llm"]["clarification"] = {
+                    "question": q.question,
+                    "candidate_ids": [c.node_id for c in q.candidates],
+                }
         print(json.dumps(payload, ensure_ascii=False, indent=2))
     else:
         if not candidates:
@@ -248,6 +270,14 @@ def cmd_resolve(args: argparse.Namespace) -> int:
                     f"LLM rerank: {tag} "
                     f"(pick={llm_result.llm_pick!r})"
                 )
+                if llm_result.clarification is not None:
+                    q = llm_result.clarification
+                    print(f"Ambiguous: {q.question}")
+                    candidate_ids = " ".join(c.node_id for c in q.candidates)
+                    print(
+                        f"  re-run with: --clarify-with <one of: "
+                        f"{candidate_ids}>"
+                    )
     return 0
 
 
@@ -344,5 +374,24 @@ def register_subcommands(sub: argparse._SubParsersAction) -> None:
     p.add_argument(
         "--vlm-clip-device",
         help="device override for --vlm-backend clip (e.g. cuda, cpu)",
+    )
+    p.add_argument(
+        "--clarify-with",
+        metavar="NODE_ID",
+        help=(
+            "thread a previous turn's clarification answer (a specific "
+            "node id from the prior clarification.candidate_ids list) "
+            "back into the resolver. Narrows the candidate pool to the "
+            "named node. Out-of-pool ids are ignored."
+        ),
+    )
+    p.add_argument(
+        "--clarify-free",
+        metavar="TEXT",
+        help=(
+            "thread a free-text clarification ('the one on the second "
+            "floor') back into the resolver. Appended to the original "
+            "query before re-running."
+        ),
     )
     p.set_defaults(func=cmd_resolve)

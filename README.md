@@ -880,6 +880,40 @@ semantic-toponav resolve examples/indoor_office.yaml "the conference room on the
     --llm-backend anthropic
 ```
 
+#### Clarification dialog for ambiguous goals
+
+When the deterministic resolver's top-1 and top-2 candidates have
+near-equal scores, or when the LLM emits a `Clarify: <question>`
+line instead of a `Top match:` pick, the result carries a
+`ClarificationQuestion` instead of committing to a single answer.
+Callers ask the user, then re-call `llm_resolve_goal` with a
+`ClarificationAnswer` (either a `chosen_id` from the surfaced
+candidate ids — out-of-pool ids are silently dropped, so the "no
+invented node ids" safety property still holds — or a `free_text`
+hint appended to the original query). Add
+`raise_on_ambiguous=True` to surface the question through
+`AmbiguousGoalError` instead.
+
+```python
+from semantic_toponav.query import (
+    llm_resolve_goal, ClarificationAnswer, AmbiguousGoalError,
+)
+
+result = llm_resolve_goal(graph, "meeting room", backend)
+if result.clarification is not None:
+    print("Ambiguous:", result.clarification.question)
+    user_pick = ask_user(result.clarification.candidates)  # node id
+    result = llm_resolve_goal(
+        graph, "meeting room", backend,
+        clarification=ClarificationAnswer(chosen_id=user_pick),
+    )
+```
+
+CLI: `resolve ... --llm-backend ... --clarify-with NODE_ID` or
+`--clarify-free "on the second floor"`. JSON output grows
+`llm.clarification.question` and `llm.clarification.candidate_ids`
+when ambiguity is detected.
+
 #### Visual grounding via region embeddings
 
 When `embed-regions` has stamped region-level embeddings onto the

@@ -173,6 +173,25 @@ landed. Each links to the still-relevant follow-up work.
   semantics. Reachable from the CLI as `semantic-toponav fleet-plan
   GRAPH --agent ID:START:GOAL[:PRIORITY] ... --hold-start HH:MM
   --hold-end HH:MM [--policy fcfs|priority --rollback-on-failure]`.
+- Clarification dialog primitives for `llm_resolve_goal` —
+  `ClarificationQuestion` / `ClarificationAnswer` /
+  `AmbiguousGoalError` (frozen, JSON-friendly). The resolver detects
+  deterministic ambiguity by top-1 / top-2 score delta against an
+  ``ambiguity_threshold`` (default ``0.5``) and reports it via
+  `LLMResolveResult.clarification`; the LLM can also emit a
+  `Clarify: <question>` line as an alternative ambiguity signal.
+  Callers thread the user's reply back via the new
+  ``clarification=ClarificationAnswer(chosen_id=...)`` kwarg, which
+  narrows the candidate pool to that id (out-of-pool ids dropped, so
+  the "no invented node ids" safety property holds). Strict mode
+  available through ``raise_on_ambiguous=True`` →
+  :class:`AmbiguousGoalError`. CLI parity:
+  `semantic-toponav resolve ... --llm-backend ... [--clarify-with
+  NODE_ID --clarify-free TEXT]`; JSON output grows a
+  `llm.clarification` block on ambiguity. The richer multi-turn
+  session-state and mid-traversal-rewrite work is still open — this
+  PR ships the minimum vocabulary that makes the rest of it
+  expressible.
 - Region-embedding context for the LLM goal resolver — PR #32 and
   PR #33 confluence. `llm_resolve_goal` now accepts an optional
   `query_encoder: Backend` and embeds the user query, then computes
@@ -331,12 +350,18 @@ What's still open. Each is a candidate for an experiment branch.
   + the `--llm-backend echo|anthropic` CLI flags — see the "Shipped"
   entry). Region-embedding context for the resolver also ships
   (`--vlm-backend hashing|clip` + `embedding_scores` in the prompt
-  and result — see the "Shipped" entry). What's still open is a
-  *multi-turn* dialog layer: the current resolver picks once from a
-  single top-k shortlist, the current describer rewrites once per
-  plan. A back-and-forth where the LLM asks "did you mean room A or
-  B?" before committing, or rewrites mid-traversal as the robot's
-  position changes, isn't here yet.
+  and result — see the "Shipped" entry). And the smallest dialog
+  primitive ships: `ClarificationQuestion` / `ClarificationAnswer`
+  / `AmbiguousGoalError` plus the `clarification=` kwarg on
+  `llm_resolve_goal` and the `--clarify-with` / `--clarify-free`
+  CLI flags — see the "Shipped" entry. What's still open: a
+  richer *session-state* layer that remembers prior dialog turns
+  across calls (today the caller threads the answer themselves);
+  *mid-traversal* rewrite where the describer regenerates
+  instructions as the robot's position changes; and using the
+  `find_nodes_by_embedding` retrieval scores as additional
+  structured context the LLM weighs *before* it asks a
+  clarification question rather than after.
 - topology graphs as scratchpad for embodied agents
 
 ### Tooling

@@ -25,6 +25,11 @@ from semantic_toponav.encoders.backends import Backend as EncoderBackend
 from semantic_toponav.graph.topology_graph import TopologyGraph
 from semantic_toponav.graph.types import TopologyNode
 from semantic_toponav.llm.backends import LLMBackend
+from semantic_toponav.query.clarification import (
+    AmbiguousGoalError,
+    ClarificationAnswer,
+    ClarificationQuestion,
+)
 from semantic_toponav.query.embedding import (
     DEFAULT_EMBEDDING_PROPERTY,
     cosine_similarity,
@@ -36,12 +41,19 @@ _TOP_MATCH_LINE = re.compile(
     re.IGNORECASE,
 )
 
+_CLARIFY_LINE = re.compile(
+    r"^\s*clarify\s*[:\-]\s*(.+?)\s*$",
+    re.IGNORECASE,
+)
+
 _DEFAULT_SYSTEM = (
     "You resolve free-text navigation goals to a specific node id from "
     "a pre-filtered candidate list. You MUST pick a node id from the "
     "candidate list — never invent one. Reply with exactly two lines: "
     "first `Top match: <node_id>`, then `Reason: <one-sentence "
-    "justification>`."
+    "justification>`. If the query is too ambiguous between two or more "
+    "candidates to pick confidently, reply with a single line "
+    "`Clarify: <one short question for the user>` instead."
 )
 
 
@@ -81,6 +93,16 @@ class LLMResolveResult:
         the LLM sees these as structured context in the prompt;
         callers can inspect them to diff embedding ranking against
         the deterministic ranking.
+    clarification:
+        Populated when the resolver concluded the query was too
+        ambiguous to pick confidently — either because the top-1 and
+        top-2 deterministic scores were within ``ambiguity_threshold``
+        of each other, or because the LLM emitted a ``Clarify:``
+        line instead of a ``Top match:`` line. ``None`` otherwise.
+        Callers handle a multi-turn dialog by detecting this field,
+        asking the user, then re-calling :func:`llm_resolve_goal`
+        with the user's reply wrapped in a
+        :class:`ClarificationAnswer`.
     """
 
     query: str
@@ -91,6 +113,7 @@ class LLMResolveResult:
     raw_response: str = ""
     used_fallback: bool = False
     embedding_scores: dict[str, float] = field(default_factory=dict)
+    clarification: ClarificationQuestion | None = None
 
 
 def _format_candidate_block(
@@ -190,25 +213,71 @@ def _compute_embedding_scores(
     return out
 
 
-def _parse_response(text: str) -> tuple[str | None, str | None]:
-    """Extract ``(node_id, reason)`` from a backend reply.
+def _parse_response(
+    text: str,
+) -> tuple[str | None, str | None, str | None]:
+    """Extract ``(node_id, reason, clarify_question)`` from a backend reply.
 
-    Tolerant of extra prose — looks for a ``Top match: X`` line first
-    and a ``Reason: Y`` line second. Returns ``(None, None)`` when no
-    match line is present.
+    Tolerant of extra prose — looks for a ``Top match: X`` line first,
+    a ``Reason: Y`` line second, and a ``Clarify: Z`` line as the
+    alternative ambiguity signal. A reply that contains both
+    ``Top match:`` and ``Clarify:`` is treated as a pick (the model
+    answered the question and asked a follow-up); the clarify text is
+    reported alongside.
     """
     pick: str | None = None
     reason: str | None = None
+    clarify: str | None = None
     for raw in text.splitlines():
-        m = _TOP_MATCH_LINE.match(raw)
-        if m is not None and pick is None:
-            pick = m.group(1).strip().strip(".,;:'\"`")
-            continue
+        if pick is None:
+            m = _TOP_MATCH_LINE.match(raw)
+            if m is not None:
+                pick = m.group(1).strip().strip(".,;:'\"`")
+                continue
+        if clarify is None:
+            m_clarify = _CLARIFY_LINE.match(raw)
+            if m_clarify is not None:
+                clarify = m_clarify.group(1).strip()
+                continue
         if reason is None:
             m2 = re.match(r"^\s*reason\s*[:\-]\s*(.+?)\s*$", raw, re.IGNORECASE)
             if m2 is not None:
                 reason = m2.group(1).strip()
-    return pick, reason
+    return pick, reason, clarify
+
+
+def _detect_deterministic_ambiguity(
+    candidates: list[GoalCandidate], *, threshold: float
+) -> ClarificationQuestion | None:
+    """Return a :class:`ClarificationQuestion` when the top candidates
+    are within ``threshold`` of each other on deterministic score.
+
+    Looks at the score delta between the top-1 and top-2 entries.
+    When the delta is small the resolver can't tell which the user
+    meant. Returns ``None`` for an empty or single-candidate list
+    (nothing to be ambiguous about) and when the gap is wider than
+    the threshold.
+    """
+    if len(candidates) < 2:
+        return None
+    gap = candidates[0].score - candidates[1].score
+    if gap > threshold:
+        return None
+    # Group the leading tier — all candidates within `threshold` of the
+    # top score. That's what the user has to disambiguate between, not
+    # just the top-2.
+    top_score = candidates[0].score
+    tier = tuple(
+        c for c in candidates if (top_score - c.score) <= threshold
+    )
+    if len(tier) < 2:
+        return None
+    ids = ", ".join(c.node_id for c in tier)
+    question = (
+        f"The query matched {len(tier)} candidates with near-equal "
+        f"deterministic scores: {ids}. Which one did you mean?"
+    )
+    return ClarificationQuestion(question=question, candidates=tier)
 
 
 def llm_resolve_goal(
@@ -221,6 +290,9 @@ def llm_resolve_goal(
     system: str | None = None,
     query_encoder: EncoderBackend | None = None,
     embedding_property: str = DEFAULT_EMBEDDING_PROPERTY,
+    clarification: ClarificationAnswer | None = None,
+    ambiguity_threshold: float = 0.5,
+    raise_on_ambiguous: bool = False,
 ) -> LLMResolveResult:
     """Resolve a free-text goal, then ask an LLM to refine the ranking.
 
@@ -252,42 +324,109 @@ def llm_resolve_goal(
         Node-property key the stored embeddings are stamped under.
         Defaults to ``"embedding"`` (matches
         :func:`semantic_toponav.query.find_nodes_by_embedding`).
+    clarification:
+        Optional answer to a previous turn's
+        :class:`ClarificationQuestion`. When ``chosen_id`` is set and
+        appears in the current candidate pool, the resolver narrows
+        the pool to that single candidate before consulting the LLM
+        (so the LLM either confirms with a Reason: line or the call
+        short-circuits). When ``free_text`` is set, it is appended to
+        ``text`` before re-running :func:`resolve_goal`. Out-of-pool
+        ``chosen_id`` values are silently ignored — the safety
+        property "no invented node ids" still holds.
+    ambiguity_threshold:
+        Maximum allowed gap between the top-1 and top-2 deterministic
+        scores before the resolver decides it's ambiguous. Defaults
+        to ``0.5`` (matches the bag-of-words scorer's token weight
+        unit). Set to ``0.0`` for "only flag exact ties" or to a
+        large number to disable deterministic ambiguity detection.
+    raise_on_ambiguous:
+        When ``True``, raise :class:`AmbiguousGoalError` if the
+        resolver emits a clarification. Useful for synchronous APIs
+        that prefer to surface ambiguity through the exception
+        channel. Defaults to ``False`` (return the question in
+        :attr:`LLMResolveResult.clarification`).
 
     Returns
     -------
     LLMResolveResult
         Final ranking + telemetry about the LLM pick + any computed
-        embedding scores.
+        embedding scores + an optional :class:`ClarificationQuestion`
+        when ambiguity was detected.
     """
-    base = resolve_goal(graph, text, top_k=top_k, candidates=candidates)
+    # Thread any `free_text` clarification into the query *first*, so
+    # the resolver gets a chance to reuse the disambiguated phrasing
+    # when ranking and the LLM sees the enriched prompt.
+    effective_text = text
+    if clarification is not None and clarification.free_text:
+        effective_text = f"{text} ({clarification.free_text})"
+
+    base = resolve_goal(graph, effective_text, top_k=top_k, candidates=candidates)
     if not base:
         return LLMResolveResult(
-            query=text,
+            query=effective_text,
             candidates=[],
             base_candidates=[],
         )
+
+    # If the caller pinned a specific candidate via clarification.chosen_id,
+    # narrow the pool to that candidate. Out-of-pool ids are ignored
+    # so the safety property holds (no caller-supplied invention).
+    base_ids = {c.node_id for c in base}
+    if clarification is not None and clarification.chosen_id in base_ids:
+        base = [c for c in base if c.node_id == clarification.chosen_id]
+        base_ids = {c.node_id for c in base}
 
     embedding_scores: dict[str, float] = {}
     if query_encoder is not None:
         embedding_scores = _compute_embedding_scores(
             base,
             query_encoder,
-            text,
+            effective_text,
             embedding_property=embedding_property,
         )
 
     prompt = _build_prompt(
-        text, base,
+        effective_text, base,
         embedding_scores=embedding_scores if embedding_scores else None,
     )
     sys_msg = system if system is not None else _DEFAULT_SYSTEM
     raw = backend.generate(prompt, system=sys_msg)
 
-    pick_id, reason = _parse_response(raw)
-    base_ids = {c.node_id for c in base}
+    pick_id, reason, clarify_text = _parse_response(raw)
+
+    # LLM-driven ambiguity: model emitted Clarify: ... instead of a pick.
+    if pick_id is None and clarify_text:
+        clarification_q = ClarificationQuestion(
+            question=clarify_text,
+            candidates=tuple(base),
+        )
+        result = LLMResolveResult(
+            query=effective_text,
+            candidates=list(base),
+            base_candidates=list(base),
+            llm_pick=None,
+            llm_reason=reason,
+            raw_response=raw,
+            used_fallback=False,
+            embedding_scores=embedding_scores,
+            clarification=clarification_q,
+        )
+        if raise_on_ambiguous:
+            raise AmbiguousGoalError(clarification_q)
+        return result
+
+    # Out-of-pool / unparseable LLM pick → fall back to deterministic.
     if pick_id is None or pick_id not in base_ids:
+        # Even on fallback, surface deterministic-tier ambiguity so
+        # callers can ask a follow-up before guessing.
+        det_question = _detect_deterministic_ambiguity(
+            base, threshold=ambiguity_threshold
+        )
+        if det_question is not None and raise_on_ambiguous:
+            raise AmbiguousGoalError(det_question)
         return LLMResolveResult(
-            query=text,
+            query=effective_text,
             candidates=list(base),
             base_candidates=list(base),
             llm_pick=pick_id,
@@ -295,6 +434,7 @@ def llm_resolve_goal(
             raw_response=raw,
             used_fallback=True,
             embedding_scores=embedding_scores,
+            clarification=det_question,
         )
 
     reordered: list[GoalCandidate] = []
@@ -309,8 +449,14 @@ def llm_resolve_goal(
         picked.reasons = list(picked.reasons) + [f"LLM: {reason}"]
     final = [picked, *reordered]
 
+    # When the LLM picked confidently, deterministic ambiguity is still
+    # surfaced for telemetry but not raised — the LLM made a call.
+    det_question = _detect_deterministic_ambiguity(
+        base, threshold=ambiguity_threshold
+    )
+
     return LLMResolveResult(
-        query=text,
+        query=effective_text,
         candidates=final,
         base_candidates=list(base),
         llm_pick=pick_id,
@@ -318,6 +464,7 @@ def llm_resolve_goal(
         raw_response=raw,
         used_fallback=False,
         embedding_scores=embedding_scores,
+        clarification=det_question,
     )
 
 
