@@ -13,11 +13,40 @@ a sourced ROS2 environment.
 from __future__ import annotations
 
 import json
+import math
 from typing import Any
 
 from semantic_toponav.graph.topology_graph import TopologyGraph
 from semantic_toponav.graph.types import Pose2D, TopologyEdge, TopologyNode
 from semantic_toponav.waypoint.semantic_waypoint import SemanticWaypoint
+
+
+def yaw_to_quaternion(yaw: float) -> tuple[float, float, float, float]:
+    """Convert a 2D yaw (radians) to an ``(x, y, z, w)`` unit quaternion.
+
+    Used when mapping our 2D ``Pose2D`` (which carries only yaw) onto the
+    3D quaternion orientation expected by ``geometry_msgs/PoseStamped``.
+    """
+    half = yaw * 0.5
+    return (0.0, 0.0, math.sin(half), math.cos(half))
+
+
+def pose2d_to_pose_stamped_fields(
+    pose: Pose2D, *, frame_id: str | None = None
+) -> dict[str, Any]:
+    """Return a dict shaped like ``geometry_msgs/PoseStamped`` for a Pose2D.
+
+    The ``frame_id`` override wins over ``pose.frame_id`` when given. Used by
+    ``nav2_demo_node`` to forward semantic waypoints into a Nav2 action goal.
+    """
+    qx, qy, qz, qw = yaw_to_quaternion(pose.yaw)
+    return {
+        "header": {"frame_id": frame_id if frame_id is not None else pose.frame_id},
+        "pose": {
+            "position": {"x": pose.x, "y": pose.y, "z": 0.0},
+            "orientation": {"x": qx, "y": qy, "z": qz, "w": qw},
+        },
+    }
 
 
 def _pose_fields(pose: Pose2D | None) -> dict[str, Any]:
