@@ -15,6 +15,7 @@ from semantic_toponav.query import (
     find_nodes,
     nearest_node_by_graph_distance,
     nearest_node_by_pose,
+    resolve_goal,
 )
 
 
@@ -130,6 +131,45 @@ def cmd_nearest(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_resolve(args: argparse.Namespace) -> int:
+    try:
+        graph = load_graph(args.graph)
+    except (GraphLoadError, GraphValidationError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    text = " ".join(args.text) if isinstance(args.text, list) else args.text
+    candidates = resolve_goal(graph, text, top_k=args.top_k)
+
+    if args.format == "json":
+        payload = {
+            "query": text,
+            "candidates": [
+                {
+                    "node_id": c.node_id,
+                    "score": c.score,
+                    "reasons": list(c.reasons),
+                    "node": _node_summary(c.node),
+                }
+                for c in candidates
+            ],
+        }
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+    else:
+        if not candidates:
+            print("(no matches)")
+        else:
+            print(f"Candidates ({len(candidates)}):")
+            for c in candidates:
+                print(
+                    f"  {c.node_id:25s} score={c.score:<5g} "
+                    f"label={c.node.label!r} type={c.node.type}"
+                )
+                for reason in c.reasons:
+                    print(f"      - {reason}")
+    return 0
+
+
 def _add_filter_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--type", help="filter by node type")
     p.add_argument("--label-contains", help="case-insensitive substring match on label")
@@ -174,3 +214,29 @@ def register_subcommands(sub: argparse._SubParsersAction) -> None:
     )
     _add_filter_args(p)
     p.set_defaults(func=cmd_nearest)
+
+    p = sub.add_parser(
+        "resolve",
+        help="resolve a free-text goal (e.g. 'the second floor lab') to "
+        "ranked candidate nodes",
+    )
+    p.add_argument("graph")
+    p.add_argument(
+        "text",
+        nargs="+",
+        help="natural-language description of the goal "
+        "(multiple words are joined with spaces)",
+    )
+    p.add_argument(
+        "--top-k",
+        type=int,
+        default=5,
+        help="return at most this many candidates (default: 5)",
+    )
+    p.add_argument(
+        "--format",
+        choices=["text", "json"],
+        default="text",
+        help="output format (default: text)",
+    )
+    p.set_defaults(func=cmd_resolve)
