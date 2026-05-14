@@ -22,6 +22,9 @@ env/
 # Generated interactive viewer output (produced by examples/web_viewer_demo.py)
 examples/*_viewer.html
 
+# CLI editor backup files (semantic-toponav add-node / rm-edge / etc.)
+*.bak
+
 # Editors / OS
 .vscode/
 .idea/
