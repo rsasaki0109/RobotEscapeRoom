@@ -59,6 +59,22 @@ from semantic_toponav.coordination.scheduler import SharedScheduler
 from semantic_toponav.graph.topology_graph import TopologyGraph
 from semantic_toponav.planner.semantic_costs import CostFn
 
+Objective = Literal["min_cost", "minimax_cost", "max_fairness"]
+
+
+def _jain_index(values: list[float]) -> float:
+    """Jain's fairness index over non-negative values; 1.0 on empty/zero."""
+    if not values:
+        return 1.0
+    total = sum(values)
+    if total == 0.0:
+        return 1.0
+    num = total * total
+    denom = len(values) * sum(v * v for v in values)
+    if denom == 0.0:
+        return 1.0
+    return num / denom
+
 
 @dataclass(frozen=True)
 class ConflictExplanation:
@@ -115,6 +131,7 @@ class BnBStats:
     nodes_pruned_by_cost: int = 0
     completed: bool = True
     elapsed_ms: float = 0.0
+    objective: Objective = "min_cost"
 
 
 @dataclass
@@ -147,6 +164,7 @@ class BnBPlanResult:
     stats: BnBStats = field(default_factory=BnBStats)
     conflict_explanations: list[ConflictExplanation] = field(default_factory=list)
     fleet_result: FleetPlanResult = field(default_factory=FleetPlanResult)
+    per_agent_costs: dict[str, float] = field(default_factory=dict)
 
 
 def _resources_held_by(
@@ -186,6 +204,7 @@ def plan_fleet_bnb(
     minutes_per_cost_unit: float = 1.0,
     max_nodes: int = 10_000,
     time_budget_ms: float | None = None,
+    objective: Objective = "min_cost",
 ) -> BnBPlanResult:
     """Branch-and-bound search over agent orderings.
 
@@ -206,25 +225,44 @@ def plan_fleet_bnb(
         Optional wall-clock cap. When set, the search returns the
         best ordering found so far once the budget elapses. Combine
         with ``max_nodes`` for hard real-time use.
+    objective:
+        How leaves are scored after the grants tie. Choices:
+
+        * ``"min_cost"`` (default) — minimize the sum of granted-agent
+          path costs. Matches the joint planner's tie-break.
+        * ``"minimax_cost"`` — minimize the maximum per-agent path
+          cost among the granted set. Picks egalitarian orderings:
+          one agent doing all the long routes is penalized even when
+          total cost is the same.
+        * ``"max_fairness"`` — maximize Jain's fairness index over
+          per-granted-agent path costs. Total cost is still the final
+          tie-break.
 
     Returns
     -------
     BnBPlanResult
         ``chosen_order`` is the agent sequence the search picked,
-        ``fleet_result`` is the live run of that sequence, and
+        ``fleet_result`` is the live run of that sequence,
+        ``per_agent_costs`` is the granted-agent path-cost map the
+        winner produced (empty for agents that were denied), and
         ``stats`` plus ``conflict_explanations`` give the operator a
         view into *why* the search picked what it picked.
 
     Notes
     -----
-    Score function: ``(granted_count DESC, total_cost ASC)``. The
-    search finds the lexicographic optimum under this score subject
-    to its budget. With no budget pressure and the default ``"soft"``
-    admission, the chosen ordering matches what
-    :func:`plan_fleet_joint` would commit when ``n! ≤ max_permutations``.
-    Under ``"hard"`` admission the score also implicitly penalizes
-    deadline misses (they drop ``granted_count``), so the chosen
-    ordering minimizes those first and total cost second.
+    Score function with ``objective="min_cost"`` is
+    ``(granted_count DESC, total_cost ASC)``. With ``"minimax_cost"``
+    it is ``(granted_count DESC, max_cost ASC, total_cost ASC)``;
+    with ``"max_fairness"`` it is
+    ``(granted_count DESC, jain_fairness DESC, total_cost ASC)``.
+
+    The cost lower-bound prune is active for ``"min_cost"`` and
+    ``"minimax_cost"`` (path costs are non-negative so partial sums
+    and partial max only grow as more agents are added). For
+    ``"max_fairness"`` the bound is dropped: Jain's index can swing
+    in either direction as the granted set grows, so any partial
+    fairness estimate would mis-prune. The grants upper bound is
+    always active.
     """
     req_list = list(requests)
     if not req_list:
@@ -238,13 +276,34 @@ def plan_fleet_bnb(
     initial_snapshot = scheduler.clone()
     t0 = _time_mod.perf_counter()
 
-    stats = BnBStats()
+    stats = BnBStats(objective=objective)
     explanations_by_agent: dict[str, ConflictExplanation] = {}
 
-    # best_score is (granted, -cost). Higher is better. We seed with
-    # (-1, 0) so the first complete leaf always beats it.
-    best_score: tuple[int, float] = (-1, 0.0)
+    # Score tuples are objective-specific; see _score_leaf below. The
+    # seed is shaped per objective so the first real leaf strictly
+    # beats it under tuple comparison.
+    NEG_INF = -float("inf")
+    if objective == "min_cost":
+        best_score: tuple = (-1, NEG_INF)
+    elif objective in ("minimax_cost", "max_fairness"):
+        best_score = (-1, NEG_INF, NEG_INF)
+    else:  # pragma: no cover - guarded by Literal type
+        raise ValueError(f"unknown objective {objective!r}")
     best_order: tuple[str, ...] = tuple(r.agent_id for r in req_list)
+    best_per_agent_costs: dict[str, float] = {}
+
+    def _score_leaf(
+        granted: int, per_agent_costs: dict[str, float]
+    ) -> tuple:
+        costs = list(per_agent_costs.values())
+        total = sum(costs)
+        if objective == "min_cost":
+            return (granted, -total)
+        if objective == "minimax_cost":
+            max_c = max(costs) if costs else 0.0
+            return (granted, -max_c, -total)
+        # max_fairness
+        return (granted, _jain_index(costs), -total)
 
     def _budget_exhausted() -> bool:
         if stats.nodes_explored >= max_nodes:
@@ -319,10 +378,10 @@ def plan_fleet_bnb(
         prefix_snapshot: SharedScheduler,
         remaining: list[FleetRequest],
         granted: int,
-        cost_so_far: float,
+        per_agent_costs: dict[str, float],
     ) -> None:
         """DFS over partial orderings."""
-        nonlocal best_score, best_order
+        nonlocal best_score, best_order, best_per_agent_costs
 
         if _budget_exhausted():
             return
@@ -333,18 +392,35 @@ def plan_fleet_bnb(
         if upper_grants < best_score[0]:
             stats.nodes_pruned_by_grants += 1
             return
-        # Cost tie-break: if grants would only tie, the current cost
-        # must already be strictly less than the best.
-        if upper_grants == best_score[0] and cost_so_far >= -best_score[1]:
-            stats.nodes_pruned_by_cost += 1
-            return
+        # Cost tie-break: when grants would only tie, the partial cost
+        # signal must still allow beating the best. We branch by
+        # objective so the bound stays valid:
+        #
+        #   min_cost     — partial sum >= best total → no completion
+        #                  can have strictly lower total. Prune.
+        #   minimax_cost — partial max >= best max → max only grows.
+        #                  Prune.
+        #   max_fairness — fairness is non-monotone; skip.
+        if upper_grants == best_score[0]:
+            partial_total = sum(per_agent_costs.values())
+            if objective == "min_cost":
+                if partial_total >= -best_score[1]:
+                    stats.nodes_pruned_by_cost += 1
+                    return
+            elif objective == "minimax_cost":
+                partial_max = (
+                    max(per_agent_costs.values()) if per_agent_costs else 0.0
+                )
+                if partial_max >= -best_score[1]:
+                    stats.nodes_pruned_by_cost += 1
+                    return
 
         if not remaining:
-            # Leaf: compare against best. Score is (granted, -cost).
-            leaf_score = (granted, -cost_so_far)
+            leaf_score = _score_leaf(granted, per_agent_costs)
             if leaf_score > best_score:
                 best_score = leaf_score
                 best_order = tuple(prefix)
+                best_per_agent_costs = dict(per_agent_costs)
             return
 
         for i, req in enumerate(remaining):
@@ -359,12 +435,15 @@ def plan_fleet_bnb(
             if not result.granted:
                 _record_explanation(req, result, snapshot_before)
             new_remaining = remaining[:i] + remaining[i + 1:]
+            next_costs = dict(per_agent_costs)
+            if result.granted:
+                next_costs[req.agent_id] = path_cost
             _explore(
                 prefix + [req.agent_id],
                 trial,
                 new_remaining,
                 granted + (1 if result.granted else 0),
-                cost_so_far + path_cost,
+                next_costs,
             )
 
     _explore(
@@ -372,7 +451,7 @@ def plan_fleet_bnb(
         prefix_snapshot=initial_snapshot,
         remaining=req_list,
         granted=0,
-        cost_so_far=0.0,
+        per_agent_costs={},
     )
 
     stats.elapsed_ms = (_time_mod.perf_counter() - t0) * 1000.0
@@ -411,4 +490,5 @@ def plan_fleet_bnb(
         stats=stats,
         conflict_explanations=list(explanations_by_agent.values()),
         fleet_result=fleet_result,
+        per_agent_costs=best_per_agent_costs,
     )
