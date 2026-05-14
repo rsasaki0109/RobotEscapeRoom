@@ -106,6 +106,24 @@ graph = topology_from_occupancy(grid, resolution=0.25)
 |-----------------------------------------|----------------------|
 | ![grid](docs/images/05_occupancy_graph.png) | ![path](docs/images/06_occupancy_graph_with_path.png) |
 
+### Door / threshold detection
+
+`mark_doors_by_clearance` runs a distance transform on the binarized
+grid and flags narrow-passage nodes and edges. Each node-with-cells
+gets a `min_clearance` (meters) property; nodes and edges whose
+clearance is below an explicit or auto-percentile threshold get
+re-typed `door`.
+
+```python
+from semantic_toponav.conversion import (
+    mark_doors_by_clearance, topology_from_occupancy,
+)
+graph = topology_from_occupancy(grid, resolution=0.05)
+result = mark_doors_by_clearance(graph, grid, resolution=0.05,
+                                 clearance_threshold=0.6)  # meters
+print(result.node_ids, result.edge_ids)
+```
+
 ## Dynamic edge availability
 
 Block specific edges or whole edge types at plan time without mutating the

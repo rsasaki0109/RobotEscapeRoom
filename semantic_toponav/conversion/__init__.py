@@ -16,7 +16,11 @@ from semantic_toponav.conversion.map_io import (
     OccupancyMap,
     load_occupancy_map,
 )
-from semantic_toponav.conversion.occupancy import topology_from_occupancy
+from semantic_toponav.conversion.occupancy import (
+    DoorDetectionResult,
+    mark_doors_by_clearance,
+    topology_from_occupancy,
+)
 from semantic_toponav.conversion.rosbag2 import (
     SUPPORTED_MESSAGE_TYPES,
     RosbagTrajectoryLoadError,
@@ -28,6 +32,7 @@ __all__ = [
     "SUPPORTED_MESSAGE_TYPES",
     "AnnotationResult",
     "CsvTrajectoryLoadError",
+    "DoorDetectionResult",
     "IterativeFusionResult",
     "IterativeFusionStep",
     "MapLoadError",
@@ -38,6 +43,7 @@ __all__ = [
     "load_occupancy_map",
     "load_trajectories_from_csv",
     "load_trajectories_from_rosbag",
+    "mark_doors_by_clearance",
     "promote_unmapped_transitions",
     "prune_low_traversal_edges",
     "topology_from_occupancy",
