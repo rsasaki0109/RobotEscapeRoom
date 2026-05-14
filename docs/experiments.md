@@ -173,6 +173,23 @@ landed. Each links to the still-relevant follow-up work.
   semantics. Reachable from the CLI as `semantic-toponav fleet-plan
   GRAPH --agent ID:START:GOAL[:PRIORITY] ... --hold-start HH:MM
   --hold-end HH:MM [--policy fcfs|priority --rollback-on-failure]`.
+- Joint fleet optimization beyond sequential greedy —
+  `plan_fleet_joint` clones the scheduler (new
+  `SharedScheduler.clone`), tries every permutation when
+  `n! ≤ max_permutations` (default `120` = `5!`) or a fixed set of
+  heuristic orderings (insertion / reverse / priority-DESC /
+  deadline-ASC) for larger fleets, scores each trial by
+  `(granted_count, total_path_cost)` (more grants wins; ties broken
+  by cheaper paths across granted agents), and applies the winning
+  ordering to the live scheduler in a single committing call. Plus
+  `plan_fleet_with_strategy` as a single dispatcher across
+  `greedy | priority | deadline | joint`, and a new optional
+  `FleetRequest.deadline` field used as the EDF sort key. Reachable
+  from the CLI by extending the existing flag set:
+  `semantic-toponav fleet-plan ... --strategy joint` (or
+  `priority` / `deadline`); the `--agent` syntax gains an optional
+  `:HH:MM` deadline suffix
+  (`--agent r1:entrance:kitchen:0:11:00`).
 
 See `docs/decisions.md` D-10 for the original "non-goals" list with
 shipped / deferred markers.
@@ -219,20 +236,24 @@ What's still open. Each is a candidate for an experiment branch.
   (`time_aware` + `--at-time`); what's still open is date-aware /
   calendar-aware scheduling (holidays, specific dates).
 - multi-agent / shared-resource planning — single-snapshot
-  reservations ship (`reservation_aware` + `--reservations`), and so
-  does the online coordination layer
+  reservations ship (`reservation_aware` + `--reservations`), the
+  online coordination layer ships
   (`SharedScheduler` + `plan_with_scheduler` + `plan_fleet` +
-  `semantic-toponav fleet-plan` — see the "Shipped" entry). What's
-  still open is *joint* optimization: the fleet planner is sequential
-  greedy with the request order as the only knob, so it does not
-  search across permutations or back-track when a later agent would
-  unblock an earlier one's path. Anytime / branch-and-bound joint
-  scheduling, fairness-aware ordering, and deadline-driven admission
-  control are the natural next steps. A second open item is *real-
-  time* re-coordination: the current scheduler is process-local and
-  callers persist + distribute its state themselves; a thin RPC /
-  message-bus shim (so multiple planners can share one logical
-  scheduler) is not in-repo.
+  `semantic-toponav fleet-plan`), and now the first layer of *joint*
+  optimization also ships (`plan_fleet_joint` + the
+  `--strategy {greedy,priority,deadline,joint}` dispatcher — see the
+  "Shipped" entry). What's still open is everything past the
+  enumerate / heuristic-ordering baseline: anytime / branch-and-bound
+  search that can split or insert agents mid-search, MILP / CP-SAT
+  formulations for tightly contended maps, fairness-aware ordering
+  (e.g. minimax wait time across the fleet), and deadline-driven
+  *admission* (today `deadline` is a sort key only; a hard admission
+  layer that rejects requests whose minimum-cost path would miss the
+  deadline isn't here). A second open item is *real-time* re-
+  coordination: the current scheduler is process-local and callers
+  persist + distribute its state themselves; a thin RPC / message-bus
+  shim (so multiple planners can share one logical scheduler) is not
+  in-repo.
 
 ### Embodied AI
 

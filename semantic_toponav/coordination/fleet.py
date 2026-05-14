@@ -61,12 +61,20 @@ class FleetRequest:
     priority:
         Forwarded as the priority on every claim this agent makes.
         Read by the ``priority_based`` policy; ignored by FCFS.
+    deadline:
+        Optional time-of-day acting as a sort key for the
+        ``deadline`` / EDF strategy in
+        :func:`semantic_toponav.coordination.plan_fleet_with_strategy`.
+        Has no effect on the scheduler claims themselves (which use
+        ``hold_start`` / ``hold_end``); it is a hint about *when* this
+        request needs to be admitted relative to others.
     """
 
     agent_id: str
     start: str
     goal: str
     priority: int = 0
+    deadline: time | str | None = None
 
 
 @dataclass
