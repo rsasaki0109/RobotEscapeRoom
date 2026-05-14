@@ -72,5 +72,6 @@ ignore = ["E501"]
 # below other statements.
 "tests/test_map_io.py" = ["E402"]
 "tests/test_occupancy.py" = ["E402"]
+"tests/test_rosbag2_loader.py" = ["E402"]
 "tests/test_trajectory.py" = ["E402"]
 "tests/test_visualization.py" = ["E402"]
