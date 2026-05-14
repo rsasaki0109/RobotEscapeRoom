@@ -64,7 +64,10 @@ experiment branch.
   planner exposes ``floor_change_penalty``, ``prefer_floor``,
   ``same_floor_only`` cost factories plus a ``floor_aware_heuristic``
   for A*. See ``examples/run_multi_floor_demo.py``.
-- dynamic graph updates (closed corridor, busy elevator)
+- **dynamic graph updates** (closed corridor, busy elevator): implemented
+  via the `block_edges` and `block_edge_types` cost factories plus the
+  `--block-edge` / `--block-edge-type` CLI flags. The graph itself is
+  not mutated, so each plan call can use a different availability set.
 - preference-aware planning (shortest vs scenic vs least-crowded)
 - temporal graphs (time-of-day restrictions)
 
