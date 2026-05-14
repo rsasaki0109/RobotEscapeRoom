@@ -156,6 +156,23 @@ landed. Each links to the still-relevant follow-up work.
   as `semantic-toponav describe-path GRAPH ... --llm-backend
   echo|anthropic [--llm-style HINT --llm-script REPLY]` and
   `semantic-toponav resolve GRAPH "text" --llm-backend ...`.
+- Online multi-agent coordination — new
+  `semantic_toponav.coordination` subpackage with `SharedScheduler`
+  (in-memory reservation broker — `claim` / `release` /
+  `release_all` / `table()` snapshot for `reservation_aware`),
+  pluggable `ConflictPolicy` (`first_come_first_served` default;
+  `priority_based` preempts lower-priority holders), and two entry
+  points: `plan_with_scheduler` plans one agent against the live
+  scheduler state and atomically claims every node + edge on the
+  resulting path (rolling back partial claims on conflict); and
+  `plan_fleet` runs a sequence of `FleetRequest` entries against the
+  same scheduler so later agents naturally route around earlier
+  holds. Priority-marked requests are allowed to plan as if no
+  reservations existed and preempt at claim time. Minute-by-minute
+  midnight-wrap-aware interval overlap shares `time_aware`'s clock
+  semantics. Reachable from the CLI as `semantic-toponav fleet-plan
+  GRAPH --agent ID:START:GOAL[:PRIORITY] ... --hold-start HH:MM
+  --hold-end HH:MM [--policy fcfs|priority --rollback-on-failure]`.
 
 See `docs/decisions.md` D-10 for the original "non-goals" list with
 shipped / deferred markers.
@@ -202,12 +219,20 @@ What's still open. Each is a candidate for an experiment branch.
   (`time_aware` + `--at-time`); what's still open is date-aware /
   calendar-aware scheduling (holidays, specific dates).
 - multi-agent / shared-resource planning — single-snapshot
-  reservations now ship (`reservation_aware` + `--reservations`, see
-  the "Shipped since the MVP" entry). What's still open is *online*
-  coordination: a shared scheduler that hands out and revokes claims
-  during execution, conflict resolution between simultaneous planners,
-  and joint optimization across an agent fleet rather than the
-  serial-after-publish model the reservation table assumes.
+  reservations ship (`reservation_aware` + `--reservations`), and so
+  does the online coordination layer
+  (`SharedScheduler` + `plan_with_scheduler` + `plan_fleet` +
+  `semantic-toponav fleet-plan` — see the "Shipped" entry). What's
+  still open is *joint* optimization: the fleet planner is sequential
+  greedy with the request order as the only knob, so it does not
+  search across permutations or back-track when a later agent would
+  unblock an earlier one's path. Anytime / branch-and-bound joint
+  scheduling, fairness-aware ordering, and deadline-driven admission
+  control are the natural next steps. A second open item is *real-
+  time* re-coordination: the current scheduler is process-local and
+  callers persist + distribute its state themselves; a thin RPC /
+  message-bus shim (so multiple planners can share one logical
+  scheduler) is not in-repo.
 
 ### Embodied AI
 

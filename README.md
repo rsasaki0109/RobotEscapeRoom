@@ -297,6 +297,64 @@ Reservations and time-of-day closures compose freely via `compose_costs`,
 so an `--at-time` query can simultaneously honor static cleaning windows
 on the graph and live claims from a shared scheduler.
 
+### Online coordination: SharedScheduler + plan_fleet
+
+The reservation file is a static snapshot. The
+`semantic_toponav.coordination` subpackage adds the *online* layer — an
+in-memory `SharedScheduler` that hands out and revokes claims at
+runtime, a pluggable `ConflictPolicy` (`first_come_first_served` by
+default; `priority_based` preempts lower-priority holders), and two
+convenience entry points:
+
+```python
+from semantic_toponav.coordination import (
+    SharedScheduler, FleetRequest, plan_fleet, plan_with_scheduler,
+    priority_based,
+)
+
+scheduler = SharedScheduler()  # or SharedScheduler(policy=priority_based)
+
+# One agent at a time:
+result = plan_with_scheduler(
+    graph, agent_id="r1", start="entrance", goal="kitchen",
+    scheduler=scheduler, hold_start="10:00", hold_end="11:00",
+)
+# result.granted, result.path, result.claims (per-resource Reservations)
+
+# Or a fleet, planned sequentially against the same scheduler:
+fleet = plan_fleet(
+    graph,
+    [FleetRequest("r1", "entrance", "kitchen"),
+     FleetRequest("r2", "entrance", "lab"),
+     FleetRequest("r3", "entrance", "office_2f", priority=5)],
+    scheduler,
+    hold_start="10:00", hold_end="11:00",
+)
+print(fleet.all_granted, fleet.by_agent())
+```
+
+Sequential greedy is the simplest correct strategy: each agent sees
+the claims left by the earlier ones, so the assignment is
+deterministic in the request order. Under the priority policy, a
+request with `priority > 0` is allowed to plan as if no reservations
+existed and then preempts any conflicting holds at claim time —
+useful when an emergency / oncall agent has to route over already-
+booked resources.
+
+CLI form for dry-runs:
+
+```bash
+semantic-toponav fleet-plan examples/indoor_office.yaml \
+    --agent r1:entrance:kitchen \
+    --agent r2:entrance:lab \
+    --agent r3:entrance:office_2f:5 \
+    --hold-start 10:00 --hold-end 11:00 \
+    --policy priority
+```
+
+Each invocation builds a fresh empty scheduler — production
+deployments wire `SharedScheduler` into a long-running service.
+
 ## Multi-floor navigation
 
 When nodes carry a `floor` property, three additional cost helpers and one
