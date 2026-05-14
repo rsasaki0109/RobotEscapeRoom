@@ -1,0 +1,147 @@
+# semantic-toponav
+
+Open-source robotics navigation built around **Semantic Topological Maps**.
+
+`semantic-toponav` is the *global, semantic, graph-level* planning layer that
+sits **above** dense metric maps and HD maps, and **below** any low-level
+motion executor (Nav2, Autoware, MPPI, learned policies, ...).
+
+It explores the next abstraction layer for robot navigation:
+
+- semantic topological map
+- graph-based navigation
+- semantic waypoint planning
+- memory-oriented navigation
+- navigation for embodied AI
+
+## What this project *is*
+
+A small, readable Python core that:
+
+- defines an explicit semantic topology graph (nodes, edges, semantic types)
+- loads/saves graphs as YAML or JSON
+- plans routes with Dijkstra and A*
+- supports semantic-aware routing (avoid restricted, avoid stairs, prefer elevator, ...)
+- converts a node path into a list of semantic waypoints
+- ships a CLI for validation, planning, and waypoint generation
+- ships a ROS2 adapter package skeleton for integration (Nav2 etc.)
+
+## What this project is *not*
+
+It deliberately does **not** include:
+
+- low-level control (MPC, MPPI)
+- obstacle avoidance
+- SLAM
+- dense occupancy planning
+- behavior trees
+
+Those should be integrated through existing systems (Nav2, Autoware, custom local planners).
+The split is:
+
+| Layer | Responsibility | Owned by |
+|------|---------------|-----------|
+| Global semantic-topological planning | *where* and *why* | this repository |
+| Local motion execution | *how to move locally* | Nav2 / MPPI / policy |
+
+## Quick start
+
+```bash
+pip install -e .
+```
+
+Generate a path from the bundled office example:
+
+```bash
+semantic-toponav validate examples/indoor_office.yaml
+semantic-toponav plan      examples/indoor_office.yaml entrance meeting_room
+semantic-toponav waypoints examples/indoor_office.yaml entrance office_2f --avoid-stairs --prefer-elevator
+```
+
+Or run the full demo (shows how semantic costs change the route):
+
+```bash
+python examples/run_indoor_demo.py
+```
+
+## Graph schema (v1)
+
+```yaml
+version: 1
+metadata:
+  name: indoor_office
+  frame_id: map
+nodes:
+  - id: entrance
+    label: Entrance
+    type: entrance
+    pose: {x: 0.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {}
+edges:
+  - id: entrance_to_corridor
+    source: entrance
+    target: corridor_main
+    type: traversable
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+```
+
+Node `type` examples: `corridor`, `room`, `intersection`, `elevator`, `stairs`, `entrance`.
+Edge `type` examples: `traversable`, `stairs_up`, `stairs_down`, `elevator_connection`,
+`restricted`, `one_way`.
+
+`pose` is optional. Without it, A* degrades to Dijkstra.
+
+## Python API
+
+```python
+from semantic_toponav.graph.serialization import load_graph
+from semantic_toponav.planner import (
+    plan_astar, avoid_restricted, avoid_stairs, prefer_elevator, compose_costs,
+)
+from semantic_toponav.waypoint import path_to_semantic_waypoints
+
+graph = load_graph("examples/indoor_office.yaml")
+
+path = plan_astar(
+    graph, "entrance", "office_2f",
+    cost_fn=compose_costs(avoid_stairs, prefer_elevator),
+)
+for wp in path_to_semantic_waypoints(graph, path):
+    print(wp.instruction)
+```
+
+## CLI
+
+```text
+semantic-toponav validate  GRAPH
+semantic-toponav plan      GRAPH START GOAL [--algorithm astar|dijkstra] [--avoid-restricted]
+                                            [--avoid-stairs] [--prefer-elevator]
+                                            [--format text|json]
+semantic-toponav waypoints GRAPH START GOAL [...same options...]
+```
+
+## ROS2 integration
+
+The core Python package is ROS-independent. The ROS2 wrapper lives under
+`ros2/semantic_toponav_ros/`. See [`ros2/README.md`](ros2/README.md) for the
+adapter design and the Nav2 integration boundary.
+
+## Project status
+
+This is the MVP. Things explicitly out of scope for the first version include
+custom ROS messages, a behavior-tree Nav2 plugin, occupancy-to-topology
+conversion, VLM labeling, and CLIP embeddings. See
+[`docs/decisions.md`](docs/decisions.md) for the reasoning and
+[`docs/experiments.md`](docs/experiments.md) for future directions.
+
+## Tests
+
+```bash
+pytest -q
+```
+
+## License
+
+Apache-2.0.
