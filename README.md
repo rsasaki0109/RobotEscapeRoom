@@ -301,6 +301,31 @@ for wp in path_to_semantic_waypoints(graph, path):
     print(wp.instruction)
 ```
 
+### Programmatic graph construction
+
+For small graphs or unit tests, the fluent `GraphBuilder` is usually less
+ceremony than hand-writing dataclasses:
+
+```python
+from semantic_toponav.graph import GraphBuilder
+from semantic_toponav.planner import plan_astar
+
+graph = (
+    GraphBuilder()
+    .node("entrance", type="entrance", x=0, y=0)
+    .node("corridor", type="corridor", x=2, y=0)
+    .node("lab",      type="room",     x=4, y=0, label="Robotics Lab")
+    .connect("entrance", "corridor", "lab")           # chain edges in one call
+    .build()
+)
+
+path = plan_astar(graph, "entrance", "lab")
+```
+
+`x=`/`y=` (and optional `yaw`/`frame_id`) build a `Pose2D` inline; `connect()`
+lays edges through a sequence of node ids; `edge()` auto-generates an id
+like `"<source>__<target>"` when one isn't passed.
+
 ## Semantic queries
 
 Translate natural-language-style intents ("nearest elevator", "any room on

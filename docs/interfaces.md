@@ -79,6 +79,28 @@ g.remove_edge("ab")    # -> None
 g.validate()           # raises GraphValidationError on any inconsistency
 ```
 
+#### Fluent construction
+
+```python
+from semantic_toponav.graph import GraphBuilder
+
+graph = (
+    GraphBuilder()
+    .node("a", type="room", x=0, y=0)             # x=/y= build Pose2D inline
+    .node("b", type="corridor", x=1, y=0)
+    .node("c", type="room", x=2, y=0, properties={"floor": 1})
+    .connect("a", "b", "c", type="traversable")   # lay edges through a chain
+    .build()
+)
+
+# Or extend an already-loaded graph:
+GraphBuilder.from_graph(existing).node("new_node", type="room").build()
+```
+
+`node()` accepts either `pose=Pose2D(...)` or `x=`/`y=` (with optional
+`yaw=`/`frame_id=`); `edge()` auto-generates an id like
+`"<source>__<target>"` when one is not passed.
+
 ### Planning
 
 ```python
