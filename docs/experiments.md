@@ -84,7 +84,10 @@ landed. Each links to the still-relevant follow-up work.
   `prune_low_traversal_edges` and `promote_unmapped_transitions` —
   snap recorded runs onto a skeleton-derived graph, drop edges that
   no one used, and promote frequent transitions that had no edge into
-  new candidate edges)
+  new candidate edges), plus the high-level
+  `fuse_trajectories_iteratively` wrapper that loops the cycle until
+  the topology is stable (with a max-iterations cap so oscillating
+  thresholds can't run forever)
 - v1-stable JSON Schema for `SemanticWaypointArray`
   (`docs/waypoint_schema.md`,
   `schemas/semantic_waypoint_array.schema.json`)
@@ -105,9 +108,12 @@ What's still open. Each is a candidate for an experiment branch.
   alternatives, time-aware clustering for dwell detection. The basic
   fusion of the two pipelines now ships
   (`annotate_graph_with_trajectories` plus
-  `prune_low_traversal_edges` and `promote_unmapped_transitions`);
-  what's still open is iterating the snap/prune/promote cycle until
-  convergence and validating the result on a real recorded run.
+  `prune_low_traversal_edges` and `promote_unmapped_transitions`),
+  and so does the iterative wrapper that loops snap → prune → promote
+  to convergence (`fuse_trajectories_iteratively`, returning an
+  :class:`IterativeFusionResult` with per-iteration history and a
+  converged flag, oscillation-safe via `max_iterations`). What's
+  still open is validating the result on a real recorded run.
 - **VLM / CLIP labeling of regions**: the retrieval / similarity layer
   (`find_nodes_by_embedding`, `nearest_node_by_embedding`) already
   ships. What's deferred is the *encoder* integration — wiring a
