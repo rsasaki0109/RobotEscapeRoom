@@ -1,4 +1,4 @@
-from semantic_toponav.planner.astar import plan_astar
+from semantic_toponav.planner.astar import floor_aware_heuristic, plan_astar
 from semantic_toponav.planner.dijkstra import plan_dijkstra
 from semantic_toponav.planner.errors import NoPathError, PlanningError
 from semantic_toponav.planner.semantic_costs import (
@@ -6,7 +6,10 @@ from semantic_toponav.planner.semantic_costs import (
     avoid_stairs,
     compose_costs,
     default_edge_cost,
+    floor_change_penalty,
     prefer_elevator,
+    prefer_floor,
+    same_floor_only,
 )
 
 __all__ = [
@@ -16,7 +19,11 @@ __all__ = [
     "avoid_stairs",
     "compose_costs",
     "default_edge_cost",
+    "floor_aware_heuristic",
+    "floor_change_penalty",
     "plan_astar",
     "plan_dijkstra",
     "prefer_elevator",
+    "prefer_floor",
+    "same_floor_only",
 ]

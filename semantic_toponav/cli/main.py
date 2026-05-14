@@ -17,9 +17,12 @@ from semantic_toponav.planner import (
     avoid_stairs,
     compose_costs,
     default_edge_cost,
+    floor_change_penalty,
     plan_astar,
     plan_dijkstra,
     prefer_elevator,
+    prefer_floor,
+    same_floor_only,
 )
 from semantic_toponav.planner.errors import NoPathError, PlanningError
 from semantic_toponav.waypoint.semantic_waypoint import (
@@ -28,7 +31,7 @@ from semantic_toponav.waypoint.semantic_waypoint import (
 )
 
 
-def _build_cost_fn(args: argparse.Namespace) -> Callable[[TopologyEdge], float]:
+def _build_cost_fn(args: argparse.Namespace, graph=None) -> Callable[[TopologyEdge], float]:
     fns: list[Callable[[TopologyEdge], float]] = []
     if args.avoid_restricted:
         fns.append(avoid_restricted)
@@ -36,13 +39,22 @@ def _build_cost_fn(args: argparse.Namespace) -> Callable[[TopologyEdge], float]:
         fns.append(avoid_stairs)
     if args.prefer_elevator:
         fns.append(prefer_elevator)
+    # Floor-aware costs require a graph because they look up endpoint floors.
+    if graph is not None:
+        if getattr(args, "same_floor_only", False):
+            fns.append(same_floor_only(graph))
+        if getattr(args, "prefer_floor", None) is not None:
+            fns.append(prefer_floor(graph, args.prefer_floor))
+        penalty = getattr(args, "floor_change_penalty", None)
+        if penalty is not None and penalty > 0:
+            fns.append(floor_change_penalty(graph, penalty=penalty))
     if not fns:
         return default_edge_cost
     return compose_costs(*fns)
 
 
 def _run_plan(graph: TopologyGraph, args: argparse.Namespace) -> list[str]:
-    cost_fn = _build_cost_fn(args)
+    cost_fn = _build_cost_fn(args, graph=graph)
     if args.algorithm == "dijkstra":
         return plan_dijkstra(graph, args.start, args.goal, cost_fn=cost_fn)
     return plan_astar(graph, args.start, args.goal, cost_fn=cost_fn)
@@ -169,6 +181,18 @@ def _add_plan_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--avoid-restricted", action="store_true", help="block restricted edges")
     p.add_argument("--avoid-stairs", action="store_true", help="penalize stairs edges")
     p.add_argument("--prefer-elevator", action="store_true", help="discount elevator edges")
+    p.add_argument("--prefer-floor", type=int, metavar="N", help="prefer routes that stay on floor N")
+    p.add_argument(
+        "--floor-change-penalty",
+        type=float,
+        metavar="P",
+        help="extra cost added per floor change",
+    )
+    p.add_argument(
+        "--same-floor-only",
+        action="store_true",
+        help="block edges that cross floors",
+    )
     p.add_argument(
         "--format",
         choices=["text", "json"],

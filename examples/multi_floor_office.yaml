@@ -1,0 +1,127 @@
+version: 1
+metadata:
+  name: multi_floor_office
+  frame_id: map
+  description: >
+    A three-floor office topology. Each floor has its own corridor and rooms;
+    elevator_*f and stairs_*f form vertical columns connecting them. Designed
+    to exercise floor-aware semantic costs and heuristics.
+
+nodes:
+  # Floor 1
+  - id: entrance
+    label: Entrance
+    type: entrance
+    pose: {x: 0.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: corridor_1f
+    label: 1F Corridor
+    type: corridor
+    pose: {x: 4.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: lobby_1f
+    label: 1F Lobby
+    type: intersection
+    pose: {x: 8.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: kitchen_1f
+    label: Kitchen
+    type: room
+    pose: {x: 8.0, y: 4.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: lab_1f
+    label: Robotics Lab
+    type: room
+    pose: {x: 4.0, y: -4.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: elevator_1f
+    label: Elevator A (1F)
+    type: elevator
+    pose: {x: 6.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: stairs_1f
+    label: North Stairs (1F)
+    type: stairs
+    pose: {x: 10.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+
+  # Floor 2
+  - id: corridor_2f
+    label: 2F Corridor
+    type: corridor
+    pose: {x: 8.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 2}
+  - id: meeting_room_2f
+    label: 2F Meeting Room
+    type: room
+    pose: {x: 12.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 2}
+  - id: office_2f
+    label: 2F Office
+    type: room
+    pose: {x: 8.0, y: 4.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 2}
+  - id: elevator_2f
+    label: Elevator A (2F)
+    type: elevator
+    pose: {x: 6.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 2}
+  - id: stairs_2f
+    label: North Stairs (2F)
+    type: stairs
+    pose: {x: 10.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 2}
+
+  # Floor 3
+  - id: corridor_3f
+    label: 3F Corridor
+    type: corridor
+    pose: {x: 8.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 3}
+  - id: exec_office_3f
+    label: Executive Office
+    type: room
+    pose: {x: 12.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 3}
+  - id: balcony_3f
+    label: 3F Balcony
+    type: room
+    pose: {x: 8.0, y: 4.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 3}
+  - id: elevator_3f
+    label: Elevator A (3F)
+    type: elevator
+    pose: {x: 6.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 3}
+  - id: stairs_3f
+    label: North Stairs (3F)
+    type: stairs
+    pose: {x: 10.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 3}
+
+edges:
+  # ---------- Floor 1 ----------
+  - {id: e_entrance_to_corridor_1f, source: entrance, target: corridor_1f, type: traversable, cost: 1.0, bidirectional: true, properties: {}}
+  - {id: e_corridor_1f_to_lobby_1f, source: corridor_1f, target: lobby_1f, type: traversable, cost: 1.0, bidirectional: true, properties: {}}
+  - {id: e_corridor_1f_to_lab_1f, source: corridor_1f, target: lab_1f, type: traversable, cost: 1.0, bidirectional: true, properties: {}}
+  - {id: e_lobby_1f_to_kitchen_1f, source: lobby_1f, target: kitchen_1f, type: traversable, cost: 1.0, bidirectional: true, properties: {}}
+  - {id: e_corridor_1f_to_elevator_1f, source: corridor_1f, target: elevator_1f, type: traversable, cost: 1.0, bidirectional: true, properties: {}}
+  - {id: e_lobby_1f_to_stairs_1f, source: lobby_1f, target: stairs_1f, type: traversable, cost: 1.0, bidirectional: true, properties: {}}
+
+  # ---------- Floor 2 ----------
+  - {id: e_corridor_2f_to_meeting_2f, source: corridor_2f, target: meeting_room_2f, type: traversable, cost: 1.0, bidirectional: true, properties: {}}
+  - {id: e_corridor_2f_to_office_2f, source: corridor_2f, target: office_2f, type: traversable, cost: 1.0, bidirectional: true, properties: {}}
+  - {id: e_corridor_2f_to_elevator_2f, source: corridor_2f, target: elevator_2f, type: traversable, cost: 1.0, bidirectional: true, properties: {}}
+  - {id: e_corridor_2f_to_stairs_2f, source: corridor_2f, target: stairs_2f, type: traversable, cost: 1.0, bidirectional: true, properties: {}}
+
+  # ---------- Floor 3 ----------
+  - {id: e_corridor_3f_to_exec_3f, source: corridor_3f, target: exec_office_3f, type: traversable, cost: 1.0, bidirectional: true, properties: {}}
+  - {id: e_corridor_3f_to_balcony_3f, source: corridor_3f, target: balcony_3f, type: traversable, cost: 1.0, bidirectional: true, properties: {}}
+  - {id: e_corridor_3f_to_elevator_3f, source: corridor_3f, target: elevator_3f, type: traversable, cost: 1.0, bidirectional: true, properties: {}}
+  - {id: e_corridor_3f_to_stairs_3f, source: corridor_3f, target: stairs_3f, type: traversable, cost: 1.0, bidirectional: true, properties: {}}
+
+  # ---------- Vertical transit ----------
+  - {id: e_elevator_1f_2f, source: elevator_1f, target: elevator_2f, type: elevator_connection, cost: 3.0, bidirectional: true, properties: {}}
+  - {id: e_elevator_2f_3f, source: elevator_2f, target: elevator_3f, type: elevator_connection, cost: 3.0, bidirectional: true, properties: {}}
+  - {id: e_stairs_1f_2f, source: stairs_1f, target: stairs_2f, type: stairs_up, cost: 2.0, bidirectional: true, properties: {}}
+  - {id: e_stairs_2f_3f, source: stairs_2f, target: stairs_3f, type: stairs_up, cost: 2.0, bidirectional: true, properties: {}}
