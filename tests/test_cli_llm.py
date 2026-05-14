@@ -141,3 +141,49 @@ def test_resolve_json_output_includes_llm_block(capsys) -> None:
     payload = json.loads(out)
     assert payload["llm"]["pick"] == "meeting_room"
     assert payload["llm"]["used_fallback"] is False
+
+
+def test_resolve_with_vlm_backend_attaches_embedding_scores(capsys) -> None:
+    """--vlm-backend hashing should populate embedding_scores in JSON
+    output without stamped embeddings — empty dict is the expected
+    no-op (graph has no embeddings stamped)."""
+    rc = main(
+        [
+            "resolve",
+            EXAMPLE_YAML,
+            "meeting room",
+            "--format",
+            "json",
+            "--llm-backend",
+            "echo",
+            "--llm-script",
+            "Top match: meeting_room\nReason: matches.",
+            "--vlm-backend",
+            "hashing",
+            "--vlm-dim",
+            "32",
+        ]
+    )
+    out = capsys.readouterr().out
+    assert rc == 0
+    payload = json.loads(out)
+    # No embeddings stamped -> scores dict exists but is empty.
+    assert payload["llm"]["embedding_scores"] == {}
+
+
+def test_resolve_vlm_backend_without_llm_warns(capsys) -> None:
+    """--vlm-backend without --llm-backend is a no-op; emit a warning."""
+    rc = main(
+        [
+            "resolve",
+            EXAMPLE_YAML,
+            "meeting room",
+            "--format",
+            "json",
+            "--vlm-backend",
+            "hashing",
+        ]
+    )
+    err = capsys.readouterr().err
+    assert rc == 0
+    assert "ignored without --llm-backend" in err

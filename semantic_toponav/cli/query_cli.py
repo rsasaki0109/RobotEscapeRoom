@@ -133,6 +133,37 @@ def cmd_nearest(args: argparse.Namespace) -> int:
     return 0
 
 
+def _build_query_encoder(args: argparse.Namespace):
+    """Construct a query-encoder backend from --vlm-backend / --vlm-dim.
+
+    Returns ``None`` when no backend was requested. Raises with a
+    user-facing message when the requested backend can't be loaded
+    (e.g. ``clip`` without the ``[vlm]`` extra installed).
+    """
+    name = getattr(args, "vlm_backend", None)
+    if not name:
+        return None
+    try:
+        from semantic_toponav.encoders.backends import CLIPBackend, HashingBackend
+    except ImportError as exc:  # pragma: no cover - core has zero deps
+        raise SystemExit(
+            f"error: --vlm-backend requires the encoders module ({exc})"
+        ) from exc
+    if name == "hashing":
+        return HashingBackend(dim=getattr(args, "vlm_dim", 32))
+    if name == "clip":
+        try:
+            return CLIPBackend(
+                model_name=getattr(args, "vlm_clip_model", "openai/clip-vit-base-patch32"),
+                device=getattr(args, "vlm_clip_device", None),
+            )
+        except ImportError as exc:
+            raise SystemExit(
+                f"error: --vlm-backend clip requires the [vlm] extra ({exc})"
+            ) from exc
+    raise SystemExit(f"error: unknown --vlm-backend {name!r}")
+
+
 def cmd_resolve(args: argparse.Namespace) -> int:
     try:
         graph = load_graph(args.graph)
@@ -148,12 +179,30 @@ def cmd_resolve(args: argparse.Namespace) -> int:
         print(f"error: {exc}", file=sys.stderr)
         return 2
 
+    try:
+        query_encoder = _build_query_encoder(args)
+    except SystemExit as exc:
+        print(exc.code, file=sys.stderr)
+        return 2
+
     llm_result = None
     if backend is None:
+        # Without an LLM backend, --vlm-backend has nothing to attach to.
+        # Fall back to the deterministic resolver and tell the user.
+        if query_encoder is not None:
+            print(
+                "warning: --vlm-backend is ignored without --llm-backend "
+                "(the embedding scores are an LLM-prompt augmentation).",
+                file=sys.stderr,
+            )
         candidates = resolve_goal(graph, text, top_k=args.top_k)
     else:
         try:
-            llm_result = llm_resolve_goal(graph, text, backend, top_k=args.top_k)
+            llm_result = llm_resolve_goal(
+                graph, text, backend,
+                top_k=args.top_k,
+                query_encoder=query_encoder,
+            )
         except ImportError as exc:
             print(f"error: {exc}", file=sys.stderr)
             return 2
@@ -178,6 +227,7 @@ def cmd_resolve(args: argparse.Namespace) -> int:
                 "reason": llm_result.llm_reason,
                 "used_fallback": llm_result.used_fallback,
                 "raw_response": llm_result.raw_response,
+                "embedding_scores": dict(llm_result.embedding_scores),
             }
         print(json.dumps(payload, ensure_ascii=False, indent=2))
     else:
@@ -271,4 +321,28 @@ def register_subcommands(sub: argparse._SubParsersAction) -> None:
         help="output format (default: text)",
     )
     add_llm_args(p)
+    p.add_argument(
+        "--vlm-backend",
+        choices=["hashing", "clip"],
+        help=(
+            "use a visual encoder to compute query-vs-node embedding "
+            "similarity scores; the LLM prompt grows an "
+            "`embedding_score=` column. Requires --llm-backend to be "
+            "set too (the scores augment the LLM rerank, not the "
+            "deterministic resolver)."
+        ),
+    )
+    p.add_argument(
+        "--vlm-dim", type=int, default=32,
+        help="dimension for --vlm-backend hashing (default: 32)",
+    )
+    p.add_argument(
+        "--vlm-clip-model",
+        default="openai/clip-vit-base-patch32",
+        help="HuggingFace model name for --vlm-backend clip",
+    )
+    p.add_argument(
+        "--vlm-clip-device",
+        help="device override for --vlm-backend clip (e.g. cuda, cpu)",
+    )
     p.set_defaults(func=cmd_resolve)

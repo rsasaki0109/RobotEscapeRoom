@@ -880,6 +880,34 @@ semantic-toponav resolve examples/indoor_office.yaml "the conference room on the
     --llm-backend anthropic
 ```
 
+#### Visual grounding via region embeddings
+
+When `embed-regions` has stamped region-level embeddings onto the
+graph (see PR #32), `llm_resolve_goal` can take an optional
+`query_encoder` and compute per-candidate cosine similarity between
+the query text and each node's stored embedding. The scores are
+injected into the LLM prompt as structured fields
+(`embedding_score=0.42`), never as raw vectors — the model uses
+them as additional retrieval signal but still picks only from the
+deterministic candidate pool. CLI parity: `resolve ... --llm-backend
+... --vlm-backend hashing|clip`. Candidates without an embedding
+show `embedding_score=—` so the model can tell "no visual signal"
+apart from "weak visual signal".
+
+```python
+from semantic_toponav.encoders import HashingBackend
+from semantic_toponav.llm import EchoBackend
+from semantic_toponav.query import llm_resolve_goal
+
+# (Assume graph has been run through embed-regions or has node
+# embeddings stamped some other way.)
+result = llm_resolve_goal(
+    graph, "second floor office", EchoBackend(script=[...]),
+    query_encoder=HashingBackend(dim=32),
+)
+print(result.embedding_scores)  # {node_id: cosine}
+```
+
 ### Visit-history memory
 
 A small memory layer records when each node was last visited, then lets
