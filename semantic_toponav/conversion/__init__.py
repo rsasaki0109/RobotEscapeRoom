@@ -18,6 +18,9 @@ from semantic_toponav.conversion.map_io import (
 )
 from semantic_toponav.conversion.occupancy import (
     DoorDetectionResult,
+    RegionAnnotationResult,
+    RegionInfo,
+    annotate_regions,
     mark_doors_by_clearance,
     topology_from_occupancy,
 )
@@ -37,8 +40,11 @@ __all__ = [
     "IterativeFusionStep",
     "MapLoadError",
     "OccupancyMap",
+    "RegionAnnotationResult",
+    "RegionInfo",
     "RosbagTrajectoryLoadError",
     "annotate_graph_with_trajectories",
+    "annotate_regions",
     "fuse_trajectories_iteratively",
     "load_occupancy_map",
     "load_trajectories_from_csv",
