@@ -108,3 +108,32 @@ def run_transport_conformance(
         assert "error" in bad, (
             f"unknown-op response should carry an 'error' key; got {bad!r}"
         )
+
+    # ---- ping is repeatable ------------------------------------------------
+    # A transport that holds a single-shot socket open and dies on the
+    # second message is unusable in practice. Probe it.
+    pong2 = transport.send({"op": "ping"})
+    assert isinstance(pong2, dict) and pong2.get("ok") is True, (
+        f"second ping failed: {pong2!r} — transports must be reusable"
+    )
+
+    # ---- release round-trip ------------------------------------------------
+    # The claim above landed; the release op must propagate too. Without
+    # this check a transport that only implements claim wire-side would
+    # still pass the suite.
+    pre_release_size = len(service.scheduler)
+    release_response = transport.send({
+        "op": "release",
+        "agent_id": "conformance_probe",
+        "resource_id": "transport_check_resource",
+    })
+    assert isinstance(release_response, dict), (
+        f"release response must be dict, got {type(release_response).__name__}"
+    )
+    assert release_response.get("removed") == 1, (
+        f"release should have removed 1 entry; got {release_response!r}"
+    )
+    assert len(service.scheduler) == pre_release_size - 1, (
+        "release response indicated success, but the service scheduler "
+        f"size did not drop ({pre_release_size} -> {len(service.scheduler)})"
+    )

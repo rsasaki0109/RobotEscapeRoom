@@ -174,3 +174,91 @@ def run_scheduler_conformance(
         "mutating the scheduler should not change a previously returned "
         f"list (snap1 grew to {len(snap1)})"
     )
+
+    # ---- idempotent release ------------------------------------------------
+    # Calling release twice on the same (agent, resource) must not raise
+    # and the second call must report 0 removed entries. A live system
+    # will retry releases after a transient transport error; double-call
+    # safety is what makes those retries safe.
+    sched = factory()
+    sched.claim(_req("robotA", "elev_1", (9, 0), (9, 30)))
+    assert sched.release("robotA", "elev_1") == 1
+    again = sched.release("robotA", "elev_1")
+    assert again == 0, (
+        f"second release on the same (agent, resource) returned {again}, "
+        "expected 0 — release must be idempotent"
+    )
+
+    # release on an unknown (agent, resource) pair must return 0, not raise.
+    fresh = factory()
+    nothing = fresh.release("ghost", "phantom_resource")
+    assert nothing == 0, (
+        f"release(unknown) returned {nothing}, expected 0 — must not raise "
+        "and must not invent removals"
+    )
+
+    # ---- claim_many is atomic on denial -----------------------------------
+    # A batch that succeeds part-way then hits a conflict must leave the
+    # scheduler in its original state — any reservations granted earlier
+    # in the same batch are rolled back. The result list ends at the
+    # denial. This protects callers that submit a multi-resource path
+    # claim as a single batch.
+    sched = factory()
+    sched.claim(_req("holder", "elev_1", (9, 0), (9, 30)))
+    pre_size = len(sched)
+    batch = list(sched.claim_many([
+        _req("robotA", "door_2", (10, 0), (10, 5)),     # clean
+        _req("robotA", "elev_1", (9, 15), (9, 45)),     # conflicts with holder
+        _req("robotA", "corridor_3", (11, 0), (11, 5)), # never evaluated
+    ]))
+    assert any(not r.granted for r in batch), (
+        "claim_many over a batch containing a conflict must report at "
+        f"least one granted=False entry; got {batch!r}"
+    )
+    # The denial entry must appear in the returned results so the caller
+    # can identify the failure.
+    last = batch[-1]
+    assert last.granted is False, (
+        f"claim_many must end the result list at the first denial; got "
+        f"last entry granted={last.granted}"
+    )
+    # Atomic rollback: scheduler size returns to its pre-batch value
+    # (the holder's reservation, plus zero from the batch).
+    assert len(sched) == pre_size, (
+        f"claim_many failed to roll back partial grants on denial: "
+        f"size {pre_size} -> {len(sched)}"
+    )
+
+    # claim_many with an empty iterable returns an empty iterable and is
+    # a no-op on scheduler state.
+    sched = factory()
+    sched.claim(_req("robotA", "elev_1", (9, 0), (9, 30)))
+    size_before = len(sched)
+    none_results = list(sched.claim_many([]))
+    assert none_results == [], (
+        f"claim_many([]) returned {none_results!r}, expected []"
+    )
+    assert len(sched) == size_before, (
+        "claim_many([]) mutated scheduler state — must be a no-op"
+    )
+
+    # ---- adjacent windows do not conflict ----------------------------------
+    # Reservations are half-open [start, end), so a claim ending at 09:30
+    # leaves 09:30 onward free for the next agent. This is a hot edge case
+    # for fleet schedulers that pipeline back-to-back hand-offs.
+    sched = factory()
+    first = sched.claim(_req("robotA", "elev_1", (9, 0), (9, 30)))
+    second = sched.claim(_req("robotB", "elev_1", (9, 30), (10, 0)))
+    assert first.granted and second.granted, (
+        f"adjacent half-open windows must not conflict — got "
+        f"first.granted={first.granted}, second.granted={second.granted}"
+    )
+
+    # ---- conflicts() on an unknown resource --------------------------------
+    sched = factory()
+    sched.claim(_req("robotA", "elev_1", (9, 0), (9, 30)))
+    empty_conflicts = sched.conflicts("never_seen", time(9, 0), time(9, 30))
+    assert empty_conflicts == [], (
+        f"conflicts(unknown_resource) returned {empty_conflicts!r}, "
+        "expected [] — must not invent or leak entries from other resources"
+    )

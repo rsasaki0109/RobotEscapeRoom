@@ -62,6 +62,15 @@ def run_aligned_rgb_source_conformance(
         f"shape must be positive, got {shape!r}"
     )
 
+    # shape must be stable across reads — a source whose dimensions
+    # change between calls would silently break every cached bbox.
+    shape_again = source.shape
+    assert shape_again == shape, (
+        f"shape changed across reads: {shape!r} -> {shape_again!r} — "
+        "AlignedRgbSource dimensions must be stable for the lifetime "
+        "of the object"
+    )
+
     if sample_bbox is None:
         # Top-left quadrant, or the full image when the source is tiny.
         rmax = max(0, height // 2 - 1) if height >= 4 else height - 1
