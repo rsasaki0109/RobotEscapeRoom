@@ -56,6 +56,13 @@ landed. Each links to the still-relevant follow-up work.
   serves a single page that polls `/mtime.json` and reloads when the
   graph file on disk changes; pairs with the CLI editor for a
   development loop)
+- Deterministic, edge-aware path narration
+  (`semantic-toponav describe-path GRAPH FROM TO`, plus the
+  `describe_path` / `path_to_steps` API) — turns a plan into numbered
+  step-by-step instructions with edge-type-aware phrasing for
+  elevators / stairs / restricted edges and explicit floor-change
+  call-outs. Intended as the deterministic floor under any later
+  LLM-augmented instruction layer.
 - Three-floor end-to-end tutorial at `docs/tutorial.md`
 - Hybrid occupancy + trajectory pipeline
   (`annotate_graph_with_trajectories` + post-processing helpers
@@ -101,7 +108,8 @@ What's still open. Each is a candidate for an experiment branch.
 ### Embodied AI
 
 - LLM-augmented waypoint instructions on top of the deterministic
-  `path_to_semantic_waypoints` output
+  `describe_path` output (the deterministic narration ships; the LLM
+  rewriting layer that would consume those steps does not)
 - natural-language goal parsing ("meet me in the second-floor lab")
 - topology graphs as scratchpad for embodied agents
 
