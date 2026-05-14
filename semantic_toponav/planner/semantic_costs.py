@@ -21,6 +21,7 @@ BLOCKED = math.inf
 DEFAULT_FLOOR_PROPERTY = "floor"
 DEFAULT_CLOSED_DURING_PROPERTY = "closed_during"
 DEFAULT_CLOSED_ON_DATES_PROPERTY = "closed_on_dates"
+DEFAULT_PREFERENCES_PROPERTY = "preferences"
 
 _WEEKDAY_NAMES: dict[str, int] = {
     "mon": 0, "tue": 1, "wed": 2, "thu": 3, "fri": 4, "sat": 5, "sun": 6,
@@ -160,6 +161,120 @@ def block_edge_types(edge_types: Iterable[str]) -> CostFn:
         if edge.type in blocked:
             return BLOCKED
         return edge.cost
+
+    return cost_fn
+
+
+def preference_aware(
+    graph: TopologyGraph,
+    *,
+    preferences: Mapping[str, float],
+    preference_property: str = DEFAULT_PREFERENCES_PROPERTY,
+    min_multiplier: float = 0.1,
+    max_multiplier: float = 10.0,
+) -> CostFn:
+    """Blend soft per-edge preference scores into the cost.
+
+    Each edge may carry a property (default ``"preferences"``) that maps
+    string keys to numeric scores, e.g.::
+
+        edge.properties["preferences"] = {"scenic": 0.8, "crowded": 0.4}
+
+    The caller supplies weights — positive for "I want more of this",
+    negative for "I want less" — and the per-edge contribution is the
+    dot product::
+
+        score(edge) = sum(weight[k] * preferences[k] for k in weight)
+
+    Missing keys on the edge contribute ``0`` (the default for "unknown
+    preference"). The returned cost is the edge's base cost scaled by a
+    linear-clamped multiplier::
+
+        multiplier = clamp(1.0 - score, min_multiplier, max_multiplier)
+        cost(edge) = edge.cost * multiplier
+
+    So a score of ``1.0`` halves an edge that started at ``0.5x``
+    multiplier floor, a score of ``-1.0`` doubles it, and a score of
+    ``0`` (no preferences match) leaves the edge at its base cost.
+
+    The function composes via :func:`compose_costs` like any other
+    cost helper — preferences and time-of-day closures can be active
+    simultaneously.
+
+    Parameters
+    ----------
+    graph:
+        The graph (unused except for the parameter symmetry with the
+        other graph-aware cost helpers, in case future versions want
+        to read node-level preference defaults).
+    preferences:
+        Mapping from preference key to weight. Weights are unbounded
+        floats; values are typically in ``[-1, 1]`` to keep multipliers
+        in a reasonable range, but the caller decides.
+    preference_property:
+        Edge property name to read the per-edge score dict from. Defaults
+        to ``"preferences"``.
+    min_multiplier, max_multiplier:
+        Lower and upper bounds on the cost multiplier. Defaults to
+        ``0.1`` (90% discount cap) and ``10.0`` (10x penalty cap) so a
+        single very-strong preference cannot fully zero out an edge or
+        send the cost to infinity — use :func:`block_edges` for that.
+    """
+    del graph  # reserved for future node-default support
+    if not isinstance(preferences, Mapping):
+        raise TypeError(
+            f"preferences must be a mapping of key -> weight, got "
+            f"{type(preferences).__name__}"
+        )
+    if min_multiplier <= 0:
+        raise ValueError(
+            f"min_multiplier must be positive, got {min_multiplier}"
+        )
+    if max_multiplier < min_multiplier:
+        raise ValueError(
+            f"max_multiplier ({max_multiplier}) must be >= "
+            f"min_multiplier ({min_multiplier})"
+        )
+
+    weights: dict[str, float] = {}
+    for key, weight in preferences.items():
+        if not isinstance(key, str):
+            raise TypeError(
+                f"preference key must be str, got {type(key).__name__}"
+            )
+        if isinstance(weight, bool) or not isinstance(weight, (int, float)):
+            raise TypeError(
+                f"preference weight for {key!r} must be int or float, "
+                f"got {type(weight).__name__}"
+            )
+        weights[key] = float(weight)
+
+    def _score(edge_prefs: object) -> float:
+        if edge_prefs is None:
+            return 0.0
+        if not isinstance(edge_prefs, Mapping):
+            raise ValueError(
+                f"edge {preference_property!r} must be a mapping of "
+                f"key -> score, got {type(edge_prefs).__name__}"
+            )
+        total = 0.0
+        for key, weight in weights.items():
+            value = edge_prefs.get(key)
+            if value is None:
+                continue
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                raise ValueError(
+                    f"edge preference {key!r} must be numeric, got "
+                    f"{type(value).__name__}"
+                )
+            total += weight * float(value)
+        return total
+
+    def cost_fn(edge: TopologyEdge) -> float:
+        score = _score(edge.properties.get(preference_property))
+        raw_multiplier = 1.0 - score
+        multiplier = max(min_multiplier, min(max_multiplier, raw_multiplier))
+        return edge.cost * multiplier
 
     return cost_fn
 

@@ -111,6 +111,58 @@ apply every day. A weekday-filtered entry seen without `at_date`
 raises `ValueError` rather than silently letting the planner route
 through what may be a closed edge.
 
+## Soft preferences (shortest / scenic / least-crowded)
+
+Tag edges with arbitrary numeric scores under a `preferences` property
+and ask the planner to blend them into the cost at query time. Keys
+are caller-defined, so the same machinery handles "scenic", "crowded",
+"accessibility-friendly", or anything else you can put a per-edge
+score on.
+
+```yaml
+edges:
+  - id: garden_path
+    source: entrance
+    target: courtyard
+    type: traversable
+    cost: 4.0
+    properties:
+      preferences: {scenic: 0.9, crowded: 0.1}
+  - id: service_corridor
+    source: entrance
+    target: courtyard
+    type: traversable
+    cost: 2.0
+    properties:
+      preferences: {scenic: 0.1, crowded: 0.8}
+```
+
+```bash
+# Repeat --prefer per dimension. Weight defaults to 1.0.
+semantic-toponav plan office.yaml entrance courtyard \
+    --prefer scenic --prefer crowded:-0.5
+```
+
+```python
+from semantic_toponav.planner import plan_astar, preference_aware
+
+cost = preference_aware(graph, preferences={"scenic": 1.0, "crowded": -0.5})
+path = plan_astar(graph, "entrance", "courtyard", cost_fn=cost)
+```
+
+For each edge, `score = Σ(weight[k] * edge.preferences.get(k, 0))`,
+the cost multiplier is `clamp(1.0 - score, min_multiplier=0.1,
+max_multiplier=10.0)`, and the final cost is `edge.cost * multiplier`.
+Missing keys on the edge contribute `0` (a typo'd preference name is
+simply inert rather than an error). Use `block_edges` / `time_aware`
+for hard cuts — `preference_aware` deliberately can't fully zero an
+edge.
+
+`preference_aware` composes with the rest of the cost-function family,
+so a single query can honor restricted-edge bans, time-of-day
+closures, reservations, *and* a scenic-vs-crowded soft preference at
+the same time.
+
 ## Static multi-agent reservations
 
 For the static "another agent has already booked this resource" case
