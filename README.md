@@ -327,6 +327,27 @@ semantic-toponav nearest examples/indoor_office.yaml --from-node entrance --type
 semantic-toponav nearest examples/indoor_office.yaml --from-pose 0 0 --type elevator
 ```
 
+### Embedding-based retrieval
+
+Nodes can carry an arbitrary embedding vector under
+`properties["embedding"]`. Attach CLIP / SigLIP / sentence-encoder vectors
+ahead of time and `semantic-toponav` will rank candidates by cosine
+similarity — no model dependency in the core:
+
+```python
+from semantic_toponav.query import (
+    find_nodes_by_embedding, nearest_node_by_embedding,
+)
+
+# ... attach node.properties["embedding"] = [...]  ahead of time ...
+
+matches = find_nodes_by_embedding(graph, query_vec, top_k=5, type="room")
+goal = nearest_node_by_embedding(graph, query_vec, type="room")
+```
+
+`python examples/embedding_demo.py` runs a self-contained demo using
+deterministic toy embeddings.
+
 ## CLI
 
 ```text
