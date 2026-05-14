@@ -434,6 +434,34 @@ fig, ax = plot_graph(
 Requires matplotlib (install with `pip install 'semantic-toponav[viz]'`).
 Nodes without a `pose` cannot be plotted and raise `MissingPoseError`.
 
+### Interactive web viewer (optional)
+
+```python
+from semantic_toponav.visualization import (
+    graph_html,
+    save_interactive_html,
+    to_pyvis_network,
+)
+
+# Write a standalone HTML file:
+save_interactive_html(graph, "viewer.html", path=path)
+
+# Or get a pyvis Network for further customization:
+net = to_pyvis_network(graph, path=path, height="800px", use_pose_layout=True)
+net.toggle_physics(False)
+net.write_html("custom.html", notebook=False, open_browser=False)
+
+# Or get the HTML as a string (for embedding):
+html = graph_html(graph, path=path)
+```
+
+Nodes with `pose` are pinned to their world coordinates (with `y` flipped
+to match the matplotlib view); nodes without a pose are placed by pyvis'
+physics simulation. The optional `path=[...]` argument highlights the
+specified node sequence in pink. Requires
+`pip install 'semantic-toponav[viz_web]'` (pulls `pyvis>=0.3`); missing
+deps raise `WebViewerImportError`.
+
 ## ROS2 message strategy
 
 The ROS2 adapter supports two output formats on
