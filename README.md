@@ -403,6 +403,19 @@ plan_astar(
 `python examples/memory_demo.py` walks through coverage, retrace, and
 time-decay scenarios on the multi-floor example graph.
 
+The same history layer is also addressable from the shell:
+
+```bash
+# Record what the robot just traversed, then plan again preferring new ground.
+semantic-toponav record-path examples/multi_floor_office.yaml \
+    entrance corridor_1f lobby_1f stairs_1f stairs_2f stairs_3f corridor_3f exec_office_3f \
+    --in-place
+semantic-toponav plan examples/multi_floor_office.yaml entrance exec_office_3f \
+    --prefer-unvisited --visited-multiplier 10
+semantic-toponav history examples/multi_floor_office.yaml
+semantic-toponav clear-history examples/multi_floor_office.yaml --in-place
+```
+
 ## CLI
 
 ```text
@@ -410,10 +423,19 @@ time-decay scenarios on the multi-floor example graph.
 semantic-toponav validate  GRAPH
 semantic-toponav plan      GRAPH START GOAL [--algorithm astar|dijkstra] [--avoid-restricted]
                                             [--avoid-stairs] [--prefer-elevator]
+                                            [--prefer-unvisited [--visited-multiplier M]]
+                                            [--prefer-familiar [--familiar-multiplier M]]
+                                            [--avoid-recent SECONDS [--recent-multiplier M] [--now TS]]
                                             [--format text|json]
 semantic-toponav waypoints GRAPH START GOAL [...same options...]
 semantic-toponav plot      GRAPH [--start S --goal G] [--avoid-*] [--save FILE] [--show]
                                                        [--edge-ids] [--title STR]
+
+# Visit history (write to stdout by default; pass --in-place or --out FILE to persist)
+semantic-toponav record-visit  GRAPH NODE_ID [--now TS] [--in-place | --out FILE]
+semantic-toponav record-path   GRAPH NODE_ID... [--now TS] [--in-place | --out FILE]
+semantic-toponav clear-history GRAPH [NODE_ID...] [--in-place | --out FILE]
+semantic-toponav history       GRAPH [NODE_ID...] [--all]
 
 # Editing (write to stdout by default; pass --in-place or --out FILE to persist)
 semantic-toponav inspect   GRAPH [--nodes] [--edges] [--type T]
