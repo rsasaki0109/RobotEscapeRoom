@@ -292,6 +292,71 @@ landed. Each links to the still-relevant follow-up work.
   `priority` / `deadline`); the `--agent` syntax gains an optional
   `:HH:MM` deadline suffix
   (`--agent r1:entrance:kitchen:0:11:00`).
+- Fairness-aware BnB objectives — `plan_fleet_bnb` gains an
+  `objective` parameter with three modes: `"min_cost"` (default,
+  unchanged), `"minimax_cost"` (minimize the maximum per-agent path
+  cost — picks egalitarian orderings even when total cost ties), and
+  `"max_fairness"` (maximize Jain's fairness index over per-agent
+  path costs). Grants upper-bound pruning stays universal; the cost
+  lower-bound prune branches per objective (partial sum dominates
+  `min_cost`, partial max dominates `minimax_cost`, fairness mode
+  skips the prune since Jain's index is non-monotone).
+  `BnBPlanResult.per_agent_costs` exposes the winner's per-agent
+  cost map; `plan_fleet_with_strategy` threads the choice through as
+  `bnb_objective`; CLI parity through `eval-synthetic
+  --bnb-objective min_cost|minimax_cost|max_fairness`.
+- HTTP reference transport for `SchedulerService` —
+  `HttpSchedulerServer` (stdlib `ThreadingHTTPServer` + `urllib`),
+  `HttpTransport` (one-method `Transport`, `urllib.request`-POSTs
+  JSON), and the full lifecycle (start / shutdown / context manager
+  / idempotent re-call). Wire contract: `POST /` with JSON body, 200
+  with service body, 400 with `{"error": ..., "kind": "RpcError"}`
+  for malformed payloads (matches the in-body error shape
+  `SchedulerService` already uses), 404 / 405 for wrong path /
+  method. Pairs with `SchedulerClient` for end-to-end multi-process
+  fleets. No new dependencies — stdlib only.
+- Multi-turn `DialogSession` for LLM goal resolution — stateful
+  wrapper around `llm_resolve_goal` that accumulates
+  `ClarificationAnswer.free_text` hints across replies, so "the
+  second floor one" plus a later "with the big window" narrows
+  together instead of resetting each turn. `start(text)` initiates
+  the dialog; `reply(answer)` advances it; `is_resolved()` /
+  `chosen()` / `question()` expose state; `turns` records the full
+  conversation (`DialogTurn` per round with the effective query,
+  the answer, and the resolver's result). The `chosen_id` field
+  stays one-shot — matches the existing one-call semantics, so the
+  "no invented node ids" safety property is preserved through the
+  underlying resolver. Pure dataclass + delegation; no new
+  dependencies.
+- Exhaustive MIS baseline for grants — `plan_fleet_exhaustive`
+  answers a more fundamental question than the sequential planners:
+  *if every agent planned independently, what is the largest
+  grantable subset of those plans?* That's the maximum independent
+  set on the path-overlap conflict graph, a strict upper bound on
+  grants for fixed paths. Plans each agent on a fresh clone (no
+  sequential effect), builds the conflict graph (edges canonicalized
+  so `a→b` and `b→a` collide), enumerates subsets in decreasing
+  size, stops at the first conflict-free one, applies the chosen
+  subset to the live scheduler and pads the result with synthetic
+  denial entries for dropped agents so the `grant_rate = granted /
+  len(results)` denominator stays consistent across strategies.
+  Capped at `n_limit=16` (≈65k subsets, sub-ms). When BnB matches
+  exhaustive grant count, no scheduling tweak inside the existing
+  framework can do better. Strategy literal grows `"exhaustive"`;
+  CLI parity through `eval-synthetic --strategy exhaustive`. Pure
+  Python, no external solver dependency.
+- Scheduler state persistence — `save_scheduler(scheduler, path)`
+  writes the live scheduler's claims to YAML or JSON using the
+  existing static reservation format, so a file saved here can be
+  fed straight into `load_reservations` for offline planning;
+  `load_scheduler(path, *, policy=...)` constructs a fresh
+  `SharedScheduler` primed with every reservation from the file in
+  insertion order. Conflict policy is operational state (not data),
+  so it does *not* round-trip — pass `policy=priority_based` at
+  load time to override the default FCFS. Closes the persistence
+  gap left by the RPC shim and HTTP transport: long-running
+  coordinator services can now checkpoint before restart, and
+  operators can prime a fresh scheduler with a known baseline.
 
 See `docs/decisions.md` D-10 for the original "non-goals" list with
 shipped / deferred markers.
@@ -345,21 +410,29 @@ What's still open. Each is a candidate for an experiment branch.
   ships (`plan_fleet_joint` + `--strategy joint`), the synthetic
   evaluation suite ships (`eval-synthetic` / `eval-report`), hard
   deadline admission control ships (`admission="hard"` +
-  `reason_code="deadline_miss"`), and the branch-and-bound joint
-  scheduler with grants / cost / budget pruning ships
+  `reason_code="deadline_miss"`), the branch-and-bound joint
+  scheduler ships with grants / cost / budget pruning
   (`plan_fleet_bnb` + `--strategy bnb`, plus `ConflictExplanation`
-  for CBS-lite diagnostics). What's still open: anytime / repair
-  search that mutates an existing committed ordering rather than
-  re-running from scratch; MILP / CP-SAT baselines for the densely
-  contended end of the spectrum where ordering-space search
-  saturates; and fairness-aware ordering with minimax wait time or
-  Jain's index *in the objective* (today it's only a reported
-  metric). The real-time RPC shim now ships too
-  (`SchedulerProtocol` + `SchedulerClient` + `LocalTransport` —
-  see the "Shipped" entry); what's still open from that angle is
-  a *concrete* reference transport (HTTP server / WebSocket loop /
-  NATS adapter) living in this repo, since the current shim only
-  specifies the contract.
+  for CBS-lite diagnostics), fairness-aware ordering with
+  minimax-cost / Jain-index objectives ships
+  (`plan_fleet_bnb(..., objective="minimax_cost" | "max_fairness")` +
+  `eval-synthetic --bnb-objective`), and an exhaustive MIS baseline
+  ships as the theoretical grant-rate upper bound
+  (`plan_fleet_exhaustive` + `--strategy exhaustive`) so heuristic
+  results can be compared against the optimum on the same scenario.
+  Scheduler persistence ships
+  (`save_scheduler` / `load_scheduler`) so coordinator services can
+  checkpoint across restarts. The real-time RPC shim ships
+  (`SchedulerProtocol` + `SchedulerClient` + `LocalTransport`) with
+  an HTTP reference transport
+  (`HttpSchedulerServer` + `HttpTransport`, stdlib only). What's
+  still open: anytime / repair search that mutates an existing
+  committed ordering rather than re-running from scratch; a real
+  MILP / CP-SAT solver baseline (e.g. via `ortools`) for the
+  densely contended end where the pure-Python exhaustive baseline
+  no longer fits the `n_limit=16` cap; and additional non-HTTP
+  reference transports (WebSocket loop / NATS adapter) living in
+  this repo.
 
 ### Embodied AI
 
@@ -368,18 +441,19 @@ What's still open. Each is a candidate for an experiment branch.
   + the `--llm-backend echo|anthropic` CLI flags — see the "Shipped"
   entry). Region-embedding context for the resolver also ships
   (`--vlm-backend hashing|clip` + `embedding_scores` in the prompt
-  and result — see the "Shipped" entry). And the smallest dialog
-  primitive ships: `ClarificationQuestion` / `ClarificationAnswer`
-  / `AmbiguousGoalError` plus the `clarification=` kwarg on
-  `llm_resolve_goal` and the `--clarify-with` / `--clarify-free`
-  CLI flags — see the "Shipped" entry. What's still open: a
-  richer *session-state* layer that remembers prior dialog turns
-  across calls (today the caller threads the answer themselves);
-  *mid-traversal* rewrite where the describer regenerates
-  instructions as the robot's position changes; and using the
-  `find_nodes_by_embedding` retrieval scores as additional
-  structured context the LLM weighs *before* it asks a
-  clarification question rather than after.
+  and result — see the "Shipped" entry). The smallest dialog
+  primitive ships
+  (`ClarificationQuestion` / `ClarificationAnswer` /
+  `AmbiguousGoalError`), and the multi-turn session driver
+  (`DialogSession` + `DialogTurn`) ships too — accumulates
+  `free_text` hints across replies so consecutive answers narrow
+  rather than reset. What's still open: *mid-traversal* rewrite
+  where the describer regenerates instructions as the robot's
+  position changes (the dialog layer today targets goal
+  resolution, not the running describer); and learned region
+  segmentation under an aligned-RGB pipeline (Mast3R / mesh-render
+  / robot-camera keyframes) so the VLM embeds actual photographs
+  rather than occupancy-grid bbox crops.
 - topology graphs as scratchpad for embodied agents
 
 ### Tooling
