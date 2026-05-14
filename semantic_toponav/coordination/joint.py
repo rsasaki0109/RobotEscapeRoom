@@ -199,6 +199,8 @@ def plan_fleet_joint(
     claim_nodes: bool = True,
     claim_edges: bool = True,
     max_permutations: int = 120,
+    admission: Literal["soft", "hard"] = "soft",
+    minutes_per_cost_unit: float = 1.0,
 ) -> JointPlanResult:
     """Search across agent orderings, pick the best, apply it for real.
 
@@ -277,6 +279,8 @@ def plan_fleet_joint(
             claim_nodes=claim_nodes,
             claim_edges=claim_edges,
             rollback_on_failure=False,
+            admission=admission,
+            minutes_per_cost_unit=minutes_per_cost_unit,
         )
         granted, cost = _score_trial(graph, tuple(r.agent_id for r in order), trial_result.results)
         trial = JointPlanTrial(
@@ -317,6 +321,8 @@ def plan_fleet_joint(
         claim_nodes=claim_nodes,
         claim_edges=claim_edges,
         rollback_on_failure=False,
+        admission=admission,
+        minutes_per_cost_unit=minutes_per_cost_unit,
     )
 
     return JointPlanResult(
@@ -342,6 +348,8 @@ def plan_fleet_with_strategy(
     claim_edges: bool = True,
     rollback_on_failure: bool = False,
     max_permutations: int = 120,
+    admission: Literal["soft", "hard"] = "soft",
+    minutes_per_cost_unit: float = 1.0,
 ) -> FleetPlanResult:
     """Run :func:`plan_fleet` under a named ordering strategy.
 
@@ -387,6 +395,8 @@ def plan_fleet_with_strategy(
             claim_nodes=claim_nodes,
             claim_edges=claim_edges,
             max_permutations=max_permutations,
+            admission=admission,
+            minutes_per_cost_unit=minutes_per_cost_unit,
         )
         return joint.fleet_result
     else:  # pragma: no cover - unreachable under Literal typing
@@ -404,4 +414,6 @@ def plan_fleet_with_strategy(
         claim_nodes=claim_nodes,
         claim_edges=claim_edges,
         rollback_on_failure=rollback_on_failure,
+        admission=admission,
+        minutes_per_cost_unit=minutes_per_cost_unit,
     )

@@ -173,6 +173,24 @@ landed. Each links to the still-relevant follow-up work.
   semantics. Reachable from the CLI as `semantic-toponav fleet-plan
   GRAPH --agent ID:START:GOAL[:PRIORITY] ... --hold-start HH:MM
   --hold-end HH:MM [--policy fcfs|priority --rollback-on-failure]`.
+- Hard deadline admission control —
+  `FleetRequest.deadline` is now a hard constraint under
+  `admission="hard"` (default still `"soft"` for back-compat). A
+  request whose projected arrival `hold_start + path_cost ×
+  minutes_per_cost_unit` exceeds its deadline is rejected up-front
+  with `reason_code="deadline_miss"` and zero claims on the
+  scheduler. `PlanWithSchedulerResult.reason_code` is now a typed
+  `"ok" | "no_path" | "deadline_miss" | "reservation_conflict" |
+  "policy_rejected"` literal so callers can dispatch without parsing
+  `failure_reason`. The flag threads through `plan_with_scheduler`,
+  `plan_fleet`, `plan_fleet_joint`, and `plan_fleet_with_strategy`
+  uniformly. CLI: `semantic-toponav fleet-plan ... --admission
+  soft|hard [--minutes-per-cost-unit FLOAT]`. The eval suite reports
+  `deadline_miss_count` per trial, and a smoke sweep on
+  `multi_floor` with `--admission hard --deadline-tightness 1.0
+  --minutes-per-cost-unit 5.0` already shows the `deadline` strategy
+  cutting misses (1 → 2) and `joint` keeping the lowest admitted
+  total cost.
 - Synthetic evaluation suite for coordination strategies —
   `semantic_toponav.eval` subpackage with deterministic, seed-driven
   graph generators (chain / star / doorway / multi-floor), fleet +
@@ -256,21 +274,19 @@ What's still open. Each is a candidate for an experiment branch.
   reservations ship (`reservation_aware` + `--reservations`), the
   online coordination layer ships
   (`SharedScheduler` + `plan_with_scheduler` + `plan_fleet` +
-  `semantic-toponav fleet-plan`), and now the first layer of *joint*
-  optimization also ships (`plan_fleet_joint` + the
-  `--strategy {greedy,priority,deadline,joint}` dispatcher — see the
-  "Shipped" entry). What's still open is everything past the
-  enumerate / heuristic-ordering baseline: anytime / branch-and-bound
-  search that can split or insert agents mid-search, MILP / CP-SAT
-  formulations for tightly contended maps, fairness-aware ordering
-  (e.g. minimax wait time across the fleet), and deadline-driven
-  *admission* (today `deadline` is a sort key only; a hard admission
-  layer that rejects requests whose minimum-cost path would miss the
-  deadline isn't here). A second open item is *real-time* re-
-  coordination: the current scheduler is process-local and callers
-  persist + distribute its state themselves; a thin RPC / message-bus
-  shim (so multiple planners can share one logical scheduler) is not
-  in-repo.
+  `semantic-toponav fleet-plan`), the joint optimization baseline
+  ships (`plan_fleet_joint` + `--strategy joint`), the synthetic
+  evaluation suite ships (`eval-synthetic` / `eval-report`), and
+  hard deadline admission control ships (`admission="hard"` +
+  `reason_code="deadline_miss"`). What's still open: anytime /
+  branch-and-bound search over orderings with cost / deadline /
+  bottleneck-utilization pruning (today's joint is full-enumeration
+  for `n! ≤ 120`, heuristic-ordering sampling otherwise);
+  MILP / CP-SAT baselines for tightly contended maps; fairness-aware
+  ordering (e.g. minimax wait time, Jain's index in the objective
+  rather than as a metric); and *real-time* re-coordination — a
+  thin RPC / message-bus shim so multiple planners can share one
+  logical scheduler, since today's scheduler is process-local.
 
 ### Embodied AI
 

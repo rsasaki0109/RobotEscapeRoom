@@ -100,6 +100,8 @@ def cmd_fleet_plan(args: argparse.Namespace) -> int:
         claim_nodes=not args.claim_edges_only,
         claim_edges=not args.claim_nodes_only,
         rollback_on_failure=args.rollback_on_failure,
+        admission=args.admission,
+        minutes_per_cost_unit=args.minutes_per_cost_unit,
     )
 
     if args.format == "json":
@@ -109,6 +111,7 @@ def cmd_fleet_plan(args: argparse.Namespace) -> int:
                 {
                     "agent_id": r.agent_id,
                     "granted": r.granted,
+                    "reason_code": r.reason_code,
                     "path": list(r.path),
                     "failure_reason": r.failure_reason,
                     "claims": [
@@ -237,6 +240,24 @@ def register_subcommands(sub: argparse._SubParsersAction) -> None:
             "release every claim made by this call if any agent's plan is "
             "denied (all-or-nothing mode)"
         ),
+    )
+    p.add_argument(
+        "--admission",
+        choices=["soft", "hard"],
+        default="soft",
+        help=(
+            "deadline admission control (default: soft). 'hard' refuses to "
+            "claim resources for an agent whose projected arrival "
+            "(hold_start + path_cost × minutes_per_cost_unit) exceeds its "
+            "deadline; the result carries reason_code='deadline_miss'. 'soft' "
+            "treats deadline as a sort key only and never blocks a grant."
+        ),
+    )
+    p.add_argument(
+        "--minutes-per-cost-unit",
+        type=float,
+        default=1.0,
+        help="minutes of traversal per raw edge-cost unit (default: 1.0)",
     )
     p.add_argument(
         "--format",

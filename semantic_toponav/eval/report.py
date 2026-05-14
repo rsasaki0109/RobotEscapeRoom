@@ -46,6 +46,7 @@ _REPORT_COLUMNS = (
     ("max_wait_minutes", "max_wait", ".1f"),
     ("jain_fairness", "fairness", ".2f"),
     ("conflict_count", "conflicts", "d"),
+    ("deadline_miss_count", "deadline_misses", "d"),
     ("latency_ms", "latency_ms", ".1f"),
 )
 
