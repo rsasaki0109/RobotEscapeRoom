@@ -165,6 +165,27 @@ semantic-toponav annotate-regions office.yaml map.yaml \
     --clearance-threshold 0.6 --show-regions --in-place
 ```
 
+### Compacting a noisy graph
+
+Skeletonization sometimes produces tightly-clustered endpoint nodes (a
+few cells apart) and multiple near-parallel edges between the same pair
+of clusters. `compact` is a lossy pass that merges nearby posed nodes
+into a single representative (centroid pose) and collapses
+same-endpoint duplicate edges. Use `--keep-strategy` to control which
+parallel edge survives, and `--edge-cost-tolerance` to refuse the
+collapse when the candidate edges differ in length beyond your taste:
+
+```sh
+# Merge nodes within 30 cm and collapse exact-endpoint duplicates.
+semantic-toponav compact office.yaml \
+    --endpoint-tolerance 0.3 --in-place
+
+# Keep distinct paths whose costs differ by more than 1.0 m.
+semantic-toponav compact office.yaml \
+    --endpoint-tolerance 0.3 --edge-cost-tolerance 1.0 \
+    --keep-strategy shortest --out compacted.yaml
+```
+
 ## Dynamic edge availability
 
 Block specific edges or whole edge types at plan time without mutating the
