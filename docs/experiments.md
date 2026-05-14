@@ -40,8 +40,13 @@ experiment branch.
 
 ### Map construction
 
-- occupancy grid → topology graph conversion (skeletonization, region
-  segmentation)
+- **occupancy grid → topology graph conversion**: implemented in
+  `semantic_toponav.conversion.topology_from_occupancy` via
+  skeletonization + junction-cluster merging. See
+  `examples/occupancy_to_topology.py` and the README for a demo. Open
+  follow-ups: PGM/`.yaml` map_server reader, region segmentation for
+  room-aware labels, lossier graph compaction when corridors have many
+  parallel skeleton branches.
 - trajectory log → topology graph (cluster waypoints, merge revisits)
 - VLM-based semantic labeling of map regions
 - CLIP embedding per node for place recognition

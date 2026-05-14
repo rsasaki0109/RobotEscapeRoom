@@ -36,6 +36,10 @@ dev = [
 viz = [
     "matplotlib>=3.5",
 ]
+map = [
+    "numpy>=1.22",
+    "scikit-image>=0.20",
+]
 
 [project.scripts]
 semantic-toponav = "semantic_toponav.cli.main:main"

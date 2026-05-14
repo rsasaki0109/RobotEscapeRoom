@@ -61,6 +61,9 @@ def plot_graph(
     show_edge_ids: bool = False,
     save_path: str | None = None,
     show: bool = False,
+    occupancy_grid: Any = None,
+    resolution: float = 1.0,
+    origin: tuple[float, float] = (0.0, 0.0),
 ):
     """Render a TopologyGraph and optionally overlay a planned path.
 
@@ -74,6 +77,35 @@ def plot_graph(
         fig, ax = plt.subplots(figsize=(10, 7))
     else:
         fig = ax.figure
+
+    if occupancy_grid is not None:
+        import numpy as np
+
+        arr = np.asarray(occupancy_grid)
+        if arr.ndim != 2:
+            raise ValueError(
+                f"occupancy_grid must be 2D, got shape {arr.shape}"
+            )
+        h, w = arr.shape
+        if arr.dtype == bool:
+            display = (~arr).astype(float)
+        else:
+            display = 1.0 - np.clip(arr.astype(float), 0.0, 1.0)
+        extent = (
+            origin[0],
+            origin[0] + w * resolution,
+            origin[1],
+            origin[1] + h * resolution,
+        )
+        ax.imshow(
+            display,
+            cmap="gray",
+            extent=extent,
+            origin="lower",
+            alpha=0.5,
+            zorder=0,
+            interpolation="nearest",
+        )
 
     # Edges first so node markers draw on top.
     for edge in graph.edges():
