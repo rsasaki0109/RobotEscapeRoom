@@ -68,6 +68,11 @@ Or run the full demo (shows how semantic costs change the route):
 python examples/run_indoor_demo.py
 ```
 
+New to the library? The [**three-floor tutorial**](docs/tutorial.md)
+walks through the full workflow end-to-end — load, plan, customize
+costs, emit waypoints, and visualize — against the bundled multi-floor
+office graph.
+
 ## Occupancy grid → topology
 
 A skeletonization-based converter turns a 2D occupancy grid into a topology
