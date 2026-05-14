@@ -18,6 +18,7 @@ from typing import Any
 
 import yaml
 
+from semantic_toponav.graph.compaction import compact_graph
 from semantic_toponav.graph.serialization import (
     GraphLoadError,
     graph_to_dict,
@@ -300,6 +301,45 @@ def cmd_rm_edge(args: argparse.Namespace) -> int:
     )
 
 
+def cmd_compact(args: argparse.Namespace) -> int:
+    try:
+        graph = load_graph(args.graph)
+    except (GraphLoadError, GraphValidationError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    if args.edge_cost_tolerance is None:
+        edge_cost_tol = float("inf")
+    else:
+        edge_cost_tol = args.edge_cost_tolerance
+
+    try:
+        result = compact_graph(
+            graph,
+            endpoint_tolerance=args.endpoint_tolerance,
+            edge_cost_tolerance=edge_cost_tol,
+            keep_strategy=args.keep_strategy,
+        )
+    except (ValueError, GraphValidationError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    print(
+        f"merged {len(result.merged_nodes)} node(s); collapsed "
+        f"{len(result.collapsed_edges)} parallel edge(s); dropped "
+        f"{len(result.dropped_self_loops)} self-loop(s)",
+        file=sys.stderr,
+    )
+
+    return _write_or_print(
+        graph,
+        source=Path(args.graph),
+        out=args.out,
+        in_place=args.in_place,
+        no_backup=getattr(args, "no_backup", False),
+    )
+
+
 def cmd_undo(args: argparse.Namespace) -> int:
     target = Path(args.graph)
     backup = _backup_path(target)
@@ -540,6 +580,43 @@ def register_subcommands(sub: argparse._SubParsersAction) -> None:
     p.add_argument("id", help="edge id to remove")
     _add_output_args(p)
     p.set_defaults(func=cmd_rm_edge)
+
+    p = sub.add_parser(
+        "compact",
+        help=(
+            "merge nearby nodes and collapse parallel duplicate edges "
+            "(lossy graph compaction)"
+        ),
+    )
+    p.add_argument("graph", help="path to topology graph (.yaml / .json)")
+    p.add_argument(
+        "--endpoint-tolerance",
+        type=float,
+        default=0.0,
+        metavar="METERS",
+        help=(
+            "merge posed nodes within this Euclidean distance "
+            "(default: 0.0 — node merging disabled)"
+        ),
+    )
+    p.add_argument(
+        "--edge-cost-tolerance",
+        type=float,
+        default=None,
+        metavar="COST",
+        help=(
+            "max cost spread within a parallel-edge group that still "
+            "allows the group to collapse (default: unlimited)"
+        ),
+    )
+    p.add_argument(
+        "--keep-strategy",
+        choices=["shortest", "longest", "first"],
+        default="shortest",
+        help="which edge survives a collapse (default: shortest)",
+    )
+    _add_output_args(p)
+    p.set_defaults(func=cmd_compact)
 
     p = sub.add_parser(
         "undo",

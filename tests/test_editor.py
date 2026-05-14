@@ -377,3 +377,131 @@ def test_out_and_in_place_mutually_exclusive(tmp_path, capsys) -> None:
     err = capsys.readouterr().err
     assert rc != 0
     assert "at most one" in err
+
+
+# --------------------------- compact ---------------------------
+
+
+def _two_node_graph_with_dup_edge(target: Path) -> None:
+    """Write a minimal graph with one duplicate parallel edge."""
+    target.write_text(
+        "nodes:\n"
+        "  - id: a\n    label: A\n    type: room\n    pose: {x: 0.0, y: 0.0}\n"
+        "  - id: b\n    label: B\n    type: room\n    pose: {x: 1.0, y: 0.0}\n"
+        "edges:\n"
+        "  - id: e1\n    source: a\n    target: b\n    type: corridor\n    cost: 1.0\n"
+        "  - id: e2\n    source: a\n    target: b\n    type: corridor\n    cost: 1.05\n",
+        encoding="utf-8",
+    )
+
+
+def test_compact_collapses_parallel_edges_in_place(tmp_path, capsys) -> None:
+    target = tmp_path / "g.yaml"
+    _two_node_graph_with_dup_edge(target)
+
+    rc = main(["compact", str(target), "--in-place", "--no-backup"])
+    assert rc == 0
+
+    g = load_graph(target)
+    assert g.edge_ids() == ["e1"]
+    err = capsys.readouterr().err
+    assert "collapsed 1" in err
+
+
+def test_compact_endpoint_tolerance_merges_nodes(tmp_path) -> None:
+    target = tmp_path / "g.yaml"
+    target.write_text(
+        "nodes:\n"
+        "  - id: a\n    label: A\n    type: room\n    pose: {x: 0.0, y: 0.0}\n"
+        "  - id: a_dup\n    label: A\n    type: room\n    pose: {x: 0.05, y: 0.0}\n"
+        "  - id: b\n    label: B\n    type: room\n    pose: {x: 1.0, y: 0.0}\n"
+        "edges:\n"
+        "  - id: ab\n    source: a_dup\n    target: b\n    type: corridor\n    cost: 0.95\n",
+        encoding="utf-8",
+    )
+    out = tmp_path / "compacted.yaml"
+    rc = main(
+        [
+            "compact",
+            str(target),
+            "--endpoint-tolerance",
+            "0.1",
+            "--out",
+            str(out),
+            "--no-backup",
+        ]
+    )
+    assert rc == 0
+    g = load_graph(out)
+    assert "a_dup" not in g.node_ids()
+    edge = g.get_edge("ab")
+    assert edge.source == "a"
+
+
+def test_compact_keep_strategy_longest(tmp_path) -> None:
+    target = tmp_path / "g.yaml"
+    target.write_text(
+        "nodes:\n"
+        "  - id: a\n    label: A\n    type: room\n    pose: {x: 0.0, y: 0.0}\n"
+        "  - id: b\n    label: B\n    type: room\n    pose: {x: 5.0, y: 0.0}\n"
+        "edges:\n"
+        "  - id: short\n    source: a\n    target: b\n    type: corridor\n    cost: 1.0\n"
+        "  - id: long\n    source: a\n    target: b\n    type: corridor\n    cost: 3.0\n",
+        encoding="utf-8",
+    )
+    rc = main(
+        [
+            "compact",
+            str(target),
+            "--keep-strategy",
+            "longest",
+            "--in-place",
+            "--no-backup",
+        ]
+    )
+    assert rc == 0
+    assert load_graph(target).edge_ids() == ["long"]
+
+
+def test_compact_cost_tolerance_keeps_distinct_paths(tmp_path) -> None:
+    target = tmp_path / "g.yaml"
+    target.write_text(
+        "nodes:\n"
+        "  - id: a\n    label: A\n    type: room\n    pose: {x: 0.0, y: 0.0}\n"
+        "  - id: b\n    label: B\n    type: room\n    pose: {x: 5.0, y: 0.0}\n"
+        "edges:\n"
+        "  - id: short\n    source: a\n    target: b\n    type: corridor\n    cost: 1.0\n"
+        "  - id: long\n    source: a\n    target: b\n    type: corridor\n    cost: 3.0\n",
+        encoding="utf-8",
+    )
+    rc = main(
+        [
+            "compact",
+            str(target),
+            "--edge-cost-tolerance",
+            "1.0",
+            "--in-place",
+            "--no-backup",
+        ]
+    )
+    assert rc == 0
+    assert set(load_graph(target).edge_ids()) == {"short", "long"}
+
+
+def test_compact_prints_to_stdout_by_default(tmp_path, capsys) -> None:
+    target = tmp_path / "g.yaml"
+    _two_node_graph_with_dup_edge(target)
+    rc = main(["compact", str(target)])
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "nodes:" in out and "edges:" in out
+    # Source file untouched.
+    assert len(load_graph(target).edge_ids()) == 2
+
+
+def test_compact_creates_backup_when_in_place(tmp_path) -> None:
+    target = tmp_path / "g.yaml"
+    _two_node_graph_with_dup_edge(target)
+    rc = main(["compact", str(target), "--in-place"])
+    assert rc == 0
+    assert (tmp_path / "g.yaml.bak").exists()

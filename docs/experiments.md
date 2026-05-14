@@ -106,6 +106,15 @@ landed. Each links to the still-relevant follow-up work.
 - v1-stable JSON Schema for `SemanticWaypointArray`
   (`docs/waypoint_schema.md`,
   `schemas/semantic_waypoint_array.schema.json`)
+- Lossy graph compaction (`compact_graph`, plus the
+  `semantic-toponav compact GRAPH` CLI subcommand) — merges posed
+  nodes within an Euclidean tolerance into a centroid representative
+  and collapses parallel duplicate edges between the same endpoints.
+  Knobs: `--endpoint-tolerance METERS` for node merging,
+  `--edge-cost-tolerance COST` to refuse the collapse when candidates
+  differ in length, `--keep-strategy shortest|longest|first` for which
+  edge survives. Targets the parallel-skeleton-branch artifact that
+  `topology_from_occupancy` leaves behind in wide corridors.
 
 See `docs/decisions.md` D-10 for the original "non-goals" list with
 shipped / deferred markers.
@@ -116,11 +125,14 @@ What's still open. Each is a candidate for an experiment branch.
 
 ### Map construction
 
-- **occupancy grid → topology** follow-ups: lossier graph compaction
-  when corridors carry many parallel skeleton branches. Door /
-  threshold detection ships (`mark_doors_by_clearance`) and region
-  segmentation for room-aware labels ships (`annotate_regions`,
-  see below).
+- **occupancy grid → topology** follow-ups: door / threshold detection
+  ships (`mark_doors_by_clearance`), region segmentation for
+  room-aware labels ships (`annotate_regions`, see below), and lossy
+  parallel-skeleton compaction now ships (`compact_graph`, see the
+  "Shipped since the MVP" entry). What's still open is more aggressive
+  geometric pruning — collapsing two genuinely-parallel paths through
+  a wide corridor into one rather than dedup'ing same-endpoint
+  duplicates.
 - **trajectory log → topology** follow-ups: DBSCAN / k-medoids cluster
   alternatives, time-aware clustering for dwell detection. The basic
   fusion of the two pipelines now ships
