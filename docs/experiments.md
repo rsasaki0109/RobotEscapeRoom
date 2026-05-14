@@ -55,7 +55,11 @@ experiment branch.
   k-medoids alternatives, time-aware clustering for dwell detection,
   reading trajectories from rosbag or CSV.
 - VLM-based semantic labeling of map regions
-- CLIP embedding per node for place recognition
+- **CLIP / SigLIP embedding per node for place recognition**: the
+  retrieval layer is implemented (`find_nodes_by_embedding`,
+  `nearest_node_by_embedding`, `cosine_similarity`) and stores vectors
+  under `node.properties["embedding"]` — encoder integration is out of
+  scope and attached externally. See `examples/embedding_demo.py`.
 
 ### Planning
 
