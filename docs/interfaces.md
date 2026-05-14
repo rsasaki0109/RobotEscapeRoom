@@ -129,6 +129,24 @@ Each `SemanticWaypoint` has:
 - `pose`: optional `Pose2D`
 - `properties`: copy of the node's properties
 
+### Visualization (optional)
+
+```python
+from semantic_toponav.visualization import plot_graph
+
+fig, ax = plot_graph(
+    graph,
+    path=path,                # optional, highlighted in pink
+    title="my route",
+    save_path="out.png",      # writes PNG via matplotlib
+    show=False,               # set True for interactive window
+    show_edge_ids=False,
+)
+```
+
+Requires matplotlib (install with `pip install 'semantic-toponav[viz]'`).
+Nodes without a `pose` cannot be plotted and raise `MissingPoseError`.
+
 ## ROS2 message strategy
 
 For the MVP the ROS2 adapter publishes waypoints as JSON inside

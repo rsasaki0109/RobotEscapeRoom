@@ -33,6 +33,9 @@ dev = [
     "pytest>=7.0",
     "ruff>=0.4",
 ]
+viz = [
+    "matplotlib>=3.5",
+]
 
 [project.scripts]
 semantic-toponav = "semantic_toponav.cli.main:main"

@@ -64,6 +64,30 @@ Or run the full demo (shows how semantic costs change the route):
 python examples/run_indoor_demo.py
 ```
 
+## Visualization
+
+Install the optional viz extra and use the `plot` subcommand or the Python helper:
+
+```bash
+pip install -e '.[viz]'
+
+semantic-toponav plot examples/indoor_office.yaml \
+    --start entrance --goal office_2f \
+    --avoid-stairs --prefer-elevator \
+    --save route.png
+```
+
+```python
+from semantic_toponav.visualization import plot_graph
+plot_graph(graph, path=path, save_path="route.png")
+```
+
+Below: same graph, two different cost configurations.
+
+| Default A* | `avoid_stairs + prefer_elevator` |
+|------------|-----------------------------------|
+| ![default](docs/images/03_default_to_office_2f.png) | ![accessibility](docs/images/04_avoid_stairs_to_office_2f.png) |
+
 ## Graph schema (v1)
 
 ```yaml
@@ -120,6 +144,8 @@ semantic-toponav plan      GRAPH START GOAL [--algorithm astar|dijkstra] [--avoi
                                             [--avoid-stairs] [--prefer-elevator]
                                             [--format text|json]
 semantic-toponav waypoints GRAPH START GOAL [...same options...]
+semantic-toponav plot      GRAPH [--start S --goal G] [--avoid-*] [--save FILE] [--show]
+                                                       [--edge-ids] [--title STR]
 ```
 
 ## ROS2 integration
