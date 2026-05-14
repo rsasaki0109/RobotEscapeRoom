@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Callable, Iterable
+from datetime import datetime, time
 
 from semantic_toponav.graph.topology_graph import TopologyGraph
 from semantic_toponav.graph.types import TopologyEdge
@@ -18,6 +19,7 @@ CostFn = Callable[[TopologyEdge], float]
 BLOCKED = math.inf
 
 DEFAULT_FLOOR_PROPERTY = "floor"
+DEFAULT_CLOSED_DURING_PROPERTY = "closed_during"
 
 
 def default_edge_cost(edge: TopologyEdge) -> float:
@@ -151,6 +153,111 @@ def block_edge_types(edge_types: Iterable[str]) -> CostFn:
 
     def cost_fn(edge: TopologyEdge) -> float:
         if edge.type in blocked:
+            return BLOCKED
+        return edge.cost
+
+    return cost_fn
+
+
+def _parse_hhmm(value: str) -> time:
+    parts = value.split(":")
+    if len(parts) == 2:
+        h, m = parts
+        return time(int(h), int(m))
+    if len(parts) == 3:
+        h, m, s = parts
+        return time(int(h), int(m), int(s))
+    raise ValueError(f"invalid time {value!r} (expected HH:MM or HH:MM:SS)")
+
+
+def _as_time(value: time | datetime | str) -> time:
+    if isinstance(value, datetime):
+        return value.time()
+    if isinstance(value, time):
+        return value
+    if isinstance(value, str):
+        return _parse_hhmm(value)
+    raise TypeError(
+        f"at_time must be datetime, time, or 'HH:MM' string; got {type(value).__name__}"
+    )
+
+
+def _intervals_from_property(raw: object) -> list[tuple[time, time]]:
+    """Coerce a ``closed_during`` property into ``[(start, end), ...]``.
+
+    ``raw`` is the value stored under the property key. Accepts ``None``
+    (empty list) and a list of two-element ``[start, end]`` entries; each
+    endpoint may be a ``time`` or an ``HH:MM`` / ``HH:MM:SS`` string.
+    Raises :class:`ValueError` for malformed input so typos in the graph
+    file surface early.
+    """
+    if raw is None:
+        return []
+    if not isinstance(raw, list):
+        raise ValueError(
+            f"closed_during must be a list of [start, end] entries, "
+            f"got {type(raw).__name__}"
+        )
+    out: list[tuple[time, time]] = []
+    for entry in raw:
+        if not isinstance(entry, (list, tuple)) or len(entry) != 2:
+            raise ValueError(
+                f"each closed_during entry must be [start, end]; got {entry!r}"
+            )
+        start = entry[0] if isinstance(entry[0], time) else _parse_hhmm(str(entry[0]))
+        end = entry[1] if isinstance(entry[1], time) else _parse_hhmm(str(entry[1]))
+        out.append((start, end))
+    return out
+
+
+def _in_interval(at: time, start: time, end: time) -> bool:
+    """Return True iff ``at`` falls in the [start, end) interval.
+
+    When ``end <= start`` the interval is taken to wrap midnight, so for
+    example ``["22:00", "06:00"]`` matches ``23:30`` and ``05:00`` but
+    not ``07:00`` or ``20:00``.
+    """
+    if start <= end:
+        return start <= at < end
+    return at >= start or at < end
+
+
+def time_aware(
+    graph: TopologyGraph,
+    *,
+    at_time: time | datetime | str,
+    closed_during_key: str = DEFAULT_CLOSED_DURING_PROPERTY,
+) -> CostFn:
+    """Block edges (and edges touching closed nodes) at a given time.
+
+    Reads ``closed_during`` from each edge AND from both endpoint nodes.
+    The value must be a list of two-element ``[start, end]`` intervals
+    expressed as ``HH:MM`` (or ``HH:MM:SS``) strings; intervals are
+    treated as recurring time-of-day windows and an interval whose end
+    is ``<=`` start wraps midnight.
+
+    A node that is closed at ``at_time`` makes every incident edge
+    unusable (you can neither enter nor leave it).
+
+    Use ``--at-time HH:MM`` on the CLI, or compose with other cost
+    functions via :func:`compose_costs`.
+    """
+    at = _as_time(at_time)
+
+    closed_nodes: set[str] = set()
+    for node in graph.nodes():
+        for start, end in _intervals_from_property(node.properties.get(closed_during_key)):
+            if _in_interval(at, start, end):
+                closed_nodes.add(node.id)
+                break
+
+    def cost_fn(edge: TopologyEdge) -> float:
+        for start, end in _intervals_from_property(
+            edge.properties.get(closed_during_key)
+        ):
+            if _in_interval(at, start, end):
+                return BLOCKED
+        if edge.source in closed_nodes or edge.target in closed_nodes:
             return BLOCKED
         return edge.cost
 

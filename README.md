@@ -138,6 +138,44 @@ semantic-toponav plan multi_floor_office.yaml entrance exec_office_3f \
 Both flags are repeatable. A blocked edge returns `math.inf` from the cost
 function and `NoPathError` is raised if blocking removes the last route.
 
+### Time-of-day restrictions
+
+Attach a `closed_during` property to an edge (or a node — closure
+propagates to its incident edges) listing recurring HH:MM windows
+when it's unavailable. An interval whose end is `<=` start wraps
+midnight, so `["22:00", "06:00"]` is interpreted as the overnight
+window.
+
+```yaml
+edges:
+  - id: corridor_clean
+    source: lobby
+    target: corridor_main
+    type: traversable
+    properties:
+      closed_during: [["14:00", "15:00"]]   # cleaning window
+nodes:
+  - id: kitchen
+    label: Kitchen
+    type: room
+    properties:
+      closed_during: [["22:00", "06:00"]]    # overnight
+```
+
+```bash
+semantic-toponav plan office.yaml entrance kitchen --at-time 23:30
+semantic-toponav plan office.yaml entrance meeting_room --at-time 14:30
+```
+
+```python
+from semantic_toponav.planner import plan_astar, time_aware
+
+path = plan_astar(graph, "entrance", "kitchen",
+                  cost_fn=time_aware(graph, at_time="23:30"))
+```
+
+`time_aware` composes with the other cost functions via `compose_costs`.
+
 ## Multi-floor navigation
 
 When nodes carry a `floor` property, three additional cost helpers and one
@@ -488,7 +526,7 @@ semantic-toponav plan      GRAPH START GOAL [--algorithm astar|dijkstra] [--avoi
                                             [--prefer-unvisited [--visited-multiplier M]]
                                             [--prefer-familiar [--familiar-multiplier M]]
                                             [--avoid-recent SECONDS [--recent-multiplier M] [--now TS]]
-                                            [--format text|json]
+                                            [--at-time HH:MM] [--format text|json]
 semantic-toponav waypoints     GRAPH START GOAL [...same options...]
 semantic-toponav describe-path GRAPH START GOAL [...same options...]
 semantic-toponav plot          GRAPH [--start S --goal G] [--avoid-*] [--save FILE] [--show]

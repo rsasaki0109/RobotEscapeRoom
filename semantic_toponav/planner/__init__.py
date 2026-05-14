@@ -12,6 +12,7 @@ from semantic_toponav.planner.semantic_costs import (
     prefer_elevator,
     prefer_floor,
     same_floor_only,
+    time_aware,
 )
 
 __all__ = [
@@ -30,4 +31,5 @@ __all__ = [
     "prefer_elevator",
     "prefer_floor",
     "same_floor_only",
+    "time_aware",
 ]
