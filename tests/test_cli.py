@@ -78,6 +78,43 @@ def test_waypoints_json(capsys) -> None:
     assert payload["waypoints"][0]["node_id"] == "entrance"
 
 
+def test_describe_path_text(capsys) -> None:
+    rc = main(["describe-path", EXAMPLE_YAML, "entrance", "meeting_room"])
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert "Instructions" in out
+    assert "Start at Entrance" in out
+    # The default plan takes the restricted shortcut.
+    assert "restricted" in out.lower()
+
+
+def test_describe_path_json(capsys) -> None:
+    rc = main(
+        [
+            "describe-path",
+            EXAMPLE_YAML,
+            "entrance",
+            "office_2f",
+            "--avoid-stairs",
+            "--prefer-elevator",
+            "--format",
+            "json",
+        ]
+    )
+    out = capsys.readouterr().out
+    assert rc == 0
+    payload = json.loads(out)
+    assert payload["path"][0] == "entrance"
+    assert payload["path"][-1] == "office_2f"
+    assert isinstance(payload["steps"], list)
+    assert payload["steps"][0]["text"].startswith("Start at Entrance")
+    # An elevator transit step must appear when riding the elevator.
+    elev_steps = [s for s in payload["steps"] if "Take the elevator from" in s["text"]]
+    assert len(elev_steps) == 1
+    # And a floor-change call-out alongside.
+    assert any("Floor change" in s["text"] for s in payload["steps"])
+
+
 def test_plot_saves_image(tmp_path) -> None:
     pytest.importorskip("matplotlib")
     import matplotlib
