@@ -288,8 +288,15 @@ HTML page:
 
 ```bash
 pip install -e '.[viz_web]'
+
+# From the CLI:
+semantic-toponav viewer examples/multi_floor_office.yaml \
+    --start entrance --goal exec_office_3f --prefer-elevator \
+    --output viewer.html
+xdg-open viewer.html
+
+# Or from Python (via the bundled demo):
 python examples/web_viewer_demo.py     # writes examples/multi_floor_viewer.html
-xdg-open examples/multi_floor_viewer.html
 ```
 
 ```python
