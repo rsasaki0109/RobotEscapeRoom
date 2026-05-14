@@ -374,6 +374,21 @@ have I been recently?" reasoning. `now=` is read once when the factory
 is called, not on every edge evaluation, so a single plan call sees a
 consistent clock.
 
+The history can also be edited from the shell, following the same
+stdout-by-default convention as the editor commands:
+
+```bash
+semantic-toponav record-visit  GRAPH NODE_ID [--now TS] [--in-place | --out FILE]
+semantic-toponav record-path   GRAPH NODE_ID... [--now TS] [--in-place | --out FILE]
+semantic-toponav clear-history GRAPH [NODE_ID...] [--in-place | --out FILE]
+semantic-toponav history       GRAPH [NODE_ID...] [--all]
+```
+
+`plan` / `waypoints` / `plot` expose matching cost flags:
+`--prefer-unvisited [--visited-multiplier M]`,
+`--prefer-familiar [--familiar-multiplier M]`,
+`--avoid-recent SECONDS [--recent-multiplier M] [--now TS]`.
+
 ### Visualization (optional)
 
 ```python
