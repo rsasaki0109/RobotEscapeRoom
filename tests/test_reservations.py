@@ -24,7 +24,6 @@ from semantic_toponav.planner import (
     time_aware,
 )
 
-
 # --------------------------- fixtures ---------------------------
 
 
