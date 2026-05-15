@@ -225,9 +225,12 @@ arc: synthetic eval suite, branch-and-bound + fairness objectives,
 HTTP transport, exhaustive MIS baseline, scheduler persistence, public
 Protocol conformance suites with failure-mode depth, calendar-aware
 closures, soft preferences (edge + node defaults), mid-traversal LLM
-rewrites, and insertion-based fleet repair. See
-[docs/decisions.md](docs/decisions.md) for design notes and
-[docs/experiments.md](docs/experiments.md) for the full feature index.
+rewrites, insertion-based fleet repair, language-grounding eval suite,
+and v1.0 schema lock across six wire formats. See
+[docs/decisions.md](docs/decisions.md) for design notes,
+[docs/experiments.md](docs/experiments.md) for the full feature index,
+and [docs/paper_outline.md](docs/paper_outline.md) for the working
+outline of the paper that organizes the post-MVP arc.
 
 Six public wire formats are **v1-locked** under [`schemas/`](schemas/):
 `SemanticWaypointArray` (waypoint publisher),
