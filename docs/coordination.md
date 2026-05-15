@@ -136,6 +136,38 @@ Three objectives are available:
 CLI parity: `--strategy bnb --bnb-objective max_fairness` on both
 `fleet-plan` and `eval-synthetic`.
 
+## Insertion-based repair
+
+`plan_fleet_bnb` re-searches *every* ordering from a clean slate. When
+most of the ordering is already committed and only one or two new
+requests need to be merged in, `plan_fleet_insert` is the smaller
+hammer: it tries every insertion position for each new request and
+keeps the locally-best one under the same objective tie-break BnB
+uses. The search cost is `O(k · (n + k))` plan-and-score calls
+instead of `O((n + k)!)`.
+
+```python
+from semantic_toponav.coordination import plan_fleet_insert
+
+result = plan_fleet_insert(
+    graph,
+    committed=current_fleet,             # FleetRequest list in committed order
+    new_requests=[FleetRequest("new", "lobby", "office_3f")],
+    scheduler=scheduler,
+    hold_start="10:00",
+    hold_end="11:00",
+    objective="min_cost",                # min_cost / minimax_cost / max_fairness
+)
+# result is a BnBPlanResult — chosen_order, fleet_result, per_agent_costs,
+# stats.nodes_explored all populated the same way.
+```
+
+The greedy chain across multiple new requests is exact *within* each
+insertion (every position is tried) but greedy *between* insertions:
+once a new request is placed, earlier insertions are not revisited.
+For more than a small handful of new requests, prefer a full
+`plan_fleet_bnb` re-search.
+
 ## Hard deadline admission control
 
 `FleetRequest.deadline` started as a sort key for the `deadline`

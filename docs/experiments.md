@@ -172,6 +172,16 @@ landed. Each links to the still-relevant follow-up work.
   with the rest of the cost-function family — one query can honor
   static cleaning windows on the graph *and* live claims from a
   shared scheduler simultaneously.
+- Insertion-based repair for fleet ordering — `plan_fleet_insert`
+  (`semantic_toponav.coordination.repair`) takes a `committed`
+  `FleetRequest` list plus one or more `new_requests` and tries every
+  insertion position for each new request against the same objective
+  tie-break `plan_fleet_bnb` uses (`min_cost` / `minimax_cost` /
+  `max_fairness`). Search cost is `O(k · (n + k))` plan-and-score
+  steps versus `O((n + k)!)` for a full re-search. Returns a
+  `BnBPlanResult` drop-in. Greedy *between* new requests, exact
+  *within* each insertion — prefer a full `plan_fleet_bnb` re-search
+  when more than a handful of new requests are arriving.
 - LLM-augmented `describe-path` / `resolve` — pluggable
   `semantic_toponav.llm.LLMBackend` protocol with two concrete
   backends (`EchoBackend`: scripted / fall-back-echo, dependency-free
