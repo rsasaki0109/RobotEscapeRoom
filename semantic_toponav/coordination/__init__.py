@@ -52,6 +52,10 @@ from semantic_toponav.coordination.joint import (
     plan_fleet_joint,
     plan_fleet_with_strategy,
 )
+from semantic_toponav.coordination.persistence import (
+    load_scheduler,
+    save_scheduler,
+)
 from semantic_toponav.coordination.policies import (
     ClaimDecision,
     ConflictPolicy,
@@ -101,6 +105,7 @@ __all__ = [
     "Strategy",
     "Transport",
     "first_come_first_served",
+    "load_scheduler",
     "plan_fleet",
     "plan_fleet_bnb",
     "plan_fleet_exhaustive",
@@ -108,4 +113,5 @@ __all__ = [
     "plan_fleet_with_strategy",
     "plan_with_scheduler",
     "priority_based",
+    "save_scheduler",
 ]
