@@ -184,6 +184,32 @@ def test_eval_synthetic_soft_admission_zero_deadline_misses(
     assert all(row["metrics"]["deadline_miss_count"] == 0 for row in lines)
 
 
+def test_eval_synthetic_strategy_bnb_opt_in(tmp_path: Path) -> None:
+    out_path = tmp_path / "bnb.jsonl"
+    rc = main(
+        [
+            "eval-synthetic",
+            "--scenario", "chain",
+            "--n-agents", "3",
+            "--seed", "0",
+            "--hold-start", "10:00",
+            "--hold-end", "11:00",
+            "--strategy", "bnb",
+            "--out", str(out_path),
+        ]
+    )
+    assert rc == 0
+    import json
+    lines = [
+        json.loads(ln)
+        for ln in out_path.read_text(encoding="utf-8").splitlines()
+        if ln.strip()
+    ]
+    # Single scenario × single strategy = 1 row.
+    assert len(lines) == 1
+    assert lines[0]["strategy"] == "bnb"
+
+
 def test_eval_synthetic_deadline_tightness_affects_deadline_field(tmp_path: Path) -> None:
     out_path = tmp_path / "tight.jsonl"
     main(

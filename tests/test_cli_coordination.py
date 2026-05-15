@@ -143,6 +143,32 @@ def test_fleet_plan_malformed_agent_spec_errors(capsys) -> None:
     assert "AGENT_ID:START:GOAL" in err
 
 
+def test_fleet_plan_strategy_bnb(capsys) -> None:
+    rc = main(
+        [
+            "fleet-plan",
+            EXAMPLE_YAML,
+            "--agent",
+            "r1:entrance:kitchen",
+            "--agent",
+            "r2:entrance:lab",
+            "--hold-start",
+            "10:00",
+            "--hold-end",
+            "11:00",
+            "--strategy",
+            "bnb",
+            "--format",
+            "json",
+        ]
+    )
+    out = capsys.readouterr().out
+    payload = json.loads(out)
+    # BnB returns the same FleetPlanResult shape as other strategies.
+    assert len(payload["agents"]) == 2
+    assert rc in (0, 1)
+
+
 def test_fleet_plan_hard_admission_rejects_tight_deadline(capsys) -> None:
     rc = main(
         [

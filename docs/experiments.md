@@ -173,6 +173,23 @@ landed. Each links to the still-relevant follow-up work.
   semantics. Reachable from the CLI as `semantic-toponav fleet-plan
   GRAPH --agent ID:START:GOAL[:PRIORITY] ... --hold-start HH:MM
   --hold-end HH:MM [--policy fcfs|priority --rollback-on-failure]`.
+- Branch-and-bound joint scheduler — new
+  `semantic_toponav.coordination.plan_fleet_bnb` does a pruned DFS
+  over partial agent orderings, scoring each leaf by
+  `(granted_count DESC, total_path_cost ASC)` and pruning subtrees
+  that can't beat the running best on either axis (plus a hard
+  `max_nodes` / `time_budget_ms` budget). Same optimum as
+  `plan_fleet_joint` when both have headroom (property-tested) but
+  measurably cheaper on contended scenarios — synthetic-eval smoke
+  shows BnB ≈ 2× faster than joint on `n=4` across all four
+  canonical scenarios while matching grants and cost. The result
+  also carries `ConflictExplanation` entries, a CBS-lite description
+  of "agent X was blocked by holds from agents A, B on resources …"
+  so operators can diagnose admission failures without re-running
+  the search. Strategy literal grows `"bnb"`;
+  `plan_fleet_with_strategy` dispatches to it; CLI parity through
+  `semantic-toponav fleet-plan ... --strategy bnb` and
+  `eval-synthetic --strategy bnb`.
 - Hard deadline admission control —
   `FleetRequest.deadline` is now a hard constraint under
   `admission="hard"` (default still `"soft"` for back-compat). A
@@ -276,17 +293,20 @@ What's still open. Each is a candidate for an experiment branch.
   (`SharedScheduler` + `plan_with_scheduler` + `plan_fleet` +
   `semantic-toponav fleet-plan`), the joint optimization baseline
   ships (`plan_fleet_joint` + `--strategy joint`), the synthetic
-  evaluation suite ships (`eval-synthetic` / `eval-report`), and
-  hard deadline admission control ships (`admission="hard"` +
-  `reason_code="deadline_miss"`). What's still open: anytime /
-  branch-and-bound search over orderings with cost / deadline /
-  bottleneck-utilization pruning (today's joint is full-enumeration
-  for `n! ≤ 120`, heuristic-ordering sampling otherwise);
-  MILP / CP-SAT baselines for tightly contended maps; fairness-aware
-  ordering (e.g. minimax wait time, Jain's index in the objective
-  rather than as a metric); and *real-time* re-coordination — a
-  thin RPC / message-bus shim so multiple planners can share one
-  logical scheduler, since today's scheduler is process-local.
+  evaluation suite ships (`eval-synthetic` / `eval-report`), hard
+  deadline admission control ships (`admission="hard"` +
+  `reason_code="deadline_miss"`), and the branch-and-bound joint
+  scheduler with grants / cost / budget pruning ships
+  (`plan_fleet_bnb` + `--strategy bnb`, plus `ConflictExplanation`
+  for CBS-lite diagnostics). What's still open: anytime / repair
+  search that mutates an existing committed ordering rather than
+  re-running from scratch; MILP / CP-SAT baselines for the densely
+  contended end of the spectrum where ordering-space search
+  saturates; fairness-aware ordering with minimax wait time or
+  Jain's index *in the objective* (today it's only a reported
+  metric); and *real-time* re-coordination — a thin RPC /
+  message-bus shim so multiple planners can share one logical
+  scheduler, since today's scheduler is process-local.
 
 ### Embodied AI
 
