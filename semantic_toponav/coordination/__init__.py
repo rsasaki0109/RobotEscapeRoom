@@ -26,6 +26,7 @@ from semantic_toponav.coordination.branch_and_bound import (
     BnBPlanResult,
     BnBStats,
     ConflictExplanation,
+    Objective,
     plan_fleet_bnb,
 )
 from semantic_toponav.coordination.fleet import (
@@ -76,6 +77,7 @@ __all__ = [
     "JointPlanResult",
     "JointPlanTrial",
     "LocalTransport",
+    "Objective",
     "PlanWithSchedulerResult",
     "RpcError",
     "SchedulerClient",
