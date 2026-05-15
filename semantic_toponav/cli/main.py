@@ -40,6 +40,7 @@ from semantic_toponav.planner import (
     plan_dijkstra,
     prefer_elevator,
     prefer_floor,
+    preference_aware,
     reservation_aware,
     same_floor_only,
     time_aware,
@@ -52,6 +53,38 @@ from semantic_toponav.waypoint.semantic_waypoint import (
     SemanticWaypoint,
     path_to_semantic_waypoints,
 )
+
+
+def _parse_preference_specs(specs: list[str]) -> dict[str, float]:
+    """Parse repeated ``--prefer KEY:WEIGHT`` flags into a ``{key: weight}`` dict.
+
+    ``WEIGHT`` is optional and defaults to ``1.0`` (so ``--prefer scenic`` is
+    shorthand for ``--prefer scenic:1.0``). Repeating the same key updates
+    the weight rather than appending. Raises :class:`PlanningError` on
+    malformed input so the failure surfaces at argparse time instead of
+    deep inside the cost function.
+    """
+    weights: dict[str, float] = {}
+    for spec in specs:
+        if ":" in spec:
+            key, _, weight_str = spec.partition(":")
+            try:
+                weight = float(weight_str)
+            except ValueError as exc:
+                raise PlanningError(
+                    f"--prefer {spec!r}: weight {weight_str!r} is not a "
+                    "number"
+                ) from exc
+        else:
+            key = spec
+            weight = 1.0
+        key = key.strip()
+        if not key:
+            raise PlanningError(
+                f"--prefer {spec!r}: key must be a non-empty string"
+            )
+        weights[key] = weight
+    return weights
 
 
 def _build_cost_fn(args: argparse.Namespace, graph=None) -> Callable[[TopologyEdge], float]:
@@ -106,6 +139,10 @@ def _build_cost_fn(args: argparse.Namespace, graph=None) -> Callable[[TopologyEd
                 "--at-date requires --at-time; calendar-aware closures are "
                 "evaluated at a specific moment, not for the whole day"
             )
+        prefer_specs = getattr(args, "prefer", None)
+        if prefer_specs:
+            weights = _parse_preference_specs(prefer_specs)
+            fns.append(preference_aware(graph, preferences=weights))
         reservations_path = getattr(args, "reservations", None)
         if reservations_path is not None:
             if at_time is None:
@@ -445,6 +482,18 @@ def _add_plan_args(p: argparse.ArgumentParser) -> None:
         type=float,
         metavar="TS",
         help="UNIX timestamp used as 'now' for --avoid-recent (default: wall clock)",
+    )
+    p.add_argument(
+        "--prefer",
+        action="append",
+        metavar="KEY[:WEIGHT]",
+        help=(
+            "soft preference applied to edges that carry a "
+            "'preferences: {KEY: SCORE, ...}' property. WEIGHT defaults "
+            "to 1.0 (positive = prefer; negative = avoid). Repeat for "
+            "multi-dimensional preferences, e.g. "
+            "--prefer scenic --prefer crowded:-0.5"
+        ),
     )
     p.add_argument(
         "--at-time",

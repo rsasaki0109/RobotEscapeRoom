@@ -86,6 +86,23 @@ landed. Each links to the still-relevant follow-up work.
   tie-breaking. The text-only sibling of the embedding-based
   `find_nodes_by_embedding`. Intended as the offline floor under any
   later LLM resolver.
+- Soft per-edge preferences (`preference_aware(graph,
+  preferences={...})`, plus the `--prefer KEY[:WEIGHT]` CLI flag) —
+  edges carry an optional `preferences: {key: score, ...}` property
+  with caller-defined dimension names; at query time the planner is
+  given a weight per dimension (positive to favor, negative to avoid)
+  and each edge's cost is scaled by
+  `clamp(1.0 - Σ(weight × score), min_multiplier, max_multiplier)`.
+  The clamp (default `0.1` floor, `10.0` ceiling) keeps any single
+  strong preference from fully zeroing an edge or sending the cost
+  to infinity — use `block_edges` / `time_aware` for hard cuts.
+  Composes with the rest of the cost-function family so a single
+  query can honor restricted-edge bans, time-of-day closures,
+  reservations, *and* a scenic-vs-crowded preference at the same
+  time. The "shortest vs scenic vs least-crowded の自然な抽象化"
+  Future Direction is now organized as exactly this generic
+  preference blender with caller-defined keys, rather than as
+  named per-dimension cost helpers.
 - Time-of-day edge / node restrictions
   (`time_aware(graph, at_time=...)`, plus the `--at-time HH:MM` CLI
   flag) — edges (and edges incident to closed nodes) carry an
@@ -435,7 +452,6 @@ What's still open. Each is a candidate for an experiment branch.
 
 ### Planning
 
-- preference-aware planning (shortest vs scenic vs least-crowded)
 - temporal graphs — recurring HH:MM-window restrictions ship
   (`time_aware` + `--at-time`), and the calendar layer ships too:
   three-element `closed_during` entries

@@ -18,6 +18,7 @@ from semantic_toponav.planner.semantic_costs import (
     floor_change_penalty,
     prefer_elevator,
     prefer_floor,
+    preference_aware,
     same_floor_only,
     time_aware,
 )
@@ -39,6 +40,7 @@ __all__ = [
     "load_reservations",
     "plan_astar",
     "plan_dijkstra",
+    "preference_aware",
     "prefer_elevator",
     "prefer_floor",
     "reservation_aware",
