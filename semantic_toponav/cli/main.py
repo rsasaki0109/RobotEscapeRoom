@@ -98,8 +98,14 @@ def _build_cost_fn(args: argparse.Namespace, graph=None) -> Callable[[TopologyEd
                 )
             )
         at_time = getattr(args, "at_time", None)
+        at_date = getattr(args, "at_date", None)
         if at_time is not None:
-            fns.append(time_aware(graph, at_time=at_time))
+            fns.append(time_aware(graph, at_time=at_time, at_date=at_date))
+        elif at_date is not None:
+            raise PlanningError(
+                "--at-date requires --at-time; calendar-aware closures are "
+                "evaluated at a specific moment, not for the whole day"
+            )
         reservations_path = getattr(args, "reservations", None)
         if reservations_path is not None:
             if at_time is None:
@@ -446,6 +452,17 @@ def _add_plan_args(p: argparse.ArgumentParser) -> None:
         help=(
             "treat edges/nodes whose 'closed_during' property covers this "
             "time as blocked (time-of-day, recurring; HH:MM or HH:MM:SS)"
+        ),
+    )
+    p.add_argument(
+        "--at-date",
+        metavar="YYYY-MM-DD",
+        help=(
+            "ISO date used with --at-time for calendar-aware closures: "
+            "weekday-filtered 'closed_during' entries (Mon..Sun) and "
+            "'closed_on_dates' full-day overrides on nodes/edges. "
+            "Without this flag, weekday filters in the graph raise an "
+            "error and 'closed_on_dates' is ignored."
         ),
     )
     p.add_argument(

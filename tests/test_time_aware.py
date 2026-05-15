@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import math
-from datetime import datetime, time
+from datetime import date, datetime, time
 
 import pytest
 
@@ -221,3 +221,200 @@ edges:
     out = capsys.readouterr().out
     payload = json.loads(out)
     assert payload["path"] == ["a", "b", "d"]
+
+
+# ---------------------------------------------------------------------------
+# Calendar layer (at_date): weekday filters + closed_on_dates overrides.
+# ---------------------------------------------------------------------------
+
+
+def test_weekday_filter_blocks_only_on_listed_weekdays() -> None:
+    # Edge closed 09:00-17:00 only on Mon-Fri (weekdays 0..4).
+    g = _diamond_with_window(closed_edge=[["09:00", "17:00", [0, 1, 2, 3, 4]]])
+    # 2026-05-15 is a Friday -> closure active.
+    cost_fri = time_aware(g, at_time="10:00", at_date=date(2026, 5, 15))
+    assert math.isinf(cost_fri(g.get_edge("ab")))
+    # 2026-05-16 is a Saturday -> closure dormant, base cost.
+    cost_sat = time_aware(g, at_time="10:00", at_date=date(2026, 5, 16))
+    assert cost_sat(g.get_edge("ab")) == 1.0
+
+
+def test_weekday_names_are_equivalent_to_ints() -> None:
+    g_int = _diamond_with_window(closed_edge=[["09:00", "17:00", [0, 1, 2, 3, 4]]])
+    g_name = _diamond_with_window(
+        closed_edge=[["09:00", "17:00", ["Mon", "Tue", "Wed", "Thu", "Fri"]]]
+    )
+    on_fri = date(2026, 5, 15)
+    on_sun = date(2026, 5, 17)
+    for graph in (g_int, g_name):
+        assert math.isinf(time_aware(graph, at_time="10:00", at_date=on_fri)(graph.get_edge("ab")))
+        assert math.isfinite(time_aware(graph, at_time="10:00", at_date=on_sun)(graph.get_edge("ab")))
+
+
+def test_weekday_filter_without_at_date_raises() -> None:
+    g = _diamond_with_window(closed_edge=[["09:00", "17:00", [0, 1, 2, 3, 4]]])
+    cost = time_aware(g, at_time="10:00")
+    with pytest.raises(ValueError, match="weekday filter but no at_date"):
+        cost(g.get_edge("ab"))
+
+
+def test_invalid_weekday_int_raises() -> None:
+    g = _diamond_with_window(closed_edge=[["09:00", "17:00", [7]]])
+    with pytest.raises(ValueError, match="weekday int must be in 0..6"):
+        time_aware(g, at_time="10:00", at_date=date(2026, 5, 15))(g.get_edge("ab"))
+
+
+def test_invalid_weekday_name_raises() -> None:
+    g = _diamond_with_window(closed_edge=[["09:00", "17:00", ["xyz"]]])
+    with pytest.raises(ValueError, match="unknown weekday"):
+        time_aware(g, at_time="10:00", at_date=date(2026, 5, 15))(g.get_edge("ab"))
+
+
+def test_closed_on_dates_full_day_override_on_edge() -> None:
+    g = _diamond_with_window()
+    # Stamp a holiday onto the edge directly.
+    g.get_edge("ab").properties["closed_on_dates"] = ["2026-12-25", "2026-01-01"]
+    cost_xmas = time_aware(g, at_time="03:00", at_date=date(2026, 12, 25))
+    assert math.isinf(cost_xmas(g.get_edge("ab")))
+    cost_other = time_aware(g, at_time="03:00", at_date=date(2026, 12, 26))
+    assert cost_other(g.get_edge("ab")) == 1.0
+
+
+def test_closed_on_dates_on_node_blocks_incident_edges() -> None:
+    g = _diamond_with_window()
+    g.get_node("b").properties["closed_on_dates"] = ["2026-12-25"]
+    cost = time_aware(g, at_time="03:00", at_date=date(2026, 12, 25))
+    assert math.isinf(cost(g.get_edge("ab")))
+    assert math.isinf(cost(g.get_edge("bd")))
+    assert math.isfinite(cost(g.get_edge("ac")))
+
+
+def test_closed_on_dates_inactive_without_at_date() -> None:
+    g = _diamond_with_window()
+    g.get_edge("ab").properties["closed_on_dates"] = ["2026-12-25"]
+    # No at_date supplied -> closed_on_dates is dormant, edge keeps base cost.
+    cost = time_aware(g, at_time="03:00")
+    assert cost(g.get_edge("ab")) == 1.0
+
+
+def test_datetime_at_time_derives_date_automatically() -> None:
+    # Friday 2026-05-15: weekday-filtered closure active.
+    g = _diamond_with_window(closed_edge=[["09:00", "17:00", ["mon", "fri"]]])
+    cost = time_aware(g, at_time=datetime(2026, 5, 15, 10, 0))
+    assert math.isinf(cost(g.get_edge("ab")))
+    # Sunday 2026-05-17: dormant.
+    cost = time_aware(g, at_time=datetime(2026, 5, 17, 10, 0))
+    assert cost(g.get_edge("ab")) == 1.0
+
+
+def test_at_date_explicit_overrides_datetime_at_time() -> None:
+    g = _diamond_with_window(closed_edge=[["09:00", "17:00", ["fri"]]])
+    # at_time datetime says Sunday, but at_date kwarg says Friday -> Friday wins.
+    cost = time_aware(
+        g,
+        at_time=datetime(2026, 5, 17, 10, 0),
+        at_date=date(2026, 5, 15),
+    )
+    assert math.isinf(cost(g.get_edge("ab")))
+
+
+def test_at_date_accepts_iso_string() -> None:
+    g = _diamond_with_window(closed_edge=[["09:00", "17:00", ["fri"]]])
+    cost = time_aware(g, at_time="10:00", at_date="2026-05-15")
+    assert math.isinf(cost(g.get_edge("ab")))
+
+
+def test_at_date_invalid_string_raises() -> None:
+    g = _diamond_with_window()
+    with pytest.raises(ValueError, match="ISO 'YYYY-MM-DD'"):
+        time_aware(g, at_time="10:00", at_date="2026/05/15")
+
+
+def test_closed_on_dates_malformed_raises() -> None:
+    g = _diamond_with_window()
+    g.get_edge("ab").properties["closed_on_dates"] = ["2026-13-99"]
+    cost = time_aware(g, at_time="03:00", at_date=date(2026, 5, 15))
+    with pytest.raises(ValueError, match="not ISO"):
+        cost(g.get_edge("ab"))
+
+
+def test_calendar_features_compose_with_avoid_restricted() -> None:
+    from semantic_toponav.planner import avoid_restricted
+
+    g = _diamond_with_window(closed_edge=[["09:00", "17:00", ["fri"]]])
+    cost = compose_costs(
+        avoid_restricted,
+        time_aware(g, at_time="10:00", at_date=date(2026, 5, 15)),
+    )
+    # Friday in window: ab blocked (calendar), ac/cd restricted -> no path.
+    with pytest.raises(NoPathError):
+        plan_astar(g, "a", "d", cost_fn=cost)
+    # Saturday: ab open, restricted still blocks ac/cd -> a-b-d.
+    cost_sat = compose_costs(
+        avoid_restricted,
+        time_aware(g, at_time="10:00", at_date=date(2026, 5, 16)),
+    )
+    path = plan_astar(g, "a", "d", cost_fn=cost_sat)
+    assert path == ["a", "b", "d"]
+
+
+def test_cli_at_date_with_at_time_blocks_weekday_filtered_edge(tmp_path, capsys) -> None:
+    yaml = tmp_path / "g.yaml"
+    yaml.write_text(
+        """version: 1
+metadata: {name: t}
+nodes:
+  - {id: a, label: A, type: room, pose: {x: 0, y: 0, yaw: 0, frame_id: map}}
+  - {id: b, label: B, type: room, pose: {x: 1, y: 0, yaw: 0, frame_id: map}}
+  - {id: c, label: C, type: room, pose: {x: 1, y: 1, yaw: 0, frame_id: map}}
+  - {id: d, label: D, type: room, pose: {x: 2, y: 0, yaw: 0, frame_id: map}}
+edges:
+  - {id: ab, source: a, target: b, type: traversable, cost: 1.0, properties: {closed_during: [['09:00', '17:00', ['mon','tue','wed','thu','fri']]]}}
+  - {id: bd, source: b, target: d, type: traversable, cost: 1.0}
+  - {id: ac, source: a, target: c, type: traversable, cost: 5.0}
+  - {id: cd, source: c, target: d, type: traversable, cost: 5.0}
+""",
+        encoding="utf-8",
+    )
+    import json
+
+    # Friday 2026-05-15 at 10:00 -> closure active, planner reroutes a-c-d.
+    rc = cli_main([
+        "plan", str(yaml), "a", "d",
+        "--at-time", "10:00", "--at-date", "2026-05-15",
+        "--format", "json",
+    ])
+    assert rc == 0
+    out = capsys.readouterr().out
+    payload = json.loads(out)
+    assert payload["path"] == ["a", "c", "d"]
+
+    # Saturday 2026-05-16 same time -> closure dormant, fast route restored.
+    rc = cli_main([
+        "plan", str(yaml), "a", "d",
+        "--at-time", "10:00", "--at-date", "2026-05-16",
+        "--format", "json",
+    ])
+    assert rc == 0
+    out = capsys.readouterr().out
+    payload = json.loads(out)
+    assert payload["path"] == ["a", "b", "d"]
+
+
+def test_cli_at_date_without_at_time_raises(tmp_path, capsys) -> None:
+    yaml = tmp_path / "g.yaml"
+    yaml.write_text(
+        """version: 1
+metadata: {name: t}
+nodes:
+  - {id: a, label: A, type: room, pose: {x: 0, y: 0, yaw: 0, frame_id: map}}
+  - {id: b, label: B, type: room, pose: {x: 1, y: 0, yaw: 0, frame_id: map}}
+edges:
+  - {id: ab, source: a, target: b, type: traversable, cost: 1.0}
+""",
+        encoding="utf-8",
+    )
+    rc = cli_main(["plan", str(yaml), "a", "b", "--at-date", "2026-05-15"])
+    assert rc != 0
+    err = capsys.readouterr().err
+    assert "--at-date requires --at-time" in err

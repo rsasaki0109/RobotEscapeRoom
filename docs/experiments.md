@@ -92,7 +92,16 @@ landed. Each links to the still-relevant follow-up work.
   optional `closed_during: [[start, end], ...]` property of recurring
   HH:MM windows; intervals whose end is `<=` start wrap midnight.
   Composes with the existing `block_edges` / `prefer_elevator` /
-  `floor_change_penalty` family.
+  `floor_change_penalty` family. The calendar layer is opt-in: a
+  three-element `[start, end, weekdays]` form gates the window to
+  specific weekdays (Mon=0..Sun=6 ints or three-letter names), and a
+  separate `closed_on_dates: [YYYY-MM-DD, ...]` property fully closes
+  the entity for the entire ISO date. Activate it with
+  `--at-date YYYY-MM-DD` on the CLI (or pass a `datetime` to
+  `time_aware(at_time=...)` to derive the date automatically). A
+  weekday-filtered entry seen without `at_date` raises rather than
+  silently letting the planner route through what may be a closed
+  edge.
 - Three-floor end-to-end tutorial at `docs/tutorial.md`
 - Hybrid occupancy + trajectory pipeline
   (`annotate_graph_with_trajectories` + post-processing helpers
@@ -428,8 +437,14 @@ What's still open. Each is a candidate for an experiment branch.
 
 - preference-aware planning (shortest vs scenic vs least-crowded)
 - temporal graphs — recurring HH:MM-window restrictions ship
-  (`time_aware` + `--at-time`); what's still open is date-aware /
-  calendar-aware scheduling (holidays, specific dates).
+  (`time_aware` + `--at-time`), and the calendar layer ships too:
+  three-element `closed_during` entries
+  (`[start, end, weekdays]`, with `weekdays` as ints 0..6 or
+  three-letter names) gate windows to specific weekdays, and the
+  `closed_on_dates: [YYYY-MM-DD, ...]` property closes a node or
+  edge for an entire ISO date. The CLI flag is `--at-date YYYY-MM-DD`
+  (or pass a `datetime` to `time_aware(at_time=...)` to derive the
+  date automatically).
 - multi-agent / shared-resource planning — single-snapshot
   reservations ship (`reservation_aware` + `--reservations`), the
   online coordination layer ships
