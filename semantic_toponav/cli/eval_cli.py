@@ -212,10 +212,11 @@ def register_subcommands(sub: argparse._SubParsersAction) -> None:
     p.add_argument(
         "--strategy",
         action="append",
-        choices=["greedy", "priority", "deadline", "joint", "bnb"],
+        choices=["greedy", "priority", "deadline", "joint", "bnb", "exhaustive"],
         help=(
             "strategy to test (repeatable; default: greedy/priority/"
-            "deadline/joint — bnb opt-in because it explores more orderings)"
+            "deadline/joint — bnb and exhaustive opt-in. exhaustive is the "
+            "MIS grant-rate upper bound and only works for n_agents <= 16)"
         ),
     )
     p.add_argument(

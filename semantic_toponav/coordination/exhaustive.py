@@ -361,7 +361,7 @@ def plan_fleet_exhaustive(
     # this filtered request list.
     in_subset = set(best_subset)
     ordered = [r for r in req_list if r.agent_id in in_subset]
-    fleet_result = plan_fleet(
+    subset_fleet = plan_fleet(
         graph,
         ordered,
         scheduler,
@@ -376,6 +376,60 @@ def plan_fleet_exhaustive(
         admission=admission,
         minutes_per_cost_unit=minutes_per_cost_unit,
     )
+
+    # Pad the returned FleetPlanResult with synthetic "denied because
+    # in conflict with the chosen subset" entries for every input
+    # agent that the MIS picker dropped. Without this padding the
+    # eval suite's grant_rate metric ( granted / len(results) ) would
+    # over-state exhaustive's rate by hiding the dropped agents from
+    # the denominator. The synthetic entries are typed as denials
+    # with reason_code="reservation_conflict" — the agent's plan
+    # itself exists (we computed it in step 1) but the scheduler
+    # would have refused the claim against the chosen subset's holds.
+    subset_results_by_id = {r.agent_id: r for r in subset_fleet.results}
+    full_results: list[PlanWithSchedulerResult] = []
+    for req in req_list:
+        if req.agent_id in subset_results_by_id:
+            full_results.append(subset_results_by_id[req.agent_id])
+            continue
+        # Denied: their independent plan succeeded but they conflict
+        # with the chosen subset (otherwise the MIS step would have
+        # picked them). Their plan-step result, if any, captures the
+        # would-be path; if it failed at the plan step too, surface
+        # that reason instead.
+        plan_step = independent_results.get(req.agent_id)
+        if plan_step is None or not plan_step.granted:
+            full_results.append(
+                PlanWithSchedulerResult(
+                    agent_id=req.agent_id,
+                    path=list(plan_step.path) if plan_step else [],
+                    claims=[],
+                    granted=False,
+                    failure_reason=(
+                        plan_step.failure_reason if plan_step else "no plan"
+                    ),
+                    conflicts=[],
+                    reason_code=(
+                        plan_step.reason_code if plan_step else "no_path"
+                    ),
+                )
+            )
+        else:
+            full_results.append(
+                PlanWithSchedulerResult(
+                    agent_id=req.agent_id,
+                    path=list(plan_step.path),
+                    claims=[],
+                    granted=False,
+                    failure_reason=(
+                        "dropped by MIS: conflicts with chosen subset"
+                    ),
+                    conflicts=[],
+                    reason_code="reservation_conflict",
+                )
+            )
+
+    fleet_result = FleetPlanResult(results=full_results)
 
     return ExhaustivePlanResult(
         granted_agents=tuple(r.agent_id for r in ordered),

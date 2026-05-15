@@ -210,6 +210,64 @@ def test_eval_synthetic_strategy_bnb_opt_in(tmp_path: Path) -> None:
     assert lines[0]["strategy"] == "bnb"
 
 
+def test_eval_synthetic_strategy_exhaustive_opt_in(tmp_path: Path) -> None:
+    """``exhaustive`` is opt-in just like ``bnb``; one row per scenario."""
+    out_path = tmp_path / "exhaustive.jsonl"
+    rc = main(
+        [
+            "eval-synthetic",
+            "--scenario", "chain",
+            "--n-agents", "3",
+            "--seed", "0",
+            "--hold-start", "10:00",
+            "--hold-end", "11:00",
+            "--strategy", "exhaustive",
+            "--out", str(out_path),
+        ]
+    )
+    assert rc == 0
+    import json
+    lines = [
+        json.loads(ln)
+        for ln in out_path.read_text(encoding="utf-8").splitlines()
+        if ln.strip()
+    ]
+    assert len(lines) == 1
+    assert lines[0]["strategy"] == "exhaustive"
+
+
+def test_eval_synthetic_strategy_exhaustive_bounds_bnb_grant_rate(
+    tmp_path: Path,
+) -> None:
+    """Exhaustive is the MIS upper bound on grant rate, so BnB grant_count
+    must be <= exhaustive grant_count for the same scenario."""
+    out_path = tmp_path / "both.jsonl"
+    rc = main(
+        [
+            "eval-synthetic",
+            "--scenario", "doorway",
+            "--n-agents", "4",
+            "--seed", "2",
+            "--hold-start", "10:00",
+            "--hold-end", "11:00",
+            "--strategy", "bnb",
+            "--strategy", "exhaustive",
+            "--out", str(out_path),
+        ]
+    )
+    assert rc == 0
+    import json
+    rows = {
+        json.loads(ln)["strategy"]: json.loads(ln)
+        for ln in out_path.read_text(encoding="utf-8").splitlines()
+        if ln.strip()
+    }
+    assert (
+        rows["exhaustive"]["metrics"]["granted_count"]
+        >= rows["bnb"]["metrics"]["granted_count"]
+    )
+
+
 def test_eval_synthetic_deadline_tightness_affects_deadline_field(tmp_path: Path) -> None:
     out_path = tmp_path / "tight.jsonl"
     main(
