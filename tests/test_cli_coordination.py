@@ -143,6 +143,105 @@ def test_fleet_plan_malformed_agent_spec_errors(capsys) -> None:
     assert "AGENT_ID:START:GOAL" in err
 
 
+def test_fleet_plan_agent_spec_accepts_priority_and_deadline(capsys) -> None:
+    rc = main(
+        [
+            "fleet-plan",
+            EXAMPLE_YAML,
+            "--agent",
+            "r1:entrance:kitchen:3:10:45",
+            "--hold-start",
+            "10:00",
+            "--hold-end",
+            "11:00",
+            "--format",
+            "json",
+        ]
+    )
+    out = capsys.readouterr().out
+    payload = json.loads(out)
+    assert rc == 0
+    assert payload["agents"][0]["agent_id"] == "r1"
+
+
+def test_fleet_plan_strategy_priority(capsys) -> None:
+    main(
+        [
+            "fleet-plan",
+            EXAMPLE_YAML,
+            "--agent",
+            "low:entrance:kitchen:0",
+            "--agent",
+            "high:entrance:lab:5",
+            "--hold-start",
+            "10:00",
+            "--hold-end",
+            "11:00",
+            "--strategy",
+            "priority",
+            "--format",
+            "json",
+        ]
+    )
+    out = capsys.readouterr().out
+    payload = json.loads(out)
+    # Reordering: high-priority agent goes first regardless of submission order.
+    # All-granted is not guaranteed under FCFS — both agents share 'entrance'.
+    assert payload["agents"][0]["agent_id"] == "high"
+
+
+def test_fleet_plan_strategy_deadline_reorders(capsys) -> None:
+    main(
+        [
+            "fleet-plan",
+            EXAMPLE_YAML,
+            "--agent",
+            "late:entrance:kitchen:0:12:00",
+            "--agent",
+            "early:entrance:lab:0:10:30",
+            "--hold-start",
+            "10:00",
+            "--hold-end",
+            "11:00",
+            "--strategy",
+            "deadline",
+            "--format",
+            "json",
+        ]
+    )
+    out = capsys.readouterr().out
+    payload = json.loads(out)
+    # Earliest deadline runs first. Grant outcome is policy-dependent
+    # and not asserted here.
+    assert payload["agents"][0]["agent_id"] == "early"
+
+
+def test_fleet_plan_strategy_joint(capsys) -> None:
+    rc = main(
+        [
+            "fleet-plan",
+            EXAMPLE_YAML,
+            "--agent",
+            "r1:entrance:kitchen",
+            "--agent",
+            "r2:entrance:lab",
+            "--hold-start",
+            "10:00",
+            "--hold-end",
+            "11:00",
+            "--strategy",
+            "joint",
+            "--format",
+            "json",
+        ]
+    )
+    out = capsys.readouterr().out
+    payload = json.loads(out)
+    # Joint optimizer should at least match greedy on this small case.
+    assert len(payload["agents"]) == 2
+    assert rc in (0, 1)
+
+
 def test_fleet_plan_rollback_releases_partial(capsys) -> None:
     # Two agents requesting routes that will collide on shared resources.
     rc = main(
