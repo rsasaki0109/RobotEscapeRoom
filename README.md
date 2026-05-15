@@ -402,6 +402,43 @@ semantic-toponav fleet-plan examples/indoor_office.yaml \
     --strategy deadline
 ```
 
+#### Real-time scheduler RPC shim
+
+`SharedScheduler` is process-local. Production deployments wire it
+behind a long-running service so multiple planner processes can
+share one logical scheduler. PR #41 adds the minimum transport-
+agnostic contract: `SchedulerService` wraps the real scheduler on
+the server, `SchedulerClient` is a drop-in proxy on the planner
+side, and any object satisfying the one-method `Transport` protocol
+(`send(dict) -> dict`) ferries JSON-safe messages between them. The
+planner entry points are typed via `SchedulerProtocol`, which both
+the in-memory scheduler and the RPC client satisfy, so existing
+call sites take the proxy without changes.
+
+```python
+from semantic_toponav.coordination import (
+    LocalTransport, SchedulerClient, SchedulerService, SharedScheduler,
+    plan_fleet, FleetRequest,
+)
+
+# Server side: one scheduler behind the shim.
+backing = SharedScheduler()
+service = SchedulerService(backing)
+
+# Client side: any planner sees only the proxy.
+client = SchedulerClient(LocalTransport(service))  # swap for HTTP / NATS / gRPC
+result = plan_fleet(graph, requests, client, hold_start="10:00", hold_end="11:00")
+# Mutations applied through the wire show up on the backing scheduler.
+```
+
+`LocalTransport` is the in-process reference implementation —
+production transports replace it with HTTP / WebSocket / NATS / gRPC
+/ your message bus. The strategy dispatcher's `greedy`, `priority`,
+and `deadline` modes work transparently against the client;
+`joint` / `bnb` require a local scheduler because they call
+`SharedScheduler.clone()` (cloning state over the wire would
+defeat the point).
+
 #### Branch-and-bound ordering search
 
 `plan_fleet_joint` enumerates every permutation when `n! ≤ 120` and
