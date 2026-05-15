@@ -17,14 +17,17 @@ from semantic_toponav.query.find import (
     nearest_node_by_graph_distance,
     nearest_node_by_pose,
 )
+from semantic_toponav.query.llm_resolve import LLMResolveResult, llm_resolve_goal
 from semantic_toponav.query.resolve import GoalCandidate, resolve_goal
 
 __all__ = [
     "GoalCandidate",
+    "LLMResolveResult",
     "NoMatchError",
     "cosine_similarity",
     "find_nodes",
     "find_nodes_by_embedding",
+    "llm_resolve_goal",
     "nearest_node_by_embedding",
     "nearest_node_by_graph_distance",
     "nearest_node_by_pose",

@@ -49,6 +49,9 @@ vlm = [
     "torch>=2.0",
     "Pillow>=9.0",
 ]
+llm = [
+    "anthropic>=0.34",
+]
 
 [project.scripts]
 semantic-toponav = "semantic_toponav.cli.main:main"

@@ -141,6 +141,21 @@ landed. Each links to the still-relevant follow-up work.
   with the rest of the cost-function family — one query can honor
   static cleaning windows on the graph *and* live claims from a
   shared scheduler simultaneously.
+- LLM-augmented `describe-path` / `resolve` — pluggable
+  `semantic_toponav.llm.LLMBackend` protocol with two concrete
+  backends (`EchoBackend`: scripted / fall-back-echo, dependency-free
+  for tests; `AnthropicBackend`: lazy Anthropic SDK wrapper gated on
+  the `[llm]` extra) plus
+  `semantic_toponav.waypoint.llm_describe_path` and
+  `semantic_toponav.query.llm_resolve_goal`. The deterministic
+  `describe_path` and `resolve_goal` floors always run first; the
+  LLM only rewrites prose (with one rewritten line per deterministic
+  step, never merging or splitting) or re-ranks the top-k candidates
+  *from* the deterministic shortlist (it cannot invent a node id —
+  out-of-pool picks transparently fall back). Reachable from the CLI
+  as `semantic-toponav describe-path GRAPH ... --llm-backend
+  echo|anthropic [--llm-style HINT --llm-script REPLY]` and
+  `semantic-toponav resolve GRAPH "text" --llm-backend ...`.
 
 See `docs/decisions.md` D-10 for the original "non-goals" list with
 shipped / deferred markers.
@@ -196,13 +211,18 @@ What's still open. Each is a candidate for an experiment branch.
 
 ### Embodied AI
 
-- LLM-augmented waypoint instructions on top of the deterministic
-  `describe_path` output (the deterministic narration ships; the LLM
-  rewriting layer that would consume those steps does not)
-- natural-language goal parsing — a deterministic resolver ships
-  (`resolve_goal` + `semantic-toponav resolve`). What's deferred is
-  the LLM layer that would take *its* top-k candidates plus the
-  user's full utterance and disambiguate / refine the choice.
+- LLM-augmented waypoint instructions and goal parsing now ship as a
+  thin rewrite/refine layer (`llm_describe_path` and `llm_resolve_goal`
+  + the `--llm-backend echo|anthropic` CLI flags — see the "Shipped"
+  entry). What's still open is a *multi-turn* dialog layer: the
+  current resolver picks once from a single top-k shortlist, the
+  current describer rewrites once per plan. A back-and-forth where
+  the LLM asks "did you mean room A or B?" before committing, or
+  rewrites mid-traversal as the robot's position changes, isn't here
+  yet. So is using the embeddings stamped by
+  `embed_region_patches` as additional structured context inside the
+  prompt — today the prompts only carry node labels, types, floors,
+  and edge types.
 - topology graphs as scratchpad for embodied agents
 
 ### Tooling
