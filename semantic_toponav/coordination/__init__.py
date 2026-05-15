@@ -35,6 +35,10 @@ from semantic_toponav.coordination.fleet import (
     plan_fleet,
     plan_with_scheduler,
 )
+from semantic_toponav.coordination.http_transport import (
+    HttpSchedulerServer,
+    HttpTransport,
+)
 from semantic_toponav.coordination.joint import (
     JointPlanResult,
     JointPlanTrial,
@@ -73,6 +77,8 @@ __all__ = [
     "ConflictPolicy",
     "FleetPlanResult",
     "FleetRequest",
+    "HttpSchedulerServer",
+    "HttpTransport",
     "JointPlanResult",
     "JointPlanTrial",
     "LocalTransport",
