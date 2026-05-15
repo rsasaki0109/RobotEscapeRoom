@@ -28,6 +28,11 @@ from semantic_toponav.coordination.branch_and_bound import (
     ConflictExplanation,
     plan_fleet_bnb,
 )
+from semantic_toponav.coordination.exhaustive import (
+    ExhaustivePlanResult,
+    ExhaustiveStats,
+    plan_fleet_exhaustive,
+)
 from semantic_toponav.coordination.fleet import (
     FleetPlanResult,
     FleetRequest,
@@ -71,6 +76,8 @@ __all__ = [
     "ClaimResult",
     "ConflictExplanation",
     "ConflictPolicy",
+    "ExhaustivePlanResult",
+    "ExhaustiveStats",
     "FleetPlanResult",
     "FleetRequest",
     "JointPlanResult",
@@ -88,6 +95,7 @@ __all__ = [
     "first_come_first_served",
     "plan_fleet",
     "plan_fleet_bnb",
+    "plan_fleet_exhaustive",
     "plan_fleet_joint",
     "plan_fleet_with_strategy",
     "plan_with_scheduler",
