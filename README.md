@@ -4,11 +4,13 @@
 [![python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-**Global semantic-topological path planner for robots.** Sits *above*
-SLAM / HD maps and *below* Nav2 / Autoware / MPPI motion executors —
-the layer that decides *where to go* and *why*, while the local
-motion stack decides *how to move*. Pure Python core, optional ROS2
-adapter, no model dependencies in the core.
+**Grounded middle planning layer for robot navigation.** Bridges
+dense maps (SLAM / occupancy / HD) and motion executors (Nav2 /
+Autoware / MPPI / learned policies) with a graph-level layer that
+decides *where to go, why, and who first* — under language goals,
+calendar-aware closures, soft preferences, deadlines, and multi-agent
+reservations. Pure-Python core, zero hard dependencies, full Protocol
+conformance suites.
 
 <p align="center">
   <img src="docs/images/demo.gif" width="720" alt="multi-floor planner cycling through four cost configurations">
@@ -18,30 +20,37 @@ adapter, no model dependencies in the core.
   <sub>Same 3-floor graph, four cost configurations: default A* → prefer_elevator → floor_change_penalty → same_floor_only.</sub>
 </p>
 
+---
+
 ## What it does
 
-- Define a graph of **semantic places** (rooms, corridors, elevators,
-  stairs) and traversable edges with composable cost rules
-- **Plan routes** with Dijkstra / A* under semantic costs: avoid
-  stairs, prefer elevator, block restricted, time-of-day closures,
-  reservations, multi-floor heuristics
-- **Coordinate multi-agent fleets** via an in-memory shared scheduler:
-  FCFS / priority / deadline / joint / branch-and-bound / MIS upper
-  bound — plus a stdlib-only HTTP transport for production fan-out
-- **Resolve free-text goals** to node ids: deterministic, then optional
-  LLM rewrite (out-of-pool picks silently dropped — the LLM cannot
-  invent node ids), then optional VLM cosine-similarity grounding,
-  then optional multi-turn clarification dialog
+Three orthogonal axes, all composable:
 
-## Gallery
+### Plan
+Routes on semantic graphs with composable cost rules. `compose_costs`
+stacks `avoid_stairs` / `prefer_elevator` / `block_edges` /
+`time_aware` / `preference_aware` / `reservation_aware` /
+`floor_change_penalty` and a dozen others into a single A* call. No
+re-implementations per scenario — declare what you want, the planner
+honors it.
 
-| ![default](docs/images/03_default_to_office_2f.png) | ![accessibility](docs/images/04_avoid_stairs_to_office_2f.png) |
-|---|---|
-| **Default A*** — fastest route via stairs | **avoid_stairs + prefer_elevator** — accessibility-aware |
-| ![occupancy](docs/images/05_occupancy_graph.png) | ![path](docs/images/06_occupancy_graph_with_path.png) |
-| **Occupancy grid → topology** via skeletonization | **Path on the auto-generated graph** |
-| ![trajectory](docs/images/08_trajectory_topology.png) | ![csv](docs/images/13_csv_trajectory.png) |
-| **Trajectory log → topology** by greedy clustering | **CSV trajectories** loaded without pandas |
+### Coordinate
+Multi-agent fleets with atomic reservations and **seven strategies**:
+`greedy` / `priority` / `deadline` / `joint` / `bnb` (branch-and-bound,
+3 objectives) / `exhaustive` (MIS upper bound) / `insert`
+(insertion-based repair). Hard deadline admission with a structured
+`reason_code` so denials are explainable. Optional in-process or HTTP
+scheduler for fan-out across processes.
+
+### Resolve
+Natural-language goals → node ids. The deterministic floor
+(bag-of-words + floor parsing) always runs first; an LLM may rewrite
+prose or re-rank the top-k pool but **cannot invent node ids** —
+out-of-pool picks silently fall back. Multi-turn `DialogSession` for
+ambiguous queries; optional CLIP / VLM cosine retrieval for
+embedding-grounded resolves.
+
+---
 
 ## Quick start
 
@@ -66,22 +75,72 @@ for wp in path_to_semantic_waypoints(graph, path):
     print(wp.instruction)
 ```
 
-New to the library? Walk through the
+New here? Walk through the
 [**three-floor tutorial**](docs/tutorial.md) end-to-end.
+
+---
+
+## Gallery
+
+### Cost composition
+
+The same graph re-planned under different cost stacks. The path
+changes; nothing about the graph does.
+
+| default A* | + avoid_stairs + prefer_elevator |
+|---|---|
+| ![default to office](docs/images/03_default_to_office_2f.png) | ![accessibility](docs/images/04_avoid_stairs_to_office_2f.png) |
+
+| default to meeting room | + restricted-edge avoidance |
+|---|---|
+| ![default meeting](docs/images/01_default_to_meeting_room.png) | ![avoid restricted](docs/images/02_avoid_restricted_to_meeting_room.png) |
+
+### Multi-floor planning
+
+`floor_change_penalty`, `prefer_floor`, `same_floor_only`, and a
+`floor_aware_heuristic` make multi-storey layouts a first-class
+target — no per-floor sub-graphs needed.
+
+| default (cheapest stairs route) | prefer_elevator |
+|---|---|
+| ![mf default](docs/images/09_mf_default.png) | ![mf elevator](docs/images/10_mf_elevator.png) |
+
+| prefer_floor=2 (bias toward 2F) | floor_change_penalty (avoid hopping floors) |
+|---|---|
+| ![mf prefer 2](docs/images/11_mf_prefer_2.png) | ![mf floor penalty](docs/images/12_mf_floor_penalty.png) |
+
+### Conversion pipeline
+
+Topology graphs can be authored by hand or **generated from
+existing artifacts**: occupancy grids via skeletonization +
+clearance-aware door detection + region segmentation, or trajectory
+logs (CSV / rosbag2) via greedy clustering.
+
+| occupancy grid → topology | path on the auto-generated graph |
+|---|---|
+| ![occupancy](docs/images/05_occupancy_graph.png) | ![occupancy path](docs/images/06_occupancy_graph_with_path.png) |
+
+| trajectory log → topology | CSV trajectory (no pandas) |
+|---|---|
+| ![trajectory](docs/images/08_trajectory_topology.png) | ![csv](docs/images/13_csv_trajectory.png) |
+
+---
 
 ## Features
 
 | Area | What's there | Docs |
 |---|---|---|
 | **Map / log conversion** | Occupancy grid, door detection, region segmentation, graph compaction, trajectories, CSV / rosbag2 / ROS map_server | [conversion.md](docs/conversion.md) |
-| **Cost composition** | `avoid_*` / `prefer_*` / `block_*`, time-of-day windows, static reservations, multi-floor heuristics | [cost_composition.md](docs/cost_composition.md) |
-| **Multi-agent coordination** | `SharedScheduler` + RPC shim (HTTP / custom), `plan_fleet_with_strategy`, joint / BnB / exhaustive-MIS, fairness objectives, deadline admission, synthetic eval suite | [coordination.md](docs/coordination.md) |
-| **Semantic queries + LLM/VLM** | `find_nodes` / `nearest_*` / `resolve_goal`, embedding retrieval, CLIP backend, `llm_resolve_goal` + `DialogSession` (multi-turn), visit-history memory | [queries.md](docs/queries.md) |
+| **Cost composition** | `avoid_*` / `prefer_*` / `block_*`, time-of-day windows, calendar-aware closures, soft preferences (node / edge), static reservations, multi-floor heuristics | [cost_composition.md](docs/cost_composition.md) |
+| **Multi-agent coordination** | `SharedScheduler` + RPC shim (HTTP / custom), `plan_fleet_with_strategy` (7 strategies), branch-and-bound + fairness objectives, exhaustive-MIS upper bound, insertion-based repair, deadline admission, scheduler persistence, synthetic eval suite | [coordination.md](docs/coordination.md) |
+| **Semantic queries + LLM/VLM** | `find_nodes` / `nearest_*` / `resolve_goal`, embedding retrieval, CLIP backend, `llm_resolve_goal` + `DialogSession` (multi-turn), mid-traversal describer rewrite, visit-history memory | [queries.md](docs/queries.md) |
 | **CLI reference** | All subcommands and flags | [cli.md](docs/cli.md) |
-| **Visualization** | matplotlib `plot`, interactive pyvis HTML viewer | see below |
+| **Visualization** | matplotlib `plot`, interactive pyvis HTML viewer, live-reloading viewer | see below |
 | **Schema** | YAML v1 graph format, waypoint JSON schema | [waypoint_schema.md](docs/waypoint_schema.md) |
-| **Protocol conformance** | Reusable suites under `semantic_toponav.testing.conformance` for `LLMBackend` / encoder `Backend` / `AlignedRgbSource` / `SchedulerProtocol` / `Transport` / `ConflictPolicy` | [conformance.md](docs/conformance.md) |
+| **Protocol conformance** | Reusable suites under `semantic_toponav.testing.conformance` for `LLMBackend` / encoder `Backend` / `AlignedRgbSource` / `SchedulerProtocol` / `Transport` / `ConflictPolicy` with failure-mode depth | [conformance.md](docs/conformance.md) |
 | **ROS2 integration** | `graph_loader` / `waypoint_publisher` / `nav2_demo` nodes | [ros2/README.md](ros2/README.md) |
+
+---
 
 ## Visualization
 
@@ -95,11 +154,16 @@ pip install -e '.[viz_web]'
 semantic-toponav viewer examples/multi_floor_office.yaml \
     --start entrance --goal exec_office_3f --prefer-elevator \
     --output viewer.html
+
+semantic-toponav live-viewer examples/multi_floor_office.yaml
 ```
 
 The web viewer is a fully offline self-contained HTML file — nodes
 are draggable, hovering surfaces type / cost / property tooltips,
-and the highlighted path is overlaid in pink.
+and the highlighted path is overlaid in pink. `live-viewer` adds a
+file-watch loop so edits to the YAML reload the browser tab.
+
+---
 
 ## Graph schema (v1)
 
@@ -130,6 +194,8 @@ Node `type` examples: `corridor`, `room`, `intersection`, `elevator`,
 For a fluent builder API, see `semantic_toponav.graph.GraphBuilder`
 (documented in [tutorial.md](docs/tutorial.md)).
 
+---
+
 ## What this project is *not*
 
 Deliberately out of scope (use existing systems):
@@ -137,28 +203,43 @@ Deliberately out of scope (use existing systems):
 - Low-level control (MPC / MPPI)
 - Obstacle avoidance / SLAM / dense occupancy planning
 - Behavior trees
+- Head-to-head MAPF solver on gridworld (that's CBS / EECBS / MAPF-LNS2
+  territory; this layer sits above pure grid MAPF and adds semantic /
+  time / language constraints instead)
 
 The split is *where to go* (this repo) vs *how to move locally*
 (Nav2 / Autoware / your motion executor):
 
 | Layer | Responsibility | Owned by |
 |---|---|---|
-| Global semantic-topological planning | *where* and *why* | this repository |
+| Global semantic-topological planning | *where* / *why* / *who first* | this repository |
 | Local motion execution | *how to move locally* | Nav2 / MPPI / policy |
 
-## Project status
+---
 
-This is the MVP. See [docs/decisions.md](docs/decisions.md) for the
-design notes and [docs/experiments.md](docs/experiments.md) for
-roadmap directions. The waypoint JSON wire format produced by
-`waypoint_publisher_node` and `SemanticWaypoint.to_dict()` is v1-stable
-and documented in [docs/waypoint_schema.md](docs/waypoint_schema.md);
-the matching JSON Schema lives under [`schemas/`](schemas/).
+## Status
+
+Feature-complete across the original roadmap and the 25-PR post-MVP
+arc: synthetic eval suite, branch-and-bound + fairness objectives,
+HTTP transport, exhaustive MIS baseline, scheduler persistence, public
+Protocol conformance suites with failure-mode depth, calendar-aware
+closures, soft preferences (edge + node defaults), mid-traversal LLM
+rewrites, and insertion-based fleet repair. See
+[docs/decisions.md](docs/decisions.md) for design notes and
+[docs/experiments.md](docs/experiments.md) for the full feature index.
+
+The waypoint JSON wire format produced by `waypoint_publisher_node`
+and `SemanticWaypoint.to_dict()` is v1-stable and documented in
+[docs/waypoint_schema.md](docs/waypoint_schema.md); the matching JSON
+Schema lives under [`schemas/`](schemas/).
+
+---
 
 ## Tests
 
 ```bash
-pytest -q
+pytest -q                              # 875 tests, ~20s
+ruff check .
 ```
 
 ## License
