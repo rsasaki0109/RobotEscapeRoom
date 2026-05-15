@@ -350,6 +350,7 @@ def plan_fleet_with_strategy(
     max_permutations: int = 120,
     admission: Literal["soft", "hard"] = "soft",
     minutes_per_cost_unit: float = 1.0,
+    bnb_objective: Literal["min_cost", "minimax_cost", "max_fairness"] = "min_cost",
 ) -> FleetPlanResult:
     """Run :func:`plan_fleet` under a named ordering strategy.
 
@@ -417,6 +418,7 @@ def plan_fleet_with_strategy(
             claim_edges=claim_edges,
             admission=admission,
             minutes_per_cost_unit=minutes_per_cost_unit,
+            objective=bnb_objective,
         )
         return bnb.fleet_result
     else:  # pragma: no cover - unreachable under Literal typing
