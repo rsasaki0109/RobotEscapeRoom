@@ -45,7 +45,7 @@ from semantic_toponav.coordination.scheduler import SharedScheduler
 from semantic_toponav.graph.topology_graph import TopologyGraph
 from semantic_toponav.planner.semantic_costs import CostFn, _as_time
 
-Strategy = Literal["greedy", "priority", "deadline", "joint", "bnb"]
+Strategy = Literal["greedy", "priority", "deadline", "joint", "bnb", "exhaustive"]
 
 
 @dataclass
@@ -351,6 +351,7 @@ def plan_fleet_with_strategy(
     admission: Literal["soft", "hard"] = "soft",
     minutes_per_cost_unit: float = 1.0,
     bnb_objective: Literal["min_cost", "minimax_cost", "max_fairness"] = "min_cost",
+    exhaustive_n_limit: int = 16,
 ) -> FleetPlanResult:
     """Run :func:`plan_fleet` under a named ordering strategy.
 
@@ -368,6 +369,13 @@ def plan_fleet_with_strategy(
       :class:`JointPlanResult` envelope is dropped to keep the return
       type uniform). Use :func:`plan_fleet_joint` directly when you
       need the chosen-order / trial-count metadata.
+    * ``"bnb"`` — call :func:`plan_fleet_bnb` with the configured
+      ``bnb_objective``. Same return-shape contract as the others.
+    * ``"exhaustive"`` — call :func:`plan_fleet_exhaustive`. Returns
+      the MIS upper bound on grants under fixed independent paths;
+      useful as a ground-truth baseline alongside the heuristic
+      strategies. Capped at ``exhaustive_n_limit`` (default ``16``)
+      to keep the 2^n enumeration bounded.
 
     Returns
     -------
@@ -421,6 +429,29 @@ def plan_fleet_with_strategy(
             objective=bnb_objective,
         )
         return bnb.fleet_result
+    elif strategy == "exhaustive":
+        # Same local-import rationale as the bnb branch — exhaustive
+        # imports from fleet, so a top-level import would cycle.
+        from semantic_toponav.coordination.exhaustive import (
+            plan_fleet_exhaustive,
+        )
+
+        exhaustive = plan_fleet_exhaustive(
+            graph,
+            req_list,
+            scheduler,
+            hold_start=hold_start,
+            hold_end=hold_end,
+            at_time=at_time,
+            base_cost_fn=base_cost_fn,
+            algorithm=algorithm,
+            claim_nodes=claim_nodes,
+            claim_edges=claim_edges,
+            admission=admission,
+            minutes_per_cost_unit=minutes_per_cost_unit,
+            n_limit=exhaustive_n_limit,
+        )
+        return exhaustive.fleet_result
     else:  # pragma: no cover - unreachable under Literal typing
         raise ValueError(f"unknown strategy {strategy!r}")
 
