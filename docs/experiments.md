@@ -173,6 +173,22 @@ landed. Each links to the still-relevant follow-up work.
   semantics. Reachable from the CLI as `semantic-toponav fleet-plan
   GRAPH --agent ID:START:GOAL[:PRIORITY] ... --hold-start HH:MM
   --hold-end HH:MM [--policy fcfs|priority --rollback-on-failure]`.
+- Region-embedding context for the LLM goal resolver — PR #32 and
+  PR #33 confluence. `llm_resolve_goal` now accepts an optional
+  `query_encoder: Backend` and embeds the user query, then computes
+  per-candidate cosine similarity against any node embeddings
+  stamped by `embed_region_patches`. The resulting scores are
+  injected into the LLM prompt as scalar `embedding_score=` fields
+  (never raw vectors — that's the deliberate safety property: the
+  LLM is given retrieval *results*, not opaque numerics) and
+  surfaced on the result as `embedding_scores: dict[str, float]`
+  for telemetry. The LLM still picks only from the deterministic
+  candidate pool, so the new signal augments the rerank without
+  breaking the "no invented node ids" guarantee. Reachable from
+  the CLI as `semantic-toponav resolve GRAPH "text" --llm-backend
+  ... --vlm-backend hashing|clip [--vlm-dim N --vlm-clip-model
+  REPO --vlm-clip-device cpu|cuda]`. Default is "off" so call
+  sites unaware of PR #32 stay unchanged.
 - Branch-and-bound joint scheduler — new
   `semantic_toponav.coordination.plan_fleet_bnb` does a pruned DFS
   over partial agent orderings, scoring each leaf by
@@ -313,15 +329,14 @@ What's still open. Each is a candidate for an experiment branch.
 - LLM-augmented waypoint instructions and goal parsing now ship as a
   thin rewrite/refine layer (`llm_describe_path` and `llm_resolve_goal`
   + the `--llm-backend echo|anthropic` CLI flags — see the "Shipped"
-  entry). What's still open is a *multi-turn* dialog layer: the
-  current resolver picks once from a single top-k shortlist, the
-  current describer rewrites once per plan. A back-and-forth where
-  the LLM asks "did you mean room A or B?" before committing, or
-  rewrites mid-traversal as the robot's position changes, isn't here
-  yet. So is using the embeddings stamped by
-  `embed_region_patches` as additional structured context inside the
-  prompt — today the prompts only carry node labels, types, floors,
-  and edge types.
+  entry). Region-embedding context for the resolver also ships
+  (`--vlm-backend hashing|clip` + `embedding_scores` in the prompt
+  and result — see the "Shipped" entry). What's still open is a
+  *multi-turn* dialog layer: the current resolver picks once from a
+  single top-k shortlist, the current describer rewrites once per
+  plan. A back-and-forth where the LLM asks "did you mean room A or
+  B?" before committing, or rewrites mid-traversal as the robot's
+  position changes, isn't here yet.
 - topology graphs as scratchpad for embodied agents
 
 ### Tooling

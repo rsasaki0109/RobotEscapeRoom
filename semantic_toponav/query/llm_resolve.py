@@ -19,11 +19,16 @@ from __future__ import annotations
 
 import re
 from collections.abc import Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
+from semantic_toponav.encoders.backends import Backend as EncoderBackend
 from semantic_toponav.graph.topology_graph import TopologyGraph
 from semantic_toponav.graph.types import TopologyNode
 from semantic_toponav.llm.backends import LLMBackend
+from semantic_toponav.query.embedding import (
+    DEFAULT_EMBEDDING_PROPERTY,
+    cosine_similarity,
+)
 from semantic_toponav.query.resolve import GoalCandidate, resolve_goal
 
 _TOP_MATCH_LINE = re.compile(
@@ -68,6 +73,14 @@ class LLMResolveResult:
     used_fallback:
         ``True`` when the LLM pick was rejected (unparseable or
         out-of-pool) and the deterministic ranking was kept.
+    embedding_scores:
+        Per-candidate cosine similarity between the query embedding
+        and each candidate node's stored embedding. Empty when no
+        ``query_encoder`` was passed to :func:`llm_resolve_goal`, or
+        for candidates that don't carry an embedding. Pure telemetry —
+        the LLM sees these as structured context in the prompt;
+        callers can inspect them to diff embedding ranking against
+        the deterministic ranking.
     """
 
     query: str
@@ -77,33 +90,104 @@ class LLMResolveResult:
     llm_reason: str | None = None
     raw_response: str = ""
     used_fallback: bool = False
+    embedding_scores: dict[str, float] = field(default_factory=dict)
 
 
-def _format_candidate_block(candidates: list[GoalCandidate]) -> str:
+def _format_candidate_block(
+    candidates: list[GoalCandidate],
+    embedding_scores: dict[str, float] | None = None,
+) -> str:
+    """Format candidate list lines for the LLM prompt.
+
+    When ``embedding_scores`` is provided, every line gains an
+    ``embedding_score=0.42`` field for the candidates that have a
+    stored embedding. Candidates without an embedding get
+    ``embedding_score=—`` so the LLM can tell "we have no visual
+    signal here" apart from "the visual signal was weak". Raw
+    vectors are never embedded into the prompt — only the scalar
+    similarities.
+    """
     lines: list[str] = []
     for c in candidates:
         node = c.node
         floor = node.properties.get("floor")
         floor_part = f", floor={floor}" if isinstance(floor, int) else ""
+        emb_part = ""
+        if embedding_scores is not None:
+            if c.node_id in embedding_scores:
+                emb_part = f", embedding_score={embedding_scores[c.node_id]:.3f}"
+            else:
+                emb_part = ", embedding_score=—"
         lines.append(
             f"- {c.node_id}: label={node.label!r}, type={node.type}"
-            f"{floor_part} (score={c.score:g})"
+            f"{floor_part} (score={c.score:g}{emb_part})"
         )
     return "\n".join(lines)
 
 
-def _build_prompt(query: str, candidates: list[GoalCandidate]) -> str:
+def _build_prompt(
+    query: str,
+    candidates: list[GoalCandidate],
+    embedding_scores: dict[str, float] | None = None,
+) -> str:
     lines = [
         f"User query: {query}",
         "",
         "Candidate nodes (you MUST pick one of these node ids):",
-        _format_candidate_block(candidates),
+        _format_candidate_block(candidates, embedding_scores=embedding_scores),
         "",
-        "Reply with exactly:",
-        "Top match: <node_id>",
-        "Reason: <one short sentence>",
     ]
+    if embedding_scores:
+        lines.extend(
+            [
+                "Each candidate shows a deterministic `score=` from text "
+                "matching plus an `embedding_score=` cosine similarity from "
+                "the visual encoder (when available). Use the embedding "
+                "score as additional signal, especially when the visual "
+                "content matches the query phrasing.",
+                "",
+            ]
+        )
+    lines.extend(
+        [
+            "Reply with exactly:",
+            "Top match: <node_id>",
+            "Reason: <one short sentence>",
+        ]
+    )
     return "\n".join(lines)
+
+
+def _compute_embedding_scores(
+    candidates: list[GoalCandidate],
+    query_encoder: EncoderBackend,
+    query_text: str,
+    *,
+    embedding_property: str = DEFAULT_EMBEDDING_PROPERTY,
+) -> dict[str, float]:
+    """Cosine similarity between the query embedding and each candidate.
+
+    Candidates whose node lacks an embedding under
+    ``embedding_property`` are skipped (the returned dict simply
+    doesn't include them). A dimension mismatch silently skips the
+    candidate too — the encoder identity isn't recorded on the
+    graph, so we can't verify it at runtime; the conservative
+    behavior is "no number is better than a wrong number".
+    """
+    query_vec = query_encoder.embed_text(query_text)
+    out: dict[str, float] = {}
+    for c in candidates:
+        stored = c.node.properties.get(embedding_property)
+        if not isinstance(stored, (list, tuple)):
+            continue
+        if len(stored) != len(query_vec):
+            continue
+        try:
+            out[c.node_id] = cosine_similarity(query_vec, list(stored))
+        except ValueError:
+            # Zero-vector candidate; treat as "no signal".
+            continue
+    return out
 
 
 def _parse_response(text: str) -> tuple[str | None, str | None]:
@@ -135,6 +219,8 @@ def llm_resolve_goal(
     top_k: int = 5,
     candidates: Iterable[TopologyNode] | None = None,
     system: str | None = None,
+    query_encoder: EncoderBackend | None = None,
+    embedding_property: str = DEFAULT_EMBEDDING_PROPERTY,
 ) -> LLMResolveResult:
     """Resolve a free-text goal, then ask an LLM to refine the ranking.
 
@@ -153,11 +239,25 @@ def llm_resolve_goal(
         :class:`~semantic_toponav.llm.LLMBackend` instance.
     system:
         Optional override for the system instruction.
+    query_encoder:
+        Optional :class:`~semantic_toponav.encoders.Backend` used to
+        embed ``text`` and compute cosine similarity against any
+        stored node embeddings under ``embedding_property``. When
+        provided, the LLM prompt gains per-candidate
+        ``embedding_score=`` fields and the returned result carries
+        ``embedding_scores``. Raw vectors are never sent to the LLM —
+        only the scalar scores, per the safety rule that the prompt
+        carries structured retrieval context, not opaque numerics.
+    embedding_property:
+        Node-property key the stored embeddings are stamped under.
+        Defaults to ``"embedding"`` (matches
+        :func:`semantic_toponav.query.find_nodes_by_embedding`).
 
     Returns
     -------
     LLMResolveResult
-        Final ranking + telemetry about the LLM pick.
+        Final ranking + telemetry about the LLM pick + any computed
+        embedding scores.
     """
     base = resolve_goal(graph, text, top_k=top_k, candidates=candidates)
     if not base:
@@ -167,7 +267,19 @@ def llm_resolve_goal(
             base_candidates=[],
         )
 
-    prompt = _build_prompt(text, base)
+    embedding_scores: dict[str, float] = {}
+    if query_encoder is not None:
+        embedding_scores = _compute_embedding_scores(
+            base,
+            query_encoder,
+            text,
+            embedding_property=embedding_property,
+        )
+
+    prompt = _build_prompt(
+        text, base,
+        embedding_scores=embedding_scores if embedding_scores else None,
+    )
     sys_msg = system if system is not None else _DEFAULT_SYSTEM
     raw = backend.generate(prompt, system=sys_msg)
 
@@ -182,6 +294,7 @@ def llm_resolve_goal(
             llm_reason=reason,
             raw_response=raw,
             used_fallback=True,
+            embedding_scores=embedding_scores,
         )
 
     reordered: list[GoalCandidate] = []
@@ -204,6 +317,7 @@ def llm_resolve_goal(
         llm_reason=reason,
         raw_response=raw,
         used_fallback=False,
+        embedding_scores=embedding_scores,
     )
 
 
