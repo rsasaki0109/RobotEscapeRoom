@@ -1,0 +1,59 @@
+"""Online multi-agent coordination on top of the reservation table.
+
+Where :mod:`semantic_toponav.planner.reservations` accepts a *static*
+:class:`ReservationTable` (read from disk, evaluated once at plan
+time), this subpackage adds the *online* layer: a shared, in-memory
+:class:`SharedScheduler` that hands out and revokes claims at runtime,
+a pluggable :class:`ConflictPolicy` (first-come-first-served by
+default; ``priority_based`` preempts lower-priority holds), and two
+convenience entry points:
+
+* :func:`plan_with_scheduler` — plan a single agent against the live
+  scheduler state, automatically retrying with the conflicting
+  resources blocked when the first attempt overlaps an existing claim.
+* :func:`plan_fleet` — run a list of ``(agent_id, start, goal)``
+  requests sequentially against one scheduler, accumulating each
+  agent's claims so the next agent sees them. Sequential greedy is
+  the simplest correct policy and gives the same answer as a single
+  batch reservation file when the order is fixed.
+
+The scheduler stays a thin in-memory object — no persistence, no
+network. Production users wire it into whatever messaging / RPC layer
+they prefer; this module just provides the contract.
+"""
+
+from semantic_toponav.coordination.fleet import (
+    FleetPlanResult,
+    FleetRequest,
+    PlanWithSchedulerResult,
+    plan_fleet,
+    plan_with_scheduler,
+)
+from semantic_toponav.coordination.policies import (
+    ClaimDecision,
+    ConflictPolicy,
+    first_come_first_served,
+    priority_based,
+)
+from semantic_toponav.coordination.scheduler import (
+    ClaimRequest,
+    ClaimResult,
+    SchedulerError,
+    SharedScheduler,
+)
+
+__all__ = [
+    "ClaimDecision",
+    "ClaimRequest",
+    "ClaimResult",
+    "ConflictPolicy",
+    "FleetPlanResult",
+    "FleetRequest",
+    "PlanWithSchedulerResult",
+    "SchedulerError",
+    "SharedScheduler",
+    "first_come_first_served",
+    "plan_fleet",
+    "plan_with_scheduler",
+    "priority_based",
+]

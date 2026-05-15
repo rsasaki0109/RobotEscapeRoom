@@ -7,6 +7,9 @@ import json
 import sys
 from collections.abc import Callable, Sequence
 
+from semantic_toponav.cli.coordination_cli import (
+    register_subcommands as register_coordination_subcommands,
+)
 from semantic_toponav.cli.editor import register_subcommands as register_editor_subcommands
 from semantic_toponav.cli.llm_cli import add_llm_args, build_llm_backend_from_args
 from semantic_toponav.cli.memory_cli import register_subcommands as register_memory_subcommands
@@ -560,6 +563,7 @@ def build_parser() -> argparse.ArgumentParser:
     register_memory_subcommands(sub)
     register_occupancy_subcommands(sub)
     register_vlm_subcommands(sub)
+    register_coordination_subcommands(sub)
 
     return parser
 
