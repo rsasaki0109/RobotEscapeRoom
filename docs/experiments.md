@@ -173,6 +173,21 @@ landed. Each links to the still-relevant follow-up work.
   semantics. Reachable from the CLI as `semantic-toponav fleet-plan
   GRAPH --agent ID:START:GOAL[:PRIORITY] ... --hold-start HH:MM
   --hold-end HH:MM [--policy fcfs|priority --rollback-on-failure]`.
+- Real-time scheduler RPC shim — `SchedulerProtocol` (a
+  Protocol matching `SharedScheduler`'s public surface),
+  `Transport` (single `send(dict) -> dict` method),
+  `SchedulerService` (server-side wrapper around one real
+  scheduler), `SchedulerClient` (drop-in proxy implementing
+  `SchedulerProtocol`), and `LocalTransport` (in-process reference
+  transport for tests / demos). Messages are plain JSON-safe dicts
+  using `HH:MM:SS` strings for times. Existing planner entry points
+  (`plan_with_scheduler`, `plan_fleet` with `greedy` / `priority` /
+  `deadline` strategies) accept the client unchanged; `joint` /
+  `bnb` strategies still need a local scheduler since they rely on
+  `SharedScheduler.clone()`. This PR ships *only* the contract +
+  in-process transport — production deployments plug in HTTP /
+  WebSocket / NATS / gRPC / their custom bus by implementing the
+  one-method `Transport` protocol.
 - Clarification dialog primitives for `llm_resolve_goal` —
   `ClarificationQuestion` / `ClarificationAnswer` /
   `AmbiguousGoalError` (frozen, JSON-friendly). The resolver detects
@@ -337,11 +352,14 @@ What's still open. Each is a candidate for an experiment branch.
   search that mutates an existing committed ordering rather than
   re-running from scratch; MILP / CP-SAT baselines for the densely
   contended end of the spectrum where ordering-space search
-  saturates; fairness-aware ordering with minimax wait time or
+  saturates; and fairness-aware ordering with minimax wait time or
   Jain's index *in the objective* (today it's only a reported
-  metric); and *real-time* re-coordination — a thin RPC /
-  message-bus shim so multiple planners can share one logical
-  scheduler, since today's scheduler is process-local.
+  metric). The real-time RPC shim now ships too
+  (`SchedulerProtocol` + `SchedulerClient` + `LocalTransport` —
+  see the "Shipped" entry); what's still open from that angle is
+  a *concrete* reference transport (HTTP server / WebSocket loop /
+  NATS adapter) living in this repo, since the current shim only
+  specifies the contract.
 
 ### Embodied AI
 
