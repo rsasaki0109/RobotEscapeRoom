@@ -28,6 +28,7 @@ from semantic_toponav.conversion.occupancy import (
     RegionInfo,
 )
 from semantic_toponav.encoders.backends import Backend, Vector
+from semantic_toponav.encoders.rgb_source import AlignedRgbSource
 from semantic_toponav.graph.topology_graph import TopologyGraph
 
 
@@ -52,6 +53,10 @@ class RegionEmbeddingResult:
     region_embeddings: dict[int, Vector] = field(default_factory=dict)
     node_ids: list[str] = field(default_factory=list)
     backend_dim: int = 0
+    source: str = "occupancy"
+    """Where the embedded patches came from on this run. ``"occupancy"``
+    (the default) means the bbox was cropped out of ``image``;
+    ``"rgb_source"`` means an :class:`AlignedRgbSource` was used."""
 
 
 def _resolve_bbox(
@@ -85,6 +90,7 @@ def embed_region_patches(
     region_id_property: str = "region_id",
     pad_cells: int = 0,
     include: Iterable[int] | None = None,
+    rgb_source: AlignedRgbSource | None = None,
 ) -> RegionEmbeddingResult:
     """Embed each region's image patch and stamp it onto its member nodes.
 
@@ -123,6 +129,18 @@ def embed_region_patches(
     include:
         Optional iterable of region ids to embed. ``None`` (default)
         embeds every region present in ``regions.regions``.
+    rgb_source:
+        Optional aligned-RGB source. When provided, patches are
+        cropped from ``rgb_source`` instead of the occupancy
+        ``image`` — i.e. the bbox computed from the occupancy frame
+        is reinterpreted in the RGB source's coordinate frame
+        (typically because the RGB source was already aligned to the
+        occupancy grid offline by a Mast3R-style pipeline, a
+        top-down camera, or an orthorectified capture). The
+        ``image`` argument is still required so the bbox can be
+        clipped against the canonical occupancy bounds, and so the
+        graph-stamping path stays unchanged. The source's
+        ``shape`` must match ``image.shape[:2]``.
 
     Returns
     -------
@@ -144,6 +162,13 @@ def embed_region_patches(
         )
     height, width = arr.shape[:2]
 
+    if rgb_source is not None and rgb_source.shape != (height, width):
+        raise ValueError(
+            f"rgb_source.shape {rgb_source.shape} does not match "
+            f"image shape {(height, width)} — sources must be aligned "
+            "in the same pixel frame"
+        )
+
     include_set: set[int] | None = set(include) if include is not None else None
 
     patches: list[Any] = []
@@ -154,11 +179,17 @@ def embed_region_patches(
         box = _resolve_bbox(info, height=height, width=width, pad_cells=pad_cells)
         if box is None:
             continue
-        rmin, cmin, rmax, cmax = box
-        patches.append(arr[rmin:rmax + 1, cmin:cmax + 1])
+        if rgb_source is not None:
+            patches.append(rgb_source.crop(box))
+        else:
+            rmin, cmin, rmax, cmax = box
+            patches.append(arr[rmin:rmax + 1, cmin:cmax + 1])
         kept_ids.append(rid)
 
-    result = RegionEmbeddingResult(backend_dim=int(backend.dim))
+    result = RegionEmbeddingResult(
+        backend_dim=int(backend.dim),
+        source="rgb_source" if rgb_source is not None else "occupancy",
+    )
     if not patches:
         return result
 

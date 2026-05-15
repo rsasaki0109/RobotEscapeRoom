@@ -99,6 +99,53 @@ semantic-toponav embed-regions graph.yaml map.yaml \
     --backend clip --image rendered.png --pad-cells 2 --in-place
 ```
 
+### Aligned-RGB plug point (Mast3R-style adapters)
+
+By default `embed_region_patches` crops a patch out of the same
+occupancy grid the topology graph was derived from — fine for tests,
+but a real VLM wants a *real-world* photograph of each region, not
+an outline of free space. The `AlignedRgbSource` protocol is the
+swap-in point:
+
+```python
+from semantic_toponav.encoders import AlignedRgbSource, StaticImageRgbSource
+
+# Reference implementation: a pre-aligned (H, W, 3) ndarray in the
+# same coordinate frame as the occupancy grid.
+src = StaticImageRgbSource(rgb_image)
+embed_region_patches(graph, occ.free_mask, regions, backend, rgb_source=src)
+```
+
+The protocol surface is tiny on purpose — `shape` plus `crop(bbox)`
+— so heavier sources (a Mast3R rerender server, an RGB-D fusion
+pipeline, a tiled drone capture) can live in a *separate* package
+without dragging torch into the readable-Python core:
+
+```python
+class Mast3RRgbSource:
+    """Sketch — lives in semantic-toponav-mast3r, not this repo."""
+
+    def __init__(self, model, occupancy_shape: tuple[int, int]) -> None:
+        self._model = model
+        self._shape = occupancy_shape
+
+    @property
+    def shape(self) -> tuple[int, int]:
+        return self._shape
+
+    def crop(self, bbox: tuple[int, int, int, int]):
+        # Render an aligned RGB patch from the Mast3R reconstruction
+        # at the bbox the occupancy region occupies, return ndarray /
+        # PIL / bytes — anything Backend.embed_image accepts.
+        ...
+```
+
+`embed_region_patches` enforces `rgb_source.shape == image.shape[:2]`
+so a misaligned source fails loudly at call time rather than
+silently producing useless embeddings. The result's `source` field
+records whether the run consumed `"occupancy"` or `"rgb_source"`
+patches.
+
 ## LLM-augmented describe-path / resolve
 
 The deterministic `describe_path` / `resolve_goal` always run first;

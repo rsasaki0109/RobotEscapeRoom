@@ -361,6 +361,21 @@ landed. Each links to the still-relevant follow-up work.
 See `docs/decisions.md` D-10 for the original "non-goals" list with
 shipped / deferred markers.
 
+- Aligned-RGB plug point for `embed_region_patches`
+  (`semantic_toponav.encoders.AlignedRgbSource` protocol +
+  `StaticImageRgbSource` reference implementation). Lets the
+  embedding pipeline pull patches from a real-world RGB image in the
+  occupancy-grid coordinate frame instead of cropping the binary
+  occupancy itself — so a Mast3R-style adapter, a top-down camera,
+  or an orthorectified drone capture can feed CLIPBackend / a custom
+  VLM without changing the encoder layer. The protocol surface is
+  intentionally minimal (`shape` + `crop(bbox)`) so adapter packages
+  (`semantic-toponav-mast3r` etc.) only need to implement those two
+  members and stay torch-free in this repo. `embed_region_patches`
+  enforces `rgb_source.shape == image.shape[:2]` so misalignment
+  fails loudly, and `RegionEmbeddingResult.source` records whether
+  patches came from `"occupancy"` or `"rgb_source"`.
+
 ## Future directions
 
 What's still open. Each is a candidate for an experiment branch.
