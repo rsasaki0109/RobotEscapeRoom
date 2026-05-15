@@ -402,6 +402,38 @@ semantic-toponav fleet-plan examples/indoor_office.yaml \
     --strategy deadline
 ```
 
+#### Hard deadline admission control
+
+`FleetRequest.deadline` started life as a sort key for the
+`deadline` strategy. It now also functions as a *hard* constraint
+when `admission="hard"` is passed to `plan_with_scheduler`,
+`plan_fleet`, `plan_fleet_with_strategy`, or `plan_fleet_joint` (or
+`--admission hard` on the CLI). A request whose projected arrival
+time (`hold_start + path_cost × minutes_per_cost_unit`) exceeds its
+deadline is rejected up-front with `reason_code="deadline_miss"`
+and *zero* claims on the scheduler:
+
+```python
+result = plan_with_scheduler(
+    graph, "robot42", "lobby", "office_2f", scheduler,
+    hold_start="10:00", hold_end="11:00",
+    deadline="10:05",
+    admission="hard",
+    minutes_per_cost_unit=1.0,
+)
+# result.granted == False, result.reason_code == "deadline_miss"
+# scheduler.claims_for("robot42") == []
+```
+
+`PlanWithSchedulerResult.reason_code` is `"ok" | "no_path" |
+"deadline_miss" | "reservation_conflict" | "policy_rejected"` —
+use it for switch / dispatch rather than parsing `failure_reason`.
+The default `admission="soft"` preserves pre-PR-37 behavior so
+existing call sites are unaffected. The synthetic eval suite
+reports `deadline_miss_count` per `(scenario, strategy)` trial,
+which is how you tell whether the `deadline` strategy is actually
+saving more grants than `greedy` under tight deadlines.
+
 ### Synthetic evaluation suite
 
 Functional tests prove the planner *runs*; the synthetic eval suite

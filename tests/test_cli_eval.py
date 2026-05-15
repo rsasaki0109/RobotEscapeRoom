@@ -121,6 +121,69 @@ def test_eval_synthetic_unknown_scenario_errors(capsys) -> None:
     assert rc == 0
 
 
+def test_eval_synthetic_hard_admission_emits_deadline_misses(
+    tmp_path: Path, capsys
+) -> None:
+    """With --admission hard and a tight deadline_tightness, the resulting
+    JSONL must carry non-zero deadline_miss_count for at least some
+    strategies."""
+    out_path = tmp_path / "hard.jsonl"
+    rc = main(
+        [
+            "eval-synthetic",
+            "--scenario", "chain",
+            "--n-agents", "4",
+            "--seed", "0",
+            "--hold-start", "10:00",
+            "--hold-end", "11:00",
+            "--deadline-tightness", "1.0",
+            "--admission", "hard",
+            "--minutes-per-cost-unit", "5.0",
+            "--out", str(out_path),
+        ]
+    )
+    assert rc == 0
+    assert out_path.exists()
+    import json
+    lines = [
+        json.loads(ln)
+        for ln in out_path.read_text(encoding="utf-8").splitlines()
+        if ln.strip()
+    ]
+    # At least one strategy hit a deadline_miss; the table column is
+    # also present in the printed markdown.
+    assert any(row["metrics"]["deadline_miss_count"] > 0 for row in lines)
+    captured = capsys.readouterr().out
+    assert "deadline_misses" in captured
+
+
+def test_eval_synthetic_soft_admission_zero_deadline_misses(
+    tmp_path: Path, capsys
+) -> None:
+    out_path = tmp_path / "soft.jsonl"
+    main(
+        [
+            "eval-synthetic",
+            "--scenario", "chain",
+            "--n-agents", "4",
+            "--seed", "0",
+            "--hold-start", "10:00",
+            "--hold-end", "11:00",
+            "--deadline-tightness", "1.0",
+            "--admission", "soft",
+            "--out", str(out_path),
+        ]
+    )
+    import json
+    lines = [
+        json.loads(ln)
+        for ln in out_path.read_text(encoding="utf-8").splitlines()
+        if ln.strip()
+    ]
+    # Soft admission never produces deadline_miss reason codes.
+    assert all(row["metrics"]["deadline_miss_count"] == 0 for row in lines)
+
+
 def test_eval_synthetic_deadline_tightness_affects_deadline_field(tmp_path: Path) -> None:
     out_path = tmp_path / "tight.jsonl"
     main(

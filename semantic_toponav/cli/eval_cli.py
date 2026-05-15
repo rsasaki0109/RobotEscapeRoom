@@ -119,7 +119,15 @@ def cmd_eval_synthetic(args: argparse.Namespace) -> int:
         args.priority_distribution,
     )
 
-    trials = run_sweep(scenarios, strategies) if strategies else run_sweep(scenarios)
+    kwargs = {
+        "admission": args.admission,
+        "minutes_per_cost_unit": args.minutes_per_cost_unit,
+    }
+    trials = (
+        run_sweep(scenarios, strategies, **kwargs)
+        if strategies
+        else run_sweep(scenarios, **kwargs)
+    )
 
     if args.out:
         n = trials_to_jsonl(trials, args.out)
@@ -208,6 +216,23 @@ def register_subcommands(sub: argparse._SubParsersAction) -> None:
         help=(
             "strategy to test (repeatable; default: all four)"
         ),
+    )
+    p.add_argument(
+        "--admission",
+        choices=["soft", "hard"],
+        default="soft",
+        help=(
+            "deadline admission control (default: soft). 'hard' refuses to "
+            "admit agents whose projected arrival would exceed their "
+            "deadline — those agents appear in the deadline_misses metric "
+            "column."
+        ),
+    )
+    p.add_argument(
+        "--minutes-per-cost-unit",
+        type=float,
+        default=1.0,
+        help="minutes of traversal per raw edge-cost unit (default: 1.0)",
     )
     p.add_argument(
         "--out", help="optional JSONL path to persist trials for eval-report"
