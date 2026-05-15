@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/rsasaki0109/semantic-toponav/schemas/plan_with_scheduler_result/v1.json",
+  "title": "PlanWithSchedulerResult",
+  "description": "Outcome of plan_with_scheduler for one agent. Stable as of v1 — the explainability backbone of the fleet scheduler (Nav2 / Autoware bridges, dashboards, and adapters all dispatch on `reason_code`).",
+  "type": "object",
+  "required": [
+    "agent_id",
+    "path",
+    "claims",
+    "granted",
+    "failure_reason",
+    "conflicts",
+    "reason_code"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "agent_id": {
+      "type": "string",
+      "description": "Caller-supplied agent identifier."
+    },
+    "path": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Node ids the planner returned for this agent. Empty when the request was denied before a path was found."
+    },
+    "claims": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Reservation" },
+      "description": "Reservations the scheduler committed when granting this request. Empty when denied."
+    },
+    "granted": {
+      "type": "boolean",
+      "description": "True iff the request was both planned and admitted."
+    },
+    "failure_reason": {
+      "description": "Human-readable detail. Null when granted.",
+      "oneOf": [{ "type": "string" }, { "type": "null" }]
+    },
+    "conflicts": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Reservation" },
+      "description": "Pre-existing reservations that blocked the request. Populated on reason_code == 'reservation_conflict'."
+    },
+    "reason_code": {
+      "type": "string",
+      "enum": [
+        "ok",
+        "no_path",
+        "deadline_miss",
+        "reservation_conflict",
+        "policy_rejected"
+      ],
+      "description": "Structured outcome code for switch / dispatch logic. Closed set under v1 — new codes require a new schema version."
+    }
+  },
+  "$defs": {
+    "Reservation": {
+      "type": "object",
+      "required": ["resource_id", "start", "end", "agent_id"],
+      "additionalProperties": false,
+      "properties": {
+        "resource_id": { "type": "string" },
+        "start": {
+          "type": "string",
+          "pattern": "^[0-9]{2}:[0-9]{2}:[0-9]{2}$",
+          "description": "ISO time HH:MM:SS."
+        },
+        "end": {
+          "type": "string",
+          "pattern": "^[0-9]{2}:[0-9]{2}:[0-9]{2}$",
+          "description": "ISO time HH:MM:SS. end <= start wraps midnight."
+        },
+        "agent_id": {
+          "oneOf": [{ "type": "string" }, { "type": "null" }]
+        }
+      }
+    }
+  }
+}

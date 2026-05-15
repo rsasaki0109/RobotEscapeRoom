@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/rsasaki0109/semantic-toponav/schemas/resolve_trace/v1.json",
+  "title": "ResolveTrace",
+  "description": "Wire format for LLMResolveResult.to_dict — language-grounding evaluation and UI display consume this shape. Stable as of v1.",
+  "type": "object",
+  "required": [
+    "query",
+    "candidates",
+    "base_candidates",
+    "llm_pick",
+    "llm_reason",
+    "raw_response",
+    "used_fallback",
+    "embedding_scores",
+    "clarification"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "query": {
+      "type": "string",
+      "description": "The effective query handed to the resolver (may include any free_text clarification appended by the caller)."
+    },
+    "candidates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/GoalCandidate" },
+      "description": "Final ranking — either the LLM-rewritten order or the deterministic order when the LLM was rejected / unparseable."
+    },
+    "base_candidates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/GoalCandidate" },
+      "description": "The deterministic resolver's ranking, preserved so callers can diff against the LLM rewrite."
+    },
+    "llm_pick": {
+      "description": "Node id the LLM nominated, when parseable. Null when the reply was unparseable or out-of-pool.",
+      "oneOf": [{ "type": "string" }, { "type": "null" }]
+    },
+    "llm_reason": {
+      "description": "One-line justification the LLM supplied, when parseable. Null otherwise.",
+      "oneOf": [{ "type": "string" }, { "type": "null" }]
+    },
+    "raw_response": {
+      "type": "string",
+      "description": "Unmodified backend output, for logging."
+    },
+    "used_fallback": {
+      "type": "boolean",
+      "description": "True iff the LLM pick was rejected (unparseable or out-of-pool) and the deterministic ranking was kept."
+    },
+    "embedding_scores": {
+      "type": "object",
+      "additionalProperties": { "type": "number" },
+      "description": "Per-candidate cosine similarity scores when a query_encoder was supplied. Empty otherwise. Scalars only — raw vectors are never serialized."
+    },
+    "clarification": {
+      "description": "Populated when ambiguity was detected. Null otherwise.",
+      "oneOf": [
+        { "$ref": "#/$defs/ClarificationQuestion" },
+        { "type": "null" }
+      ]
+    }
+  },
+  "$defs": {
+    "GoalCandidate": {
+      "type": "object",
+      "required": ["node_id", "score", "reasons"],
+      "additionalProperties": false,
+      "properties": {
+        "node_id": { "type": "string" },
+        "score": { "type": "number" },
+        "reasons": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "ClarificationQuestion": {
+      "type": "object",
+      "required": ["question", "candidates"],
+      "additionalProperties": false,
+      "properties": {
+        "question": { "type": "string" },
+        "candidates": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/GoalCandidate" }
+        }
+      }
+    }
+  }
+}

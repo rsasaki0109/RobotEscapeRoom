@@ -101,6 +101,16 @@ class ConflictExplanation:
     blocking_resources: tuple[str, ...]
     detail: str = ""
 
+    def to_dict(self) -> dict[str, object]:
+        """JSON-serializable form. v1-stable — see ``schemas/conflict_explanation_v1.schema.json``."""
+        return {
+            "blocked_agent_id": self.blocked_agent_id,
+            "reason_code": self.reason_code,
+            "blocking_agents": list(self.blocking_agents),
+            "blocking_resources": list(self.blocking_resources),
+            "detail": self.detail,
+        }
+
 
 @dataclass
 class BnBStats:
