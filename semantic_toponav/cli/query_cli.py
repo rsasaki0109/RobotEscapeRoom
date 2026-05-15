@@ -8,11 +8,13 @@ import sys
 from typing import Any
 
 from semantic_toponav.cli.editor import _parse_props
+from semantic_toponav.cli.llm_cli import add_llm_args, build_llm_backend_from_args
 from semantic_toponav.graph.serialization import GraphLoadError, load_graph
 from semantic_toponav.graph.types import GraphValidationError, TopologyNode
 from semantic_toponav.query import (
     NoMatchError,
     find_nodes,
+    llm_resolve_goal,
     nearest_node_by_graph_distance,
     nearest_node_by_pose,
     resolve_goal,
@@ -139,10 +141,26 @@ def cmd_resolve(args: argparse.Namespace) -> int:
         return 2
 
     text = " ".join(args.text) if isinstance(args.text, list) else args.text
-    candidates = resolve_goal(graph, text, top_k=args.top_k)
+
+    try:
+        backend = build_llm_backend_from_args(args)
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    llm_result = None
+    if backend is None:
+        candidates = resolve_goal(graph, text, top_k=args.top_k)
+    else:
+        try:
+            llm_result = llm_resolve_goal(graph, text, backend, top_k=args.top_k)
+        except ImportError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
+        candidates = llm_result.candidates
 
     if args.format == "json":
-        payload = {
+        payload: dict[str, object] = {
             "query": text,
             "candidates": [
                 {
@@ -154,6 +172,13 @@ def cmd_resolve(args: argparse.Namespace) -> int:
                 for c in candidates
             ],
         }
+        if llm_result is not None:
+            payload["llm"] = {
+                "pick": llm_result.llm_pick,
+                "reason": llm_result.llm_reason,
+                "used_fallback": llm_result.used_fallback,
+                "raw_response": llm_result.raw_response,
+            }
         print(json.dumps(payload, ensure_ascii=False, indent=2))
     else:
         if not candidates:
@@ -167,6 +192,12 @@ def cmd_resolve(args: argparse.Namespace) -> int:
                 )
                 for reason in c.reasons:
                     print(f"      - {reason}")
+            if llm_result is not None:
+                tag = "fallback" if llm_result.used_fallback else "applied"
+                print(
+                    f"LLM rerank: {tag} "
+                    f"(pick={llm_result.llm_pick!r})"
+                )
     return 0
 
 
@@ -239,4 +270,5 @@ def register_subcommands(sub: argparse._SubParsersAction) -> None:
         default="text",
         help="output format (default: text)",
     )
+    add_llm_args(p)
     p.set_defaults(func=cmd_resolve)
