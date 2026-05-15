@@ -10,6 +10,8 @@ from semantic_toponav.query.clarification import (
     AmbiguousGoalError,
     ClarificationAnswer,
     ClarificationQuestion,
+    DialogSession,
+    DialogTurn,
 )
 from semantic_toponav.query.embedding import (
     cosine_similarity,
@@ -29,6 +31,8 @@ __all__ = [
     "AmbiguousGoalError",
     "ClarificationAnswer",
     "ClarificationQuestion",
+    "DialogSession",
+    "DialogTurn",
     "GoalCandidate",
     "LLMResolveResult",
     "NoMatchError",
