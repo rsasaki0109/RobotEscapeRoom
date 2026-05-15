@@ -80,6 +80,7 @@ New to the library? Walk through the
 | **CLI reference** | All subcommands and flags | [cli.md](docs/cli.md) |
 | **Visualization** | matplotlib `plot`, interactive pyvis HTML viewer | see below |
 | **Schema** | YAML v1 graph format, waypoint JSON schema | [waypoint_schema.md](docs/waypoint_schema.md) |
+| **Protocol conformance** | Reusable suites under `semantic_toponav.testing.conformance` for `LLMBackend` / encoder `Backend` / `AlignedRgbSource` / `SchedulerProtocol` / `Transport` / `ConflictPolicy` | [conformance.md](docs/conformance.md) |
 | **ROS2 integration** | `graph_loader` / `waypoint_publisher` / `nav2_demo` nodes | [ros2/README.md](ros2/README.md) |
 
 ## Visualization
