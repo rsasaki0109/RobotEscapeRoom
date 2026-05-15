@@ -173,6 +173,23 @@ landed. Each links to the still-relevant follow-up work.
   semantics. Reachable from the CLI as `semantic-toponav fleet-plan
   GRAPH --agent ID:START:GOAL[:PRIORITY] ... --hold-start HH:MM
   --hold-end HH:MM [--policy fcfs|priority --rollback-on-failure]`.
+- Synthetic evaluation suite for coordination strategies —
+  `semantic_toponav.eval` subpackage with deterministic, seed-driven
+  graph generators (chain / star / doorway / multi-floor), fleet +
+  reservation generators, a `Scenario` / `TrialResult` runner that
+  rebuilds the scheduler per strategy so trials are independent, and
+  a JSONL-roundtrip + pivoted markdown report. Metrics: grant rate,
+  total path cost, coordination makespan, mean/max wait,
+  Jain's fairness, conflict count, and per-strategy latency
+  (p50 / mean / max). Reachable from the CLI as
+  `semantic-toponav eval-synthetic [--scenario chain|star|doorway|
+  multi_floor|all --n-agents N --strategy greedy|priority|deadline|
+  joint --deadline-tightness 0..1 --priority-distribution
+  uniform|mixed|high --out FILE.jsonl --summary]` and
+  `semantic-toponav eval-report FILE.jsonl [--summary]`. Designed as
+  the evaluation substrate for follow-up coordination work
+  (hard-deadline admission control, branch-and-bound joint
+  scheduler, fairness-aware ordering, etc.).
 - Joint fleet optimization beyond sequential greedy —
   `plan_fleet_joint` clones the scheduler (new
   `SharedScheduler.clone`), tries every permutation when
