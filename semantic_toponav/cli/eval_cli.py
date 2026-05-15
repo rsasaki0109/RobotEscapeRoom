@@ -122,6 +122,7 @@ def cmd_eval_synthetic(args: argparse.Namespace) -> int:
     kwargs = {
         "admission": args.admission,
         "minutes_per_cost_unit": args.minutes_per_cost_unit,
+        "bnb_objective": args.bnb_objective,
     }
     trials = (
         run_sweep(scenarios, strategies, **kwargs)
@@ -235,6 +236,17 @@ def register_subcommands(sub: argparse._SubParsersAction) -> None:
         type=float,
         default=1.0,
         help="minutes of traversal per raw edge-cost unit (default: 1.0)",
+    )
+    p.add_argument(
+        "--bnb-objective",
+        choices=["min_cost", "minimax_cost", "max_fairness"],
+        default="min_cost",
+        help=(
+            "objective for the bnb strategy (default: min_cost). "
+            "minimax_cost minimizes the worst-off agent's path cost; "
+            "max_fairness maximizes Jain's index over per-agent costs. "
+            "Ignored for non-bnb strategies."
+        ),
     )
     p.add_argument(
         "--out", help="optional JSONL path to persist trials for eval-report"

@@ -106,14 +106,16 @@ def run_scenario(
     algorithm: Literal["astar", "dijkstra"] = "astar",
     admission: Literal["soft", "hard"] = "soft",
     minutes_per_cost_unit: float = 1.0,
+    bnb_objective: Literal["min_cost", "minimax_cost", "max_fairness"] = "min_cost",
 ) -> list[TrialResult]:
     """Run each strategy once against ``scenario`` on a fresh scheduler.
 
     The scheduler is rebuilt per strategy so the trials are
     independent — strategy A's grants never leak into strategy B's
-    starting state. ``algorithm``, ``admission``, and
-    ``minutes_per_cost_unit`` are forwarded to
-    :func:`plan_fleet_with_strategy`.
+    starting state. ``algorithm``, ``admission``,
+    ``minutes_per_cost_unit``, and ``bnb_objective`` are forwarded to
+    :func:`plan_fleet_with_strategy`. ``bnb_objective`` only affects
+    the ``"bnb"`` strategy; other strategies ignore it.
     """
     out: list[TrialResult] = []
     for strategy in strategies:
@@ -129,6 +131,7 @@ def run_scenario(
             algorithm=algorithm,
             admission=admission,
             minutes_per_cost_unit=minutes_per_cost_unit,
+            bnb_objective=bnb_objective,
         )
         latency_ms = (_time_mod.perf_counter() - t0) * 1000.0
         metrics = compute_metrics(scenario.graph, fleet_result, latency_ms=latency_ms)
@@ -151,6 +154,7 @@ def run_sweep(
     algorithm: Literal["astar", "dijkstra"] = "astar",
     admission: Literal["soft", "hard"] = "soft",
     minutes_per_cost_unit: float = 1.0,
+    bnb_objective: Literal["min_cost", "minimax_cost", "max_fairness"] = "min_cost",
 ) -> list[TrialResult]:
     """Run :func:`run_scenario` on every scenario in order.
 
@@ -168,6 +172,7 @@ def run_sweep(
                 algorithm=algorithm,
                 admission=admission,
                 minutes_per_cost_unit=minutes_per_cost_unit,
+                bnb_objective=bnb_objective,
             )
         )
     return results
