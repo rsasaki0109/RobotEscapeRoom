@@ -239,6 +239,154 @@ def test_non_numeric_edge_pref_value_raises() -> None:
         cost(g.get_edge("ac"))
 
 
+def _diamond_with_node_preferences() -> TopologyGraph:
+    """a -- b -- d (cost 1+1); a -- c -- d (cost 5+5). Node c is "scenic".
+
+    No edge carries a preferences property — only the c node does.
+    """
+    g = TopologyGraph()
+    for nid in "abd":
+        g.add_node(TopologyNode(id=nid, label=nid.upper(), type="room", pose=Pose2D(0, 0)))
+    g.add_node(
+        TopologyNode(
+            id="c",
+            label="C",
+            type="room",
+            pose=Pose2D(0, 0),
+            properties={"preferences": {"scenic": 1.0}},
+        )
+    )
+    g.add_edge(TopologyEdge(id="ab", source="a", target="b", type="traversable", cost=1.0))
+    g.add_edge(TopologyEdge(id="bd", source="b", target="d", type="traversable", cost=1.0))
+    g.add_edge(TopologyEdge(id="ac", source="a", target="c", type="traversable", cost=5.0))
+    g.add_edge(TopologyEdge(id="cd", source="c", target="d", type="traversable", cost=5.0))
+    return g
+
+
+def test_node_default_applies_to_incident_edges() -> None:
+    g = _diamond_with_node_preferences()
+    # Edge ac touches c (scenic=1.0); a has no pref -> skipped from avg.
+    # avg over [1.0] = 1.0; score = 1.0; raw mult = 0.0 -> clamped to 0.1
+    # -> cost 5.0 * 0.1 = 0.5
+    cost = preference_aware(g, preferences={"scenic": 1.0})
+    assert cost(g.get_edge("ac")) == pytest.approx(0.5, abs=1e-9)
+    assert cost(g.get_edge("cd")) == pytest.approx(0.5, abs=1e-9)
+    # ab/bd touch no scenic node -> unchanged.
+    assert cost(g.get_edge("ab")) == 1.0
+    assert cost(g.get_edge("bd")) == 1.0
+
+
+def test_node_default_with_explicit_zero_neighbor_dilutes() -> None:
+    """Explicit scenic=0.0 on the neighbor counts toward the average."""
+    g = _diamond_with_node_preferences()
+    g.get_node("a").properties["preferences"] = {"scenic": 0.0}
+    # avg(1.0 from c, 0.0 from a) = 0.5; score = 0.5; mult = 0.5 -> cost 2.5
+    cost = preference_aware(g, preferences={"scenic": 1.0})
+    assert cost(g.get_edge("ac")) == pytest.approx(2.5, abs=1e-9)
+
+
+def test_node_default_averages_both_endpoints() -> None:
+    g = TopologyGraph()
+    g.add_node(
+        TopologyNode(
+            id="a", label="A", type="room", pose=Pose2D(0, 0),
+            properties={"preferences": {"scenic": 1.0}},
+        )
+    )
+    g.add_node(
+        TopologyNode(
+            id="b", label="B", type="room", pose=Pose2D(0, 0),
+            properties={"preferences": {"scenic": 0.4}},
+        )
+    )
+    g.add_edge(TopologyEdge(id="e", source="a", target="b", type="traversable", cost=10.0))
+    cost = preference_aware(g, preferences={"scenic": 1.0})
+    # average = (1.0 + 0.4) / 2 = 0.7 -> multiplier 0.3 -> cost 3.0
+    assert cost(g.get_edge("e")) == pytest.approx(3.0, abs=1e-9)
+
+
+def test_edge_preferences_override_node_defaults_per_key() -> None:
+    g = _diamond_with_node_preferences()
+    # Override on the ac edge: scenic explicitly 0.0 — node default ignored.
+    g.get_edge("ac").properties["preferences"] = {"scenic": 0.0}
+    cost = preference_aware(g, preferences={"scenic": 1.0})
+    assert cost(g.get_edge("ac")) == 5.0  # unchanged
+    # cd still inherits scenic=1.0 from c -> clamped to 0.1 multiplier.
+    assert cost(g.get_edge("cd")) == pytest.approx(0.5, abs=1e-9)
+
+
+def test_edge_and_node_defaults_are_per_key_independent() -> None:
+    """Edge can specify one key while another falls back to node default."""
+    g = TopologyGraph()
+    g.add_node(
+        TopologyNode(
+            id="a", label="A", type="room", pose=Pose2D(0, 0),
+            properties={"preferences": {"crowded": 1.0}},
+        )
+    )
+    g.add_node(TopologyNode(id="b", label="B", type="room", pose=Pose2D(0, 0)))
+    g.add_edge(
+        TopologyEdge(
+            id="e", source="a", target="b", type="traversable", cost=10.0,
+            properties={"preferences": {"scenic": 1.0}},  # crowded not set
+        )
+    )
+    cost = preference_aware(g, preferences={"scenic": 1.0, "crowded": -1.0})
+    # scenic: edge 1.0 (edge wins); crowded: avg over [a's 1.0] = 1.0
+    # score = 1.0 * 1.0 + (-1.0) * 1.0 = 0.0 -> multiplier 1.0 -> cost 10.0
+    assert cost(g.get_edge("e")) == pytest.approx(10.0, abs=1e-9)
+
+
+def test_use_node_defaults_false_ignores_node_preferences() -> None:
+    g = _diamond_with_node_preferences()
+    cost = preference_aware(g, preferences={"scenic": 1.0}, use_node_defaults=False)
+    # ac/cd have no edge prefs -> contribute 0, no discount.
+    assert cost(g.get_edge("ac")) == 5.0
+    assert cost(g.get_edge("cd")) == 5.0
+
+
+def test_node_defaults_flip_route_under_strong_pref() -> None:
+    g = _diamond_with_node_preferences()
+    # node default for ac/cd is scenic=1.0 (only c has the key) -> raw
+    # multiplier 0.0 -> clamped to floor 0.1 -> ac/cd cost 0.5 each ->
+    # total 1.0 < 2.0 (ab-bd). Route flips to the scenic side.
+    cost = preference_aware(g, preferences={"scenic": 1.0})
+    path = plan_astar(g, "a", "d", cost_fn=cost)
+    assert path == ["a", "c", "d"]
+
+
+def test_malformed_node_preferences_raises_at_construction() -> None:
+    g = _diamond_with_node_preferences()
+    g.get_node("c").properties["preferences"] = "not-a-dict"
+    with pytest.raises(ValueError, match="must be a mapping"):
+        preference_aware(g, preferences={"scenic": 1.0})
+
+
+def test_non_numeric_node_preference_value_raises() -> None:
+    g = _diamond_with_node_preferences()
+    g.get_node("c").properties["preferences"] = {"scenic": "very"}
+    with pytest.raises(ValueError, match="must be numeric"):
+        preference_aware(g, preferences={"scenic": 1.0})
+
+
+def test_node_default_with_custom_property_key() -> None:
+    g = TopologyGraph()
+    g.add_node(
+        TopologyNode(
+            id="a", label="A", type="room", pose=Pose2D(0, 0),
+            properties={"user_tags": {"liked": 1.0}},
+        )
+    )
+    g.add_node(TopologyNode(id="b", label="B", type="room", pose=Pose2D(0, 0)))
+    g.add_edge(TopologyEdge(id="e", source="a", target="b", type="traversable", cost=4.0))
+    cost = preference_aware(
+        g, preferences={"liked": 1.0}, preference_property="user_tags"
+    )
+    # Only a carries the key -> avg over [1.0] = 1.0; score 1.0;
+    # raw mult 0.0 -> clamped to 0.1 -> cost 4.0 * 0.1 = 0.4
+    assert cost(g.get_edge("e")) == pytest.approx(0.4, abs=1e-9)
+
+
 def test_cli_prefer_flips_route_to_scenic(tmp_path, capsys) -> None:
     yaml = tmp_path / "g.yaml"
     yaml.write_text(
