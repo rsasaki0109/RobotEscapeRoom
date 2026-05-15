@@ -143,6 +143,77 @@ def test_fleet_plan_malformed_agent_spec_errors(capsys) -> None:
     assert "AGENT_ID:START:GOAL" in err
 
 
+def test_fleet_plan_hard_admission_rejects_tight_deadline(capsys) -> None:
+    rc = main(
+        [
+            "fleet-plan",
+            EXAMPLE_YAML,
+            # entrance -> office_2f crosses several edges (>5 cost units),
+            # well over a 10:02 deadline.
+            "--agent",
+            "r1:entrance:office_2f:0:10:02",
+            "--hold-start",
+            "10:00",
+            "--hold-end",
+            "11:00",
+            "--admission",
+            "hard",
+            "--format",
+            "json",
+        ]
+    )
+    out = capsys.readouterr().out
+    payload = json.loads(out)
+    assert rc == 1
+    assert payload["agents"][0]["reason_code"] == "deadline_miss"
+    assert payload["agents"][0]["granted"] is False
+
+
+def test_fleet_plan_soft_admission_grants_same_request(capsys) -> None:
+    main(
+        [
+            "fleet-plan",
+            EXAMPLE_YAML,
+            "--agent",
+            "r1:entrance:office_2f:0:10:02",
+            "--hold-start",
+            "10:00",
+            "--hold-end",
+            "11:00",
+            "--admission",
+            "soft",
+            "--format",
+            "json",
+        ]
+    )
+    out = capsys.readouterr().out
+    payload = json.loads(out)
+    # Same request, soft admission -> granted, even though arrival is
+    # well past the (informational) deadline.
+    assert payload["agents"][0]["granted"] is True
+    assert payload["agents"][0]["reason_code"] == "ok"
+
+
+def test_fleet_plan_reason_code_appears_on_grant(capsys) -> None:
+    main(
+        [
+            "fleet-plan",
+            EXAMPLE_YAML,
+            "--agent",
+            "r1:entrance:kitchen",
+            "--hold-start",
+            "10:00",
+            "--hold-end",
+            "11:00",
+            "--format",
+            "json",
+        ]
+    )
+    out = capsys.readouterr().out
+    payload = json.loads(out)
+    assert payload["agents"][0]["reason_code"] == "ok"
+
+
 def test_fleet_plan_agent_spec_accepts_priority_and_deadline(capsys) -> None:
     rc = main(
         [

@@ -104,12 +104,15 @@ def run_scenario(
     strategies: Sequence[Strategy] = DEFAULT_STRATEGIES,
     *,
     algorithm: Literal["astar", "dijkstra"] = "astar",
+    admission: Literal["soft", "hard"] = "soft",
+    minutes_per_cost_unit: float = 1.0,
 ) -> list[TrialResult]:
     """Run each strategy once against ``scenario`` on a fresh scheduler.
 
     The scheduler is rebuilt per strategy so the trials are
     independent — strategy A's grants never leak into strategy B's
-    starting state. ``algorithm`` is forwarded to
+    starting state. ``algorithm``, ``admission``, and
+    ``minutes_per_cost_unit`` are forwarded to
     :func:`plan_fleet_with_strategy`.
     """
     out: list[TrialResult] = []
@@ -124,6 +127,8 @@ def run_scenario(
             hold_start=scenario.hold_start,
             hold_end=scenario.hold_end,
             algorithm=algorithm,
+            admission=admission,
+            minutes_per_cost_unit=minutes_per_cost_unit,
         )
         latency_ms = (_time_mod.perf_counter() - t0) * 1000.0
         metrics = compute_metrics(scenario.graph, fleet_result, latency_ms=latency_ms)
@@ -144,6 +149,8 @@ def run_sweep(
     strategies: Sequence[Strategy] = DEFAULT_STRATEGIES,
     *,
     algorithm: Literal["astar", "dijkstra"] = "astar",
+    admission: Literal["soft", "hard"] = "soft",
+    minutes_per_cost_unit: float = 1.0,
 ) -> list[TrialResult]:
     """Run :func:`run_scenario` on every scenario in order.
 
@@ -154,5 +161,13 @@ def run_sweep(
     """
     results: list[TrialResult] = []
     for scenario in scenarios:
-        results.extend(run_scenario(scenario, strategies, algorithm=algorithm))
+        results.extend(
+            run_scenario(
+                scenario,
+                strategies,
+                algorithm=algorithm,
+                admission=admission,
+                minutes_per_cost_unit=minutes_per_cost_unit,
+            )
+        )
     return results

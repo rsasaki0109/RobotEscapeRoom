@@ -77,9 +77,45 @@ class FleetRequest:
     deadline: time | str | None = None
 
 
+ReasonCode = Literal[
+    "ok",
+    "no_path",
+    "deadline_miss",
+    "reservation_conflict",
+    "policy_rejected",
+]
+
+
 @dataclass
 class PlanWithSchedulerResult:
-    """Outcome of :func:`plan_with_scheduler` for one agent."""
+    """Outcome of :func:`plan_with_scheduler` for one agent.
+
+    Attributes
+    ----------
+    granted:
+        Boolean shorthand. ``True`` iff the path was planned *and*
+        every resource on it was successfully claimed.
+    reason_code:
+        Structured outcome code. Always set:
+
+        * ``"ok"`` — granted.
+        * ``"no_path"`` — A* / Dijkstra reported no path.
+        * ``"deadline_miss"`` — admission was ``"hard"`` and the
+          projected arrival time would have exceeded the request's
+          deadline; the scheduler was *not* mutated.
+        * ``"reservation_conflict"`` — a path was found but the
+          atomic claim attempt was denied. Partial claims have already
+          been rolled back by :meth:`SharedScheduler.claim_many`.
+        * ``"policy_rejected"`` — reserved for future custom policies.
+
+        Use this for switch / dispatch logic; ``failure_reason`` is
+        the matching human-readable detail.
+    failure_reason:
+        Free-form string suitable for logging. ``None`` when granted.
+    conflicts:
+        Existing reservations that blocked the request, present on
+        ``reservation_conflict``.
+    """
 
     agent_id: str
     path: list[str] = field(default_factory=list)
@@ -87,6 +123,7 @@ class PlanWithSchedulerResult:
     granted: bool = False
     failure_reason: str | None = None
     conflicts: list[Reservation] = field(default_factory=list)
+    reason_code: ReasonCode = "ok"
 
 
 @dataclass
@@ -139,6 +176,24 @@ def _path_resources(
     return out
 
 
+def _path_cost_total(graph: TopologyGraph, path: list[str]) -> float:
+    """Sum the raw edge cost along ``path`` (no cost-fn composition)."""
+    if len(path) < 2:
+        return 0.0
+    total = 0.0
+    for a, b in zip(path[:-1], path[1:], strict=True):
+        for edge in graph.neighbors(a):
+            if graph.other_end(edge, a) == b:
+                total += float(edge.cost)
+                break
+    return total
+
+
+def _time_to_minute(t: time) -> int:
+    """``time(h, m, s)`` → minute-of-day. Seconds round down."""
+    return t.hour * 60 + t.minute
+
+
 def plan_with_scheduler(
     graph: TopologyGraph,
     agent_id: str,
@@ -154,6 +209,9 @@ def plan_with_scheduler(
     priority: int = 0,
     claim_nodes: bool = True,
     claim_edges: bool = True,
+    deadline: time | datetime | str | None = None,
+    admission: Literal["soft", "hard"] = "soft",
+    minutes_per_cost_unit: float = 1.0,
 ) -> PlanWithSchedulerResult:
     """Plan + claim atomically against the live scheduler.
 
@@ -186,17 +244,32 @@ def plan_with_scheduler(
         Disable to reserve only edges or only nodes. The default
         claims both, which matches the simple "an agent occupies the
         full path for the duration of the hold" semantics.
+    deadline:
+        Optional time-of-day after which the agent's arrival is
+        considered late. Only consulted when ``admission="hard"``.
+    admission:
+        ``"soft"`` (default) keeps the pre-PR-37 behavior: ``deadline``
+        is purely a sort hint for the deadline strategy and never
+        blocks a grant. ``"hard"`` enables admission control: if the
+        projected arrival time (``hold_start + path_cost ×
+        minutes_per_cost_unit``) exceeds ``deadline``, the request
+        is rejected with ``reason_code="deadline_miss"`` and no
+        resources are claimed.
+    minutes_per_cost_unit:
+        Conversion factor from raw edge-cost units to minutes of
+        traversal. The default ``1.0`` matches the example graphs
+        (cost ≈ minutes). Adjust when an edge's cost has a different
+        physical meaning (e.g. heuristic distance in metres).
 
     Returns
     -------
     PlanWithSchedulerResult
         On success, ``granted=True`` with ``path`` and ``claims``
-        populated. On failure, ``granted=False`` with
-        ``failure_reason`` and (when the failure was a claim conflict
-        rather than a planning failure) ``conflicts`` populated.
-        Partial claims are always rolled back by
-        :meth:`SharedScheduler.claim_many`, so a denied call leaves
-        the scheduler exactly as it was before.
+        populated and ``reason_code="ok"``. On failure,
+        ``granted=False`` with a structured ``reason_code`` and a
+        human-readable ``failure_reason``. Partial claims are always
+        rolled back by :meth:`SharedScheduler.claim_many`, so a
+        denied call leaves the scheduler exactly as it was before.
     """
     if at_time is None:
         at_time = hold_start
@@ -231,7 +304,31 @@ def plan_with_scheduler(
             agent_id=agent_id,
             granted=False,
             failure_reason=f"planning failed: {exc}",
+            reason_code="no_path",
         )
+
+    # Hard deadline admission: check projected arrival against the
+    # request's deadline *before* attempting to claim. Rejecting here
+    # means the scheduler is never mutated on a deadline miss, which
+    # is the property tests rely on.
+    if admission == "hard" and deadline is not None:
+        path_cost = _path_cost_total(graph, path)
+        hold_start_min = _time_to_minute(_as_time(hold_start))
+        arrival_min = hold_start_min + path_cost * minutes_per_cost_unit
+        deadline_min = _time_to_minute(_as_time(deadline))
+        if arrival_min > deadline_min:
+            return PlanWithSchedulerResult(
+                agent_id=agent_id,
+                path=path,
+                granted=False,
+                failure_reason=(
+                    f"deadline miss: arrival ≈ {arrival_min:.0f}min "
+                    f"> deadline {deadline_min}min "
+                    f"(path cost {path_cost:.2f}, "
+                    f"{minutes_per_cost_unit} min/unit)"
+                ),
+                reason_code="deadline_miss",
+            )
 
     resources = _path_resources(
         graph,
@@ -263,6 +360,7 @@ def plan_with_scheduler(
                 f"claim denied on {requests[len(results) - 1].resource_id!r}"
             ),
             conflicts=list(failed.conflicts),
+            reason_code="reservation_conflict",
         )
 
     claims = [r.reservation for r in results if r.reservation is not None]
@@ -271,6 +369,7 @@ def plan_with_scheduler(
         path=path,
         claims=claims,
         granted=True,
+        reason_code="ok",
     )
 
 
@@ -287,6 +386,8 @@ def plan_fleet(
     claim_nodes: bool = True,
     claim_edges: bool = True,
     rollback_on_failure: bool = False,
+    admission: Literal["soft", "hard"] = "soft",
+    minutes_per_cost_unit: float = 1.0,
 ) -> FleetPlanResult:
     """Plan a list of agents sequentially against one scheduler.
 
@@ -318,6 +419,9 @@ def plan_fleet(
             priority=req.priority,
             claim_nodes=claim_nodes,
             claim_edges=claim_edges,
+            deadline=req.deadline,
+            admission=admission,
+            minutes_per_cost_unit=minutes_per_cost_unit,
         )
         out_results.append(result)
         if result.granted:

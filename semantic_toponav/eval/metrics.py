@@ -82,6 +82,13 @@ class TrialMetrics:
     Fields are flat floats / ints so the JSONL row stays trivially
     serializable. The :meth:`to_dict` method emits the dict that gets
     written to disk; the corresponding :meth:`from_dict` reverses it.
+
+    ``deadline_miss_count`` is the number of agents whose result
+    carried ``reason_code == "deadline_miss"``. With ``admission="soft"``
+    it stays zero (deadline is only a sort hint). With
+    ``admission="hard"`` it counts the agents the planner refused to
+    admit because their projected arrival would exceed their
+    deadline.
     """
 
     granted_count: int
@@ -93,6 +100,7 @@ class TrialMetrics:
     jain_fairness: float
     conflict_count: int
     latency_ms: float
+    deadline_miss_count: int = 0
 
     def to_dict(self) -> dict[str, float | int]:
         return {
@@ -105,6 +113,7 @@ class TrialMetrics:
             "jain_fairness": self.jain_fairness,
             "conflict_count": self.conflict_count,
             "latency_ms": self.latency_ms,
+            "deadline_miss_count": self.deadline_miss_count,
         }
 
     @classmethod
@@ -119,6 +128,8 @@ class TrialMetrics:
             jain_fairness=float(d["jain_fairness"]),
             conflict_count=int(d["conflict_count"]),
             latency_ms=float(d["latency_ms"]),
+            # Default 0 for back-compat with JSONLs written pre-PR-37.
+            deadline_miss_count=int(d.get("deadline_miss_count", 0)),
         )
 
 
@@ -208,6 +219,9 @@ def compute_metrics(
     max_wait = max(waits) if waits else 0.0
     fairness = jain_fairness(waits) if waits else 1.0
     conflicts = sum(len(r.conflicts) for r in results)
+    deadline_misses = sum(
+        1 for r in results if getattr(r, "reason_code", "ok") == "deadline_miss"
+    )
     return TrialMetrics(
         granted_count=len(granted),
         grant_rate=grant_rate,
@@ -218,4 +232,5 @@ def compute_metrics(
         jain_fairness=fairness,
         conflict_count=conflicts,
         latency_ms=latency_ms,
+        deadline_miss_count=deadline_misses,
     )
