@@ -8,6 +8,8 @@ system=None) -> str`` method — so the suite is short. It verifies:
 * The optional ``system`` kwarg is accepted both as ``None`` and as a
   non-empty string.
 * Multiple calls succeed (i.e. the backend is reusable, not single-shot).
+* Failure-mode prompts (empty, large, non-ASCII) don't crash the
+  backend and still return ``str``.
 
 Determinism is intentionally *not* asserted: a real cloud backend like
 :class:`~semantic_toponav.llm.AnthropicBackend` is not deterministic,
@@ -56,4 +58,41 @@ def run_llm_backend_conformance(backend: LLMBackend) -> None:
     assert isinstance(second, str), (
         "backend stopped returning str on the second call — generate must "
         "remain callable repeatedly"
+    )
+
+    # ---- failure-mode prompts ----------------------------------------------
+    # An empty prompt is a valid string and must not crash the backend.
+    empty_out = backend.generate("")
+    assert isinstance(empty_out, str), (
+        f"generate('') returned {type(empty_out).__name__}, expected str — "
+        "backends must accept an empty prompt without crashing"
+    )
+
+    # Non-ASCII content (CJK + emoji + accented Latin) must round-trip
+    # cleanly. Encoder-level mishandling tends to manifest as bytes or
+    # decode errors here.
+    unicode_out = backend.generate(
+        "conformance: 日本語 と émoji 🤖 für тест"
+    )
+    assert isinstance(unicode_out, str), (
+        f"generate(unicode prompt) returned {type(unicode_out).__name__}, "
+        "expected str"
+    )
+
+    # A moderately large prompt (~8KB) — well within every real backend's
+    # context budget but big enough to surface naive size-1024 buffers.
+    long_prompt = "conformance probe line.\n" * 320
+    long_out = backend.generate(long_prompt)
+    assert isinstance(long_out, str), (
+        f"generate(8KB prompt) returned {type(long_out).__name__}, "
+        "expected str"
+    )
+
+    # After exercising the failure-mode prompts the backend must still be
+    # usable — guards against backends that latch into a broken state
+    # after an unexpected input.
+    post_recovery = backend.generate("conformance: recovery probe")
+    assert isinstance(post_recovery, str), (
+        "backend stopped returning str after a failure-mode prompt — "
+        "generate must remain callable indefinitely"
     )

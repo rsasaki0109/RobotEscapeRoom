@@ -114,3 +114,29 @@ def run_conflict_policy_conformance(
         "policy mutated the conflicts list in place — it must treat the "
         "argument as read-only"
     )
+
+    # ---- preempted has no duplicates --------------------------------------
+    # A policy that double-counts a conflict (e.g. concatenating lists by
+    # mistake) silently asks the scheduler to evict the same reservation
+    # twice. The scheduler tolerates it, but downstream agents see an
+    # exaggerated preemption count. Reject it at conformance time.
+    preempted_object_ids = [id(r) for r in decision.preempted]
+    assert len(preempted_object_ids) == len(set(preempted_object_ids)), (
+        f"decision.preempted contains duplicate entries: {decision.preempted!r}"
+    )
+
+    # ---- policy must not mutate the scheduler -----------------------------
+    # The policy receives the live scheduler for inspection only — the
+    # caller (SharedScheduler.claim) is the one that commits the decision.
+    # A policy that mutates the scheduler in place double-applies the
+    # effect once the caller writes the result back.
+    sched_before_len = len(sched)
+    sched_before_reservations = sched.reservations()
+    policy(sched, request, conflicts_list)
+    assert len(sched) == sched_before_len, (
+        f"policy mutated scheduler size: {sched_before_len} -> {len(sched)}"
+    )
+    assert sched.reservations() == sched_before_reservations, (
+        "policy mutated scheduler reservations — policies must be "
+        "side-effect-free with respect to the scheduler argument"
+    )
