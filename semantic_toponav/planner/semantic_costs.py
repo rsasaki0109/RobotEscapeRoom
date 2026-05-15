@@ -8,8 +8,8 @@ each function as a multiplier on the base cost.
 from __future__ import annotations
 
 import math
-from collections.abc import Callable, Iterable
-from datetime import datetime, time
+from collections.abc import Callable, Iterable, Mapping
+from datetime import date, datetime, time
 
 from semantic_toponav.graph.topology_graph import TopologyGraph
 from semantic_toponav.graph.types import TopologyEdge
@@ -20,6 +20,11 @@ BLOCKED = math.inf
 
 DEFAULT_FLOOR_PROPERTY = "floor"
 DEFAULT_CLOSED_DURING_PROPERTY = "closed_during"
+DEFAULT_CLOSED_ON_DATES_PROPERTY = "closed_on_dates"
+
+_WEEKDAY_NAMES: dict[str, int] = {
+    "mon": 0, "tue": 1, "wed": 2, "thu": 3, "fri": 4, "sat": 5, "sun": 6,
+}
 
 
 def default_edge_cost(edge: TopologyEdge) -> float:
@@ -182,32 +187,131 @@ def _as_time(value: time | datetime | str) -> time:
     )
 
 
-def _intervals_from_property(raw: object) -> list[tuple[time, time]]:
-    """Coerce a ``closed_during`` property into ``[(start, end), ...]``.
+def _as_date(value: date | datetime | str | None) -> date | None:
+    """Coerce ``at_date`` arguments to :class:`date` (or ``None``)."""
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    if isinstance(value, str):
+        try:
+            return date.fromisoformat(value)
+        except ValueError as exc:
+            raise ValueError(
+                f"at_date must be ISO 'YYYY-MM-DD'; got {value!r}"
+            ) from exc
+    raise TypeError(
+        f"at_date must be date, datetime, or 'YYYY-MM-DD' string; "
+        f"got {type(value).__name__}"
+    )
+
+
+def _parse_weekdays(raw: object) -> frozenset[int]:
+    """Parse a weekday filter list into a frozenset of ints (Mon=0..Sun=6).
+
+    Accepts ints in 0..6 or three-letter names (``"mon"``..``"sun"``,
+    case-insensitive). Booleans are rejected even though they are ``int``
+    subclasses, because ``True``/``False`` as a weekday is always a typo.
+    """
+    if not isinstance(raw, (list, tuple)) or not raw:
+        raise ValueError(
+            f"weekday filter must be a non-empty list of int 0..6 or "
+            f"three-letter names; got {raw!r}"
+        )
+    out: set[int] = set()
+    for entry in raw:
+        if isinstance(entry, bool):
+            raise ValueError(
+                f"weekday entry must be int 0..6 or name, not bool ({entry!r})"
+            )
+        if isinstance(entry, int):
+            if not 0 <= entry <= 6:
+                raise ValueError(
+                    f"weekday int must be in 0..6 (Mon=0..Sun=6), got {entry}"
+                )
+            out.add(entry)
+        elif isinstance(entry, str):
+            key = entry.strip().lower()[:3]
+            if key not in _WEEKDAY_NAMES:
+                raise ValueError(
+                    f"unknown weekday {entry!r}; expected one of "
+                    f"{sorted(_WEEKDAY_NAMES)} or int 0..6"
+                )
+            out.add(_WEEKDAY_NAMES[key])
+        else:
+            raise ValueError(
+                f"weekday entry must be int 0..6 or three-letter name; "
+                f"got {entry!r}"
+            )
+    return frozenset(out)
+
+
+def _intervals_from_property(
+    raw: object,
+) -> list[tuple[time, time, frozenset[int] | None]]:
+    """Coerce ``closed_during`` into ``[(start, end, weekdays_or_None), ...]``.
 
     ``raw`` is the value stored under the property key. Accepts ``None``
-    (empty list) and a list of two-element ``[start, end]`` entries; each
-    endpoint may be a ``time`` or an ``HH:MM`` / ``HH:MM:SS`` string.
-    Raises :class:`ValueError` for malformed input so typos in the graph
-    file surface early.
+    (empty list) and a list of entries that are either two-element
+    ``[start, end]`` (daily-recurring, backward compatible) or three-element
+    ``[start, end, weekdays]`` where ``weekdays`` is a list of ints (Mon=0)
+    or three-letter names. Endpoints may be a ``time`` or an ``HH:MM`` /
+    ``HH:MM:SS`` string. Raises :class:`ValueError` for malformed input so
+    typos in the graph file surface early.
     """
     if raw is None:
         return []
     if not isinstance(raw, list):
         raise ValueError(
-            f"closed_during must be a list of [start, end] entries, "
-            f"got {type(raw).__name__}"
+            f"closed_during must be a list of [start, end] or "
+            f"[start, end, weekdays] entries, got {type(raw).__name__}"
         )
-    out: list[tuple[time, time]] = []
+    out: list[tuple[time, time, frozenset[int] | None]] = []
     for entry in raw:
-        if not isinstance(entry, (list, tuple)) or len(entry) != 2:
+        if not isinstance(entry, (list, tuple)) or len(entry) not in (2, 3):
             raise ValueError(
-                f"each closed_during entry must be [start, end]; got {entry!r}"
+                f"each closed_during entry must be [start, end] or "
+                f"[start, end, weekdays]; got {entry!r}"
             )
         start = entry[0] if isinstance(entry[0], time) else _parse_hhmm(str(entry[0]))
         end = entry[1] if isinstance(entry[1], time) else _parse_hhmm(str(entry[1]))
-        out.append((start, end))
+        weekdays: frozenset[int] | None = None
+        if len(entry) == 3:
+            weekdays = _parse_weekdays(entry[2])
+        out.append((start, end, weekdays))
     return out
+
+
+def _closed_on_dates_from_property(raw: object) -> frozenset[date]:
+    """Coerce ``closed_on_dates`` into a frozenset of :class:`date` values."""
+    if raw is None:
+        return frozenset()
+    if not isinstance(raw, list):
+        raise ValueError(
+            f"closed_on_dates must be a list of 'YYYY-MM-DD' entries, "
+            f"got {type(raw).__name__}"
+        )
+    out: set[date] = set()
+    for entry in raw:
+        if isinstance(entry, datetime):
+            out.add(entry.date())
+        elif isinstance(entry, date):
+            out.add(entry)
+        elif isinstance(entry, str):
+            try:
+                out.add(date.fromisoformat(entry))
+            except ValueError as exc:
+                raise ValueError(
+                    f"closed_on_dates entry {entry!r} is not ISO 'YYYY-MM-DD'"
+                ) from exc
+        else:
+            raise ValueError(
+                f"closed_on_dates entry must be date or 'YYYY-MM-DD' string; "
+                f"got {type(entry).__name__}"
+            )
+    return frozenset(out)
 
 
 def _in_interval(at: time, start: time, end: time) -> bool:
@@ -222,41 +326,113 @@ def _in_interval(at: time, start: time, end: time) -> bool:
     return at >= start or at < end
 
 
+def _is_closed(
+    properties: Mapping[str, object],
+    at: time,
+    on_date: date | None,
+    weekday: int | None,
+    *,
+    closed_during_key: str,
+    closed_on_dates_key: str,
+) -> bool:
+    """Return True iff ``properties`` says this entity is closed now.
+
+    Combines time-of-day windows (``closed_during``) with the optional
+    calendar layer (``closed_on_dates`` full-day overrides, weekday
+    filters on ``closed_during`` entries). Weekday-filtered entries are
+    a contract: if one is present but ``weekday`` is ``None`` (because
+    the caller did not provide ``at_date``), this raises rather than
+    silently letting the planner route through what may be a closed
+    edge.
+    """
+    if on_date is not None:
+        closed_dates = _closed_on_dates_from_property(
+            properties.get(closed_on_dates_key)
+        )
+        if on_date in closed_dates:
+            return True
+
+    for start, end, weekdays in _intervals_from_property(
+        properties.get(closed_during_key)
+    ):
+        if weekdays is not None:
+            if weekday is None:
+                raise ValueError(
+                    "closed_during entry has a weekday filter but no "
+                    "at_date was supplied to time_aware; pass at_date= "
+                    "(or use a datetime as at_time) or drop the weekday "
+                    "filter from the graph"
+                )
+            if weekday not in weekdays:
+                continue
+        if _in_interval(at, start, end):
+            return True
+    return False
+
+
 def time_aware(
     graph: TopologyGraph,
     *,
     at_time: time | datetime | str,
+    at_date: date | datetime | str | None = None,
     closed_during_key: str = DEFAULT_CLOSED_DURING_PROPERTY,
+    closed_on_dates_key: str = DEFAULT_CLOSED_ON_DATES_PROPERTY,
 ) -> CostFn:
     """Block edges (and edges touching closed nodes) at a given time.
 
     Reads ``closed_during`` from each edge AND from both endpoint nodes.
-    The value must be a list of two-element ``[start, end]`` intervals
-    expressed as ``HH:MM`` (or ``HH:MM:SS``) strings; intervals are
-    treated as recurring time-of-day windows and an interval whose end
-    is ``<=`` start wraps midnight.
+    Each entry is either two-element ``[start, end]`` (recurring every
+    day, backward compatible) or three-element ``[start, end, weekdays]``
+    where ``weekdays`` is a list of ints (Mon=0..Sun=6) or three-letter
+    names (``"mon"``..``"sun"``). Endpoints are ``HH:MM`` or ``HH:MM:SS``
+    strings; an interval whose end ``<=`` start wraps midnight.
 
-    A node that is closed at ``at_time`` makes every incident edge
-    unusable (you can neither enter nor leave it).
+    The calendar layer is opt-in via ``at_date``:
 
-    Use ``--at-time HH:MM`` on the CLI, or compose with other cost
-    functions via :func:`compose_costs`.
+    * Without ``at_date`` (and ``at_time`` not a ``datetime``), only daily
+      ``[start, end]`` entries are evaluated. A weekday-filtered entry in
+      the graph raises :class:`ValueError` so the mismatch surfaces early.
+    * With ``at_date`` (or when ``at_time`` is a ``datetime``, from which
+      the date is derived), weekday-filtered entries match only on the
+      listed weekdays, and the ``closed_on_dates`` property — a list of
+      ISO ``YYYY-MM-DD`` strings — fully closes the node/edge on those
+      dates regardless of the time window.
+
+    A node that is closed at ``at_time`` (and ``at_date`` if provided)
+    makes every incident edge unusable. Use ``--at-time HH:MM`` and
+    optionally ``--at-date YYYY-MM-DD`` on the CLI, or compose with
+    other cost functions via :func:`compose_costs`.
     """
     at = _as_time(at_time)
 
+    if at_date is None and isinstance(at_time, datetime):
+        on_date: date | None = at_time.date()
+    else:
+        on_date = _as_date(at_date)
+    weekday = on_date.weekday() if on_date is not None else None
+
     closed_nodes: set[str] = set()
     for node in graph.nodes():
-        for start, end in _intervals_from_property(node.properties.get(closed_during_key)):
-            if _in_interval(at, start, end):
-                closed_nodes.add(node.id)
-                break
+        if _is_closed(
+            node.properties,
+            at,
+            on_date,
+            weekday,
+            closed_during_key=closed_during_key,
+            closed_on_dates_key=closed_on_dates_key,
+        ):
+            closed_nodes.add(node.id)
 
     def cost_fn(edge: TopologyEdge) -> float:
-        for start, end in _intervals_from_property(
-            edge.properties.get(closed_during_key)
+        if _is_closed(
+            edge.properties,
+            at,
+            on_date,
+            weekday,
+            closed_during_key=closed_during_key,
+            closed_on_dates_key=closed_on_dates_key,
         ):
-            if _in_interval(at, start, end):
-                return BLOCKED
+            return BLOCKED
         if edge.source in closed_nodes or edge.target in closed_nodes:
             return BLOCKED
         return edge.cost
