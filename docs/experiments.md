@@ -172,6 +172,21 @@ landed. Each links to the still-relevant follow-up work.
   with the rest of the cost-function family — one query can honor
   static cleaning windows on the graph *and* live claims from a
   shared scheduler simultaneously.
+- Language-grounding eval suite — `semantic_toponav.eval.grounding`
+  (CLI `eval-grounding`) drives `resolve_goal` and `llm_resolve_goal`
+  against a YAML gold-corpus of `(query, gold, kind)` cases tagged
+  `precise` / `ambiguous` / `unresolvable` and reports
+  `precision@1` / `recall@3` / `recall@5` / `clarification_rate` /
+  `false_positive_resolve_rate` / `abstention_rate`. Also runs an
+  `evaluate_describer_safety` probe over `llm_describe_path` that
+  checks four deterministic invariants (references preserved, step
+  indices preserved, prior-prefix labels untouched on mid-traversal
+  rewrites, `situation` kwarg produces a surface change). LLM-as-judge
+  is intentionally *not* the main scorer — gold node ids +
+  deterministic invariants are. Shipped fixture at
+  `tests/fixtures/grounding/multi_floor_office.yaml` (22 cases).
+  Closes the "Language-Specified Goals" measurement hole that
+  blocked paper-track framing
 - Insertion-based repair for fleet ordering — `plan_fleet_insert`
   (`semantic_toponav.coordination.repair`) takes a `committed`
   `FleetRequest` list plus one or more `new_requests` and tries every
