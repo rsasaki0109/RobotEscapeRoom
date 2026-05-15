@@ -6,6 +6,11 @@ plain ``TopologyNode`` / ``TopologyNode + path`` results — no LLM, no
 fuzzy matching beyond simple substring search.
 """
 
+from semantic_toponav.query.clarification import (
+    AmbiguousGoalError,
+    ClarificationAnswer,
+    ClarificationQuestion,
+)
 from semantic_toponav.query.embedding import (
     cosine_similarity,
     find_nodes_by_embedding,
@@ -21,6 +26,9 @@ from semantic_toponav.query.llm_resolve import LLMResolveResult, llm_resolve_goa
 from semantic_toponav.query.resolve import GoalCandidate, resolve_goal
 
 __all__ = [
+    "AmbiguousGoalError",
+    "ClarificationAnswer",
+    "ClarificationQuestion",
     "GoalCandidate",
     "LLMResolveResult",
     "NoMatchError",
