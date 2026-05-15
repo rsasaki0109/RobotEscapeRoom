@@ -208,13 +208,14 @@ def register_subcommands(sub: argparse._SubParsersAction) -> None:
     )
     p.add_argument(
         "--strategy",
-        choices=["greedy", "priority", "deadline", "joint"],
+        choices=["greedy", "priority", "deadline", "joint", "bnb"],
         default="greedy",
         help=(
             "agent ordering strategy (default: greedy). priority sorts by "
             "--agent :PRIORITY descending; deadline sorts by :HH:MM ascending "
-            "(EDF); joint tries multiple orderings and picks the one that "
-            "grants the most agents."
+            "(EDF); joint enumerates orderings (n!<=120 exhaustive, else "
+            "heuristic candidates); bnb does pruned DFS over orderings "
+            "(scales further than joint with grants / cost pruning)."
         ),
     )
     p.add_argument(
