@@ -19,7 +19,9 @@ import sys
 
 from semantic_toponav.coordination.fleet import (
     FleetRequest,
-    plan_fleet,
+)
+from semantic_toponav.coordination.joint import (
+    plan_fleet_with_strategy,
 )
 from semantic_toponav.coordination.policies import (
     first_come_first_served,
@@ -31,26 +33,45 @@ from semantic_toponav.graph.types import GraphValidationError
 
 
 def _parse_agent_spec(raw: str) -> FleetRequest:
-    """Parse ``AGENT_ID:START:GOAL[:PRIORITY]``."""
+    """Parse ``AGENT_ID:START:GOAL[:PRIORITY[:DEADLINE]]``.
+
+    ``PRIORITY`` is an integer (default 0). ``DEADLINE`` is an
+    ``HH:MM`` time-of-day used as a sort key for ``--strategy
+    deadline``; it never feeds the scheduler claims themselves. The
+    inner colon of ``HH:MM`` is reassembled here because the raw spec
+    is already colon-delimited.
+    """
     parts = raw.split(":")
-    if len(parts) not in (3, 4):
+    # Possible shapes:
+    #   3 -> ID:START:GOAL
+    #   4 -> ID:START:GOAL:PRIORITY
+    #   6 -> ID:START:GOAL:PRIORITY:HH:MM
+    if len(parts) not in (3, 4, 6):
         raise argparse.ArgumentTypeError(
-            f"--agent expects AGENT_ID:START:GOAL[:PRIORITY]; got {raw!r}"
+            f"--agent expects AGENT_ID:START:GOAL[:PRIORITY[:HH:MM]]; got {raw!r}"
         )
     agent_id, start, goal = parts[0], parts[1], parts[2]
+    priority_raw = parts[3] if len(parts) >= 4 else "0"
+    deadline_raw: str | None = (
+        f"{parts[4]}:{parts[5]}" if len(parts) == 6 else None
+    )
     if not agent_id or not start or not goal:
         raise argparse.ArgumentTypeError(
             f"--agent {raw!r}: agent_id, start, goal must all be non-empty"
         )
-    priority = 0
-    if len(parts) == 4:
-        try:
-            priority = int(parts[3])
-        except ValueError as exc:
-            raise argparse.ArgumentTypeError(
-                f"--agent {raw!r}: priority must be an integer ({exc})"
-            ) from exc
-    return FleetRequest(agent_id=agent_id, start=start, goal=goal, priority=priority)
+    try:
+        priority = int(priority_raw)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(
+            f"--agent {raw!r}: priority must be an integer ({exc})"
+        ) from exc
+    return FleetRequest(
+        agent_id=agent_id,
+        start=start,
+        goal=goal,
+        priority=priority,
+        deadline=deadline_raw,
+    )
 
 
 def cmd_fleet_plan(args: argparse.Namespace) -> int:
@@ -67,13 +88,14 @@ def cmd_fleet_plan(args: argparse.Namespace) -> int:
     policy = first_come_first_served if args.policy == "fcfs" else priority_based
     scheduler = SharedScheduler(policy=policy)
 
-    result = plan_fleet(
+    result = plan_fleet_with_strategy(
         graph,
         args.agent,
         scheduler,
         hold_start=args.hold_start,
         hold_end=args.hold_end,
         at_time=args.at_time,
+        strategy=args.strategy,
         algorithm=args.algorithm,
         claim_nodes=not args.claim_edges_only,
         claim_edges=not args.claim_nodes_only,
@@ -180,6 +202,17 @@ def register_subcommands(sub: argparse._SubParsersAction) -> None:
         choices=["fcfs", "priority"],
         default="fcfs",
         help="conflict policy (default: fcfs)",
+    )
+    p.add_argument(
+        "--strategy",
+        choices=["greedy", "priority", "deadline", "joint"],
+        default="greedy",
+        help=(
+            "agent ordering strategy (default: greedy). priority sorts by "
+            "--agent :PRIORITY descending; deadline sorts by :HH:MM ascending "
+            "(EDF); joint tries multiple orderings and picks the one that "
+            "grants the most agents."
+        ),
     )
     p.add_argument(
         "--algorithm",

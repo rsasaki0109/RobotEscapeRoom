@@ -338,6 +338,22 @@ class SharedScheduler:
         """Drop every reservation. Mostly useful for tests."""
         self._entries.clear()
 
+    def clone(self) -> SharedScheduler:
+        """Return an independent scheduler holding the same reservations.
+
+        Used by trial-based planners (the joint optimizer in
+        :mod:`semantic_toponav.coordination.joint`, for example) that
+        want to evaluate "what if we ran this ordering?" without
+        mutating the live coordination state. The new scheduler shares
+        the same policy reference — policies are pure callables, so no
+        copy is needed — but holds an independent list of
+        :class:`Reservation` entries. Mutations on the clone (claims,
+        releases) never propagate to the original.
+        """
+        new = SharedScheduler(policy=self._policy)
+        new._entries = list(self._entries)
+        return new
+
     # ----- internals ----------------------------------------------------
 
     def _remove_exact(self, target: Reservation) -> None:

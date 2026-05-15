@@ -29,6 +29,13 @@ from semantic_toponav.coordination.fleet import (
     plan_fleet,
     plan_with_scheduler,
 )
+from semantic_toponav.coordination.joint import (
+    JointPlanResult,
+    JointPlanTrial,
+    Strategy,
+    plan_fleet_joint,
+    plan_fleet_with_strategy,
+)
 from semantic_toponav.coordination.policies import (
     ClaimDecision,
     ConflictPolicy,
@@ -49,11 +56,16 @@ __all__ = [
     "ConflictPolicy",
     "FleetPlanResult",
     "FleetRequest",
+    "JointPlanResult",
+    "JointPlanTrial",
     "PlanWithSchedulerResult",
     "SchedulerError",
     "SharedScheduler",
+    "Strategy",
     "first_come_first_served",
     "plan_fleet",
+    "plan_fleet_joint",
+    "plan_fleet_with_strategy",
     "plan_with_scheduler",
     "priority_based",
 ]

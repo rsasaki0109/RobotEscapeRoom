@@ -355,6 +355,53 @@ semantic-toponav fleet-plan examples/indoor_office.yaml \
 Each invocation builds a fresh empty scheduler — production
 deployments wire `SharedScheduler` into a long-running service.
 
+#### Joint fleet optimization beyond sequential greedy
+
+Sequential greedy commits to the caller's order. `plan_fleet_joint`
+clones the scheduler, tries multiple orderings on the copy, scores
+each by `(granted_count, total_path_cost)`, and applies the winning
+ordering to the real scheduler. Small fleets (`n! ≤ max_permutations`,
+default `120` = `5!`) are enumerated; larger fleets fall back to a
+fixed set of heuristic orderings (insertion / reverse / priority-DESC
+/ deadline-ASC):
+
+```python
+from semantic_toponav.coordination import (
+    SharedScheduler, FleetRequest,
+    plan_fleet_joint, plan_fleet_with_strategy,
+)
+
+scheduler = SharedScheduler()
+joint = plan_fleet_joint(
+    graph,
+    [FleetRequest("r1", "entrance", "kitchen"),
+     FleetRequest("r2", "entrance", "lab"),
+     FleetRequest("r3", "entrance", "office_2f", deadline="11:00")],
+    scheduler,
+    hold_start="10:00", hold_end="12:00",
+)
+print(joint.chosen_order, joint.trials_evaluated, joint.enumerated)
+# joint.fleet_result is the live FleetPlanResult from the winning order.
+
+# Or one dispatcher across all strategies:
+res = plan_fleet_with_strategy(
+    graph, requests, scheduler,
+    strategy="deadline",  # "greedy" | "priority" | "deadline" | "joint"
+    hold_start="10:00", hold_end="12:00",
+)
+```
+
+The CLI exposes the same via `--strategy`, and the `--agent` syntax
+gains an optional `:HH:MM` deadline suffix:
+
+```bash
+semantic-toponav fleet-plan examples/indoor_office.yaml \
+    --agent r1:entrance:kitchen:0:11:00 \
+    --agent r2:entrance:lab:0:10:30 \
+    --hold-start 10:00 --hold-end 12:00 \
+    --strategy deadline
+```
+
 ## Multi-floor navigation
 
 When nodes carry a `floor` property, three additional cost helpers and one
