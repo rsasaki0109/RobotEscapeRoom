@@ -62,6 +62,7 @@ from semantic_toponav.coordination.policies import (
     first_come_first_served,
     priority_based,
 )
+from semantic_toponav.coordination.repair import plan_fleet_insert
 from semantic_toponav.coordination.rpc import (
     LocalTransport,
     RpcError,
@@ -109,6 +110,7 @@ __all__ = [
     "plan_fleet",
     "plan_fleet_bnb",
     "plan_fleet_exhaustive",
+    "plan_fleet_insert",
     "plan_fleet_joint",
     "plan_fleet_with_strategy",
     "plan_with_scheduler",
