@@ -183,10 +183,15 @@ landed. Each links to the still-relevant follow-up work.
   LLM only rewrites prose (with one rewritten line per deterministic
   step, never merging or splitting) or re-ranks the top-k candidates
   *from* the deterministic shortlist (it cannot invent a node id —
-  out-of-pool picks transparently fall back). Reachable from the CLI
-  as `semantic-toponav describe-path GRAPH ... --llm-backend
-  echo|anthropic [--llm-style HINT --llm-script REPLY]` and
-  `semantic-toponav resolve GRAPH "text" --llm-backend ...`.
+  out-of-pool picks transparently fall back). `llm_describe_path` also
+  accepts `start_index=` and `situation=` for **mid-traversal rewrite**
+  — the agent has already visited `path[:start_index]`, so only the
+  remaining steps are handed to the LLM, with the original step
+  numbers preserved and an optional natural-language situation hint
+  (e.g. *"corridor closed for cleaning"*) injected into the prompt.
+  Reachable from the CLI as `semantic-toponav describe-path GRAPH ...
+  --llm-backend echo|anthropic [--llm-style HINT --llm-script REPLY]`
+  and `semantic-toponav resolve GRAPH "text" --llm-backend ...`.
 - Online multi-agent coordination — new
   `semantic_toponav.coordination` subpackage with `SharedScheduler`
   (in-memory reservation broker — `claim` / `release` /

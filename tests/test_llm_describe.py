@@ -119,3 +119,123 @@ def test_base_steps_are_preserved_on_fallback() -> None:
     assert result.used_fallback
     # The deterministic floor is always present.
     assert [s.text for s in result.base_steps] == ["Start at Alpha", "Arrive at Beta"]
+
+
+def _three_room_graph() -> TopologyGraph:
+    g = TopologyGraph()
+    g.add_node(TopologyNode(id="a", label="Alpha", type="room", pose=Pose2D(0.0, 0.0)))
+    g.add_node(TopologyNode(id="b", label="Beta", type="room", pose=Pose2D(1.0, 0.0)))
+    g.add_node(TopologyNode(id="c", label="Gamma", type="room", pose=Pose2D(2.0, 0.0)))
+    g.add_edge(TopologyEdge(id="ab", source="a", target="b", type="traversable"))
+    g.add_edge(TopologyEdge(id="bc", source="b", target="c", type="traversable"))
+    return g
+
+
+def test_start_index_zero_matches_default_behavior() -> None:
+    g = _three_room_graph()
+    backend = EchoBackend(script=["1. one\n2. two\n3. three\n"])
+    explicit = llm_describe_path(g, ["a", "b", "c"], backend, start_index=0)
+    backend2 = EchoBackend(script=["1. one\n2. two\n3. three\n"])
+    default = llm_describe_path(g, ["a", "b", "c"], backend2)
+    assert explicit.steps == default.steps
+    assert [s.text for s in explicit.base_steps] == [s.text for s in default.base_steps]
+    assert [s.index for s in explicit.base_steps] == [s.index for s in default.base_steps]
+
+
+def test_start_index_skips_completed_steps_and_preserves_numbering() -> None:
+    g = _three_room_graph()
+    # Two remaining steps (visit B, arrive at C). Their indices in the full
+    # plan are 2 and 3 — the LLM is expected to keep those numbers.
+    backend = EchoBackend(script=["2. Walk over to the Beta room.\n3. Settle into Gamma.\n"])
+    result = llm_describe_path(g, ["a", "b", "c"], backend, start_index=1)
+    assert not result.used_fallback
+    assert result.steps == ["Walk over to the Beta room.", "Settle into Gamma."]
+    assert [s.index for s in result.base_steps] == [2, 3]
+    # The completed "Start at Alpha" step is not handed to the LLM.
+    prompt = backend.calls[0]["prompt"]
+    assert "Start at Alpha" not in prompt
+    assert "Beta" in prompt
+    assert "Gamma" in prompt
+    # The mid-traversal framing is included in the prompt.
+    assert "already completed" in prompt
+
+
+def test_start_index_response_with_old_one_based_numbering_falls_back() -> None:
+    g = _three_room_graph()
+    # The LLM ignored the mid-traversal instruction and renumbered from 1.
+    backend = EchoBackend(script=["1. one\n2. two\n"])
+    result = llm_describe_path(g, ["a", "b", "c"], backend, start_index=1)
+    assert result.used_fallback
+    # Fallback covers exactly the remaining slice (no synthetic step count).
+    assert len(result.steps) == 2
+    assert [s.index for s in result.base_steps] == [2, 3]
+
+
+def test_start_index_past_last_node_returns_empty_without_backend_call() -> None:
+    g = _three_room_graph()
+    backend = EchoBackend()
+    result = llm_describe_path(g, ["a", "b", "c"], backend, start_index=3)
+    assert result.steps == []
+    assert result.base_steps == []
+    assert backend.calls == []
+
+
+def test_start_index_at_last_node_rewrites_only_the_final_step() -> None:
+    g = _three_room_graph()
+    backend = EchoBackend(script=["3. You have arrived at Gamma.\n"])
+    result = llm_describe_path(g, ["a", "b", "c"], backend, start_index=2)
+    assert not result.used_fallback
+    assert result.steps == ["You have arrived at Gamma."]
+    assert [s.index for s in result.base_steps] == [3]
+
+
+def test_negative_start_index_raises() -> None:
+    g = _three_room_graph()
+    backend = EchoBackend()
+    try:
+        llm_describe_path(g, ["a", "b", "c"], backend, start_index=-1)
+    except ValueError as exc:
+        assert "start_index" in str(exc)
+    else:
+        raise AssertionError("expected ValueError for negative start_index")
+    assert backend.calls == []
+
+
+def test_situation_hint_is_injected_into_prompt() -> None:
+    g = _three_room_graph()
+    backend = EchoBackend()
+    llm_describe_path(
+        g,
+        ["a", "b", "c"],
+        backend,
+        start_index=1,
+        situation="Corridor through Beta is now blocked; expect a detour later.",
+    )
+    prompt = backend.calls[0]["prompt"]
+    assert "Current situation:" in prompt
+    assert "Corridor through Beta is now blocked" in prompt
+
+
+def test_situation_hint_omitted_when_none() -> None:
+    g = _three_room_graph()
+    backend = EchoBackend()
+    llm_describe_path(g, ["a", "b", "c"], backend)
+    prompt = backend.calls[0]["prompt"]
+    assert "Current situation:" not in prompt
+    # And the partial-plan framing is also omitted on a from-the-start call.
+    assert "already completed" not in prompt
+
+
+def test_mid_traversal_supports_style_and_custom_system() -> None:
+    g = _three_room_graph()
+    backend = EchoBackend()
+    llm_describe_path(
+        g,
+        ["a", "b", "c"],
+        backend,
+        start_index=1,
+        style="concise",
+        system="be terse",
+    )
+    assert backend.calls[0]["system"] == "be terse"
+    assert "Target style: concise" in backend.calls[0]["prompt"]
