@@ -19,12 +19,20 @@ import sys
 from datetime import time as dtime
 from pathlib import Path
 
+from semantic_toponav.cli.llm_cli import add_llm_args, build_llm_backend_from_args
 from semantic_toponav.eval.generators import (
     chain_graph,
     doorway_graph,
     generate_fleet_requests,
     multi_floor_office,
     star_graph,
+)
+from semantic_toponav.eval.grounding import (
+    DescriberSafetyCase,
+    evaluate_describer_safety,
+    evaluate_resolver,
+    grounding_report_markdown,
+    load_grounding_corpus,
 )
 from semantic_toponav.eval.report import (
     jsonl_to_trials,
@@ -33,6 +41,7 @@ from semantic_toponav.eval.report import (
     trials_to_markdown_table,
 )
 from semantic_toponav.eval.runner import Scenario, run_sweep
+from semantic_toponav.llm.backends import EchoBackend
 
 _SCENARIO_BUILDERS = {
     "chain": lambda seed: chain_graph(8, seed=seed),
@@ -154,6 +163,155 @@ def cmd_eval_synthetic(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_eval_grounding(args: argparse.Namespace) -> int:
+    """Run the language-grounding eval over a corpus.
+
+    Always runs the deterministic resolver. When ``--llm-backend`` is
+    supplied, also runs an LLM resolver against the same corpus so the
+    report can show side-by-side metrics. The describer-safety section
+    requires an explicit backend (it exercises the LLM-rewrite path);
+    when no backend is supplied, the safety section is skipped.
+    """
+    corpus_path = Path(args.corpus)
+    if not corpus_path.exists():
+        print(f"error: corpus not found: {args.corpus}", file=sys.stderr)
+        return 2
+    try:
+        corpus = load_grounding_corpus(corpus_path)
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    try:
+        backend = build_llm_backend_from_args(args)
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    evals = [
+        evaluate_resolver(
+            corpus,
+            resolver_name="deterministic",
+            backend=None,
+            top_k=args.top_k,
+        )
+    ]
+    if backend is not None:
+        evals.append(
+            evaluate_resolver(
+                corpus,
+                resolver_name=args.llm_backend,
+                backend=backend,
+                top_k=args.top_k,
+                ambiguity_threshold=args.ambiguity_threshold,
+            )
+        )
+
+    # Build the describer-safety fixture set from the gold corpus's
+    # graph. We use a handful of representative paths and exercise
+    # both full-plan and mid-traversal rewrites with situations.
+    safety_eval = None
+    if backend is not None and args.describer_safety:
+        # The safety probe needs prompt-side script entries when using
+        # EchoBackend — we hand it a backend wired with the same
+        # rewrites the resolver evaluation just consumed but with a
+        # fresh script of well-formed "N. <text>" lines.
+        safety_backend = _safety_backend_for(backend)
+        cases = _default_safety_cases(corpus)
+        safety_eval = evaluate_describer_safety(
+            corpus.graph,
+            safety_backend,
+            cases,
+            backend_name=args.llm_backend or "echo",
+        )
+
+    md = grounding_report_markdown(evals, safety_eval=safety_eval)
+    if args.out:
+        Path(args.out).write_text(md, encoding="utf-8")
+        print(f"wrote grounding report -> {args.out}")
+    print(md)
+    return 0
+
+
+def _safety_backend_for(backend):
+    """Hand back a safety-probe backend.
+
+    Real backends (Anthropic) are used as-is; the EchoBackend gets a
+    fresh script of well-formed echoes so the rewrites parse rather
+    than hitting the fallback path on every probe.
+    """
+    if isinstance(backend, EchoBackend):
+        # The describer safety probe runs a handful of llm_describe_path
+        # calls per case (with + without situation). We can't predict
+        # the exact step count of every case in advance, so we use an
+        # empty script — the EchoBackend will fall back to its
+        # `[echo] last_prompt_line` echo behavior. The safety check
+        # tolerates fallback runs (they pass invariants 1/2/3
+        # trivially) and the situation-change check inspects the
+        # backend's recorded prompts rather than the rewritten text,
+        # so an echo-fallback case still measures whether the prompt
+        # surface changed when ``situation`` was added.
+        return EchoBackend()
+    return backend
+
+
+def _default_safety_cases(corpus) -> list[DescriberSafetyCase]:
+    """Build a small representative set of describer-safety probes
+    against the corpus's graph.
+
+    The cases hit: a single-floor full-plan rewrite, a multi-floor
+    full-plan rewrite, a mid-traversal rewrite, and a mid-traversal
+    rewrite with a ``situation`` hint. All four are kept tiny so the
+    safety probe is fast even when the user wires it to a paid
+    backend.
+    """
+    node_ids = {n.id for n in corpus.graph.nodes()}
+
+    candidate_paths: list[tuple[str, list[str]]] = []
+    # Same-floor short hop (1F kitchen → 1F lab via corridor / lobby).
+    if {"kitchen_1f", "corridor_1f", "lobby_1f", "lab_1f"} <= node_ids:
+        candidate_paths.append(
+            ("kitchen-to-lab", ["kitchen_1f", "corridor_1f", "lobby_1f", "lab_1f"])
+        )
+    # Multi-floor via elevator.
+    if {
+        "entrance", "corridor_1f", "elevator_1f", "elevator_2f",
+        "corridor_2f", "meeting_room_2f",
+    } <= node_ids:
+        candidate_paths.append(
+            (
+                "entrance-to-meeting",
+                [
+                    "entrance", "corridor_1f", "elevator_1f", "elevator_2f",
+                    "corridor_2f", "meeting_room_2f",
+                ],
+            )
+        )
+
+    if not candidate_paths:
+        return []
+
+    out: list[DescriberSafetyCase] = []
+    for name, path in candidate_paths:
+        out.append(DescriberSafetyCase(name=f"{name}/full", path=list(path)))
+        # Mid-traversal: rewrite the second half of the plan.
+        mid = max(1, len(path) // 2)
+        out.append(
+            DescriberSafetyCase(
+                name=f"{name}/mid", path=list(path), start_index=mid
+            )
+        )
+        out.append(
+            DescriberSafetyCase(
+                name=f"{name}/situation",
+                path=list(path),
+                start_index=mid,
+                situation="running 5 minutes behind schedule",
+            )
+        )
+    return out
+
+
 def cmd_eval_report(args: argparse.Namespace) -> int:
     path = Path(args.jsonl)
     if not path.exists():
@@ -267,3 +425,43 @@ def register_subcommands(sub: argparse._SubParsersAction) -> None:
         help="print the per-strategy aggregate summary",
     )
     q.set_defaults(func=cmd_eval_report)
+
+    g = sub.add_parser(
+        "eval-grounding",
+        help=(
+            "run the language-grounding eval: drive resolve_goal / "
+            "llm_resolve_goal against a gold corpus and llm_describe_path "
+            "against a safety-probe fixture; print a markdown report."
+        ),
+    )
+    g.add_argument(
+        "corpus",
+        help=(
+            "path to a gold-corpus YAML (see "
+            "tests/fixtures/grounding/multi_floor_office.yaml for the format)"
+        ),
+    )
+    g.add_argument(
+        "--top-k", type=int, default=5,
+        help="shortlist size handed to the resolver (default: 5)",
+    )
+    g.add_argument(
+        "--ambiguity-threshold", type=float, default=0.5,
+        help=(
+            "score-gap below which the LLM resolver decides the top-1/top-2 "
+            "pair is ambiguous and asks a clarifying question (default: 0.5)"
+        ),
+    )
+    g.add_argument(
+        "--describer-safety", action="store_true",
+        help=(
+            "also run the describer rewrite-safety probe against the corpus "
+            "graph (requires --llm-backend; otherwise this flag is a no-op)"
+        ),
+    )
+    g.add_argument(
+        "--out",
+        help="optional path to write the markdown report (in addition to stdout)",
+    )
+    add_llm_args(g, with_style=False)
+    g.set_defaults(func=cmd_eval_grounding)

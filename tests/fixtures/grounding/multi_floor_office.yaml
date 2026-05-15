@@ -1,0 +1,99 @@
+# Gold-corpus for the multi-floor office example. Used by the
+# language-grounding eval (`semantic_toponav.eval.grounding`).
+#
+# Node ids in this graph:
+#   1F: entrance, corridor_1f, lobby_1f, kitchen_1f, lab_1f,
+#       elevator_1f, stairs_1f
+#   2F: corridor_2f, meeting_room_2f, office_2f,
+#       elevator_2f, stairs_2f
+#   3F: corridor_3f, exec_office_3f, balcony_3f,
+#       elevator_3f, stairs_3f
+#
+# Case kinds:
+#   precise       — exactly one gold target
+#   ambiguous     — two or more valid gold targets; raising a
+#                   ClarificationQuestion is the *preferred* outcome
+#   unresolvable  — the query does not correspond to any node;
+#                   the resolver should abstain (no candidates) or
+#                   clarify
+
+graph: ../../../examples/multi_floor_office.yaml
+
+cases:
+  # ----- precise -----
+  - query: "the kitchen"
+    gold: kitchen_1f
+    kind: precise
+  - query: "robotics lab"
+    gold: lab_1f
+    kind: precise
+  - query: "the entrance"
+    gold: entrance
+    kind: precise
+  - query: "the executive office"
+    gold: exec_office_3f
+    kind: precise
+  - query: "executive office on the third floor"
+    gold: exec_office_3f
+    kind: precise
+  - query: "meeting room on the second floor"
+    gold: meeting_room_2f
+    kind: precise
+  - query: "second floor office"
+    gold: office_2f
+    kind: precise
+  - query: "2f corridor"
+    gold: corridor_2f
+    kind: precise
+  - query: "1F lobby"
+    gold: lobby_1f
+    kind: precise
+  - query: "the balcony"
+    gold: balcony_3f
+    kind: precise
+  - query: "balcony on the 3rd floor"
+    gold: balcony_3f
+    kind: precise
+    note: "ordinal-floor parsing"
+  - query: "the elevator on floor 2"
+    gold: elevator_2f
+    kind: precise
+  - query: "north stairs on the third floor"
+    gold: stairs_3f
+    kind: precise
+
+  # ----- ambiguous -----
+  - query: "the corridor"
+    gold: [corridor_1f, corridor_2f, corridor_3f]
+    kind: ambiguous
+    note: "every floor has a corridor; floor hint missing"
+  - query: "the elevator"
+    gold: [elevator_1f, elevator_2f, elevator_3f]
+    kind: ambiguous
+  - query: "the stairs"
+    gold: [stairs_1f, stairs_2f, stairs_3f]
+    kind: ambiguous
+  - query: "an office"
+    gold: [office_2f, exec_office_3f]
+    kind: ambiguous
+    note: "two distinct offices exist on different floors"
+
+  # ----- unresolvable -----
+  - query: "the basement"
+    gold: null
+    kind: unresolvable
+    note: "no basement floor in this graph"
+  - query: "the rooftop helipad"
+    gold: null
+    kind: unresolvable
+  - query: "Mars"
+    gold: null
+    kind: unresolvable
+  - query: "cafeteria on the 4th floor"
+    gold: null
+    kind: unresolvable
+    note: "no 4F in this graph and no cafeteria anywhere"
+  - query: "server room"
+    gold: null
+    kind: unresolvable
+    note: "no node labelled server"

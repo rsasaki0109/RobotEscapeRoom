@@ -37,6 +37,19 @@ from semantic_toponav.eval.generators import (
     multi_floor_office,
     star_graph,
 )
+from semantic_toponav.eval.grounding import (
+    DescriberSafetyCase,
+    DescriberSafetyEvaluation,
+    DescriberSafetyMetrics,
+    GroundingCase,
+    GroundingCorpus,
+    GroundingMetrics,
+    ResolverEvaluation,
+    evaluate_describer_safety,
+    evaluate_resolver,
+    grounding_report_markdown,
+    load_grounding_corpus,
+)
 from semantic_toponav.eval.metrics import (
     LatencyStats,
     TrialMetrics,
@@ -57,17 +70,28 @@ from semantic_toponav.eval.runner import (
 )
 
 __all__ = [
+    "DescriberSafetyCase",
+    "DescriberSafetyEvaluation",
+    "DescriberSafetyMetrics",
+    "GroundingCase",
+    "GroundingCorpus",
+    "GroundingMetrics",
     "LatencyStats",
+    "ResolverEvaluation",
     "Scenario",
     "TrialMetrics",
     "TrialResult",
     "chain_graph",
     "compute_metrics",
     "doorway_graph",
+    "evaluate_describer_safety",
+    "evaluate_resolver",
     "generate_fleet_requests",
     "generate_static_reservations",
+    "grounding_report_markdown",
     "jain_fairness",
     "jsonl_to_trials",
+    "load_grounding_corpus",
     "multi_floor_office",
     "run_scenario",
     "run_sweep",
