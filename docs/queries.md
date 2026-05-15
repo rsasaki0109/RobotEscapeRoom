@@ -168,6 +168,17 @@ backend = EchoBackend(script=[
 result = llm_describe_path(graph, ["entrance", "corridor_main", "meeting_room"], backend)
 print(result.steps, result.used_fallback)
 
+# Mid-traversal rewrite — the agent already visited path[:2] and only needs
+# the remaining steps re-narrated, optionally with environmental context.
+# Step numbering is preserved from the original plan (step 3 stays step 3).
+result = llm_describe_path(
+    graph,
+    ["entrance", "corridor_main", "meeting_room"],
+    backend,
+    start_index=2,
+    situation="Running 5 minutes behind schedule; keep the tone reassuring.",
+)
+
 # Real backend: requires the [llm] extra and ANTHROPIC_API_KEY.
 backend = AnthropicBackend()
 res = llm_resolve_goal(graph, "the conference room on the second floor", backend, top_k=5)
