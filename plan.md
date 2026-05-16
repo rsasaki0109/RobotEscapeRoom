@@ -1127,12 +1127,20 @@ also landed:
 | ✅ PR #65 (2026-05-17) | VLM region-embedding demo (`examples/vlm_region_embedding_demo.py`) + cycling GIF in README gallery |
 | ✅ PR #66 (2026-05-17) | Coordination-strategies demo (`examples/coordination_strategies_demo.py`) + cycling GIF; the 1/5-vs-4/5 BnB-beats-greedy figure paper §4 needed |
 | ✅ PR #67 (2026-05-17) | `docs/grounding_report_sample.md` static snapshot with provenance header |
+| ✅ PR #68 (2026-05-17) | `docs/decisions.md` integrity pass — D-12..D-17 (Protocol bar, schema lock policy, LLM safety property, MAPF non-competition, out-of-repo split, paper-freeze direction) |
+| ✅ PR #69 (2026-05-17) | Gold corpus expansion 22 → 50 cases (33 precise / 9 ambiguous / 8 unresolvable); sample report regenerated; cross-refs in `eval_grounding.md` / `paper_outline.md` / `experiments.md` / smoke-test assert refreshed |
+| ✅ PR #70 (2026-05-17) | `examples/ten_minute_tour.py` single-file Plan + Resolve + Coordinate walk-through + README quickstart pointer |
 
 After these, the README gallery covers all three axes (Plan /
 Resolve / Coordinate) with hero visuals, the v1 wire formats are
-locked + sample-validated, and the grounding numbers are visible
-without running anything. **What remains gating v1.0 is user-side
-decisions** (§24′) — no more autonomous code-track work remains.
+locked + sample-validated, the grounding numbers are visible
+without running anything, the design-decision log is current
+through the post-MVP arc, the gold corpus is stress-tested at 50
+cases, and a 10-minute single-file tour is the README's
+sanity-check entry point. **§25′'s in-bounds-coding list is
+exhausted** and **what remains gating v1.0 is user-side decisions
+in §24′** — no more autonomous code-track work remains under the
+moratorium.
 
 **Protocol moratorium until v1.0** — the bar for adding a 7th
 Protocol is intentionally high (≥2 non-toy implementations or a
@@ -1211,25 +1219,35 @@ executors.
 
 Read plan.md sections 22′–24′ first to know the current state.
 
-The repository is in late Phase B: all coding items are shipped
-(PR #60–#64) plus three polish PRs (#65–#67). What remains is
-user-side decision work that gates the v1.0 tag and the paper —
-none of it is code you can ship autonomously.
+The repository is at the end of Phase B: all core coding items are
+shipped (PR #60–#64), six polish PRs landed (PR #65–#70), and the
+in-bounds-coding list that used to live here is now fully shipped.
+What remains is user-side decision work in §24′ that gates the v1.0
+tag and the paper — none of it is code you can ship autonomously.
 
-Coding work that is still in-bounds (when explicitly requested):
+Previously in-bounds (now shipped, kept for reference):
 
-- `decisions.md` integrity pass — the early decisions doc predates
-  the post-MVP arc; an integrity update would record the Protocol
-  bar, the v1 schema lock policy, and the paper-freeze direction
-  as historical record
-- More gold-corpus cases under tests/fixtures/grounding/ — the
-  shipped 22 cases produce decisive numbers (precision@1=1.00) but
-  a 50+ case corpus would harden paper §3
-- A "10-minute tour" example consolidating the Plan / Resolve /
-  Coordinate axes into one end-to-end script under examples/
-- Re-running the grounding sample report after any change to the
-  resolver, describer, or corpus (regenerate
-  docs/grounding_report_sample.md; bump the provenance header SHA)
+- ✅ `decisions.md` integrity pass — PR #68 added D-12..D-17 (Protocol
+  bar, schema lock policy, LLM safety property, MAPF non-competition,
+  out-of-repo split, paper-freeze direction)
+- ✅ Gold corpus expansion — PR #69 took the fixture 22 → 50 cases
+  (33 precise / 9 ambiguous / 8 unresolvable); fp_resolve rose from
+  0.20 → 0.25 on two new "looks-like-a-room" abstention failures
+  while precision@1 / recall@k held at 1.00
+- ✅ Ten-minute tour — PR #70 ships
+  `examples/ten_minute_tour.py` covering Resolve + Plan + Coordinate
+  on the multi_floor_office graph; README quickstart now points
+  there before the deeper `docs/tutorial.md` walk-through
+- ✅ Grounding sample report regeneration — folded into PR #69's
+  doc commit alongside the corpus expansion; provenance header now
+  pinned to `feat/grounding-corpus-expansion @ 16be17bad650`
+
+If the user issues a `tugi` cue with the §25′ list exhausted, the
+appropriate move is **not** to autonomously start a new feature
+axis. Surface the state and ask which §24′ decision or alternative
+direction to pursue (eg. real-backend grounding numbers if API
+budget is approved, conformance-test CLI as a Phase C enabler,
+quickstart troubleshooting doc).
 
 Do not:
 
