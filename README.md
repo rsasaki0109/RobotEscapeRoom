@@ -237,7 +237,9 @@ Six public wire formats are **v1-locked** under [`schemas/`](schemas/):
 `PlanWithSchedulerResult` + `FleetPlanResult` (fleet admission),
 `ConflictExplanation` (CBS-lite diagnostics), `ResolveTrace`
 (language grounding), and the `preferences` metadata convention. See
-[docs/schema_v1.md](docs/schema_v1.md) for the freeze policy.
+[docs/schema_v1.md](docs/schema_v1.md) for the freeze policy and
+[CHANGELOG.md](CHANGELOG.md) for the consolidated v1.0 release
+notes spanning PR #1–#62.
 
 ---
 
