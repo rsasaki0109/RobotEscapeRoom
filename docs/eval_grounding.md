@@ -161,6 +161,12 @@ resolver:
 | deterministic | 22 | 1.00        | 1.00     | 1.00     | 0.00    | 0.20       | 0.80    |
 ```
 
+A committed full sample including the EchoBackend row + describer
+safety invariants lives at
+[`docs/grounding_report_sample.md`](grounding_report_sample.md) —
+regenerated manually as part of release prep, with a provenance
+header noting the commit it came from.
+
 Reading: bag-of-words + floor parsing handles every *answerable*
 query in the fixture (precision@1 = 1.0) but resolves one out of
 five *unresolvable* queries as a false positive — that's the

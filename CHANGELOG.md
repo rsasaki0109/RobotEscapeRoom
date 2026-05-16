@@ -7,9 +7,22 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-The post-v1.0 working area. Phase B items still in flight (CHANGELOG,
-cross-reference audit) and any later docs polish land here before the
-v1.0 tag is cut.
+The post-v1.0 working area. Polish PRs that land after the v1.0
+schema lock + release-notes pass go here before the tag is cut.
+
+### Documentation
+
+- `docs/grounding_report_sample.md` — committed snapshot of
+  `eval-grounding` output against the shipped corpus
+  (deterministic + EchoBackend rows + describer safety invariants).
+  Numbers are visible without firing up the eval CLI; provenance
+  header notes the commit each snapshot came from. Real-backend
+  Anthropic numbers stay an explicit user-side decision per
+  `docs/paper_outline.md` open holes.
+- VLM region-embedding demo (PR #65) and coordination-strategies
+  demo (PR #66) ship under `examples/` + `docs/images/` so the
+  Plan / Resolve / Coordinate axes each have a hero visual in the
+  README gallery.
 
 ---
 

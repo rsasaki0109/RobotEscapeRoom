@@ -1,0 +1,107 @@
+# Grounding eval — committed sample report
+
+A static snapshot of `eval-grounding` output, committed so reviewers
+and paper-writers can see the numbers without firing up a Python
+environment. See [`docs/eval_grounding.md`](eval_grounding.md) for
+the metric definitions and corpus format.
+
+## Provenance
+
+```text
+git ref:    main @ 8ec87071b222
+generated:  2026-05-17
+corpus:     tests/fixtures/grounding/multi_floor_office.yaml  (22 cases)
+command:    semantic-toponav eval-grounding \
+              tests/fixtures/grounding/multi_floor_office.yaml \
+              --llm-backend echo --describer-safety
+```
+
+Regenerate by running the same command from a checkout at the same
+commit. Numbers drift only if the deterministic resolver, the
+describer, or the gold corpus changes — all three are exercised by
+`tests/test_eval_grounding.py` so any drift fails CI before it lands
+here.
+
+## Resolver grounding
+
+| resolver | n | precise | ambiguous | unresolvable | precision@1 | recall@3 | recall@5 | clarify | fp_resolve | abstain |
+|---|---|---|---|---|---|---|---|---|---|---|
+| deterministic | 22 | 13 | 4 | 5 | 1.00 | 1.00 | 1.00 | 0.00 | 0.20 | 0.80 |
+| echo | 22 | 13 | 4 | 5 | 1.00 | 1.00 | 1.00 | 1.00 | 0.20 | 0.80 |
+
+### How to read these numbers
+
+- **`precision@1`, `recall@3`, `recall@5`** are denominated against
+  the *answerable* cases (precise + ambiguous = 17). Both resolvers
+  hit 1.00 on this corpus: every answerable query lands its gold
+  target in the top-1 slot. The bag-of-words + floor parser handles
+  the patterns in the shipped corpus without surprise.
+- **`clarify`** is denominated against the *ambiguous* slice (4
+  cases). The deterministic resolver never raises a
+  `ClarificationQuestion` on its own (`resolve_goal` just returns a
+  ranked list), so its `clarify_rate` is 0 by construction. The
+  `echo` resolver lifts the rate to 1.0 because
+  `llm_resolve_goal`'s `ambiguity_threshold` check on the
+  deterministic top-1/top-2 gap fires for every ambiguous case in
+  this corpus.
+- **`fp_resolve`** and **`abstain`** are denominated against the
+  *unresolvable* slice (5 cases) and sum to 1.0 by construction.
+  Both resolvers leak one out of five unresolvable queries
+  (`fp_resolve = 0.20`). That's the abstention axis the
+  LLM-augmented path on a real cloud backend
+  (`--llm-backend anthropic`) is expected to harden — recorded as
+  open hole §3 in [`paper_outline.md`](paper_outline.md).
+
+The `echo` numbers are *machinery-level*: `EchoBackend` falls back to
+its `[echo] last_prompt_line` echo when no script is supplied, and
+`_llm_pick_from_response` can't parse that. The pipeline correctly
+falls back to the deterministic ranking, so the *grounded* metrics
+(precision@1 / recall@k / fp_resolve / abstain) are identical to the
+deterministic row. What changes is `clarify`, which fires from the
+top-1/top-2 gap check independent of the LLM reply.
+
+## Describer rewrite safety
+
+Backend: `echo`, n = 6 probes (full-plan + mid-traversal + situation
+variants on two representative paths in the multi-floor office
+graph).
+
+| invariant | pass rate |
+|---|---|
+| `references_preserved` | 1.00 |
+| `step_indices_preserved` | 1.00 |
+| `prior_steps_untouched` | 1.00 |
+| `situation_changes_output` | 1.00 |
+| `all_invariants` | 1.00 |
+| `fallback_rate` | 1.00 |
+
+### How to read these numbers
+
+- `fallback_rate = 1.00` because `EchoBackend` with no script
+  cannot return a parseable `N. <text>` reply, so every rewrite
+  falls back to the deterministic floor verbatim. Fallback rewrites
+  pass invariants 1–3 trivially (the deterministic floor is already
+  grounded and well-indexed). The `situation_changes_output`
+  invariant inspects the *prompt* the backend received rather than
+  the rewritten text, so it still measures whether the `situation=`
+  kwarg flowed through the prompt builder.
+- A real-backend run (`--llm-backend anthropic`) will have
+  `fallback_rate << 1.00` and the other four invariants become
+  *load-bearing* signals: they measure whether the LLM actually
+  preserved references, preserved step indices, respected the
+  mid-traversal prefix, and reacted to the situation hint. Those
+  numbers are an explicit open hole — see `paper_outline.md` §7.
+
+## Notes
+
+- This snapshot is regenerated manually as part of release prep, not
+  by CI. Auto-regeneration would either invite churn (every PR
+  touching the resolver re-writes the file) or hide a regression
+  behind a green build. The unit tests in `tests/test_eval_grounding.py`
+  catch any drift at the assertion level; this file's purpose is
+  publishing the numbers, not protecting them.
+- A real-backend version of this report (with
+  `--llm-backend anthropic`) is intentionally not committed: it
+  would require shipping API credentials in CI or accepting a
+  per-PR cost. The path to producing it locally is the same
+  command above with `--llm-backend anthropic`.
