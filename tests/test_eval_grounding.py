@@ -33,8 +33,8 @@ def test_load_grounding_corpus_smoke() -> None:
     corpus = load_grounding_corpus(CORPUS_PATH)
     assert isinstance(corpus, GroundingCorpus)
     assert corpus.graph_path.endswith("multi_floor_office.yaml")
-    # The fixture has roughly 22 cases spanning all three kinds.
-    assert len(corpus.cases) >= 20
+    # The fixture has 50+ cases spanning all three kinds.
+    assert len(corpus.cases) >= 50
     kinds = {c.kind for c in corpus.cases}
     assert kinds == {"precise", "ambiguous", "unresolvable"}
 

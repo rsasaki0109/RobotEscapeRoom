@@ -61,6 +61,77 @@ cases:
   - query: "north stairs on the third floor"
     gold: stairs_3f
     kind: precise
+  - query: "1st floor corridor"
+    gold: corridor_1f
+    kind: precise
+    note: "numeric ordinal floor parser, prefix form"
+  - query: "corridor on floor 3"
+    gold: corridor_3f
+    kind: precise
+    note: "postfix floor reference"
+  - query: "third floor corridor"
+    gold: corridor_3f
+    kind: precise
+    note: "ordinal-word floor parser"
+  - query: "lobby"
+    gold: lobby_1f
+    kind: precise
+    note: "single-token, unique by label"
+  - query: "the meeting room"
+    gold: meeting_room_2f
+    kind: precise
+    note: "label fragment, only one meeting room in graph"
+  - query: "lab"
+    gold: lab_1f
+    kind: precise
+    note: "single-token, unique"
+  - query: "robotics"
+    gold: lab_1f
+    kind: precise
+    note: "label fragment without 'lab' suffix"
+  - query: "robotics laboratory"
+    gold: lab_1f
+    kind: precise
+    note: "synonym suffix; only 'robotics' actually matches"
+  - query: "the elevator on floor 1"
+    gold: elevator_1f
+    kind: precise
+  - query: "elevator on floor 3"
+    gold: elevator_3f
+    kind: precise
+  - query: "third floor elevator"
+    gold: elevator_3f
+    kind: precise
+  - query: "stairs on floor 1"
+    gold: stairs_1f
+    kind: precise
+  - query: "stairs on the second floor"
+    gold: stairs_2f
+    kind: precise
+  - query: "1f kitchen"
+    gold: kitchen_1f
+    kind: precise
+    note: "abbreviated floor + redundant disambig (kitchen unique anyway)"
+  - query: "kitchen on the first floor"
+    gold: kitchen_1f
+    kind: precise
+  - query: "3F balcony"
+    gold: balcony_3f
+    kind: precise
+  - query: "3rd floor balcony"
+    gold: balcony_3f
+    kind: precise
+  - query: "exec office"
+    gold: exec_office_3f
+    kind: precise
+    note: "abbreviation; 'exec' doesn't token-match 'executive', wins on tie"
+  - query: "the office on the third floor"
+    gold: exec_office_3f
+    kind: precise
+    note: "no label fragment for 'exec'; floor disambig only"
+  - query: "2nd floor office"
+    gold: office_2f
+    kind: precise
 
   # ----- ambiguous -----
   - query: "the corridor"
@@ -77,6 +148,25 @@ cases:
     gold: [office_2f, exec_office_3f]
     kind: ambiguous
     note: "two distinct offices exist on different floors"
+  - query: "elevator A"
+    gold: [elevator_1f, elevator_2f, elevator_3f]
+    kind: ambiguous
+    note: "label fragment without floor; identical token-set across floors"
+  - query: "north stairs"
+    gold: [stairs_1f, stairs_2f, stairs_3f]
+    kind: ambiguous
+    note: "label fragment without floor"
+  - query: "the office"
+    gold: [office_2f, exec_office_3f]
+    kind: ambiguous
+  - query: "office"
+    gold: [office_2f, exec_office_3f]
+    kind: ambiguous
+    note: "single-token; matches label of both offices equally"
+  - query: "a room"
+    gold: [kitchen_1f, lab_1f, meeting_room_2f, office_2f, exec_office_3f, balcony_3f]
+    kind: ambiguous
+    note: "type-level match across six rooms; label match only for meeting_room_2f"
 
   # ----- unresolvable -----
   - query: "the basement"
@@ -96,4 +186,15 @@ cases:
   - query: "server room"
     gold: null
     kind: unresolvable
-    note: "no node labelled server"
+    note: "no node labelled server; deterministic floor false-positives on 'room'"
+  - query: "the gym"
+    gold: null
+    kind: unresolvable
+    note: "no label or type match → deterministic abstains"
+  - query: "loading dock"
+    gold: null
+    kind: unresolvable
+  - query: "secret room"
+    gold: null
+    kind: unresolvable
+    note: "'secret' has no anchor; 'room' false-positives to meeting_room_2f"

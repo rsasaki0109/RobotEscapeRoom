@@ -184,7 +184,8 @@ landed. Each links to the still-relevant follow-up work.
   rewrites, `situation` kwarg produces a surface change). LLM-as-judge
   is intentionally *not* the main scorer — gold node ids +
   deterministic invariants are. Shipped fixture at
-  `tests/fixtures/grounding/multi_floor_office.yaml` (22 cases).
+  `tests/fixtures/grounding/multi_floor_office.yaml` (50 cases;
+  expanded from 22 in PR #69).
   Closes the "Language-Specified Goals" measurement hole that
   blocked paper-track framing
 - Insertion-based repair for fleet ordering — `plan_fleet_insert`
