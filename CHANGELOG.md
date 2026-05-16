@@ -7,32 +7,22 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-The post-v1.0 working area. Polish PRs that land after the v1.0
-schema lock + release-notes pass go here before the tag is cut.
-
-### Documentation
-
-- `docs/grounding_report_sample.md` — committed snapshot of
-  `eval-grounding` output against the shipped corpus
-  (deterministic + EchoBackend rows + describer safety invariants).
-  Numbers are visible without firing up the eval CLI; provenance
-  header notes the commit each snapshot came from. Real-backend
-  Anthropic numbers stay an explicit user-side decision per
-  `docs/paper_outline.md` open holes.
-- VLM region-embedding demo (PR #65) and coordination-strategies
-  demo (PR #66) ship under `examples/` + `docs/images/` so the
-  Plan / Resolve / Coordinate axes each have a hero visual in the
-  README gallery.
+Working area for changes that land after the v1.0.0 tag. Currently
+empty.
 
 ---
 
-## [1.0.0] — pending
+## [1.0.0] — 2026-05-17
 
-First tagged release, consolidating PR #1–#62. The release captures
-the original MVP plus the 25-PR post-MVP arc that brought the
-project to *feature-complete across the original roadmap* (per
-`docs/paper_outline.md` and `plan.md` §22′). Tag timing is gated on
-the user-side decisions tracked in `plan.md` §24′.
+First tagged release of the post-MVP project, consolidating PR
+#1–#70. The release captures the original MVP plus the 33-PR
+post-MVP arc that brought the project to *feature-complete across
+the original roadmap and Phase B paper-freeze polish* (per
+`docs/paper_outline.md` and `plan.md` §22′ / §23′.1). v1.0 ships
+the locked public wire schemas + the language-grounding eval
+substrate; user-side decisions tracked in `plan.md` §24′ (paper
+venue, single-vs-companion, Anthropic-backend numbers, human-eval
+scope) remain open and do not block the tag.
 
 ### v1.0 stability guarantees
 
@@ -175,7 +165,8 @@ from third-party `skimage` low-contrast image diagnostics).
   recall@5 / clarification_rate / false_positive_resolve_rate /
   abstention_rate), `evaluate_describer_safety` (4 deterministic
   invariants for rewrite safety). Shipped fixture:
-  `tests/fixtures/grounding/multi_floor_office.yaml` (22 cases).
+  `tests/fixtures/grounding/multi_floor_office.yaml` (50 cases;
+  expanded 22 → 50 in PR #69).
 
 ### Added — Protocol conformance + schema lock
 
@@ -223,6 +214,27 @@ from third-party `skimage` low-contrast image diagnostics).
 - `docs/schema_v1.md` documenting the v1 freeze policy (PR #61)
 - `docs/paper_outline.md` — 5-chapter evaluation structure +
   evidence index + open holes for paper-writing (PR #62)
+- `docs/grounding_report_sample.md` — committed snapshot of
+  `eval-grounding` output against the shipped corpus (deterministic
+  + EchoBackend rows + describer safety invariants, PR #67;
+  regenerated in PR #69 against the expanded 50-case fixture).
+  Provenance header notes the commit each snapshot came from.
+  Real-backend Anthropic numbers stay an explicit user-side
+  decision per `docs/paper_outline.md` open holes.
+- `examples/vlm_region_embedding_demo.py` (PR #65) and
+  `examples/coordination_strategies_demo.py` (PR #66) ship hero
+  visuals for the Plan / Resolve / Coordinate axes in the README
+  gallery — VLM region patches and BnB-beats-greedy 1/5-vs-4/5.
+- `decisions.md` integrity pass (PR #68) — D-12 through D-17
+  record the post-MVP-arc design judgments that aren't derivable
+  from the code: Protocol bar, v1 schema lock policy, LLM safety
+  property, MAPF non-competition stance, out-of-repo adapter
+  split, paper-freeze direction.
+- `examples/ten_minute_tour.py` (PR #70) — single-file Resolve +
+  Plan + Coordinate walk-through on the multi_floor_office graph.
+  README quickstart points there as the newcomer entry point
+  before the deeper `docs/tutorial.md`. No plotting, no LLM
+  credentials, runs in under a second.
 
 ### Tooling and CI
 
@@ -271,7 +283,12 @@ ranking), and raw query vectors are never serialized in
 
 ### Migration notes
 
-There is no previous tagged release to migrate *from*. Future
-migration notes (for v2 schema bumps, removed CLI flags, etc.) will
-appear in this section per the freeze policy in
-[`docs/schema_v1.md`](docs/schema_v1.md).
+No migration notes for v1.0 (the previous tag `v0.1.0` was the
+initial public-release tag and predates the post-MVP arc this
+release consolidates). Future migration notes (for v2 schema
+bumps, removed CLI flags, etc.) will appear in this section per
+the freeze policy in [`docs/schema_v1.md`](docs/schema_v1.md).
+
+[Unreleased]: https://github.com/rsasaki0109/semantic-toponav/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/rsasaki0109/semantic-toponav/compare/v0.1.0...v1.0.0
+[0.1.0]: https://github.com/rsasaki0109/semantic-toponav/releases/tag/v0.1.0
