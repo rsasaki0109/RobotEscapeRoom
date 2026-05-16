@@ -115,6 +115,40 @@ class LLMResolveResult:
     embedding_scores: dict[str, float] = field(default_factory=dict)
     clarification: ClarificationQuestion | None = None
 
+    def to_dict(self) -> dict[str, object]:
+        """JSON-serializable form. v1-stable — see ``schemas/resolve_trace_v1.schema.json``."""
+        return {
+            "query": self.query,
+            "candidates": [_candidate_to_dict(c) for c in self.candidates],
+            "base_candidates": [_candidate_to_dict(c) for c in self.base_candidates],
+            "llm_pick": self.llm_pick,
+            "llm_reason": self.llm_reason,
+            "raw_response": self.raw_response,
+            "used_fallback": bool(self.used_fallback),
+            "embedding_scores": {k: float(v) for k, v in self.embedding_scores.items()},
+            "clarification": (
+                _clarification_to_dict(self.clarification)
+                if self.clarification is not None
+                else None
+            ),
+        }
+
+
+def _candidate_to_dict(c: GoalCandidate) -> dict[str, object]:
+    """Render a :class:`GoalCandidate` for the v1 ResolveTrace wire format."""
+    return {
+        "node_id": c.node_id,
+        "score": float(c.score),
+        "reasons": list(c.reasons),
+    }
+
+
+def _clarification_to_dict(q: ClarificationQuestion) -> dict[str, object]:
+    return {
+        "question": q.question,
+        "candidates": [_candidate_to_dict(c) for c in q.candidates],
+    }
+
 
 def _format_candidate_block(
     candidates: list[GoalCandidate],
