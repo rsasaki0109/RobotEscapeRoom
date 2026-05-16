@@ -125,6 +125,18 @@ class PlanWithSchedulerResult:
     conflicts: list[Reservation] = field(default_factory=list)
     reason_code: ReasonCode = "ok"
 
+    def to_dict(self) -> dict[str, object]:
+        """JSON-serializable form. v1-stable — see ``schemas/plan_with_scheduler_result_v1.schema.json``."""
+        return {
+            "agent_id": self.agent_id,
+            "path": list(self.path),
+            "claims": [_reservation_to_dict(r) for r in self.claims],
+            "granted": bool(self.granted),
+            "failure_reason": self.failure_reason,
+            "conflicts": [_reservation_to_dict(r) for r in self.conflicts],
+            "reason_code": self.reason_code,
+        }
+
 
 @dataclass
 class FleetPlanResult:
@@ -138,6 +150,27 @@ class FleetPlanResult:
 
     def by_agent(self) -> dict[str, PlanWithSchedulerResult]:
         return {r.agent_id: r for r in self.results}
+
+    def to_dict(self) -> dict[str, object]:
+        """JSON-serializable form. v1-stable — see ``schemas/fleet_plan_result_v1.schema.json``."""
+        return {
+            "results": [r.to_dict() for r in self.results],
+            "all_granted": bool(self.all_granted),
+        }
+
+
+def _reservation_to_dict(r: Reservation) -> dict[str, object]:
+    """Render a :class:`Reservation` as a v1-stable JSON object.
+
+    Mirrors the time-format used by the rest of the v1 wire surfaces
+    (``HH:MM:SS``) so cross-schema round-trips don't drift.
+    """
+    return {
+        "resource_id": r.resource_id,
+        "start": r.start.isoformat(timespec="seconds"),
+        "end": r.end.isoformat(timespec="seconds"),
+        "agent_id": r.agent_id,
+    }
 
 
 def _path_resources(
