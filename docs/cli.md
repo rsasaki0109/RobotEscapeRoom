@@ -25,7 +25,12 @@ semantic-toponav describe-path GRAPH START GOAL [...same options...]
 semantic-toponav plot          GRAPH [--start S --goal G] [--avoid-*] [--save FILE]
                                      [--show] [--edge-ids] [--title STR]
 semantic-toponav viewer        GRAPH [--start S --goal G] [--output FILE.html]
+semantic-toponav live-viewer   GRAPH [--host HOST] [--port PORT]
+                                     [--start S --goal G] [--poll-interval-ms MS]
 ```
+
+`live-viewer` runs a local HTTP server that re-renders the page when
+the graph YAML changes on disk — useful with the topology editor below.
 
 ## Multi-agent
 
@@ -33,13 +38,24 @@ semantic-toponav viewer        GRAPH [--start S --goal G] [--output FILE.html]
 semantic-toponav fleet-plan GRAPH --agent SPEC [--agent SPEC ...]
                                   --hold-start HH:MM --hold-end HH:MM
                                   [--policy fcfs|priority]
-                                  [--strategy greedy|priority|deadline|joint|bnb|exhaustive]
+                                  [--strategy greedy|priority|deadline|joint|bnb]
                                   [--bnb-objective min_cost|minimax_cost|max_fairness]
                                   [--admission soft|hard]
                                   [--minutes-per-cost-unit FLOAT]
 ```
 
 `SPEC` is `agent_id:start:goal[:priority[:HH:MM_deadline]]`.
+
+Two additional strategies are Python-API only — they are not reachable
+through `fleet-plan`:
+
+- `plan_fleet_exhaustive` — 2^n MIS enumeration as a theoretical
+  grant-rate upper bound. Available via `eval-synthetic --strategy
+  exhaustive` for measurement purposes.
+- `plan_fleet_insert` — insertion-based repair when most of an
+  ordering is already committed and only a handful of new requests
+  need to be merged in. See [coordination.md](coordination.md) and
+  [`semantic_toponav.coordination.plan_fleet_insert`](../semantic_toponav/coordination/repair.py).
 
 ## Evaluation
 
@@ -55,7 +71,20 @@ semantic-toponav eval-synthetic [--scenario all|chain|star|doorway|multi_floor].
                                 [--minutes-per-cost-unit FLOAT]
                                 [--out trials.jsonl] [--summary]
 semantic-toponav eval-report trials.jsonl [--summary]
+semantic-toponav eval-grounding CORPUS.yaml [--top-k N]
+                                            [--ambiguity-threshold F]
+                                            [--describer-safety]
+                                            [--llm-backend echo|anthropic [...llm flags...]]
+                                            [--out report.md]
 ```
+
+`eval-grounding` drives `resolve_goal` and (optionally)
+`llm_resolve_goal` against a YAML gold corpus tagged
+`precise` / `ambiguous` / `unresolvable`, and — with
+`--describer-safety` plus a backend — also runs four deterministic
+invariants over `llm_describe_path`. Reference corpus:
+[`tests/fixtures/grounding/multi_floor_office.yaml`](../tests/fixtures/grounding/multi_floor_office.yaml).
+Full details and metric definitions: [eval_grounding.md](eval_grounding.md).
 
 ## Visit history
 
@@ -76,7 +105,14 @@ semantic-toponav add-edge  GRAPH SRC TGT --type T [--id ID] [--cost C] [--one-wa
                                                   [--prop KEY=VALUE ...] [--in-place | --out FILE]
 semantic-toponav rm-node   GRAPH ID [--in-place | --out FILE]   # cascades to incident edges
 semantic-toponav rm-edge   GRAPH ID [--in-place | --out FILE]
+semantic-toponav undo      GRAPH                                # revert via the most recent .bak
+semantic-toponav diff      GRAPH [OTHER]                        # vs another file, or vs .bak
 ```
+
+In-place mutating commands (`add-*` / `rm-*` / `mark-doors` /
+`annotate-regions` / `compact` / `embed-regions` / `record-visit` /
+`record-path` / `clear-history`) write a `GRAPH.bak` snapshot before
+overwriting, so `undo` always has something to roll back to.
 
 ## Conversion pipelines
 
