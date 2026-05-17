@@ -883,7 +883,7 @@ historical record; everything is done.
 - ✅ semantic cost routing works
 - ✅ semantic waypoints are generated
 - ✅ CLI can validate and plan
-- ✅ tests pass (913 passed, 1 skipped as of 2026-05-17)
+- ✅ tests pass (913 passed, 1 skipped as of 2026-05-17, post-PR #67)
 - ✅ README explains the concept and usage
 - ✅ docs explain interfaces and decisions
 - ✅ ROS2 package skeleton exists
@@ -999,7 +999,11 @@ post-MVP arc organized around five axes.
 - PR #61 — **v1.0 wire schema lock** — `PlanWithSchedulerResult`,
   `FleetPlanResult`, `ConflictExplanation`, `ResolveTrace`, plus
   preference metadata; 15 tests keep dataclass `to_dict()` shapes
-  and JSON Schema files in lockstep
+  and JSON Schema files in lockstep. Closed-set `reason_code` enum
+  (`"ok" | "no_path" | "deadline_miss" | "reservation_conflict" |
+  "policy_rejected"`) is verified consistent across
+  `PlanWithSchedulerResult` and `ConflictExplanation` so adapters
+  dispatching on it never see surprise values
 
 ### 21′.6 Documentation + branding
 
@@ -1010,31 +1014,87 @@ post-MVP arc organized around five axes.
 - PR #51 — `docs/experiments.md` sync through PR #50
 - PR #62 — `docs/paper_outline.md` (5-chapter evaluation structure
   + evidence index + open holes)
+- PR #63 — **`CHANGELOG.md`** consolidating PR #1–#62 into v1.0
+  release notes (Keep a Changelog format, semver). The `[1.0.0]`
+  section is marked **pending** so flipping it to an ISO date and
+  cutting the tag is a one-line edit when the user-side decisions
+  in §24′ are made
+- PR #64 — Cross-reference audit aligning docs with the
+  post-PR-#63 v1 surface (added `live-viewer` / `undo` / `diff` /
+  `eval-grounding` to `cli.md`; fixed `fleet-plan --strategy`
+  choices; added Stable-wire-format sections to `coordination.md` +
+  `queries.md`; refreshed `tutorial.md` "Going further"; cleared
+  two stale Future-directions lines in `experiments.md` about
+  repair search + mid-traversal rewrite)
+- PR #65 — **VLM region-embedding demo** —
+  `examples/vlm_region_embedding_demo.py` builds the end-to-end
+  `annotate_regions` → `embed_region_patches(HashingBackend)` →
+  cosine-similarity heatmap pipeline against the bundled sample
+  map. Outputs: `docs/images/14_vlm_region_overview.png` (2×2 grid)
+  + `docs/images/15_vlm_region_cycle.gif` (3-frame cycling
+  animation). README gains a "VLM region embedding" gallery row;
+  the docstring + caption explicitly call out the `CLIPBackend` +
+  `AlignedRgbSource` upgrade path
+- PR #66 — **Coordination-strategies demo** —
+  `examples/coordination_strategies_demo.py` builds an
+  intentionally adversarial 5-agent scenario on a 10-node chain
+  where greedy / priority grant 1/5 and BnB / exhaustive grant 4/5.
+  Outputs: `docs/images/16_coordination_strategies.png` +
+  `docs/images/17_coordination_cycle.gif`. With this PR the README
+  gallery covers all three axes (Plan / Resolve / Coordinate) with
+  hero visuals — `docs/paper_outline.md` §4 has its lead figure
+- PR #67 — **Committed sample grounding report**
+  (`docs/grounding_report_sample.md`) — static snapshot of
+  `eval-grounding` against the shipped corpus with a provenance
+  header (git ref / date / exact command) and "How to read these
+  numbers" annotations. Reviewers / paper-writers see the actual
+  deterministic resolver result (precision@1 = 1.00, fp_resolve =
+  0.20) without firing up the eval CLI. Real-backend Anthropic
+  snapshot is intentionally not committed (would require API
+  credentials in CI); user-side open hole per
+  `docs/paper_outline.md` §7
 - README polish 2026-05-15 (`3d31fd1`) — three-axis What-it-does,
   multi-floor gallery row, status section reflecting post-PR-59 surface
 
-## 22′. Current state — post-PR #62 (2026-05-17)
+## 22′. Current state — post-PR #67 (2026-05-17)
 
 Headline numbers and surfaces a future visitor should read first.
 
-- **62 PRs merged**, ~16,000 LOC, **913 tests passing, 1 skipped**
+- **67 PRs merged**, ~16,000 LOC of Python, **913 tests passing, 1
+  skipped**
 - **Six v1-locked wire formats** with JSON Schema validation in CI
   (`SemanticWaypointArray`, `PlanWithSchedulerResult`,
   `FleetPlanResult`, `ConflictExplanation`, `ResolveTrace`, plus
   the preference metadata convention)
-- **Six Protocol plug points** with public conformance suites:
-  `LLMBackend`, encoder `Backend`, `AlignedRgbSource`,
-  `SchedulerProtocol`, `Transport`, `ConflictPolicy`
+- **Six Protocol plug points** with public conformance suites
+  including failure-mode depth: `LLMBackend`, encoder `Backend`,
+  `AlignedRgbSource`, `SchedulerProtocol`, `Transport`,
+  `ConflictPolicy`
 - **Seven fleet strategies** (`greedy` / `priority` / `deadline` /
   `joint` / `bnb` × 3 objectives / `exhaustive` MIS / `insert`)
-  all reachable from the CLI
+  exposed via Python API; `fleet-plan` / `eval-synthetic` CLIs
+  cover all but `insert` (Python-only by design — see
+  `coordination.md`)
 - **Two eval suites** — `eval-synthetic` for coordination,
   `eval-grounding` for language. Both produce JSONL + Markdown
   for later re-rendering.
+- **Three-axis README gallery hero coverage**:
+  - Plan — `docs/images/demo.gif` (4-frame multi-floor cost
+    composition cycling)
+  - Resolve — `docs/images/15_vlm_region_cycle.gif` (3-frame VLM
+    region cosine-similarity heatmap cycling)
+  - Coordinate — `docs/images/17_coordination_cycle.gif` (4-frame
+    greedy 1/5 vs BnB 4/5 cycling)
 - **Reference grounding numbers** on
   `tests/fixtures/grounding/multi_floor_office.yaml` (22 cases):
   deterministic resolver precision@1 = 1.00, recall@3 = recall@5 =
-  1.00, false_positive_resolve = 0.20, abstention = 0.80
+  1.00, false_positive_resolve = 0.20, abstention = 0.80. Sample
+  report committed at `docs/grounding_report_sample.md` so the
+  numbers are visible without firing up the CLI.
+- **Release-notes ready** — `CHANGELOG.md` consolidates PR #1–#62
+  under `[1.0.0] — pending`; flipping "pending" to an ISO date is a
+  one-line edit when §24′ decisions are made. Polish PRs #65–#67
+  land under `[Unreleased] → Documentation` in the meantime.
 
 `docs/paper_outline.md` organizes these into a 5-chapter paper
 evaluation structure with an evidence index pointing back at the
@@ -1054,9 +1114,25 @@ next moves are paper-track and ecosystem, not more in-tree features.
 | Phase A: `eval-grounding` shipped | ✅ PR #60 (2026-05-16) |
 | v1.0 schema lock | ✅ PR #61 (2026-05-16) |
 | Paper outline doc | ✅ PR #62 (2026-05-16) |
-| CHANGELOG / release notes consolidating PR #35–#62 | pending |
-| Cross-reference audit (tutorial / experiments / cli) vs v1 surface | pending |
+| CHANGELOG / release notes consolidating PR #1–#62 | ✅ PR #63 (2026-05-17) |
+| Cross-reference audit (tutorial / experiments / cli) vs v1 surface | ✅ PR #64 (2026-05-17) |
 | User-side decisions (see §24′) | gating downstream work |
+
+**All Phase B core coding items shipped.** Post-Phase-B polish PRs
+(grouped under `CHANGELOG.md [Unreleased] → Documentation`) have
+also landed:
+
+| Polish PR | What |
+|---|---|
+| ✅ PR #65 (2026-05-17) | VLM region-embedding demo (`examples/vlm_region_embedding_demo.py`) + cycling GIF in README gallery |
+| ✅ PR #66 (2026-05-17) | Coordination-strategies demo (`examples/coordination_strategies_demo.py`) + cycling GIF; the 1/5-vs-4/5 BnB-beats-greedy figure paper §4 needed |
+| ✅ PR #67 (2026-05-17) | `docs/grounding_report_sample.md` static snapshot with provenance header |
+
+After these, the README gallery covers all three axes (Plan /
+Resolve / Coordinate) with hero visuals, the v1 wire formats are
+locked + sample-validated, and the grounding numbers are visible
+without running anything. **What remains gating v1.0 is user-side
+decisions** (§24′) — no more autonomous code-track work remains.
 
 **Protocol moratorium until v1.0** — the bar for adding a 7th
 Protocol is intentionally high (≥2 non-toy implementations or a
@@ -1126,7 +1202,7 @@ tasks; they need user judgment.
    audit remain. Tag immediately after, or wait until paper
    acceptance?
 
-## 25′. Claude handoff prompt (post-Phase-A)
+## 25′. Claude handoff prompt (post-Phase-B-coding)
 
 ```text
 You are continuing work on semantic-toponav, a feature-complete
@@ -1135,22 +1211,37 @@ executors.
 
 Read plan.md sections 22′–24′ first to know the current state.
 
-The repository is in Phase B: paper freeze + v1.0 release. The
-default mode is "do not start new feature PRs without explicit
-user direction." Coding work allowed in Phase B:
+The repository is in late Phase B: all coding items are shipped
+(PR #60–#64) plus three polish PRs (#65–#67). What remains is
+user-side decision work that gates the v1.0 tag and the paper —
+none of it is code you can ship autonomously.
 
-- v1.0 release notes / CHANGELOG (PR #35–#62)
-- cross-reference audit between docs and the v1 surface (catch
-  stale CLI flags / signatures before v1 tag)
-- small docs polish if you find drift while doing the audit
+Coding work that is still in-bounds (when explicitly requested):
+
+- `decisions.md` integrity pass — the early decisions doc predates
+  the post-MVP arc; an integrity update would record the Protocol
+  bar, the v1 schema lock policy, and the paper-freeze direction
+  as historical record
+- More gold-corpus cases under tests/fixtures/grounding/ — the
+  shipped 22 cases produce decisive numbers (precision@1=1.00) but
+  a 50+ case corpus would harden paper §3
+- A "10-minute tour" example consolidating the Plan / Resolve /
+  Coordinate axes into one end-to-end script under examples/
+- Re-running the grounding sample report after any change to the
+  resolver, describer, or corpus (regenerate
+  docs/grounding_report_sample.md; bump the provenance header SHA)
 
 Do not:
 
 - add a 7th Protocol (moratorium until v1.0)
-- start a Phase C ecosystem package (out-of-repo, not this repo)
+- start a Phase C ecosystem package (Nav2 BT / Foxglove / Mast3R
+  are out-of-repo by design)
 - start new feature axes (physical loop, online learning,
   multi-fleet) — those are post-v1 / next-paper territory
 - compete head-to-head with MAPF specialists on gridworld
+- regenerate docs/grounding_report_sample.md from CI — it is a
+  manual release-prep artifact by design (see the file's "Notes"
+  section)
 
 Workflow conventions:
 
@@ -1162,7 +1253,20 @@ Workflow conventions:
 - Tests use venv at .venv-pyvis/ with PYTHONPATH unset to avoid
   ROS pytest plugin leakage
 - gh CLI lives at ~/.local/bin/gh (prepend PATH)
+- plan.md is tracked; update it (especially §23′.1 and §22′)
+  whenever a Phase B / post-B PR lands so future Claude sessions
+  start oriented
 
-Update plan.md §23′.1 status table as Phase B items land.
+Cue cadence the user expects:
+
+- "tugi" / "nokori yattekou" — go to the next thing, full PR cycle
+- "yattekou" / "yatte" — green-light the most recently proposed unit
+- "osusumede" — your recommendation, decide and ship
+- "comit!" / "push!" / "merge!" — explicit gates the user wants
+  before those actions
+- "kore nani?" / "nanisiteruno?" — orientation request, give a
+  tight status, do not start new work
+- "ittan plan md wo … kousin shitekudasai" — update plan.md
+  without committing; wait for explicit "comit!"
 ```
 
