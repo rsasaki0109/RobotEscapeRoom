@@ -124,6 +124,28 @@ logs (CSV / rosbag2) via greedy clustering.
 |---|---|
 | ![trajectory](docs/images/08_trajectory_topology.png) | ![csv](docs/images/13_csv_trajectory.png) |
 
+### VLM region embedding
+
+After `annotate_regions` carves a graph into rooms,
+`embed_region_patches` stamps an encoder vector onto every node in
+each region (CLIP, Hashing, or any
+[`Backend`](docs/conformance.md)-conforming adapter). At query time
+the same vector can be used to retrieve nodes by cosine similarity —
+the same wire format the LLM resolver consumes as
+`embedding_score=` context.
+
+<p align="center">
+  <img src="docs/images/15_vlm_region_cycle.gif" width="640" alt="cycling through three query regions; nodes light up by cosine similarity">
+</p>
+
+<p align="center">
+  <sub>Three query regions, three different highlight patterns. The
+  example uses the dependency-free <code>HashingBackend</code>; swap in
+  <code>CLIPBackend</code> + an <code>AlignedRgbSource</code> to ground
+  text queries on real photographs. Reproduce via
+  <code>python examples/vlm_region_embedding_demo.py</code>.</sub>
+</p>
+
 ---
 
 ## Features
