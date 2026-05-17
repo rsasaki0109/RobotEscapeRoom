@@ -75,7 +75,14 @@ for wp in path_to_semantic_waypoints(graph, path):
     print(wp.instruction)
 ```
 
-New here? Walk through the
+New here? Run the
+[**ten-minute tour**](examples/ten_minute_tour.py)
+(`python examples/ten_minute_tour.py`) for a single-file walkthrough
+of the three axes — Resolve, Plan, Coordinate — on the shipped
+`multi_floor_office.yaml` graph. No plotting, no LLM credentials,
+runs in under a second.
+
+For a deeper read, walk through the
 [**three-floor tutorial**](docs/tutorial.md) end-to-end.
 
 ---
