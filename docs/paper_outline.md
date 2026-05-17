@@ -194,25 +194,25 @@ and *clarification* (asking instead of guessing on ambiguous ones).
 
 **Setup:**
 
-- Gold corpus: `tests/fixtures/grounding/multi_floor_office.yaml` (22 cases, 13 precise / 4 ambiguous / 5 unresolvable). Pointer: [`docs/eval_grounding.md`](eval_grounding.md).
+- Gold corpus: `tests/fixtures/grounding/multi_floor_office.yaml` (50 cases, 33 precise / 9 ambiguous / 8 unresolvable; expanded 22 → 50 in PR #69). Pointer: [`docs/eval_grounding.md`](eval_grounding.md).
 - Both resolvers (`deterministic`, `llm_resolve_goal` over `EchoBackend` / `AnthropicBackend`) run via `eval-grounding` CLI.
 
 **Metrics:** precision@1, recall@3, recall@5, clarification_rate, false_positive_resolve_rate, abstention_rate.
 
-**Headline numbers (already measured, deterministic resolver, 22-case fixture):**
+**Headline numbers (already measured, deterministic resolver, 50-case fixture):**
 
 - precision@1 = 1.00
 - recall@3 = recall@5 = 1.00
 - clarification_rate = 0.00 (deterministic resolver doesn't emit `ClarificationQuestion` on its own)
-- false_positive_resolve_rate = 0.20
-- abstention_rate = 0.80
+- false_positive_resolve_rate = 0.25 (2/8 unresolvable — `"server room"` and `"secret room"` both pull `meeting_room_2f` via the `'room'` label token)
+- abstention_rate = 0.75
 
-**The story this tells:** bag-of-words + floor parsing handles every *answerable* query in the fixture. The remaining axis where the LLM-augmented resolver should win is **abstention** — we expect the LLM-augmented `false_positive_resolve_rate` to drop below 0.20. With `EchoBackend` it actually rises to 1.00 (echo-fallback can't tell "no candidate" from "any candidate"), so the EchoBackend numbers are illustrative of the *machinery*, not of the *contribution*; the real Anthropic backend numbers go in the paper.
+**The story this tells:** bag-of-words + floor parsing handles every *answerable* query in the fixture even after the 22 → 50 expansion widened the linguistic surface (ordinal/word/abbreviated floor mentions, single-token labels, label fragments, bare-type queries). The remaining axis where the LLM-augmented resolver should win is **abstention** — we expect the LLM-augmented `false_positive_resolve_rate` to drop below 0.25. With `EchoBackend` it actually rises to 1.00 (echo-fallback can't tell "no candidate" from "any candidate"), so the EchoBackend numbers are illustrative of the *machinery*, not of the *contribution*; the real Anthropic backend numbers go in the paper.
 
 **Gap to fill:**
 
 - Run the Anthropic backend against the same corpus and add a row to the report. Numbers go straight into the chapter.
-- Optionally: a larger corpus (~100 cases) covering more node-label patterns, ambiguous synonyms, and floor-misnaming. The 22-case fixture is enough for the existence claim; a larger corpus strengthens it.
+- Optionally: a larger corpus (~100 cases) covering even more node-label patterns and floor-misnaming variants. The 50-case fixture is sufficient for both the existence claim and a quantitative stress test of the resolver's failure modes; a ~100-case corpus would strengthen it.
 
 ### 7. Evaluation chapter 4 — Describer rewrite safety
 
