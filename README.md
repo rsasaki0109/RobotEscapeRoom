@@ -146,6 +146,25 @@ the same wire format the LLM resolver consumes as
   <code>python examples/vlm_region_embedding_demo.py</code>.</sub>
 </p>
 
+### Multi-agent coordination
+
+The same scheduler under four ordering strategies. The scenario is
+intentionally adversarial — a long-haul agent is submitted first, so
+naive greedy locks every other agent out (1/5 granted). Branch-and-
+bound and the exhaustive MIS baseline reorder the queue and fit four
+short-haul agents into disjoint segments (4/5 granted).
+
+<p align="center">
+  <img src="docs/images/17_coordination_cycle.gif" width="640" alt="cycling through four coordination strategies; greedy and priority grant 1/5, BnB and exhaustive grant 4/5">
+</p>
+
+<p align="center">
+  <sub>greedy / priority → 1/5 (only the long-haul fits). bnb /
+  exhaustive → 4/5 (long-haul denied, four shorts fit). Reproduce via
+  <code>python examples/coordination_strategies_demo.py</code>. Static
+  2x2 reference: <code>docs/images/16_coordination_strategies.png</code>.</sub>
+</p>
+
 ---
 
 ## Features
