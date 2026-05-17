@@ -211,15 +211,42 @@ xdg-open examples/multi_floor_viewer.html
 
 ## 9. Going further
 
-- **CLI cheat sheet:** `semantic-toponav --help`, then
-  `semantic-toponav plan --help` / `waypoints --help` / `plot --help`.
-- **Memory layer:** revisit-aware cost functions and visit history are
-  documented in the [README's memory section](../README.md#visit-history-memory).
-- **Trajectory ingestion:** turn recorded runs (CSV or rosbag2) into
-  topology graphs via `topology_from_trajectories` — see
-  [Loading trajectories](interfaces.md#loading-trajectories-from-csv).
-- **ROS2 integration:** end-to-end node graph and a worked Nav2 example
-  live in [`ros2/README.md`](../ros2/README.md).
+This tutorial walks the *foundational* flow (load → inspect → plan →
+waypoint → visualize). The rest of the project goes further on every
+axis; pick the page that matches what you want next:
+
+- **CLI cheat sheet:** [`docs/cli.md`](cli.md) for every subcommand,
+  or `semantic-toponav <subcommand> --help` for any of them.
+- **Cost composition:** restricted edges, time-of-day closures,
+  calendar-aware overrides, soft per-edge preferences, multi-floor
+  heuristics — [`docs/cost_composition.md`](cost_composition.md).
+- **Multi-agent coordination:** `SharedScheduler`, seven fleet
+  strategies (greedy / priority / deadline / joint / BnB / exhaustive
+  MIS / insertion repair), HTTP transport, explainable admission with
+  closed `reason_code` enum — [`docs/coordination.md`](coordination.md).
+- **Semantic queries + LLM/VLM grounding:** `find_nodes` /
+  `nearest_*` / `resolve_goal`, embedding retrieval,
+  `llm_resolve_goal` + multi-turn `DialogSession`, mid-traversal
+  describer rewrite, visit-history memory —
+  [`docs/queries.md`](queries.md).
+- **Map / log conversion:** occupancy → topology with skeletonization
+  + door detection + region segmentation, plus trajectory ingestion
+  (CSV / rosbag2) — [`docs/conversion.md`](conversion.md).
+- **Language-grounding eval:** YAML gold-corpus driver for
+  `resolve_goal` / `llm_resolve_goal` and describer rewrite safety
+  invariants — [`docs/eval_grounding.md`](eval_grounding.md).
+- **Protocol conformance:** reusable suites for every Protocol plug
+  point (`LLMBackend`, encoder `Backend`, `AlignedRgbSource`,
+  `SchedulerProtocol`, `Transport`, `ConflictPolicy`) with
+  failure-mode depth — [`docs/conformance.md`](conformance.md).
+- **v1 wire formats:** the six locked JSON shapes adapters and
+  external repos can rely on — [`docs/schema_v1.md`](schema_v1.md).
+- **ROS2 integration:** end-to-end node graph and a worked Nav2
+  example — [`ros2/README.md`](../ros2/README.md).
 - **Public API reference:** [`docs/interfaces.md`](interfaces.md).
+- **What changed and when:** [`CHANGELOG.md`](../CHANGELOG.md)
+  for the consolidated v1.0 release notes (PR #1–#62);
+  [`docs/experiments.md`](experiments.md) for the running feature
+  index with PR references.
 
 Found a rough edge? File an issue — see [`CONTRIBUTING.md`](../CONTRIBUTING.md).

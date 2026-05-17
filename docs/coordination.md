@@ -290,3 +290,14 @@ makespan, max wait, Jain's fairness, conflict count, deadline misses
 (under `--admission hard`), and per-strategy latency p50 / max.
 Python API mirror: `from semantic_toponav.eval import Scenario,
 run_sweep, trials_to_markdown_table`.
+
+## Stable wire format
+
+`PlanWithSchedulerResult`, `FleetPlanResult`, and `ConflictExplanation`
+are v1-locked. Every dataclass has a `to_dict()` method whose shape is
+guaranteed under [`docs/schema_v1.md`](schema_v1.md), with JSON
+Schemas under [`schemas/`](../schemas/) and a test suite
+(`tests/test_schema_v1_lock.py`) that fails CI if the dataclass and
+the schema file drift. The `reason_code` enum is a **closed set**
+(`"ok" | "no_path" | "deadline_miss" | "reservation_conflict" |
+"policy_rejected"`) — adapters can dispatch on it safely.

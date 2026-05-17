@@ -306,3 +306,23 @@ semantic-toponav plan examples/multi_floor_office.yaml entrance exec_office_3f \
 semantic-toponav history examples/multi_floor_office.yaml
 semantic-toponav clear-history examples/multi_floor_office.yaml --in-place
 ```
+
+## Stable wire format
+
+`LLMResolveResult` is v1-locked. The `to_dict()` shape (a.k.a.
+`ResolveTrace`) is guaranteed under
+[`docs/schema_v1.md`](schema_v1.md) with JSON Schema at
+[`schemas/resolve_trace_v1.schema.json`](../schemas/resolve_trace_v1.schema.json).
+`embedding_scores` is scalars only — raw query vectors are never
+serialized, matching the design rule that prompts carry structured
+retrieval context rather than opaque numerics.
+
+## Measuring grounding quality
+
+The language-grounding eval suite (`eval-grounding` CLI, Python API
+`semantic_toponav.eval.evaluate_resolver` /
+`evaluate_describer_safety`) drives both resolvers against a YAML
+gold corpus and reports precision@1 / recall@3 / recall@5 /
+clarification_rate / false_positive_resolve_rate / abstention_rate,
+plus four deterministic invariants over `llm_describe_path`. Format
+and reference numbers in [`docs/eval_grounding.md`](eval_grounding.md).

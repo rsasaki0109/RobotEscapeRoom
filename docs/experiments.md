@@ -519,9 +519,14 @@ What's still open. Each is a candidate for an experiment branch.
   checkpoint across restarts. The real-time RPC shim ships
   (`SchedulerProtocol` + `SchedulerClient` + `LocalTransport`) with
   an HTTP reference transport
-  (`HttpSchedulerServer` + `HttpTransport`, stdlib only). What's
-  still open: anytime / repair search that mutates an existing
-  committed ordering rather than re-running from scratch; a real
+  (`HttpSchedulerServer` + `HttpTransport`, stdlib only). Insertion-based
+  repair for the *incremental admission* case ships
+  (`plan_fleet_insert` — tries every position for each new request
+  under the same objective tie-break BnB uses; `O(k·(n+k))` vs
+  `O((n+k)!)` for a full re-search). What's still open: deeper
+  BnB-based repair that re-explores the *committed prefix* too
+  (insertion handles the practical case, so this stays deferred
+  until eval shows current pruning is the bottleneck); a real
   MILP / CP-SAT solver baseline (e.g. via `ortools`) for the
   densely contended end where the pure-Python exhaustive baseline
   no longer fits the `n_limit=16` cap; and additional non-HTTP
@@ -541,13 +546,17 @@ What's still open. Each is a candidate for an experiment branch.
   `AmbiguousGoalError`), and the multi-turn session driver
   (`DialogSession` + `DialogTurn`) ships too — accumulates
   `free_text` hints across replies so consecutive answers narrow
-  rather than reset. What's still open: *mid-traversal* rewrite
-  where the describer regenerates instructions as the robot's
-  position changes (the dialog layer today targets goal
-  resolution, not the running describer); and learned region
+  rather than reset. Mid-traversal describer rewrite also ships
+  (`llm_describe_path` gains `start_index=` to skip steps the agent
+  has already executed and `situation=` for a natural-language
+  environmental hint; the original step numbers are preserved on
+  the rewritten slice). What's still open: learned region
   segmentation under an aligned-RGB pipeline (Mast3R / mesh-render
   / robot-camera keyframes) so the VLM embeds actual photographs
-  rather than occupancy-grid bbox crops.
+  rather than occupancy-grid bbox crops — the in-repo plug point
+  ships (`AlignedRgbSource` Protocol + `StaticImageRgbSource`); the
+  Mast3R adapter itself is intentionally out-of-repo
+  (`semantic-toponav-mast3r` Phase C package).
 - topology graphs as scratchpad for embodied agents
 
 ### Tooling
