@@ -47,7 +47,8 @@ absolute, so a corpus can ship next to its reference graph.
 
 A shipped fixture for `examples/multi_floor_office.yaml` lives at
 [`tests/fixtures/grounding/multi_floor_office.yaml`](../tests/fixtures/grounding/multi_floor_office.yaml)
-— 22 cases across all three kinds.
+— 50 cases (33 precise / 9 ambiguous / 8 unresolvable) across all
+three kinds.
 
 ## Metrics
 
@@ -158,7 +159,7 @@ resolver:
 
 ```
 | resolver      | n  | precision@1 | recall@3 | recall@5 | clarify | fp_resolve | abstain |
-| deterministic | 22 | 1.00        | 1.00     | 1.00     | 0.00    | 0.20       | 0.80    |
+| deterministic | 50 | 1.00        | 1.00     | 1.00     | 0.00    | 0.25       | 0.75    |
 ```
 
 A committed full sample including the EchoBackend row + describer
@@ -168,11 +169,19 @@ regenerated manually as part of release prep, with a provenance
 header noting the commit it came from.
 
 Reading: bag-of-words + floor parsing handles every *answerable*
-query in the fixture (precision@1 = 1.0) but resolves one out of
-five *unresolvable* queries as a false positive — that's the
-`abstention` axis the LLM-augmented resolver is supposed to harden.
-The ambiguous-case `clarify` rate is `0.00` for the deterministic
-floor by construction; switching to `--llm-backend echo` lifts it
-because `llm_resolve_goal` then checks the top-1/top-2 gap against
-`--ambiguity-threshold` and raises `ClarificationQuestion` when the
-gap is below it.
+query in the fixture (precision@1 = 1.0) — the 22 → 50 expansion
+in PR #69 widened the linguistic surface (ordinal/word/abbreviated
+floor mentions, single-token labels, label fragments, bare-type
+queries) without dropping the precision ceiling. The resolver
+still leaks two out of eight *unresolvable* queries as false
+positives (`server room`, `secret room` — both pulled in by the
+`'room'` token matching `meeting_room_2f`'s label). That's the
+`abstention` axis the LLM-augmented resolver is supposed to
+harden. The ambiguous-case `clarify` rate is `0.00` for the
+deterministic floor by construction; switching to `--llm-backend
+echo` lifts it to 0.89 (8/9) because `llm_resolve_goal` then
+checks the top-1/top-2 gap against `--ambiguity-threshold` and
+raises `ClarificationQuestion` when the gap is below it. The one
+non-clarified ambiguous case is `"a room"`, where
+`meeting_room_2f`'s label-match opens a top-1/top-2 gap wider
+than the default threshold.
