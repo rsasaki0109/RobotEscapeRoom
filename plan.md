@@ -1056,12 +1056,16 @@ post-MVP arc organized around five axes.
 - README polish 2026-05-15 (`3d31fd1`) — three-axis What-it-does,
   multi-floor gallery row, status section reflecting post-PR-59 surface
 
-## 22′. Current state — post-PR #67 (2026-05-17)
+## 22′. Current state — post-v1.0 (post-PR #71, post-Phase-C bootstrap, 2026-05-18)
 
 Headline numbers and surfaces a future visitor should read first.
 
-- **67 PRs merged**, ~16,000 LOC of Python, **913 tests passing, 1
+- **71 PRs merged**, ~16,000 LOC of Python, **913 tests passing, 1
   skipped**
+- **`v1.0.0` tagged 2026-05-17** — annotated tag at commit `880de64`
+  (release PR #71), GitHub Release published as latest. CHANGELOG's
+  `[1.0.0] — pending` flipped to `2026-05-17`; `[Unreleased]` polish
+  folded into the v1.0 body
 - **Six v1-locked wire formats** with JSON Schema validation in CI
   (`SemanticWaypointArray`, `PlanWithSchedulerResult`,
   `FleetPlanResult`, `ConflictExplanation`, `ResolveTrace`, plus
@@ -1085,16 +1089,27 @@ Headline numbers and surfaces a future visitor should read first.
     region cosine-similarity heatmap cycling)
   - Coordinate — `docs/images/17_coordination_cycle.gif` (4-frame
     greedy 1/5 vs BnB 4/5 cycling)
-- **Reference grounding numbers** on
-  `tests/fixtures/grounding/multi_floor_office.yaml` (22 cases):
-  deterministic resolver precision@1 = 1.00, recall@3 = recall@5 =
-  1.00, false_positive_resolve = 0.20, abstention = 0.80. Sample
-  report committed at `docs/grounding_report_sample.md` so the
-  numbers are visible without firing up the CLI.
-- **Release-notes ready** — `CHANGELOG.md` consolidates PR #1–#62
-  under `[1.0.0] — pending`; flipping "pending" to an ISO date is a
-  one-line edit when §24′ decisions are made. Polish PRs #65–#67
-  land under `[Unreleased] → Documentation` in the meantime.
+- **Reference grounding numbers** on the **expanded 50-case fixture**
+  `tests/fixtures/grounding/multi_floor_office.yaml` (33 precise /
+  9 ambiguous / 8 unresolvable): deterministic resolver
+  precision@1 = 1.00, recall@3 = recall@5 = 1.00,
+  false_positive_resolve = 0.25, abstention = 0.75. Sample report
+  committed at `docs/grounding_report_sample.md` (provenance pinned
+  to `feat/grounding-corpus-expansion @ 16be17bad650`) so the numbers
+  are visible without firing up the CLI.
+- **Phase C ecosystem bootstrap (out-of-repo per §23′.2)** started
+  2026-05-17 / 2026-05-18:
+  - [`rsasaki0109/semantic-toponav-nav2-bt`](https://github.com/rsasaki0109/semantic-toponav-nav2-bt)
+    v0.1.0 scaffold + lint-cleanup PR #2 (`a38e716`, closes issue #1).
+    `ament_lint_auto` + `ament_lint_common` green; cpplint / uncrustify
+    / xmllint / lint_cmake all pass, `ament_copyright` excluded via
+    `AMENT_LINT_AUTO_EXCLUDE` and documented.
+  - [`rsasaki0109/semantic-toponav-foxglove-panel`](https://github.com/rsasaki0109/semantic-toponav-foxglove-panel)
+    v0.2.0 (`990aef6`). Two panels: `Semantic TopoNav Panel`
+    (`/fleet_plan_result` → per-agent Gantt + reason_code table) and
+    `Semantic TopoNav Conflicts` (`/conflict_explanations` → count-by-
+    reason summary + per-conflict table). 12 jest tests green on
+    Node 20.
 
 `docs/paper_outline.md` organizes these into a 5-chapter paper
 evaluation structure with an evidence index pointing back at the
@@ -1116,7 +1131,8 @@ next moves are paper-track and ecosystem, not more in-tree features.
 | Paper outline doc | ✅ PR #62 (2026-05-16) |
 | CHANGELOG / release notes consolidating PR #1–#62 | ✅ PR #63 (2026-05-17) |
 | Cross-reference audit (tutorial / experiments / cli) vs v1 surface | ✅ PR #64 (2026-05-17) |
-| User-side decisions (see §24′) | gating downstream work |
+| **v1.0.0 release** — CHANGELOG date flip + annotated tag + GitHub Release | ✅ PR #71 (2026-05-17, `880de64`) |
+| User-side decisions (see §24′) | gating paper-writing only — did not gate the tag |
 
 **All Phase B core coding items shipped.** Post-Phase-B polish PRs
 (grouped under `CHANGELOG.md [Unreleased] → Documentation`) have
@@ -1138,9 +1154,10 @@ without running anything, the design-decision log is current
 through the post-MVP arc, the gold corpus is stress-tested at 50
 cases, and a 10-minute single-file tour is the README's
 sanity-check entry point. **§25′'s in-bounds-coding list is
-exhausted** and **what remains gating v1.0 is user-side decisions
-in §24′** — no more autonomous code-track work remains under the
-moratorium.
+exhausted**, the v1.0.0 tag has shipped (PR #71), and the next
+work surfaces are the Phase C external repos (§23′.2 below) plus
+the user-side decisions in §24′ — no more in-tree code-track work
+remains under the moratorium.
 
 **Protocol moratorium until v1.0** — the bar for adding a 7th
 Protocol is intentionally high (≥2 non-toy implementations or a
@@ -1158,14 +1175,56 @@ Order picked by adoption-pull:
    the `SemanticWaypointArray` → `NavigateThroughPoses` bridge
    (`nav2_demo_node.py`). Biggest robotics-user pull. Needs v1.0
    schema lock tagged first (§22′ covers it).
-2. **`semantic-toponav-foxglove`** (TypeScript) — Foxglove custom
-   panel visualizing reservation table / schedule Gantt / resolve
-   trace / reject reasons. Demo / debugging / adoption value.
+   - **v0.1.0 scaffolded 2026-05-17** at
+     [`rsasaki0109/semantic-toponav-nav2-bt`](https://github.com/rsasaki0109/semantic-toponav-nav2-bt).
+     `FollowSemanticWaypointsAction` BT.CPP v3 action node
+     (`nav2_behavior_tree::BtActionNode<NavigateThroughPoses>`)
+     reads `SemanticWaypointArray` from blackboard, filters
+     `has_pose=false`, converts to `PoseStamped[]`, dispatches.
+     Sample BT XML + gtest smoke (factory registration). Green CI
+     on ROS 2 Humble container with Nav2 + BT.CPP v3 + the upstream
+     `v1.0.0`-tagged `semantic_toponav_msgs`.
+   - **Issue #1 closed 2026-05-17 by PR #2** (`a38e716`) —
+     `ament_lint_auto` + `ament_lint_common` re-enabled; cpplint /
+     uncrustify / xmllint / lint_cmake green. `ament_copyright`
+     excluded via `AMENT_LINT_AUTO_EXCLUDE` (it expects a
+     `CONTRIBUTING.md` and rejects the standard Apache-2.0 LICENSE
+     text), documented in `CMakeLists.txt` + `CHANGELOG.md`. BT
+     factory builder lambdas refactored into anonymous-namespace
+     functions so uncrustify lambda-indent rules apply cleanly.
+   - Open follow-up: v0.2 NavigateThroughPoses feedback wiring
+     (current_waypoint, distance_remaining → blackboard) so upper
+     BTs can branch on progress. Not started.
+2. **`semantic-toponav-foxglove-panel`** (TypeScript) — Foxglove
+   custom panel(s) visualizing the v1 wire formats.
+   - **v0.1.0 scaffolded 2026-05-17, v0.2.0 shipped 2026-05-18**
+     at
+     [`rsasaki0109/semantic-toponav-foxglove-panel`](https://github.com/rsasaki0109/semantic-toponav-foxglove-panel)
+     (release commit `990aef6`). Two panels registered:
+     - `Semantic TopoNav Panel` — subscribes to `/fleet_plan_result`,
+       decodes `FleetPlanResult` v1, renders per-agent Gantt of
+       claims + `reason_code`-colored status table. Midnight-
+       wrapping reservations (`end <= start`) split at day boundary.
+     - `Semantic TopoNav Conflicts` — subscribes to
+       `/conflict_explanations`, decodes `ConflictExplanation` v1
+       (either array or single-record form), renders count-by-
+       reason summary band + per-conflict table.
+   - Pure data transforms (`src/gantt.ts`, `src/conflicts.ts`) are
+     jest-tested separately from the Foxglove extension API (12
+     tests green on Node 20). Shared `reason_code` palette across
+     panels.
+   - Open follow-up: issue #1 — wire `foxglove-extension build`
+     into CI for tagged `.foxe` artifact releases. Not started.
+   - Open follow-up: third panel `Semantic TopoNav Resolve` for the
+     `ResolveTrace` wire format (chosen_node / abstained / candidates
+     / scores). Would complete the per-wire-format panel coverage
+     story. Not started.
 3. **`semantic-toponav-mast3r`** (Python + torch) — Adapter
    implementing `AlignedRgbSource` against Mast3R rerenders. Plug
    point (PR #52) is already in core; this package fills in the
-   heavy-deps side. Sequenced last so the paper isn't framed
-   around the vision-model adapter story.
+   heavy-deps side. **Deferred until after the paper** per the
+   `project-paper-freeze-direction` memory — so the paper isn't
+   framed around the vision-model adapter story. Not started.
 
 Ecosystem items deliberately gated on real-user demand:
 
@@ -1206,85 +1265,117 @@ tasks; they need user judgment.
 4. **Human-eval scope for describer rewrite.** 0 cases (rely on the
    four deterministic invariants), 20–50 cases (sidebar coherence
    rating), or larger crowd panel.
-5. **v1.0 tag timing.** Schema lock is in; CHANGELOG and cross-ref
-   audit remain. Tag immediately after, or wait until paper
-   acceptance?
+5. ~~**v1.0 tag timing.**~~ Resolved 2026-05-17 — tagged
+   immediately (PR #71 / `880de64`); the paper-side decisions
+   intentionally do not gate the tag. Left here so the resolution
+   trail is visible.
 
-## 25′. Claude handoff prompt (post-Phase-B-coding)
+## 25′. Claude handoff prompt (post-v1.0, post-Phase-C bootstrap)
 
 ```text
-You are continuing work on semantic-toponav, a feature-complete
-Python OSS planner that sits between dense maps and motion
-executors.
+You are continuing work on semantic-toponav, a v1.0-tagged Python OSS
+planner that sits between dense maps and motion executors.
 
-Read plan.md sections 22′–24′ first to know the current state.
+Read plan.md sections 22′–24′ first to know the current state. The
+short version: v1.0.0 is tagged (PR #71 / 880de64), Phase B Python
+coding is closed, two Phase C external repos have been bootstrapped
+(see §23′.2), and §25′'s historic in-tree coding list is fully
+exhausted. There is **no in-tree work** remaining in this repo
+under the moratorium.
 
-The repository is at the end of Phase B: all core coding items are
-shipped (PR #60–#64), six polish PRs landed (PR #65–#70), and the
-in-bounds-coding list that used to live here is now fully shipped.
-What remains is user-side decision work in §24′ that gates the v1.0
-tag and the paper — none of it is code you can ship autonomously.
+The current ship surfaces are split:
 
-Previously in-bounds (now shipped, kept for reference):
+1. Phase C external repos (out-of-repo by design — D-16 / §23′.2):
+   - rsasaki0109/semantic-toponav-nav2-bt — v0.1.0 + lint cleanup
+     shipped. Open: v0.2 NavigateThroughPoses feedback wiring.
+   - rsasaki0109/semantic-toponav-foxglove-panel — v0.2.0 shipped
+     (2 panels). Open: issue #1 foxglove-extension build CI; new
+     ResolveTrace panel for v0.3.
+   - semantic-toponav-mast3r — deferred until after the paper.
 
-- ✅ `decisions.md` integrity pass — PR #68 added D-12..D-17 (Protocol
-  bar, schema lock policy, LLM safety property, MAPF non-competition,
-  out-of-repo split, paper-freeze direction)
-- ✅ Gold corpus expansion — PR #69 took the fixture 22 → 50 cases
-  (33 precise / 9 ambiguous / 8 unresolvable); fp_resolve rose from
-  0.20 → 0.25 on two new "looks-like-a-room" abstention failures
-  while precision@1 / recall@k held at 1.00
-- ✅ Ten-minute tour — PR #70 ships
-  `examples/ten_minute_tour.py` covering Resolve + Plan + Coordinate
-  on the multi_floor_office graph; README quickstart now points
-  there before the deeper `docs/tutorial.md` walk-through
-- ✅ Grounding sample report regeneration — folded into PR #69's
-  doc commit alongside the corpus expansion; provenance header now
-  pinned to `feat/grounding-corpus-expansion @ 16be17bad650`
+2. §24′ user-side decisions — paper venue / single-vs-companion /
+   real-backend grounding numbers / human-eval scope. Not coding,
+   not your call to ship.
 
-If the user issues a `tugi` cue with the §25′ list exhausted, the
-appropriate move is **not** to autonomously start a new feature
-axis. Surface the state and ask which §24′ decision or alternative
-direction to pursue (eg. real-backend grounding numbers if API
-budget is approved, conformance-test CLI as a Phase C enabler,
-quickstart troubleshooting doc).
+If the user issues a `tugi` / `tugiikou` cue with this state:
+
+- Do NOT autonomously start a new feature axis in this repo.
+- Do NOT start a fourth Phase C package from scratch.
+- Surface 2–3 candidate moves with the main trade-off in 2–3
+  sentences and wait for the next cue (this is the established
+  AskUserQuestion pattern — see the user-ship-pattern memory).
+
+Typical candidate menu at this state:
+
+- Phase C #1 (Nav2 BT) v0.2 — NavigateThroughPoses feedback ports
+  (current_waypoint, distance_remaining) → blackboard so upper
+  BTs can branch on progress.
+- Phase C #2 (Foxglove) v0.3 — `Semantic TopoNav Resolve` panel
+  for /resolve_trace, completing per-wire-format panel coverage.
+- Phase C #2 (Foxglove) issue #1 — wire `foxglove-extension build`
+  into CI for tagged `.foxe` artifact releases.
+- §24′ decision support — surface state, do not pretend to decide.
 
 Do not:
 
-- add a 7th Protocol (moratorium until v1.0)
-- start a Phase C ecosystem package (Nav2 BT / Foxglove / Mast3R
-  are out-of-repo by design)
-- start new feature axes (physical loop, online learning,
+- add a 7th Protocol to this repo (moratorium still in force;
+  the bar is in D-12)
+- restart Mast3R (Phase C #3 is deferred until after the paper)
+- start new in-tree feature axes (physical loop, online learning,
   multi-fleet) — those are post-v1 / next-paper territory
 - compete head-to-head with MAPF specialists on gridworld
 - regenerate docs/grounding_report_sample.md from CI — it is a
   manual release-prep artifact by design (see the file's "Notes"
   section)
+- bump the v1 schemas without a v2 plan + a real consumer asking
+  (the schema lock policy is in D-13)
 
 Workflow conventions:
 
-- One PR per coherent unit; ship full cycles (design → implement →
-  tests → ruff → push → PR → CI → squash-merge --delete-branch →
-  git pull on main) without re-confirmation between steps
+- One PR per coherent unit; ship full cycles (design → implement
+  → tests → push → PR → CI → squash-merge --delete-branch → git
+  pull on main) without re-confirmation between steps. For
+  Phase C external repos this includes the CI iter loop until
+  green (uncrustify / linters / etc.)
 - Commit author = self only (no Co-Authored-By)
 - PR descriptions never include AI-generation footers
-- Tests use venv at .venv-pyvis/ with PYTHONPATH unset to avoid
-  ROS pytest plugin leakage
+- Python tests use venv at .venv-pyvis/ with PYTHONPATH unset to
+  avoid ROS pytest plugin leakage
 - gh CLI lives at ~/.local/bin/gh (prepend PATH)
-- plan.md is tracked; update it (especially §23′.1 and §22′)
-  whenever a Phase B / post-B PR lands so future Claude sessions
-  start oriented
+- plan.md is tracked; update it (especially §22′ and §23′.2)
+  whenever a Phase C external repo PR lands so future Claude
+  sessions start oriented. Same convention applies even though
+  the work happens out-of-repo.
+
+For Phase C external repos:
+
+- public Apache-2.0 repos created via gh repo create require
+  explicit transcript-visible `ok!` consent from the user — the
+  auto-mode classifier rejects them otherwise. Paraphrase the
+  action in plain text first.
+- Sibling directory layout: /media/sasaki/aiueo/ai_coding_ws/
+  <repo-name>. Use the same root as this repo.
 
 Cue cadence the user expects:
 
-- "tugi" / "nokori yattekou" — go to the next thing, full PR cycle
-- "yattekou" / "yatte" — green-light the most recently proposed unit
-- "osusumede" — your recommendation, decide and ship
+- "tugi" / "tugiikou" / "susummou" / "nokori yattekou" — go to the
+  next thing. With the in-tree list exhausted this means surface
+  candidates, not start work blindly.
+- "yattekou" / "yatte" — green-light the most recently proposed
+  unit, ship full PR cycle.
+- "osusumede" — your recommendation, decide and ship.
 - "comit!" / "push!" / "merge!" — explicit gates the user wants
-  before those actions
+  before those actions.
+- "ok!" — explicit consent for an auto-mode-blocked action that
+  was paraphrased just above (typically public gh repo create).
 - "kore nani?" / "nanisiteruno?" — orientation request, give a
-  tight status, do not start new work
-- "ittan plan md wo … kousin shitekudasai" — update plan.md
-  without committing; wait for explicit "comit!"
+  tight status, do not start new work.
+- "ittan plan md wo … kousin shitekudasai" / "ittan plan.md wo …
+  kousin site owari!" — update plan.md without committing; wait
+  for explicit "comit!". The "owari!" variant means "and we're
+  done for the session" — do not chain into new feature work.
+- "katadukeyou!" — session-close cleanup. Sweep for untracked
+  files, stale branches, memory entries that need today's facts.
+  Do not start new feature work.
 ```
 
