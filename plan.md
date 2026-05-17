@@ -862,3 +862,307 @@ Those are integration targets, not this repository's core.
 Run tests before finishing and summarize what was implemented.
 ```
 
+---
+
+> **Sections 0–18 above are the original MVP plan, preserved as
+> historical record.** What follows in sections 19+ reflects the
+> current state of the repository as of 2026-05-17 (post-PR #62). For
+> the running paper-track direction see also
+> [`docs/paper_outline.md`](docs/paper_outline.md) and the memory
+> file `project_paper_freeze_direction.md`.
+
+## 19′. Definition of Done for MVP — ✅ Complete
+
+The MVP shipped in the initial PR arc. Items below are kept as
+historical record; everything is done.
+
+- ✅ graph schema is defined
+- ✅ YAML and JSON graph files load
+- ✅ indoor office example exists
+- ✅ Dijkstra + A* work
+- ✅ semantic cost routing works
+- ✅ semantic waypoints are generated
+- ✅ CLI can validate and plan
+- ✅ tests pass (913 passed, 1 skipped as of 2026-05-17)
+- ✅ README explains the concept and usage
+- ✅ docs explain interfaces and decisions
+- ✅ ROS2 package skeleton exists
+- ✅ waypoint publisher node exists
+- ✅ Nav2 integration boundary is documented
+
+The MVP intentionally did not include the items below at the time;
+many have since shipped (see §20′) or are deferred to ecosystem
+repos (see §23′).
+
+- production-grade editor UI → `live-viewer` ships; web *editor* is Phase C
+- custom ROS messages → shipped (PR #9, `semantic_toponav_msgs`)
+- full Nav2 behavior tree integration → Phase C ecosystem
+- real robot deployment → not a repo concern
+- SLAM integration → out of scope, integration target only
+- occupancy grid conversion → shipped (PR #18 / #27 / #28 / #29)
+- VLM labeling → shipped (PR #32 + #52)
+- CLIP embeddings → shipped (PR #32)
+- memory graph → shipped (PR #7)
+
+## 20′. Stretch Goals After MVP — ✅ All shipped
+
+Every item from the original "after the MVP works" list has landed.
+PR references kept so a future reader can trace each capability back
+to its introduction.
+
+- ✅ simple topology editor CLI — PR #19 (`inspect / add-node /
+  add-edge / rm-node / rm-edge / undo / diff` with auto `.bak`)
+- ✅ web-based topology graph viewer — PR #16 (`viewer`, pyvis) +
+  PR #22 (`live-viewer` with file-watch). *Browser-mutation editor*
+  is Phase C ecosystem.
+- ✅ occupancy-to-topology conversion — PR #18 (fusion pipeline) +
+  PR #27 (door detection) + PR #28 (region segmentation) +
+  PR #29 (full CLI)
+- ✅ trajectory-to-topology — PR #4–5 (CSV / rosbag2) + PR #21
+  (post-processing) + PR #26 (iterative fusion)
+- ✅ semantic memory layer — PR #7
+- ✅ place recognition — PR #7 / #8 (embedding-based retrieval)
+- ✅ VLM semantic labeling — PR #32 + PR #52 (`AlignedRgbSource`
+  Protocol for out-of-repo adapters)
+- ✅ CLIP embedding per node — PR #32 (`embed-regions` CLI)
+- ✅ dynamic graph updates — PR #19 (CLI editor + undo) + PR #22
+  (live-reload)
+- ✅ multi-floor navigation examples — `floor_change_penalty` /
+  `prefer_floor` / `same_floor_only` / `floor_aware_heuristic` cost
+  helpers + `examples/multi_floor_office.yaml` +
+  `examples/run_multi_floor_demo.py`
+- ✅ custom ROS2 messages — PR #9
+- ⏸ Nav2 behavior tree plugin — deferred to Phase C (C++/ROS, out-of-repo)
+- ✅ embodied AI agent interface — generalized as six Protocols
+  with public conformance suites (PR #53 + #58)
+
+## 21′. Post-MVP arc — coordination, language, eval, conformance
+
+After the MVP and stretch goals landed, the project grew a substantial
+post-MVP arc organized around five axes.
+
+### 21′.1 Online coordination
+
+- PR #34 — `SharedScheduler` + `plan_fleet` + `ConflictPolicy` plug point
+- PR #35 — `plan_fleet_joint` (n! enumeration + heuristic fallback)
+- PR #37 — Hard deadline admission with structured `reason_code`
+- PR #38 — Branch-and-bound joint scheduler + `ConflictExplanation`
+  (CBS-lite diagnostics)
+- PR #41 — Scheduler RPC shim (`SchedulerProtocol` / `Transport`)
+- PR #42 — BnB fairness objectives (`minimax_cost` / `max_fairness`)
+- PR #43 — HTTP reference transport (stdlib-only)
+- PR #45 — Exhaustive MIS baseline (`plan_fleet_exhaustive`, grant-rate upper bound)
+- PR #50 — Scheduler state persistence (`save_scheduler` / `load_scheduler`)
+- PR #59 — Insertion-based fleet repair (`plan_fleet_insert`,
+  `O(k·(n+k))` vs `O((n+k)!)`)
+
+### 21′.2 LLM / VLM grounding
+
+- PR #32 — VLM/CLIP encoder integration (`Backend` Protocol)
+- PR #33 — LLM-augmented `describe-path` / `resolve` (`LLMBackend`
+  Protocol, deterministic floor + LLM rewrite)
+- PR #39 — Region embeddings injected as scalar `embedding_score=`
+  (raw vectors never serialized)
+- PR #40 — Clarification dialog primitives
+- PR #44 — Multi-turn `DialogSession`
+- PR #52 — `AlignedRgbSource` Protocol + `StaticImageRgbSource`
+- PR #57 — Mid-traversal LLM describer rewrite (`start_index=` /
+  `situation=` kwargs)
+
+### 21′.3 Cost composition
+
+- PR #25 — Time-of-day restrictions (`time_aware`, midnight-wrap)
+- PR #31 — Static reservation table (`reservation_aware`)
+- PR #54 — Calendar-aware temporal graphs (`at_date=`, weekday
+  filters, `closed_on_dates`)
+- PR #55 — Soft preference cost (`preference_aware`, caller-defined
+  keys, clamp-to-`[0.1, 10.0]`)
+- PR #56 — Node-level preference defaults (endpoint-node average
+  inheritance, `use_node_defaults=False` opt-out)
+
+### 21′.4 Evaluation + measurement substrate
+
+- PR #36 — Synthetic eval suite (`eval-synthetic` / `eval-report`,
+  4 generators, latency p50/p95, Jain fairness, JSONL+Markdown)
+- PR #46 — Exhaustive into eval suite + grant_rate denominator fix
+- PR #47 — `--bnb-objective` CLI flag on eval-synthetic
+- PR #60 — Language-grounding eval suite (`eval-grounding`,
+  gold-corpus YAML, resolver + describer-safety metrics)
+
+### 21′.5 Protocol conformance + schema discipline
+
+- PR #53 — Public Protocol conformance suites (six suites under
+  `semantic_toponav.testing.conformance`)
+- PR #58 — Conformance failure-mode depth (empty/large/unicode
+  prompts; determinism; cos(v,v)≈1; idempotent release; atomic
+  rollback; half-open adjacency; shape stability)
+- PR #61 — **v1.0 wire schema lock** — `PlanWithSchedulerResult`,
+  `FleetPlanResult`, `ConflictExplanation`, `ResolveTrace`, plus
+  preference metadata; 15 tests keep dataclass `to_dict()` shapes
+  and JSON Schema files in lockstep
+
+### 21′.6 Documentation + branding
+
+- PR #48 — README slim (1125 → 161 lines) + visual gallery + 5
+  new docs (`conversion` / `cost_composition` / `coordination` /
+  `queries` / `cli`)
+- PR #49 — Animated GIF hero (4-frame multi-floor demo)
+- PR #51 — `docs/experiments.md` sync through PR #50
+- PR #62 — `docs/paper_outline.md` (5-chapter evaluation structure
+  + evidence index + open holes)
+- README polish 2026-05-15 (`3d31fd1`) — three-axis What-it-does,
+  multi-floor gallery row, status section reflecting post-PR-59 surface
+
+## 22′. Current state — post-PR #62 (2026-05-17)
+
+Headline numbers and surfaces a future visitor should read first.
+
+- **62 PRs merged**, ~16,000 LOC, **913 tests passing, 1 skipped**
+- **Six v1-locked wire formats** with JSON Schema validation in CI
+  (`SemanticWaypointArray`, `PlanWithSchedulerResult`,
+  `FleetPlanResult`, `ConflictExplanation`, `ResolveTrace`, plus
+  the preference metadata convention)
+- **Six Protocol plug points** with public conformance suites:
+  `LLMBackend`, encoder `Backend`, `AlignedRgbSource`,
+  `SchedulerProtocol`, `Transport`, `ConflictPolicy`
+- **Seven fleet strategies** (`greedy` / `priority` / `deadline` /
+  `joint` / `bnb` × 3 objectives / `exhaustive` MIS / `insert`)
+  all reachable from the CLI
+- **Two eval suites** — `eval-synthetic` for coordination,
+  `eval-grounding` for language. Both produce JSONL + Markdown
+  for later re-rendering.
+- **Reference grounding numbers** on
+  `tests/fixtures/grounding/multi_floor_office.yaml` (22 cases):
+  deterministic resolver precision@1 = 1.00, recall@3 = recall@5 =
+  1.00, false_positive_resolve = 0.20, abstention = 0.80
+
+`docs/paper_outline.md` organizes these into a 5-chapter paper
+evaluation structure with an evidence index pointing back at the
+exact test names that back each claim.
+
+## 23′. Forward direction — Phase B + Phase C
+
+This is the live forward direction, written after the 2026-05-15
+GPT pro 2nd review which advised *"collapse, not expand"*: the
+natural extensions of every PR #35 axis have all shipped, so the
+next moves are paper-track and ecosystem, not more in-tree features.
+
+### 23′.1 Phase B — paper freeze + v1.0 release (current)
+
+| Phase B item | Status |
+|---|---|
+| Phase A: `eval-grounding` shipped | ✅ PR #60 (2026-05-16) |
+| v1.0 schema lock | ✅ PR #61 (2026-05-16) |
+| Paper outline doc | ✅ PR #62 (2026-05-16) |
+| CHANGELOG / release notes consolidating PR #35–#62 | pending |
+| Cross-reference audit (tutorial / experiments / cli) vs v1 surface | pending |
+| User-side decisions (see §24′) | gating downstream work |
+
+**Protocol moratorium until v1.0** — the bar for adding a 7th
+Protocol is intentionally high (≥2 non-toy implementations or a
+heavy optional dep to isolate, contract page-sized + conformance-
+testable, small i/o, defined fallback). What is needed *instead*
+is stable trace schemas; that need is covered by §21′.5.
+
+### 23′.2 Phase C — ecosystem repos (post-v1.0)
+
+Explicitly out-of-repo to keep the readable-Python-core narrative
+intact (no torch / Mast3R weights / C++ / TypeScript in core).
+Order picked by adoption-pull:
+
+1. **`semantic-toponav-nav2-bt`** (C++) — Nav2 BT plugin wrapping
+   the `SemanticWaypointArray` → `NavigateThroughPoses` bridge
+   (`nav2_demo_node.py`). Biggest robotics-user pull. Needs v1.0
+   schema lock tagged first (§22′ covers it).
+2. **`semantic-toponav-foxglove`** (TypeScript) — Foxglove custom
+   panel visualizing reservation table / schedule Gantt / resolve
+   trace / reject reasons. Demo / debugging / adoption value.
+3. **`semantic-toponav-mast3r`** (Python + torch) — Adapter
+   implementing `AlignedRgbSource` against Mast3R rerenders. Plug
+   point (PR #52) is already in core; this package fills in the
+   heavy-deps side. Sequenced last so the paper isn't framed
+   around the vision-model adapter story.
+
+Ecosystem items deliberately gated on real-user demand:
+
+- WebSocket / NATS reference transports (HTTP already covers the
+  pattern)
+- MILP / CP-SAT solver baseline via `ortools` (past install
+  failures; opt-in `[opt]` extra, user approval required)
+- Cloud-backend conformance (real `AnthropicBackend` / CLIP through
+  the suites — requires CI creds wired in user-controlled Actions)
+- BnB-based deeper repair (insertion repair covers the practical
+  incremental-admission use case)
+
+### 23′.3 Post-v1.0 / next-paper territory
+
+Explicitly *not* in scope for the current paper or v1.0:
+
+- Physical execution loop integration (closed-loop SLA)
+- Online environment learning (graph updates from execution feedback)
+- Multi-fleet coordination across service boundaries
+- Head-to-head MAPF on gridworld (CBS / EECBS / MAPF-LNS2 turf)
+
+## 24′. Open holes — user-side decisions
+
+Decisions that gate writing or releasing. None of them are coding
+tasks; they need user judgment.
+
+1. **Venue.** Robotics-systems (RSS / IROS / ICRA / CoRL) vs OSS
+   tooling track vs LM4Nav workshop. Affects which chapters get the
+   longest treatment.
+2. **Single paper vs companion paper.** All five chapters in one
+   work risks each being shallow. Splitting (coordination + schema
+   as paper A, grounding + describer safety as paper B) is
+   plausible.
+3. **Real-backend numbers for `eval-grounding`.** The current
+   reference numbers are deterministic only. Anthropic backend
+   numbers on the 22-case fixture are needed before chapter 3
+   framing is final.
+4. **Human-eval scope for describer rewrite.** 0 cases (rely on the
+   four deterministic invariants), 20–50 cases (sidebar coherence
+   rating), or larger crowd panel.
+5. **v1.0 tag timing.** Schema lock is in; CHANGELOG and cross-ref
+   audit remain. Tag immediately after, or wait until paper
+   acceptance?
+
+## 25′. Claude handoff prompt (post-Phase-A)
+
+```text
+You are continuing work on semantic-toponav, a feature-complete
+Python OSS planner that sits between dense maps and motion
+executors.
+
+Read plan.md sections 22′–24′ first to know the current state.
+
+The repository is in Phase B: paper freeze + v1.0 release. The
+default mode is "do not start new feature PRs without explicit
+user direction." Coding work allowed in Phase B:
+
+- v1.0 release notes / CHANGELOG (PR #35–#62)
+- cross-reference audit between docs and the v1 surface (catch
+  stale CLI flags / signatures before v1 tag)
+- small docs polish if you find drift while doing the audit
+
+Do not:
+
+- add a 7th Protocol (moratorium until v1.0)
+- start a Phase C ecosystem package (out-of-repo, not this repo)
+- start new feature axes (physical loop, online learning,
+  multi-fleet) — those are post-v1 / next-paper territory
+- compete head-to-head with MAPF specialists on gridworld
+
+Workflow conventions:
+
+- One PR per coherent unit; ship full cycles (design → implement →
+  tests → ruff → push → PR → CI → squash-merge --delete-branch →
+  git pull on main) without re-confirmation between steps
+- Commit author = self only (no Co-Authored-By)
+- PR descriptions never include AI-generation footers
+- Tests use venv at .venv-pyvis/ with PYTHONPATH unset to avoid
+  ROS pytest plugin leakage
+- gh CLI lives at ~/.local/bin/gh (prepend PATH)
+
+Update plan.md §23′.1 status table as Phase B items land.
+```
+
