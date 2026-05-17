@@ -179,7 +179,7 @@ short-haul agents into disjoint segments (4/5 granted).
 | **Visualization** | matplotlib `plot`, interactive pyvis HTML viewer, live-reloading viewer | see below |
 | **Schema** | YAML v1 graph format + six v1-locked JSON wire schemas (waypoint array, plan / fleet result, conflict explanation, resolve trace, preference metadata) | [schema_v1.md](docs/schema_v1.md) · [waypoint_schema.md](docs/waypoint_schema.md) |
 | **Protocol conformance** | Reusable suites under `semantic_toponav.testing.conformance` for `LLMBackend` / encoder `Backend` / `AlignedRgbSource` / `SchedulerProtocol` / `Transport` / `ConflictPolicy` with failure-mode depth | [conformance.md](docs/conformance.md) |
-| **Language-grounding eval** | YAML gold-corpus driver for `resolve_goal` / `llm_resolve_goal` (precision@1, top-k recall, clarification / fp-resolve / abstention rates) + describer-rewrite safety invariants for `llm_describe_path` | [eval_grounding.md](docs/eval_grounding.md) |
+| **Language-grounding eval** | YAML gold-corpus driver for `resolve_goal` / `llm_resolve_goal` (precision@1, top-k recall, clarification / fp-resolve / abstention rates) + describer-rewrite safety invariants for `llm_describe_path` | [eval_grounding.md](docs/eval_grounding.md) · [sample report](docs/grounding_report_sample.md) |
 | **ROS2 integration** | `graph_loader` / `waypoint_publisher` / `nav2_demo` nodes | [ros2/README.md](ros2/README.md) |
 
 ---
