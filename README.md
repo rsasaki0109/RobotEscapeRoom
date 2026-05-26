@@ -4,6 +4,14 @@
 [![python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
+<p align="center">
+  <img src="docs/images/18_semantic_tps_navigation.gif" width="720" alt="third-person semantic topological navigation with route labels and elevator waypoint selection">
+</p>
+
+<p align="center">
+  <sub>Third-person route execution over the same semantic topology: natural-language goal → node id → elevator-aware A* waypoints → goal reached.</sub>
+</p>
+
 **Grounded middle planning layer for robot navigation.** Bridges
 dense maps (SLAM / occupancy / HD) and motion executors (Nav2 /
 Autoware / MPPI / learned policies) with a graph-level layer that
@@ -11,14 +19,6 @@ decides *where to go, why, and who first* — under language goals,
 calendar-aware closures, soft preferences, deadlines, and multi-agent
 reservations. Pure-Python core, zero hard dependencies, full Protocol
 conformance suites.
-
-<p align="center">
-  <img src="docs/images/demo.gif" width="720" alt="multi-floor planner cycling through four cost configurations">
-</p>
-
-<p align="center">
-  <sub>Same 3-floor graph, four cost configurations: default A* → prefer_elevator → floor_change_penalty → same_floor_only.</sub>
-</p>
 
 ---
 
