@@ -5,11 +5,11 @@
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 <p align="center">
-  <img src="docs/images/18_semantic_navigation_demo.gif" width="720" alt="recorded semantic topological navigation demo with goal resolution, A* route planning, and moving waypoint execution">
+  <img src="docs/images/20_semantic_toponav_cli_demo.gif" width="720" alt="real CLI demo showing semantic goal resolution, A* route planning, and semantic waypoint execution on the shipped graph">
 </p>
 
 <p align="center">
-  <sub>Recorded from the shipped demo graph: natural-language goal -> node id -> elevator-aware A* route -> semantic waypoint execution.</sub>
+  <sub>Real CLI demo: captured command output + the same route animated on the shipped graph.</sub>
 </p>
 
 **Grounded middle planning layer for robot navigation.** Bridges
