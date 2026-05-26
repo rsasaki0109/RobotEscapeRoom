@@ -5,11 +5,11 @@
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 <p align="center">
-  <img src="docs/images/18_semantic_tps_navigation.gif" width="720" alt="third-person semantic topological navigation with route labels and elevator waypoint selection">
+  <img src="docs/images/18_semantic_navigation_demo.gif" width="720" alt="recorded semantic topological navigation demo with goal resolution, A* route planning, and moving waypoint execution">
 </p>
 
 <p align="center">
-  <sub>Third-person route execution over the same semantic topology: natural-language goal → node id → elevator-aware A* waypoints → goal reached.</sub>
+  <sub>Recorded from the shipped demo graph: natural-language goal -> node id -> elevator-aware A* route -> semantic waypoint execution.</sub>
 </p>
 
 **Grounded middle planning layer for robot navigation.** Bridges
