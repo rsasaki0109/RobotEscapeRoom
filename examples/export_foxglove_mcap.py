@@ -68,7 +68,11 @@ def _schema(properties: dict[str, Any], *, required: list[str] | None = None) ->
 NUMBER = {"type": "number"}
 STRING = {"type": "string"}
 BOOL = {"type": "boolean"}
-ARRAY = {"type": "array", "items": {}}
+
+
+def _array(items: dict[str, Any]) -> dict[str, Any]:
+    return {"type": "array", "items": items}
+
 
 TIMESTAMP_SCHEMA = _schema(
     {"sec": {"type": "integer"}, "nsec": {"type": "integer"}},
@@ -84,6 +88,32 @@ POSE_SCHEMA = _schema(
     {"position": VECTOR3_SCHEMA, "orientation": QUAT_SCHEMA},
     required=["position", "orientation"],
 )
+KEY_VALUE_SCHEMA = _schema({"key": STRING, "value": STRING}, required=["key", "value"])
+LINE_PRIMITIVE_SCHEMA = _schema(
+    {
+        "type": {"type": "integer"},
+        "pose": POSE_SCHEMA,
+        "thickness": NUMBER,
+        "scale_invariant": BOOL,
+        "points": _array(VECTOR3_SCHEMA),
+        "color": COLOR_SCHEMA,
+        "colors": _array(COLOR_SCHEMA),
+        "indices": _array({"type": "integer"}),
+    }
+)
+SPHERE_PRIMITIVE_SCHEMA = _schema(
+    {"pose": POSE_SCHEMA, "size": VECTOR3_SCHEMA, "color": COLOR_SCHEMA}
+)
+TEXT_PRIMITIVE_SCHEMA = _schema(
+    {
+        "pose": POSE_SCHEMA,
+        "billboard": BOOL,
+        "font_size": NUMBER,
+        "scale_invariant": BOOL,
+        "color": COLOR_SCHEMA,
+        "text": STRING,
+    }
+)
 SCENE_ENTITY_SCHEMA = _schema(
     {
         "timestamp": TIMESTAMP_SCHEMA,
@@ -91,38 +121,92 @@ SCENE_ENTITY_SCHEMA = _schema(
         "id": STRING,
         "lifetime": TIMESTAMP_SCHEMA,
         "frame_locked": BOOL,
-        "metadata": ARRAY,
-        "arrows": ARRAY,
-        "cubes": ARRAY,
-        "spheres": ARRAY,
-        "cylinders": ARRAY,
-        "lines": ARRAY,
-        "triangles": ARRAY,
-        "texts": ARRAY,
-        "models": ARRAY,
+        "metadata": _array(KEY_VALUE_SCHEMA),
+        "arrows": _array(_schema({})),
+        "cubes": _array(_schema({})),
+        "spheres": _array(SPHERE_PRIMITIVE_SCHEMA),
+        "cylinders": _array(_schema({})),
+        "lines": _array(LINE_PRIMITIVE_SCHEMA),
+        "triangles": _array(_schema({})),
+        "texts": _array(TEXT_PRIMITIVE_SCHEMA),
+        "models": _array(_schema({})),
     }
 )
 
 FOXGLOVE_SCHEMAS: dict[str, dict[str, Any]] = {
-    "foxglove.FrameTransforms": _schema({"transforms": ARRAY}, required=["transforms"]),
+    "foxglove.FrameTransforms": _schema(
+        {
+            "transforms": _array(
+                _schema(
+                    {
+                        "timestamp": TIMESTAMP_SCHEMA,
+                        "parent_frame_id": STRING,
+                        "child_frame_id": STRING,
+                        "translation": VECTOR3_SCHEMA,
+                        "rotation": QUAT_SCHEMA,
+                    }
+                )
+            )
+        },
+        required=["transforms"],
+    ),
     "foxglove.PoseInFrame": _schema(
         {"timestamp": TIMESTAMP_SCHEMA, "frame_id": STRING, "pose": POSE_SCHEMA},
         required=["timestamp", "frame_id", "pose"],
     ),
     "foxglove.SceneUpdate": _schema(
         {
-            "deletions": ARRAY,
-            "entities": {"type": "array", "items": SCENE_ENTITY_SCHEMA},
+            "deletions": _array({"type": "string"}),
+            "entities": _array(SCENE_ENTITY_SCHEMA),
         },
         required=["deletions", "entities"],
     ),
 }
 
 CUSTOM_SCHEMAS: dict[str, dict[str, Any]] = {
+    "visualization_msgs/MarkerArray": _schema(
+        {
+            "markers": _array(
+                _schema(
+                    {
+                        "header": _schema(
+                            {
+                                "seq": {"type": "integer"},
+                                "stamp": TIMESTAMP_SCHEMA,
+                                "frame_id": STRING,
+                            }
+                        ),
+                        "ns": STRING,
+                        "id": {"type": "integer"},
+                        "type": {"type": "integer"},
+                        "action": {"type": "integer"},
+                        "pose": POSE_SCHEMA,
+                        "scale": VECTOR3_SCHEMA,
+                        "color": COLOR_SCHEMA,
+                        "lifetime": TIMESTAMP_SCHEMA,
+                        "frame_locked": BOOL,
+                        "points": _array(VECTOR3_SCHEMA),
+                        "colors": _array(COLOR_SCHEMA),
+                        "text": STRING,
+                        "mesh_resource": STRING,
+                        "mesh_use_embedded_materials": BOOL,
+                    }
+                )
+            )
+        }
+    ),
     "semantic_toponav.ResolveTrace": _schema(
         {
             "query": STRING,
-            "candidates": ARRAY,
+            "candidates": _array(
+                _schema(
+                    {
+                        "node_id": STRING,
+                        "score": NUMBER,
+                        "reasons": _array(STRING),
+                    }
+                )
+            ),
             "chosen": STRING,
             "source": STRING,
         }
@@ -141,7 +225,26 @@ CUSTOM_SCHEMAS: dict[str, dict[str, Any]] = {
             "timestamp": TIMESTAMP_SCHEMA,
             "current_index": {"type": "integer"},
             "current_node_id": STRING,
-            "waypoints": ARRAY,
+            "waypoints": _array(
+                _schema(
+                    {
+                        "node_id": STRING,
+                        "node_label": STRING,
+                        "node_type": STRING,
+                        "action": STRING,
+                        "instruction": STRING,
+                        "properties": _schema({"floor": {"type": "integer"}}, required=[]),
+                        "pose": _schema(
+                            {
+                                "x": NUMBER,
+                                "y": NUMBER,
+                                "yaw": NUMBER,
+                                "frame_id": STRING,
+                            }
+                        ),
+                    }
+                )
+            ),
         }
     ),
     "semantic_toponav.Admission": _schema(
@@ -149,7 +252,7 @@ CUSTOM_SCHEMAS: dict[str, dict[str, Any]] = {
             "agent_id": STRING,
             "granted": BOOL,
             "reason_code": STRING,
-            "route": ARRAY,
+            "route": _array(STRING),
             "reservation_window_sec": NUMBER,
         }
     ),
@@ -261,6 +364,37 @@ def _text(
     }
 
 
+def _marker(
+    *,
+    timestamp_ns: int,
+    ns: str,
+    marker_id: int,
+    marker_type: int,
+    pose: dict[str, Any] | None = None,
+    scale: dict[str, float] | None = None,
+    color: tuple[float, float, float, float] = (0.89, 0.92, 0.96, 1.0),
+    points: list[tuple[float, float, float]] | None = None,
+    text: str = "",
+) -> dict[str, Any]:
+    return {
+        "header": {"seq": 0, "stamp": _timestamp(timestamp_ns), "frame_id": "map"},
+        "ns": ns,
+        "id": marker_id,
+        "type": marker_type,
+        "action": 0,
+        "pose": pose or _pose(0.0, 0.0, 0.0),
+        "scale": scale or _point(0.16, 0.16, 0.16),
+        "color": _color(*color),
+        "lifetime": {"sec": 0, "nsec": 0},
+        "frame_locked": False,
+        "points": [_point(*point) for point in points or []],
+        "colors": [],
+        "text": text,
+        "mesh_resource": "",
+        "mesh_use_embedded_materials": False,
+    }
+
+
 def _entity(entity_id: str, timestamp_ns: int, **parts: Any) -> dict[str, Any]:
     entity = {
         "timestamp": _timestamp(timestamp_ns),
@@ -356,6 +490,119 @@ def _static_scene(graph: Any, route: list[str], candidates: list[Any], timestamp
     }
 
 
+def _marker_array(
+    graph: Any,
+    route: list[str],
+    timestamp_ns: int,
+    robot_xyz: tuple[float, float, float],
+    node_idx: int,
+) -> dict[str, Any]:
+    markers: list[dict[str, Any]] = []
+    for floor in sorted({_floor(node) for node in graph.nodes()}):
+        z = (floor - 1) * FLOOR_HEIGHT_M - 0.04
+        floor_points = [
+            (-0.8, -4.6, z),
+            (12.8, -4.6, z),
+            (12.8, 4.6, z),
+            (-0.8, 4.6, z),
+            (-0.8, -4.6, z),
+        ]
+        markers.append(
+            _marker(
+                timestamp_ns=timestamp_ns,
+                ns="floor_outline",
+                marker_id=floor,
+                marker_type=4,
+                scale=_point(0.05, 0.0, 0.0),
+                color=(0.18, 0.25, 0.37, 0.72),
+                points=floor_points,
+            )
+        )
+        markers.append(
+            _marker(
+                timestamp_ns=timestamp_ns,
+                ns="floor_label",
+                marker_id=floor,
+                marker_type=9,
+                pose=_pose(0.0, -5.15, (floor - 1) * FLOOR_HEIGHT_M + 0.15),
+                scale=_point(0.32, 0.32, 0.32),
+                color=(0.89, 0.92, 0.96, 1.0),
+                text=f"floor {floor}",
+            )
+        )
+
+    for idx, edge in enumerate(graph.edges()):
+        edge_color = (0.45, 0.50, 0.58, 0.65)
+        width = 0.07
+        if edge.type == "elevator_connection":
+            edge_color = (0.96, 0.62, 0.08, 0.95)
+            width = 0.12
+        elif edge.type.startswith("stairs"):
+            edge_color = (0.95, 0.34, 0.34, 0.78)
+        markers.append(
+            _marker(
+                timestamp_ns=timestamp_ns,
+                ns="topology_edges",
+                marker_id=idx,
+                marker_type=5,
+                scale=_point(width, 0.0, 0.0),
+                color=edge_color,
+                points=[_node_xyz(graph.get_node(edge.source)), _node_xyz(graph.get_node(edge.target))],
+            )
+        )
+
+    for idx, node in enumerate(graph.nodes()):
+        color = NODE_COLORS.get(node.type, (0.31, 0.62, 0.96, 1.0))
+        markers.append(
+            _marker(
+                timestamp_ns=timestamp_ns,
+                ns="topology_nodes",
+                marker_id=idx,
+                marker_type=2,
+                pose=_pose(*_node_xyz(node)),
+                scale=_point(0.3, 0.3, 0.3),
+                color=color,
+            )
+        )
+
+    route_points = [_node_xyz(graph.get_node(node_id)) for node_id in route]
+    markers.append(
+        _marker(
+            timestamp_ns=timestamp_ns,
+            ns="semantic_route",
+            marker_id=1,
+            marker_type=4,
+            scale=_point(0.18, 0.0, 0.0),
+            color=(0.96, 0.22, 0.45, 1.0),
+            points=route_points,
+        )
+    )
+    markers.append(
+        _marker(
+            timestamp_ns=timestamp_ns,
+            ns="robot",
+            marker_id=1,
+            marker_type=2,
+            pose=_pose(*robot_xyz),
+            scale=_point(0.52, 0.52, 0.52),
+            color=(0.13, 0.83, 0.93, 1.0),
+        )
+    )
+    markers.append(
+        _marker(
+            timestamp_ns=timestamp_ns,
+            ns="robot_label",
+            marker_id=1,
+            marker_type=9,
+            pose=_pose(robot_xyz[0], robot_xyz[1] - 0.55, robot_xyz[2] + 0.35),
+            scale=_point(0.26, 0.26, 0.26),
+            color=(0.52, 0.92, 0.99, 1.0),
+            text=f"base_link | {route[node_idx]}",
+        )
+    )
+    return {"markers": markers}
+
+
 def _route_geometry(graph: Any, route: list[str]) -> tuple[list[tuple[float, float, float]], list[float]]:
     points = [_node_xyz(graph.get_node(node_id)) for node_id in route]
     cumulative = [0.0]
@@ -409,7 +656,7 @@ def _dynamic_messages(
     waypoints: list[Any],
     timestamp_ns: int,
     frame_idx: int,
-) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], int]:
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any], int]:
     points, cumulative = _route_geometry(graph, route)
     progress = _ease(frame_idx / (FRAME_COUNT - 1))
     robot_xyz, segment_idx, _ = _sample_route(points, cumulative, progress)
@@ -464,7 +711,8 @@ def _dynamic_messages(
         "current_node_id": route[node_idx],
         "waypoints": [waypoint.to_dict() for waypoint in waypoints],
     }
-    return scene, tf, pose_msg, waypoint_msg, node_idx
+    markers = _marker_array(graph, route, timestamp_ns, robot_xyz, node_idx)
+    return scene, tf, pose_msg, waypoint_msg, markers, node_idx
 
 
 def _register_channels(writer: Writer) -> dict[str, int]:
@@ -479,6 +727,9 @@ def _register_channels(writer: Writer) -> dict[str, int]:
         ),
         "/semantic_toponav/scene": writer.register_channel(
             "/semantic_toponav/scene", "json", schemas["foxglove.SceneUpdate"]
+        ),
+        "/semantic_toponav/markers": writer.register_channel(
+            "/semantic_toponav/markers", "json", schemas["visualization_msgs/MarkerArray"]
         ),
         "/semantic_toponav/resolve_trace": writer.register_channel(
             "/semantic_toponav/resolve_trace",
@@ -570,12 +821,13 @@ def _write_mcap(graph: Any, candidates: list[Any], route: list[str], waypoints: 
 
         for frame_idx in range(FRAME_COUNT):
             timestamp_ns = t0 + round(frame_idx * 1_000_000_000 / HZ)
-            scene, tf, pose, waypoint, _ = _dynamic_messages(
+            scene, tf, pose, waypoint, markers, _ = _dynamic_messages(
                 graph, route, waypoints, timestamp_ns, frame_idx
             )
             _write_message(writer, channels["/tf"], timestamp_ns, tf)
             _write_message(writer, channels["/semantic_toponav/pose"], timestamp_ns, pose)
             _write_message(writer, channels["/semantic_toponav/scene"], timestamp_ns, scene)
+            _write_message(writer, channels["/semantic_toponav/markers"], timestamp_ns, markers)
             _write_message(writer, channels["/semantic_toponav/waypoints"], timestamp_ns, waypoint)
 
         writer.finish()

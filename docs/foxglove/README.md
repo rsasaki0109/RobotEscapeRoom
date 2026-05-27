@@ -21,6 +21,7 @@ semantic-toponav calls:
 | Topic | Schema | Purpose |
 |---|---|---|
 | `/semantic_toponav/scene` | `foxglove.SceneUpdate` | Static topology, floor outlines, route, robot marker |
+| `/semantic_toponav/markers` | `visualization_msgs/MarkerArray` | Foxglove 3D-panel-compatible route, node, floor, and robot markers |
 | `/tf` | `foxglove.FrameTransforms` | `map -> base_link` transform stream |
 | `/semantic_toponav/pose` | `foxglove.PoseInFrame` | Robot pose in the map frame |
 | `/semantic_toponav/resolve_trace` | `semantic_toponav.ResolveTrace` | Query grounding candidates and reasons |
@@ -35,5 +36,4 @@ pip install -e '.[foxglove]'
 python examples/export_foxglove_mcap.py
 ```
 
-The README GIF is a rendered preview. The MCAP here is the replay source
-for opening the same semantic navigation run in Foxglove Studio.
+The README GIF is recorded from a Foxglove Studio replay of this MCAP.
