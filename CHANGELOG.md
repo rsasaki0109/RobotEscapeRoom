@@ -7,8 +7,74 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-Working area for changes that land after the v1.0.0 tag. Currently
+Working area for changes that land after the v1.0.1 tag. Currently
 empty.
+
+---
+
+## [1.0.1] — 2026-05-28
+
+Front-page and CI hygiene patch on top of v1.0.0. No changes to the
+six v1-locked public wire schemas, no behavior changes in the
+planner, coordinator, or resolver. Adds the Foxglove Studio replay
+demo path as an installable optional extra, refreshes the README
+hero and social preview to lead with that demo, and bumps the CI
+actions to the Node.js 24 runtime.
+
+### Added — Foxglove Studio replay path
+
+- `examples/export_foxglove_mcap.py` — end-to-end example that runs
+  `resolve_goal` + `plan_astar(..., compose_costs(prefer_elevator))`
+  + `path_to_semantic_waypoints` on `examples/multi_floor_office.yaml`
+  and writes `docs/foxglove/semantic_toponav_demo.mcap` with
+  `/semantic_toponav/scene` (`foxglove.SceneUpdate`), `/tf`
+  (`foxglove.FrameTransforms`), `/semantic_toponav/pose`
+  (`foxglove.PoseInFrame`), `/semantic_toponav/markers`
+  (`visualization_msgs/MarkerArray`), and semantic
+  route / waypoint / resolve / admission topics.
+- `[foxglove]` optional extra in `pyproject.toml` pulling in `mcap`
+  and `mcap-protobuf-support` for the export path.
+- `docs/foxglove/README.md` — four-step "Open in Foxglove Studio"
+  setup guide, full topic / schema table, and regeneration
+  instructions.
+- `docs/foxglove/semantic_toponav_demo.mcap` — checked-in replay
+  source matching the README hero GIF.
+
+### Added — Launch metadata
+
+- `CITATION.cff` for citation tooling.
+- `SECURITY.md` with the reporting channel.
+- `CODE_OF_CONDUCT.md` (Contributor Covenant v2.1).
+- `examples/build_social_preview.py` — reproducible builder for the
+  1280×640 GitHub social preview at `docs/images/social_preview.png`.
+
+### Changed — Front page
+
+- README hero now embeds the Foxglove Studio replay GIF
+  (`docs/images/22_foxglove_replay.gif`) and spells out the
+  Open-in-Foxglove path: links the source MCAP, links the Studio web
+  app at `studio.foxglove.dev`, and points at
+  `docs/foxglove/README.md` for the four-step panel setup.
+- GitHub social preview (`docs/images/social_preview.png`) right
+  pane now shows a frame from the Foxglove Studio replay of
+  `semantic_toponav_demo.mcap` instead of the matplotlib recorded
+  demo. Same overall layout; build via
+  `python examples/build_social_preview.py`.
+
+### Changed — CI runtime
+
+- `.github/workflows/test.yml` — `actions/checkout` bumped from
+  `v4` to `v6` and `actions/setup-python` from `v5` to `v6`. Both
+  v6 majors run on Node.js 24, clearing the per-job Node.js 20
+  deprecation annotations. No input changes; `ubuntu-latest` already
+  satisfies the runner-version floor.
+
+### Fixed
+
+- `semantic_toponav.__version__` was drifted at `"0.1.0"` since the
+  initial MVP — re-synced to the package version. `pyproject.toml`,
+  `CITATION.cff`, and `semantic_toponav.__version__` now all read
+  `1.0.1`.
 
 ---
 
