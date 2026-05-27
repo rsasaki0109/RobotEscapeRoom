@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use semantic-toponav in research or deployed experiments, please cite this software."
+type: software
+title: "semantic-toponav"
+version: "1.0.0"
+date-released: "2026-05-17"
+authors:
+  - name: "semantic-toponav contributors"
+license: Apache-2.0
+repository-code: "https://github.com/rsasaki0109/semantic-toponav"
+url: "https://github.com/rsasaki0109/semantic-toponav"
+abstract: >-
+  semantic-toponav is a Python middle planning layer for robot navigation.
+  It grounds language goals into semantic topology nodes, plans graph-level
+  routes with composable semantic costs, emits semantic waypoints, and
+  coordinates multi-robot reservations with explainable admission decisions.
+keywords:
+  - robotics
+  - navigation
+  - semantic navigation
+  - topological navigation
+  - multi-robot coordination
+  - embodied AI

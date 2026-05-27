@@ -1,23 +1,35 @@
 [build-system]
-requires = ["setuptools>=61", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "semantic-toponav"
-version = "0.1.0"
-description = "Semantic Topological Map based navigation: graph abstraction, semantic waypoint planning, and topology-aware routing."
+version = "1.0.0"
+description = "Semantic topological navigation for language goals, graph-level routing, semantic waypoints, and multi-robot reservations."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
 authors = [
     { name = "semantic-toponav contributors" },
 ]
-keywords = ["robotics", "navigation", "topological-map", "semantic-map", "embodied-ai"]
+keywords = [
+    "robotics",
+    "navigation",
+    "semantic-navigation",
+    "topological-navigation",
+    "topological-map",
+    "semantic-map",
+    "path-planning",
+    "multi-robot",
+    "fleet-coordination",
+    "ros2",
+    "nav2",
+    "embodied-ai",
+]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -59,6 +71,9 @@ semantic-toponav = "semantic_toponav.cli.main:main"
 [project.urls]
 Homepage = "https://github.com/rsasaki0109/semantic-toponav"
 Repository = "https://github.com/rsasaki0109/semantic-toponav"
+Issues = "https://github.com/rsasaki0109/semantic-toponav/issues"
+Changelog = "https://github.com/rsasaki0109/semantic-toponav/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/rsasaki0109/semantic-toponav/tree/main/docs"
 
 [tool.setuptools.packages.find]
 where = ["."]

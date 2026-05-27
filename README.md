@@ -20,6 +20,12 @@ calendar-aware closures, soft preferences, deadlines, and multi-agent
 reservations. Pure-Python core, zero hard dependencies, full Protocol
 conformance suites.
 
+Use it when a robot stack already has local motion, but still needs:
+
+- language goals grounded into stable topology node ids;
+- semantic A* routes over rooms, corridors, elevators, stairs, closures, and preferences;
+- multi-robot reservation/admission decisions with explainable denial reasons.
+
 ---
 
 ## What it does
