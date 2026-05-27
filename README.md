@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <sub>Visualization-style demo from real planner output: semantic topology, robot pose, topic inspector, route timeline, and waypoint stream.</sub>
+  <sub>Rendered preview from real planner output: semantic topology, robot pose, topic inspector, route timeline, and waypoint stream. Foxglove replay data: <code>docs/foxglove/semantic_toponav_demo.mcap</code>.</sub>
 </p>
 
 **Grounded middle planning layer for robot navigation.** Bridges
@@ -217,6 +217,19 @@ The web viewer is a fully offline self-contained HTML file — nodes
 are draggable, hovering surfaces type / cost / property tooltips,
 and the highlighted path is overlaid in pink. `live-viewer` adds a
 file-watch loop so edits to the YAML reload the browser tab.
+
+### Foxglove replay
+
+```bash
+pip install -e '.[foxglove]'
+python examples/export_foxglove_mcap.py
+```
+
+Open `docs/foxglove/semantic_toponav_demo.mcap` in Foxglove Studio.
+It contains `/semantic_toponav/scene` as `foxglove.SceneUpdate`, `/tf`
+as `foxglove.FrameTransforms`, `/semantic_toponav/pose` as
+`foxglove.PoseInFrame`, and semantic route / waypoint / resolve topics
+from the same planner run shown in the README demo.
 
 ---
 
