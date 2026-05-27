@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <sub>Foxglove Studio replay from real planner output: semantic topology, robot pose, route topics, and waypoint stream. Open the source MCAP at <code>docs/foxglove/semantic_toponav_demo.mcap</code>.</sub>
+  <sub>Foxglove Studio replay from real planner output: semantic topology, robot pose, route topics, and waypoint stream. <strong>Open it yourself:</strong> drop <a href="docs/foxglove/semantic_toponav_demo.mcap"><code>docs/foxglove/semantic_toponav_demo.mcap</code></a> into <a href="https://studio.foxglove.dev/">Foxglove Studio</a> — see <a href="docs/foxglove/README.md">docs/foxglove/README.md</a> for the four-step panel setup.</sub>
 </p>
 
 **Grounded middle planning layer for robot navigation.** Bridges
