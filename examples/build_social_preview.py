@@ -16,7 +16,8 @@ from PIL import Image, ImageDraw, ImageFont
 
 HERE = Path(__file__).parent
 ROOT = HERE.parent
-DEMO_GIF = ROOT / "docs" / "images" / "18_semantic_navigation_demo.gif"
+DEMO_GIF = ROOT / "docs" / "images" / "22_foxglove_replay.gif"
+DEMO_FRAME_INDEX = 40
 OUT_PATH = ROOT / "docs" / "images" / "social_preview.png"
 
 W, H = 1280, 640
@@ -61,10 +62,11 @@ def _rounded(
 def _load_demo_frame() -> Image.Image:
     if not DEMO_GIF.exists():
         raise FileNotFoundError(
-            f"{DEMO_GIF} does not exist; run examples/record_semantic_navigation_demo.py first"
+            f"{DEMO_GIF} does not exist; record a Foxglove Studio replay of "
+            "docs/foxglove/semantic_toponav_demo.mcap (see docs/foxglove/README.md)"
         )
     gif = Image.open(DEMO_GIF)
-    gif.seek(56)
+    gif.seek(min(DEMO_FRAME_INDEX, gif.n_frames - 1))
     return gif.convert("RGB")
 
 
@@ -104,7 +106,7 @@ def main() -> None:
     _rounded(draw, (615, 64, 1228, 576), 28, PANEL, (203, 213, 225), 2)
     _rounded(draw, (647, 105, 1196, 536), 18, (15, 23, 42), None)
     draw.rectangle((669, 124, 1174, 164), fill=(255, 255, 255))
-    draw.text((691, 132), "recorded demo from multi_floor_office.yaml", font=FONT_SMALL, fill=MUTED)
+    draw.text((691, 132), "Foxglove · semantic_toponav_demo.mcap", font=FONT_SMALL, fill=MUTED)
     img.paste(preview, (669, 176))
     draw.line([(669, 500), (1174, 500)], fill=ACCENT, width=6)
 
