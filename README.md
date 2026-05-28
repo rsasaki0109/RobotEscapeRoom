@@ -5,11 +5,11 @@
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 <p align="center">
-  <img src="docs/images/21_semantic_toponav_visualization.gif" width="720" alt="robot visualization dashboard showing semantic topology, tf pose, route progress, topic inspector, and semantic waypoint execution">
+  <img src="docs/images/22_foxglove_replay.gif" width="720" alt="Foxglove Studio replay showing semantic topology, robot pose, route topics, and waypoint execution from semantic-toponav MCAP data">
 </p>
 
 <p align="center">
-  <sub>Rendered preview from real planner output: semantic topology, robot pose, topic inspector, route timeline, and waypoint stream. Foxglove replay data: <code>docs/foxglove/semantic_toponav_demo.mcap</code>.</sub>
+  <sub>Foxglove Studio replay from real planner output: semantic topology, robot pose, route topics, and waypoint stream. Open the source MCAP at <code>docs/foxglove/semantic_toponav_demo.mcap</code>.</sub>
 </p>
 
 **Grounded middle planning layer for robot navigation.** Bridges
@@ -228,8 +228,9 @@ python examples/export_foxglove_mcap.py
 Open `docs/foxglove/semantic_toponav_demo.mcap` in Foxglove Studio.
 It contains `/semantic_toponav/scene` as `foxglove.SceneUpdate`, `/tf`
 as `foxglove.FrameTransforms`, `/semantic_toponav/pose` as
-`foxglove.PoseInFrame`, and semantic route / waypoint / resolve topics
-from the same planner run shown in the README demo.
+`foxglove.PoseInFrame`, `/semantic_toponav/markers` as
+`visualization_msgs/MarkerArray`, and semantic route / waypoint /
+resolve topics from the same planner run shown in the README demo.
 
 ---
 
