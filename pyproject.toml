@@ -64,6 +64,9 @@ vlm = [
 llm = [
     "anthropic>=0.34",
 ]
+foxglove = [
+    "mcap>=1.3",
+]
 
 [project.scripts]
 semantic-toponav = "semantic_toponav.cli.main:main"
