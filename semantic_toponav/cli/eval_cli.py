@@ -31,8 +31,11 @@ from semantic_toponav.eval.grounding import (
     DescriberSafetyCase,
     evaluate_describer_safety,
     evaluate_resolver,
+    evaluate_visual_localizer,
     grounding_report_markdown,
     load_grounding_corpus,
+    load_visual_grounding_corpus,
+    visual_grounding_report_markdown,
 )
 from semantic_toponav.eval.report import (
     jsonl_to_trials,
@@ -229,6 +232,58 @@ def cmd_eval_grounding(args: argparse.Namespace) -> int:
     if args.out:
         Path(args.out).write_text(md, encoding="utf-8")
         print(f"wrote grounding report -> {args.out}")
+    print(md)
+    return 0
+
+
+def cmd_eval_visual_grounding(args: argparse.Namespace) -> int:
+    """Run the visual-grounding eval (image -> node) over a corpus.
+
+    The perception twin of ``eval-grounding``: stamp the gallery frames
+    with the chosen encoder, localize each query frame, and report
+    precision@1 / recall@K plus the abstention split for unseen-place
+    frames. Defaults to the deterministic HashingBackend so it runs with
+    no torch; ``--backend clip`` opts into real CLIP grounding.
+    """
+    corpus_path = Path(args.corpus)
+    if not corpus_path.exists():
+        print(f"error: corpus not found: {args.corpus}", file=sys.stderr)
+        return 2
+    try:
+        corpus = load_visual_grounding_corpus(corpus_path)
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    if args.backend == "hashing":
+        from semantic_toponav.encoders.backends import HashingBackend
+
+        backend = HashingBackend(dim=args.dim)
+        encoder_name = f"hashing(dim={args.dim})"
+    elif args.backend == "clip":
+        try:
+            from semantic_toponav.encoders.backends import CLIPBackend
+
+            backend = CLIPBackend(model_name=args.clip_model)
+        except ImportError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
+        encoder_name = args.clip_model
+    else:  # pragma: no cover - argparse choices guard this
+        print(f"error: unknown backend {args.backend!r}", file=sys.stderr)
+        return 2
+
+    ev = evaluate_visual_localizer(
+        corpus,
+        backend,
+        encoder_name=encoder_name,
+        top_k=args.top_k,
+        min_score=args.min_score,
+    )
+    md = visual_grounding_report_markdown([ev])
+    if args.out:
+        Path(args.out).write_text(md, encoding="utf-8")
+        print(f"wrote visual-grounding report -> {args.out}")
     print(md)
     return 0
 
@@ -465,3 +520,48 @@ def register_subcommands(sub: argparse._SubParsersAction) -> None:
     )
     add_llm_args(g, with_style=False)
     g.set_defaults(func=cmd_eval_grounding)
+
+    v = sub.add_parser(
+        "eval-visual-grounding",
+        help=(
+            "run the visual-grounding eval: localize gallery + query frames "
+            "(image -> node) against a visual gold corpus and print a "
+            "markdown precision@1 / recall@K report."
+        ),
+    )
+    v.add_argument(
+        "corpus",
+        help=(
+            "path to a visual gold-corpus YAML (see "
+            "tests/fixtures/grounding/visual_depot.yaml for the format)"
+        ),
+    )
+    v.add_argument(
+        "--backend", choices=("hashing", "clip"), default="hashing",
+        help="encoder for gallery + query frames (default: hashing, no torch)",
+    )
+    v.add_argument(
+        "--dim", type=int, default=64,
+        help="HashingBackend dimension (default: 64; ignored for clip)",
+    )
+    v.add_argument(
+        "--clip-model", default="openai/clip-vit-base-patch32",
+        help="CLIP model id when --backend clip (default: openai/clip-vit-base-patch32)",
+    )
+    v.add_argument(
+        "--top-k", type=int, default=5,
+        help="localization shortlist size for recall@K (default: 5)",
+    )
+    v.add_argument(
+        "--min-score", type=float, default=0.0,
+        help=(
+            "abstention gate: an unresolvable frame whose top-1 cosine is "
+            "below this is counted as an abstention, otherwise a "
+            "false-positive resolve (default: 0.0)"
+        ),
+    )
+    v.add_argument(
+        "--out",
+        help="optional path to write the markdown report (in addition to stdout)",
+    )
+    v.set_defaults(func=cmd_eval_visual_grounding)

@@ -185,3 +185,62 @@ raises `ClarificationQuestion` when the gap is below it. The one
 non-clarified ambiguous case is `"a room"`, where
 `meeting_room_2f`'s label-match opens a top-1/top-2 gap wider
 than the default threshold.
+
+## Visual grounding (image → node)
+
+The same measurement substrate has a **perception twin** for
+`localize_by_image`: instead of *language → node*, it scores
+*image → node*. This is node-level Visual Place Recognition — the
+standard VPR `recall@K` protocol — phrased with the same
+`precise` / `unresolvable` corpus kinds so the language and visual
+arms report symmetric numbers.
+
+A visual corpus carries a **gallery** (node → reference frame; the
+"map" stamped offline) plus **cases** (query frame → gold node):
+
+```yaml
+# graph: optional — synthesised as a nodes-only graph from the gallery
+gallery:
+  - {node: bay, image: depot_views/proto_bay.jpg}
+  - {node: drum, image: depot_views/proto_drum.jpg}
+cases:
+  - {image: depot_views/proto_bay.jpg, gold: bay, kind: precise}
+  - {image: depot_views/frame00.jpg, gold: null, kind: unresolvable}
+```
+
+`evaluate_visual_localizer` stamps the gallery with the encoder under
+test, localizes each query, and reports `precision@1`, `recall@3/5`,
+and — for `unresolvable` frames (a place not in the gallery) — the
+split between **abstention** and **false-positive resolve**, gated by
+`--min-score` on the top-1 cosine. The encoder must be the *same
+identity* for gallery and queries.
+
+CLI:
+
+```bash
+# Deterministic, torch-free (HashingBackend) — runs in CI.
+semantic-toponav eval-visual-grounding \
+    tests/fixtures/grounding/visual_depot.yaml --backend hashing --min-score 0.5
+
+# Real semantic grounding (needs the [vlm] extra + CLIP weights).
+semantic-toponav eval-visual-grounding corpus.yaml --backend clip --min-score 0.2
+```
+
+The shipped `visual_depot.yaml` fixture is designed for deterministic
+CI: precise cases reuse the gallery frame (byte-identical → cosine
+~1.0 under `HashingBackend`), and unresolvable drive frames stay below
+the gate. So the reference numbers below validate the *metric
+machinery*, not CLIP's real recall:
+
+```
+| encoder         | n | precise | unresolvable | min_score | precision@1 | recall@3 | recall@5 | fp_resolve | abstain |
+| hashing(dim=64) | 7 | 5       | 2            | 0.50      | 1.00        | 1.00     | 1.00     | 0.00       | 1.00    |
+```
+
+For real `recall@K`, point the cases at distinct on-route frames (e.g.
+the `frame*.jpg` drive sequence labelled by `route_meta.json`) and run
+`--backend clip`. Real-CLIP numbers are intentionally **not** committed
+(they need the `[vlm]` extra + weights in CI) — the same user-side open
+hole as the Anthropic resolver numbers. See
+[`related_work.md`](related_work.md) for how this sits next to AnyLoc,
+VPR-Bench, and the gmberton benchmark.

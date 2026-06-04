@@ -1,0 +1,38 @@
+# Visual gold-corpus for the bundled Gazebo Depot frames. Used by the
+# visual-grounding eval (`evaluate_visual_localizer`), the image -> node
+# twin of the language resolver eval.
+#
+# The gallery stamps each place node with the embedding of its reference
+# frame ("proto_*"); the cases are query frames the localizer must ground
+# back to a node.
+#
+# This fixture is designed to be DETERMINISTIC under HashingBackend (same
+# input bytes -> same unit vector), so CI can score it without torch:
+#   - precise cases reuse the gallery frame itself  -> cosine ~1.0 -> hit
+#   - unresolvable cases use a drive frame that is in no gallery slot, so
+#     its top-1 cosine stays low and (with --min-score 0.5) it abstains.
+# For real semantic numbers, point the cases at distinct on-route frames
+# and run with `--backend clip`; see docs/eval_grounding.md.
+#
+# Graph is synthesised as a nodes-only graph from the gallery (no `graph:`
+# key needed — localization does not use edges).
+
+gallery:
+  - {node: bay, image: ../../../examples/data/depot_views/proto_bay.jpg}
+  - {node: brick, image: ../../../examples/data/depot_views/proto_brick.jpg}
+  - {node: drum, image: ../../../examples/data/depot_views/proto_drum.jpg}
+  - {node: crate, image: ../../../examples/data/depot_views/proto_crate.jpg}
+  - {node: util, image: ../../../examples/data/depot_views/proto_util.jpg}
+
+cases:
+  # ----- precise (self-match against the gallery frame) -----
+  - {image: ../../../examples/data/depot_views/proto_bay.jpg, gold: bay, kind: precise}
+  - {image: ../../../examples/data/depot_views/proto_brick.jpg, gold: brick, kind: precise}
+  - {image: ../../../examples/data/depot_views/proto_drum.jpg, gold: drum, kind: precise}
+  - {image: ../../../examples/data/depot_views/proto_crate.jpg, gold: crate, kind: precise}
+  - {image: ../../../examples/data/depot_views/proto_util.jpg, gold: util, kind: precise}
+
+  # ----- unresolvable (drive frames not in any gallery slot) -----
+  - {image: ../../../examples/data/depot_views/frame00.jpg, gold: null, kind: unresolvable,
+     note: "drive frame; bytes differ from every proto -> weak top-1"}
+  - {image: ../../../examples/data/depot_views/frame07.jpg, gold: null, kind: unresolvable}

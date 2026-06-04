@@ -40,14 +40,17 @@ from typing import Literal, Protocol
 
 import yaml
 
+from semantic_toponav.encoders.backends import Backend
 from semantic_toponav.graph.serialization import load_graph
 from semantic_toponav.graph.topology_graph import TopologyGraph
+from semantic_toponav.graph.types import TopologyNode
 from semantic_toponav.llm.backends import EchoBackend, LLMBackend
 from semantic_toponav.query.llm_resolve import (
     LLMResolveResult,
     llm_resolve_goal,
 )
 from semantic_toponav.query.resolve import GoalCandidate, resolve_goal
+from semantic_toponav.query.visual_localization import localize_by_image
 from semantic_toponav.waypoint.llm_describe import (
     LLMDescribeResult,
     llm_describe_path,
@@ -659,6 +662,357 @@ def evaluate_describer_safety(
 
 
 # ---------------------------------------------------------------------------
+# Visual localization evaluation (image -> node)
+# ---------------------------------------------------------------------------
+#
+# The resolver eval above measures language -> node. This block is its
+# perception twin: image -> node, the metric layer for
+# :func:`~semantic_toponav.query.localize_by_image`. The shape mirrors a
+# standard Visual Place Recognition protocol (recall@K over a gallery),
+# but reuses the corpus' precise/unresolvable kinds so the language and
+# visual arms report symmetric numbers. "Unresolvable" here means a frame
+# of a place that is NOT in the map; the localizer should keep its top-1
+# cosine below ``min_score`` (abstain) rather than confidently mislabel.
+
+
+@dataclass
+class VisualGroundingCase:
+    """One image -> node case.
+
+    Attributes
+    ----------
+    image:
+        Absolute path to the query frame (resolved at load time).
+    gold:
+        Acceptable node ids. ``[]`` for ``kind="unresolvable"`` (the
+        frame shows a place not in the gallery; abstention expected).
+    kind:
+        ``"precise"`` (one gold), ``"ambiguous"`` (>=2 gold), or
+        ``"unresolvable"`` (no gold).
+    note:
+        Optional debugging comment, carried into report rows.
+    """
+
+    image: str
+    gold: list[str]
+    kind: CaseKind
+    note: str = ""
+
+
+@dataclass
+class VisualGroundingCorpus:
+    """A graph + a node->reference-frame gallery + the image cases.
+
+    ``gallery`` maps node id to the absolute path of the reference frame
+    whose embedding stamps that node (the "map" a robot built offline).
+    :func:`evaluate_visual_localizer` stamps these with the encoder under
+    test before scoring the query cases, so the corpus stays
+    encoder-agnostic on disk.
+    """
+
+    corpus_path: str
+    graph: TopologyGraph
+    gallery: dict[str, str]
+    cases: list[VisualGroundingCase]
+
+
+def _resolve_rel(base: Path, raw: str) -> Path:
+    p = Path(raw)
+    return p if p.is_absolute() else (base / p).resolve()
+
+
+def load_visual_grounding_corpus(path: str | Path) -> VisualGroundingCorpus:
+    """Load a visual gold-corpus YAML.
+
+    Expected shape::
+
+        # optional — synthesised as a nodes-only graph from the gallery
+        # when omitted
+        graph: ../../../examples/multi_floor_office.yaml
+        gallery:
+          - {node: bay, image: depot_views/proto_bay.jpg}
+          - {node: brick, image: depot_views/proto_brick.jpg}
+        cases:
+          - {image: depot_views/proto_bay.jpg, gold: bay, kind: precise}
+          - {image: depot_views/frame00.jpg, gold: null, kind: unresolvable}
+
+    Image and graph paths are resolved relative to the corpus file. Gold
+    ids and gallery node ids must exist in the graph (or, when ``graph``
+    is omitted, are taken to define it).
+    """
+    p = Path(path)
+    raw = yaml.safe_load(p.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        raise ValueError(f"corpus {path!r} root must be a mapping, got {type(raw).__name__}")
+
+    gallery_raw = raw.get("gallery")
+    if not isinstance(gallery_raw, list) or not gallery_raw:
+        raise ValueError(f"corpus {path!r}: 'gallery:' must be a non-empty list")
+    gallery: dict[str, str] = {}
+    for i, item in enumerate(gallery_raw):
+        if not isinstance(item, dict):
+            raise ValueError(f"corpus {path!r}: gallery[{i}] must be a mapping")
+        node = item.get("node")
+        image = item.get("image")
+        if not isinstance(node, str) or not node:
+            raise ValueError(f"corpus {path!r}: gallery[{i}] 'node' must be a non-empty string")
+        if not isinstance(image, str) or not image:
+            raise ValueError(f"corpus {path!r}: gallery[{i}] 'image' must be a non-empty string")
+        if node in gallery:
+            raise ValueError(f"corpus {path!r}: gallery node {node!r} listed twice")
+        gallery[node] = str(_resolve_rel(p.parent, image))
+
+    graph_raw = raw.get("graph")
+    if isinstance(graph_raw, str) and graph_raw:
+        graph = load_graph(str(_resolve_rel(p.parent, graph_raw)))
+        node_ids = {n.id for n in graph.nodes()}
+        for node in gallery:
+            if node not in node_ids:
+                raise ValueError(
+                    f"corpus {path!r}: gallery node {node!r} is not in graph {graph_raw!r}"
+                )
+    elif graph_raw in (None, ""):
+        graph = TopologyGraph()
+        for node in gallery:
+            graph.add_node(TopologyNode(id=node, label=node, type="place"))
+        node_ids = set(gallery)
+    else:
+        raise ValueError(f"corpus {path!r}: 'graph:' must be a string path or omitted")
+
+    cases_raw = raw.get("cases")
+    if not isinstance(cases_raw, list):
+        raise ValueError(f"corpus {path!r}: 'cases:' must be a list")
+
+    cases: list[VisualGroundingCase] = []
+    for i, item in enumerate(cases_raw):
+        if not isinstance(item, dict):
+            raise ValueError(f"corpus {path!r}: case[{i}] must be a mapping")
+        image = item.get("image")
+        kind = item.get("kind")
+        gold_raw = item.get("gold")
+        note = item.get("note", "")
+
+        if not isinstance(image, str) or not image:
+            raise ValueError(f"corpus {path!r}: case[{i}] 'image' must be a non-empty string")
+        if kind not in ("precise", "ambiguous", "unresolvable"):
+            raise ValueError(
+                f"corpus {path!r}: case[{i}] 'kind' must be precise|ambiguous|unresolvable, "
+                f"got {kind!r}"
+            )
+
+        if kind == "unresolvable":
+            gold: list[str] = []
+            if gold_raw not in (None, [], ""):
+                raise ValueError(
+                    f"corpus {path!r}: case[{i}] kind=unresolvable must have gold=null/[]/''"
+                )
+        elif isinstance(gold_raw, str):
+            gold = [gold_raw]
+        elif isinstance(gold_raw, list) and all(isinstance(x, str) for x in gold_raw):
+            gold = list(gold_raw)
+        else:
+            raise ValueError(
+                f"corpus {path!r}: case[{i}] 'gold' must be str or list[str], got {gold_raw!r}"
+            )
+
+        if kind == "precise" and len(gold) != 1:
+            raise ValueError(f"corpus {path!r}: case[{i}] kind=precise needs exactly one gold id")
+        if kind == "ambiguous" and len(gold) < 2:
+            raise ValueError(f"corpus {path!r}: case[{i}] kind=ambiguous needs >=2 gold ids")
+        for gid in gold:
+            if gid not in node_ids:
+                raise ValueError(f"corpus {path!r}: case[{i}] gold id {gid!r} not a graph node")
+
+        cases.append(
+            VisualGroundingCase(
+                image=str(_resolve_rel(p.parent, image)),
+                gold=gold,
+                kind=kind,
+                note=note,
+            )
+        )
+
+    return VisualGroundingCorpus(
+        corpus_path=str(p), graph=graph, gallery=gallery, cases=cases
+    )
+
+
+@dataclass
+class VisualCaseOutcome:
+    """Per-case visual-localization result."""
+
+    case: VisualGroundingCase
+    top1: str | None
+    top1_score: float
+    top_k_ids: list[str]
+
+    @property
+    def correct_at_1(self) -> bool:
+        return self.top1 is not None and self.top1 in self.case.gold
+
+
+@dataclass
+class VisualGroundingMetrics:
+    """Aggregate image->node metrics for one encoder x one corpus."""
+
+    n_total: int
+    n_precise: int
+    n_ambiguous: int
+    n_unresolvable: int
+    min_score: float
+    precision_at_1: float
+    recall_at_3: float
+    recall_at_5: float
+    false_positive_resolve_rate: float
+    abstention_rate: float
+
+    def to_dict(self) -> dict[str, float | int]:
+        return {
+            "n_total": self.n_total,
+            "n_precise": self.n_precise,
+            "n_ambiguous": self.n_ambiguous,
+            "n_unresolvable": self.n_unresolvable,
+            "min_score": self.min_score,
+            "precision_at_1": self.precision_at_1,
+            "recall_at_3": self.recall_at_3,
+            "recall_at_5": self.recall_at_5,
+            "false_positive_resolve_rate": self.false_positive_resolve_rate,
+            "abstention_rate": self.abstention_rate,
+        }
+
+
+@dataclass
+class VisualLocalizerEvaluation:
+    """Output of :func:`evaluate_visual_localizer`."""
+
+    encoder_name: str
+    metrics: VisualGroundingMetrics
+    outcomes: list[VisualCaseOutcome] = field(default_factory=list)
+
+
+def _aggregate_visual(
+    outcomes: Sequence[VisualCaseOutcome], min_score: float
+) -> VisualGroundingMetrics:
+    precise = [o for o in outcomes if o.case.kind == "precise"]
+    ambiguous = [o for o in outcomes if o.case.kind == "ambiguous"]
+    unresolvable = [o for o in outcomes if o.case.kind == "unresolvable"]
+    answerable = precise + ambiguous
+
+    def _rate(num: int, den: int) -> float:
+        return num / den if den else 0.0
+
+    p_at_1 = _rate(sum(1 for o in answerable if o.correct_at_1), len(answerable))
+
+    def _recall(k: int) -> float:
+        hit = sum(
+            1 for o in answerable if any(gid in o.top_k_ids[:k] for gid in o.case.gold)
+        )
+        return _rate(hit, len(answerable))
+
+    # A frame of an unseen place "resolves" (false positive) when its
+    # top-1 cosine clears the abstention gate; otherwise it abstains.
+    fp_resolve = _rate(
+        sum(1 for o in unresolvable if o.top1 is not None and o.top1_score >= min_score),
+        len(unresolvable),
+    )
+    abstention = _rate(
+        sum(1 for o in unresolvable if o.top1 is None or o.top1_score < min_score),
+        len(unresolvable),
+    )
+
+    return VisualGroundingMetrics(
+        n_total=len(outcomes),
+        n_precise=len(precise),
+        n_ambiguous=len(ambiguous),
+        n_unresolvable=len(unresolvable),
+        min_score=min_score,
+        precision_at_1=p_at_1,
+        recall_at_3=_recall(3),
+        recall_at_5=_recall(5),
+        false_positive_resolve_rate=fp_resolve,
+        abstention_rate=abstention,
+    )
+
+
+def evaluate_visual_localizer(
+    corpus: VisualGroundingCorpus,
+    backend: Backend,
+    *,
+    encoder_name: str = "encoder",
+    top_k: int = 5,
+    min_score: float = 0.0,
+    embedding_property: str = "embedding",
+) -> VisualLocalizerEvaluation:
+    """Stamp the gallery, then score each query frame against the graph.
+
+    Every gallery frame is embedded with ``backend`` and stamped onto its
+    node (mutating a per-call copy via the graph's own properties), then
+    each case image is localized with
+    :func:`~semantic_toponav.query.localize_by_image`. ``min_score`` is
+    the abstention gate used to score the ``unresolvable`` cases.
+
+    The encoder must be the *same identity* for gallery and queries —
+    cross-backend vectors are not comparable. Use ``HashingBackend`` for
+    a deterministic, torch-free run and ``CLIPBackend`` for real
+    semantic grounding.
+    """
+    if top_k < 1:
+        raise ValueError(f"top_k must be >= 1, got {top_k}")
+
+    graph = corpus.graph
+    for node_id, image_path in corpus.gallery.items():
+        graph.get_node(node_id).properties[embedding_property] = backend.embed_image(
+            image_path
+        )
+
+    outcomes: list[VisualCaseOutcome] = []
+    for case in corpus.cases:
+        result = localize_by_image(
+            graph, case.image, backend,
+            top_k=top_k, embedding_property=embedding_property,
+        )
+        outcomes.append(
+            VisualCaseOutcome(
+                case=case,
+                top1=result.node.id,
+                top1_score=result.score,
+                top_k_ids=[node.id for node, _ in result.ranked],
+            )
+        )
+
+    return VisualLocalizerEvaluation(
+        encoder_name=encoder_name,
+        metrics=_aggregate_visual(outcomes, min_score),
+        outcomes=outcomes,
+    )
+
+
+def visual_grounding_report_markdown(
+    evals: list[VisualLocalizerEvaluation],
+) -> str:
+    """Render image->node localization metrics as markdown."""
+    parts: list[str] = ["## Visual localization (image -> node)", ""]
+    if not evals:
+        parts.append("_(no visual evaluations)_")
+        return "\n".join(parts) + "\n"
+    parts.append(
+        "| encoder | n | precise | ambiguous | unresolvable | min_score | "
+        "precision@1 | recall@3 | recall@5 | fp_resolve | abstain |"
+    )
+    parts.append("|" + "---|" * 11)
+    for ev in evals:
+        m = ev.metrics
+        parts.append(
+            f"| {ev.encoder_name} | {m.n_total} | {m.n_precise} | "
+            f"{m.n_ambiguous} | {m.n_unresolvable} | {m.min_score:.2f} | "
+            f"{m.precision_at_1:.2f} | {m.recall_at_3:.2f} | "
+            f"{m.recall_at_5:.2f} | {m.false_positive_resolve_rate:.2f} | "
+            f"{m.abstention_rate:.2f} |"
+        )
+    return "\n".join(parts) + "\n"
+
+
+# ---------------------------------------------------------------------------
 # Markdown report
 # ---------------------------------------------------------------------------
 
@@ -719,8 +1073,16 @@ __all__ = [
     "GroundingCorpus",
     "GroundingMetrics",
     "ResolverEvaluation",
+    "VisualCaseOutcome",
+    "VisualGroundingCase",
+    "VisualGroundingCorpus",
+    "VisualGroundingMetrics",
+    "VisualLocalizerEvaluation",
     "evaluate_describer_safety",
     "evaluate_resolver",
+    "evaluate_visual_localizer",
     "grounding_report_markdown",
     "load_grounding_corpus",
+    "load_visual_grounding_corpus",
+    "visual_grounding_report_markdown",
 ]
