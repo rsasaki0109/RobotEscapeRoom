@@ -340,6 +340,7 @@ def cmd_localize(args: argparse.Namespace) -> int:
             backend,
             top_k=args.top_k,
             neighbor_weight=args.neighbor_weight,
+            neighbor_hops=args.neighbor_hops,
             **filters,
         )
     except NoMatchError as exc:
@@ -379,6 +380,7 @@ def cmd_visual_route(args: argparse.Namespace) -> int:
             backend,
             top_k=args.top_k,
             neighbor_weight=args.neighbor_weight,
+            neighbor_hops=args.neighbor_hops,
         )
     except NoMatchError as exc:
         print(f"error: could not ground start frame: {exc}", file=sys.stderr)
@@ -424,6 +426,11 @@ def _add_image_backend_args(p: argparse.ArgumentParser) -> None:
         "--neighbor-weight", type=float, default=0.0,
         help="graph-context re-rank strength in [0,1] (default: 0.0 = pure "
         "single-frame cosine; >0 damps perceptual aliasing)",
+    )
+    p.add_argument(
+        "--neighbor-hops", type=int, default=1,
+        help="corroboration radius in graph edges for --neighbor-weight "
+        "(default: 1; larger widens the neighborhood)",
     )
 
 

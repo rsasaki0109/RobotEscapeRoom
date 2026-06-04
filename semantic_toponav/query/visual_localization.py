@@ -62,32 +62,61 @@ class VisualLocalization:
     ranked: list[tuple[TopologyNode, float]] = field(default_factory=list)
 
 
+def _khop_node_ids(
+    graph: TopologyGraph, start_id: str, hops: int
+) -> set[str]:
+    """Node ids within ``hops`` graph edges of ``start_id`` (exclusive).
+
+    A breadth-first expansion over the (undirected) adjacency; ``start_id``
+    itself is excluded from the result.
+    """
+    seen = {start_id}
+    frontier = {start_id}
+    for _ in range(hops):
+        nxt: set[str] = set()
+        for nid in frontier:
+            for edge in graph.neighbors(nid):
+                other = graph.other_end(edge, nid)
+                if other not in seen:
+                    seen.add(other)
+                    nxt.add(other)
+        frontier = nxt
+        if not frontier:
+            break
+    seen.discard(start_id)
+    return seen
+
+
 def _neighbor_reranked(
     graph: TopologyGraph,
     scored: list[tuple[TopologyNode, float]],
     weight: float,
+    hops: int,
     top_k: int,
 ) -> list[tuple[TopologyNode, float]]:
-    """Blend each node's own cosine with the mean of its scored 1-hop
-    neighbors, then re-sort.
+    """Blend each node's own cosine with the mean of its scored ``hops``-hop
+    neighborhood, then re-sort.
 
-    ``effective = (1 - weight) * own + weight * mean(neighbor own)``.
+    ``effective = (1 - weight) * own + weight * mean(neighborhood own)``.
 
-    Only neighbors that survived the same candidate filters (i.e. appear
-    in ``scored``) contribute; a node with no scored neighbor keeps its
-    own score unchanged, so the aggregation never penalizes a genuine but
-    isolated match. This is the cheap, in-graph analogue of RoboHop's
-    descriptor aggregation over graph neighbors — it damps an isolated
-    perceptual-aliasing spike, since a true place is corroborated by its
-    surroundings while a spurious one usually is not.
+    Only nodes within ``hops`` edges that survived the same candidate
+    filters (i.e. appear in ``scored``) contribute; a node with no scored
+    neighbor keeps its own score unchanged, so the aggregation never
+    penalizes a genuine but isolated match. This is the cheap, in-graph
+    analogue of RoboHop's descriptor aggregation over graph neighbors — it
+    damps an isolated perceptual-aliasing spike, since a true place is
+    corroborated by its surroundings while a spurious one usually is not.
+    ``hops > 1`` widens the corroboration radius (RoboHop's multi-layer
+    aggregation): support several hops away — past a weak immediate
+    neighbor — can still lift a true place.
     """
     own = {node.id: score for node, score in scored}
     reranked: list[tuple[TopologyNode, float]] = []
     for node, score in scored:
         neighbor_scores = [
             own[other]
-            for edge in graph.neighbors(node.id)
-            if (other := graph.other_end(edge, node.id)) in own
+            for other in _khop_node_ids(graph, node.id, hops)
+            if other in own
         ]
         if neighbor_scores:
             context = sum(neighbor_scores) / len(neighbor_scores)
@@ -107,6 +136,7 @@ def localize_by_image(
     top_k: int = 5,
     embedding_property: str = DEFAULT_EMBEDDING_PROPERTY,
     neighbor_weight: float = 0.0,
+    neighbor_hops: int = 1,
     type: str | None = None,
     label_contains: str | None = None,
     label_equals: str | None = None,
@@ -146,6 +176,12 @@ def localize_by_image(
         neighbors outranks an isolated perceptual-aliasing spike. With
         ``w > 0`` the returned ``score`` / ``ranked`` similarities are
         these context-aggregated values, not raw cosines.
+    neighbor_hops:
+        Radius (in graph edges) of the neighborhood aggregated when
+        ``neighbor_weight > 0``. ``1`` (default) is immediate neighbors;
+        larger values widen the corroboration radius so support several
+        hops away — past a weak immediate neighbor — still counts. Must
+        be ``>= 1``. Ignored when ``neighbor_weight == 0``.
     type, label_contains, label_equals, properties:
         Optional candidate filters, forwarded to
         :func:`find_nodes_by_embedding`.
@@ -160,14 +196,16 @@ def localize_by_image(
     NoMatchError
         If no node satisfies the filters and carries an embedding.
     ValueError
-        If ``top_k < 1``, ``neighbor_weight`` is outside ``[0, 1]``, or
-        the query vector's dimension does not match a candidate
-        embedding.
+        If ``top_k < 1``, ``neighbor_weight`` is outside ``[0, 1]``,
+        ``neighbor_hops < 1``, or the query vector's dimension does not
+        match a candidate embedding.
     """
     if not 0.0 <= neighbor_weight <= 1.0:
         raise ValueError(
             f"neighbor_weight must be in [0, 1], got {neighbor_weight}"
         )
+    if neighbor_hops < 1:
+        raise ValueError(f"neighbor_hops must be >= 1, got {neighbor_hops}")
     query_vec = backend.embed_image(image)
     if neighbor_weight == 0.0:
         ranked = find_nodes_by_embedding(
@@ -193,7 +231,9 @@ def localize_by_image(
             label_equals=label_equals,
             properties=properties,
         )
-        ranked = _neighbor_reranked(graph, all_scored, neighbor_weight, top_k)
+        ranked = _neighbor_reranked(
+            graph, all_scored, neighbor_weight, neighbor_hops, top_k
+        )
     if not ranked:
         raise NoMatchError(
             "no node satisfies the filters and has an "

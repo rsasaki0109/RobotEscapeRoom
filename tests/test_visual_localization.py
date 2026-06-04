@@ -192,6 +192,50 @@ def test_neighbor_weight_out_of_range_raises() -> None:
         localize_by_image(g, b"any", backend, neighbor_weight=-0.1)
 
 
+def _multihop_graph() -> TopologyGraph:
+    """q=[1,0]. 'alias' has the highest *own* cosine, kept afloat by one
+    moderate isolated neighbor. The true place 'b' has a *weak* immediate
+    neighbor 'c' (so 1-hop context can't save it) but strong corroboration
+    two hops out via 'e' — so only a 2-hop aggregate demotes the alias."""
+    g = TopologyGraph()
+    embeds = {
+        "alias": [0.90, 0.4359],   # cos 0.90 — own top-1
+        "anbr": [0.50, 0.8660],    # cos 0.50 — alias's lone neighbor
+        "b": [0.80, 0.6000],       # cos 0.80 — true place
+        "c": [0.40, 0.9165],       # cos 0.40 — b's weak 1-hop neighbor
+        "e": [0.88, 0.4750],       # cos 0.88 — 2 hops from b, corroborates
+    }
+    for nid, vec in embeds.items():
+        g.add_node(
+            TopologyNode(id=nid, label=nid, type="room", pose=Pose2D(0, 0),
+                         properties={"embedding": vec})
+        )
+    g.add_edge(TopologyEdge(id="alias_anbr", source="alias", target="anbr", type="t"))
+    g.add_edge(TopologyEdge(id="b_c", source="b", target="c", type="t"))
+    g.add_edge(TopologyEdge(id="c_e", source="c", target="e", type="t"))
+    return g
+
+
+def test_one_hop_insufficient_two_hop_demotes_alias() -> None:
+    g = _multihop_graph()
+    backend = _StubBackend([1.0, 0.0])
+    # 1 hop: b's only neighbor is the weak 'c', so the alias keeps top-1.
+    h1 = localize_by_image(g, b"any", backend, neighbor_weight=0.5, neighbor_hops=1)
+    assert h1.node.id == "alias"
+    # 2 hops: 'e' two edges from b joins the average and lifts the true
+    # cluster above the isolated alias.
+    h2 = localize_by_image(g, b"any", backend, neighbor_weight=0.5, neighbor_hops=2)
+    assert h2.node.id != "alias"
+    assert h2.node.id in {"b", "c", "e"}
+
+
+def test_neighbor_hops_below_one_raises() -> None:
+    g = _multihop_graph()
+    backend = _StubBackend([1.0, 0.0])
+    with pytest.raises(ValueError):
+        localize_by_image(g, b"any", backend, neighbor_weight=0.5, neighbor_hops=0)
+
+
 def test_isolated_node_keeps_own_score() -> None:
     # A graph with no edges: aggregation has no neighbors to pull from, so
     # ranking is identical to the pure-cosine path.

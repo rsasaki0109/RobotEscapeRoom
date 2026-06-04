@@ -152,11 +152,13 @@ semantic-toponav resolve   GRAPH "natural language goal text"
                                  [--clarify-with NODE_ID] [--clarify-free TEXT]
 semantic-toponav localize  GRAPH IMAGE [--backend hashing|clip] [--dim N]
                                  [--clip-model NAME] [--top-k N]
-                                 [--neighbor-weight F] [...same filter flags as `find`...]
+                                 [--neighbor-weight F] [--neighbor-hops N]
+                                 [...same filter flags as `find`...]
 semantic-toponav visual-route GRAPH START_IMAGE GOAL_NODE
                                  [--backend hashing|clip] [--dim N]
                                  [--clip-model NAME] [--top-k N]
-                                 [--neighbor-weight F] [--format text|json]
+                                 [--neighbor-weight F] [--neighbor-hops N]
+                                 [--format text|json]
 ```
 
 `localize` grounds a camera frame to the node it most likely depicts
@@ -165,7 +167,8 @@ semantic-toponav visual-route GRAPH START_IMAGE GOAL_NODE
 here. `visual-route` chains that with the planner: ground the start
 frame, A* to `GOAL_NODE`, print the route + semantic waypoints — the
 LM-Nav loop from the CLI. `--neighbor-weight > 0` re-ranks each fix
-against its graph neighbors to damp perceptual aliasing. See
+against its graph neighbors (radius `--neighbor-hops`) to damp
+perceptual aliasing. See
 [queries.md](queries.md#visual-localization--navigation).
 
 ## A scratch-graph mini-tutorial

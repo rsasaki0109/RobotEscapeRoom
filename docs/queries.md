@@ -183,9 +183,18 @@ aggregation; see [`related_work.md`](related_work.md)):
 loc = localize_by_image(graph, "frame.jpg", backend, neighbor_weight=0.3)
 ```
 
+`neighbor_hops` (default `1`) widens the corroboration radius —
+RoboHop's multi-layer aggregation — so support several hops away, past a
+weak immediate neighbor, still counts:
+
+```python
+loc = localize_by_image(graph, "frame.jpg", backend,
+                        neighbor_weight=0.3, neighbor_hops=2)
+```
+
 `plan_visual_route` and `VisualRouteFollower` accept the same
-`neighbor_weight`, so route-following can lean on graph context on every
-frame.
+`neighbor_weight` / `neighbor_hops`, so route-following can lean on graph
+context on every frame.
 
 Stacking localization with the planner closes an LM-Nav-style loop with
 no new machinery — ground the start, A*-plan to a goal, expand into
