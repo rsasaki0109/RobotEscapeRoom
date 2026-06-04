@@ -195,7 +195,9 @@ class CLIPBackend:
             inputs = self._processor(
                 text=[text], return_tensors="pt", padding=True
             ).to(self._device)
-            feats = self._model.get_text_features(**inputs)
+            feats = self._feature_tensor(
+                self._model.get_text_features(**inputs), text=True
+            )
             feats = feats / feats.norm(dim=-1, keepdim=True)
             return [float(x) for x in feats[0].cpu().tolist()]
 
@@ -211,11 +213,35 @@ class CLIPBackend:
             inputs = self._processor(
                 images=pil_images, return_tensors="pt"
             ).to(self._device)
-            feats = self._model.get_image_features(**inputs)
+            feats = self._feature_tensor(
+                self._model.get_image_features(**inputs), text=False
+            )
             feats = feats / feats.norm(dim=-1, keepdim=True)
             return [[float(x) for x in row] for row in feats.cpu().tolist()]
 
     # ----- internals --------------------------------------------------------
+
+    def _feature_tensor(self, out: Any, *, text: bool) -> Any:
+        """Extract the projected embedding tensor from a CLIP feature call.
+
+        ``transformers < 5`` returns a plain tensor from
+        ``get_image_features`` / ``get_text_features``; ``>= 5`` returns a
+        ``BaseModelOutputWithPooling`` whose ``pooler_output`` (or
+        ``image_embeds`` / ``text_embeds``) holds the projection-dim
+        vector. Accept either so the backend tracks the pinned model
+        across the supported ``transformers>=4.30`` range.
+        """
+        if isinstance(out, self._torch.Tensor):
+            return out
+        preferred = "text_embeds" if text else "image_embeds"
+        for attr in (preferred, "pooler_output"):
+            val = getattr(out, attr, None)
+            if val is not None:
+                return val
+        raise TypeError(
+            "CLIPBackend: unexpected feature output "
+            f"{type(out).__name__}; cannot find an embedding tensor"
+        )
 
     def _ensure_loaded(self) -> None:
         if self._model is not None:
