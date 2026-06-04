@@ -76,6 +76,10 @@ semantic-toponav eval-grounding CORPUS.yaml [--top-k N]
                                             [--describer-safety]
                                             [--llm-backend echo|anthropic [...llm flags...]]
                                             [--out report.md]
+semantic-toponav eval-visual-grounding CORPUS.yaml [--backend hashing|clip]
+                                            [--dim N] [--clip-model NAME]
+                                            [--top-k N] [--min-score F]
+                                            [--out report.md]
 ```
 
 `eval-grounding` drives `resolve_goal` and (optionally)
@@ -84,6 +88,11 @@ semantic-toponav eval-grounding CORPUS.yaml [--top-k N]
 `--describer-safety` plus a backend — also runs four deterministic
 invariants over `llm_describe_path`. Reference corpus:
 [`tests/fixtures/grounding/multi_floor_office.yaml`](../tests/fixtures/grounding/multi_floor_office.yaml).
+
+`eval-visual-grounding` is the perception twin: it stamps a gallery,
+localizes query frames (`image -> node`), and reports precision@1 /
+recall@K plus the abstention split for unseen-place frames. Reference
+corpus: [`tests/fixtures/grounding/visual_depot.yaml`](../tests/fixtures/grounding/visual_depot.yaml).
 Full details and metric definitions: [eval_grounding.md](eval_grounding.md).
 
 ## Visit history
@@ -141,7 +150,23 @@ semantic-toponav resolve   GRAPH "natural language goal text"
                                  [--llm-backend echo|anthropic [...llm flags...]]
                                  [--vlm-backend hashing|clip] [--vlm-dim N]
                                  [--clarify-with NODE_ID] [--clarify-free TEXT]
+semantic-toponav localize  GRAPH IMAGE [--backend hashing|clip] [--dim N]
+                                 [--clip-model NAME] [--top-k N]
+                                 [--neighbor-weight F] [...same filter flags as `find`...]
+semantic-toponav visual-route GRAPH START_IMAGE GOAL_NODE
+                                 [--backend hashing|clip] [--dim N]
+                                 [--clip-model NAME] [--top-k N]
+                                 [--neighbor-weight F] [--format text|json]
 ```
+
+`localize` grounds a camera frame to the node it most likely depicts
+(`image -> node`); the graph's nodes must already carry embeddings
+(e.g. from `embed-regions`) stamped by the **same** encoder you pass
+here. `visual-route` chains that with the planner: ground the start
+frame, A* to `GOAL_NODE`, print the route + semantic waypoints — the
+LM-Nav loop from the CLI. `--neighbor-weight > 0` re-ranks each fix
+against its graph neighbors to damp perceptual aliasing. See
+[queries.md](queries.md#visual-localization--navigation).
 
 ## A scratch-graph mini-tutorial
 
