@@ -1,0 +1,43 @@
+# Real image->node corpus for the bundled Gazebo Depot frames.
+#
+# Unlike visual_depot.yaml (which reuses each gallery frame as its own
+# query for a deterministic, torch-free CI check), this corpus pairs the
+# gallery prototypes with the *drive* frames — distinct photographs taken
+# while moving through each place. It only produces meaningful numbers
+# under a real semantic encoder:
+#
+#   semantic-toponav eval-visual-grounding \
+#       tests/fixtures/grounding/visual_depot_drive.yaml --backend clip
+#
+# Under HashingBackend the drive frames do not match the gallery bytes,
+# so recall is ~chance — that is expected; this file is a CLIP-run
+# fixture, not a CI fixture. The committed numbers from a real run live
+# in docs/visual_grounding_report_sample.md.
+#
+# gold labels come from examples/data/depot_views/route_meta.json
+# ("nearest" per frame). Graph is synthesised nodes-only from the gallery.
+
+gallery:
+  - {node: bay, image: ../../../examples/data/depot_views/proto_bay.jpg}
+  - {node: brick, image: ../../../examples/data/depot_views/proto_brick.jpg}
+  - {node: drum, image: ../../../examples/data/depot_views/proto_drum.jpg}
+  - {node: crate, image: ../../../examples/data/depot_views/proto_crate.jpg}
+  - {node: util, image: ../../../examples/data/depot_views/proto_util.jpg}
+
+cases:
+  - {image: ../../../examples/data/depot_views/frame00.jpg, gold: bay, kind: precise}
+  - {image: ../../../examples/data/depot_views/frame01.jpg, gold: bay, kind: precise}
+  - {image: ../../../examples/data/depot_views/frame02.jpg, gold: bay, kind: precise}
+  - {image: ../../../examples/data/depot_views/frame03.jpg, gold: brick, kind: precise}
+  - {image: ../../../examples/data/depot_views/frame04.jpg, gold: brick, kind: precise}
+  - {image: ../../../examples/data/depot_views/frame05.jpg, gold: brick, kind: precise}
+  - {image: ../../../examples/data/depot_views/frame06.jpg, gold: brick, kind: precise}
+  - {image: ../../../examples/data/depot_views/frame07.jpg, gold: drum, kind: precise}
+  - {image: ../../../examples/data/depot_views/frame08.jpg, gold: drum, kind: precise}
+  - {image: ../../../examples/data/depot_views/frame09.jpg, gold: drum, kind: precise}
+  - {image: ../../../examples/data/depot_views/frame10.jpg, gold: crate, kind: precise}
+  - {image: ../../../examples/data/depot_views/frame11.jpg, gold: crate, kind: precise}
+  - {image: ../../../examples/data/depot_views/frame12.jpg, gold: crate, kind: precise}
+  - {image: ../../../examples/data/depot_views/frame13.jpg, gold: util, kind: precise}
+  - {image: ../../../examples/data/depot_views/frame14.jpg, gold: util, kind: precise}
+  - {image: ../../../examples/data/depot_views/frame15.jpg, gold: util, kind: precise}

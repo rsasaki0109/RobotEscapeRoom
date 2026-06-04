@@ -237,10 +237,16 @@ machinery*, not CLIP's real recall:
 | hashing(dim=64) | 7 | 5       | 2            | 0.50      | 1.00        | 1.00     | 1.00     | 0.00       | 1.00    |
 ```
 
-For real `recall@K`, point the cases at distinct on-route frames (e.g.
-the `frame*.jpg` drive sequence labelled by `route_meta.json`) and run
-`--backend clip`. Real-CLIP numbers are intentionally **not** committed
-(they need the `[vlm]` extra + weights in CI) — the same user-side open
-hole as the Anthropic resolver numbers. See
-[`related_work.md`](related_work.md) for how this sits next to AnyLoc,
-VPR-Bench, and the gmberton benchmark.
+For real `recall@K`, point the cases at distinct on-route frames and run
+`--backend clip`. That corpus ships as
+[`tests/fixtures/grounding/visual_depot_drive.yaml`](../tests/fixtures/grounding/visual_depot_drive.yaml)
+(the `frame*.jpg` drive sequence labelled by `route_meta.json`), and a
+committed real-CLIP snapshot lives at
+[`docs/visual_grounding_report_sample.md`](visual_grounding_report_sample.md):
+on this five-place benchmark `openai/clip-vit-base-patch32` grounds every
+drive frame at **precision@1 = recall@3 = recall@5 = 1.00**. Those
+numbers are a **manual** artifact — the `[vlm]` extra (torch + weights)
+is out of CI by design — while the metric machinery is still covered
+deterministically by `tests/test_eval_visual_grounding.py` under
+`HashingBackend`. See [`related_work.md`](related_work.md) for how this
+sits next to AnyLoc, VPR-Bench, and the gmberton benchmark.
