@@ -146,6 +146,72 @@ silently producing useless embeddings. The result's `source` field
 records whether the run consumed `"occupancy"` or `"rgb_source"`
 patches.
 
+## Visual localization + navigation
+
+Once nodes carry embeddings (from `embed_region_patches`, CLIP text /
+image prototypes, or a mapping pass), the same vector space supports
+the *perception* side of navigation: grounding a live camera frame to
+the graph, planning from it, and tracking progress as the robot drives.
+
+`localize_by_image` is the image counterpart of `resolve_goal`: where
+`resolve_goal` turns *language* into a node, this turns the robot's
+current *frame* into the node it most likely depicts — embed with a
+pluggable encoder, rank node embeddings by cosine:
+
+```python
+from semantic_toponav.encoders import CLIPBackend  # or HashingBackend
+from semantic_toponav.query import localize_by_image
+
+backend = CLIPBackend()
+loc = localize_by_image(graph, "frame.jpg", backend, type="room")
+loc.node, loc.score, loc.ranked   # best node, cosine, top-k shortlist
+```
+
+The encoder **must be the same identity** that stamped the node
+embeddings — cross-backend vectors are not comparable. The usual
+`find_nodes` predicate filters (`type=`, `label_contains=`, …) narrow
+the candidate set first.
+
+Stacking localization with the planner closes an LM-Nav-style loop with
+no new machinery — ground the start, A*-plan to a goal, expand into
+semantic waypoints:
+
+```python
+from semantic_toponav.query import plan_visual_route
+
+route = plan_visual_route(graph, "start_frame.jpg", "exec_office_3f", backend,
+                          cost_fn=compose_costs(prefer_elevator))
+route.start.node.id   # where the robot was grounded
+route.route           # node-id path to the goal
+route.waypoints       # SemanticWaypoint expansion
+```
+
+`VisualRouteFollower` tracks how far along that plan the robot has
+reached by re-localizing a frame stream. Progress is **monotonic**: a
+transient mis-localization to a passed place — or a glance back down a
+corridor — never rewinds the plan. An off-route or low-confidence frame
+(`min_score`) holds the current position.
+
+```python
+from semantic_toponav.query import VisualRouteFollower
+
+follower = VisualRouteFollower(graph, route.route, backend, min_score=0.2)
+for frame in camera_stream:
+    p = follower.update(frame)
+    p.current_node, p.index, p.advanced, p.reached_goal, p.remaining
+```
+
+The node-to-node locomotion is **out of repo by design** (decision
+D-16): a learned image-goal policy (ViNT / NoMaD / ViNG) or Nav2 owns
+*how to move*; the follower owns *where on the plan the robot is*. See
+[`related_work.md`](related_work.md) for how this sits next to LM-Nav,
+SPTM, and RoboHop. Runnable demos (need `[vlm,viz]`):
+
+```bash
+python examples/visual_localization_demo.py   # frame -> node, per frame
+python examples/visual_navigation_demo.py      # localize -> plan -> follow
+```
+
 ## LLM-augmented describe-path / resolve
 
 The deterministic `describe_path` / `resolve_goal` always run first;

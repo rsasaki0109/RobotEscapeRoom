@@ -95,7 +95,8 @@ Buckets to cover:
 | Classical MAPF | CBS, EECBS, MAPF-LNS2, MovingAI benchmark, Flatland | Cite as the solver-track baseline; we deliberately don't compete on it |
 | Open-vocabulary semantic SLAM | ConceptGraphs, OpenScene, OK-Robot | Adjacent — we consume a *graph*, they produce one. Plug point story (`AlignedRgbSource`, encoder `Backend`) connects us |
 | Vision-Language Navigation | HM3D-OVON, RxR, R2R, RoomTour3D | The "end-to-end" branch. We are the middle layer; VLN systems can plug into us via `llm_resolve_goal` / `embed_region_patches` |
-| LLM navigation agents | SayCan, NavGPT, LM-Nav, Voyager | Architectural cousins; ours adds (a) deterministic floor + LLM-cannot-invent safety, (b) multi-agent admission |
+| LLM navigation agents | SayCan, NavGPT, LM-Nav, Voyager | Architectural cousins; ours adds (a) deterministic floor + LLM-cannot-invent safety, (b) multi-agent admission. LM-Nav maps onto our layers almost 1:1 — see [`related_work.md`](related_work.md) |
+| Visual place recognition / topological localization | SPTM, RoboHop, AnyLoc, VPR-Bench, ViNT/NoMaD | `localize_by_image` is node-level VPR; `VisualRouteFollower` is the SPTM retrieval-network role. Perception (`Backend`) + locomotion (ViNT/Nav2) stay out of repo. Detail in [`related_work.md`](related_work.md) |
 | Multi-robot scheduling | EDF, MILP-based job-shop, lifelong MAPF | We do FCFS / priority / EDF / joint / BnB / exhaustive / insertion, all under one CLI — and an explanation surface they typically don't expose |
 | Robotic middleware | Nav2, Autoware, MoveIt | We sit *upstream* of these; the `SemanticWaypoint` schema (v1-locked) is the bridge |
 

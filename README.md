@@ -159,6 +159,31 @@ the same wire format the LLM resolver consumes as
   <code>python examples/vlm_region_embedding_demo.py</code>.</sub>
 </p>
 
+### Visual localization & navigation
+
+`localize_by_image` grounds the robot's current camera frame to the
+topology node it most likely depicts — the image counterpart of the
+language resolver — by embedding the frame with a real CLIP encoder and
+ranking the per-node gallery vectors by cosine similarity. Stacking it
+with the planner closes an LM-Nav-style loop: ground the start
+(`plan_visual_route`), A*-plan to a goal, then track monotonic progress
+along the route as frames stream in (`VisualRouteFollower`).
+
+<p align="center">
+  <img src="docs/images/23_visual_localization.gif" width="640" alt="robot camera view on the left, top-down topology on the right; each frame is grounded to a place node by CLIP and highlighted">
+</p>
+
+<p align="center">
+  <sub>Each frame (Gazebo Depot world) grounded to a place node with a
+  real <code>CLIPBackend</code>. Node-to-node locomotion stays out of
+  repo by design — a learned image-goal policy (ViNT / NoMaD) or Nav2
+  owns <em>how to move</em>; this owns <em>where on the plan the robot
+  is</em> (see <a href="docs/related_work.md">related_work.md</a>).
+  Reproduce via <code>python examples/visual_localization_demo.py</code>
+  and the full loop via
+  <code>python examples/visual_navigation_demo.py</code>.</sub>
+</p>
+
 ### Multi-agent coordination
 
 The same scheduler under four ordering strategies. The scenario is
