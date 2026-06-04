@@ -62,6 +62,43 @@ class VisualLocalization:
     ranked: list[tuple[TopologyNode, float]] = field(default_factory=list)
 
 
+def _neighbor_reranked(
+    graph: TopologyGraph,
+    scored: list[tuple[TopologyNode, float]],
+    weight: float,
+    top_k: int,
+) -> list[tuple[TopologyNode, float]]:
+    """Blend each node's own cosine with the mean of its scored 1-hop
+    neighbors, then re-sort.
+
+    ``effective = (1 - weight) * own + weight * mean(neighbor own)``.
+
+    Only neighbors that survived the same candidate filters (i.e. appear
+    in ``scored``) contribute; a node with no scored neighbor keeps its
+    own score unchanged, so the aggregation never penalizes a genuine but
+    isolated match. This is the cheap, in-graph analogue of RoboHop's
+    descriptor aggregation over graph neighbors — it damps an isolated
+    perceptual-aliasing spike, since a true place is corroborated by its
+    surroundings while a spurious one usually is not.
+    """
+    own = {node.id: score for node, score in scored}
+    reranked: list[tuple[TopologyNode, float]] = []
+    for node, score in scored:
+        neighbor_scores = [
+            own[other]
+            for edge in graph.neighbors(node.id)
+            if (other := graph.other_end(edge, node.id)) in own
+        ]
+        if neighbor_scores:
+            context = sum(neighbor_scores) / len(neighbor_scores)
+            effective = (1.0 - weight) * score + weight * context
+        else:
+            effective = score
+        reranked.append((node, effective))
+    reranked.sort(key=lambda pair: pair[1], reverse=True)
+    return reranked[:top_k]
+
+
 def localize_by_image(
     graph: TopologyGraph,
     image: Any,
@@ -69,6 +106,7 @@ def localize_by_image(
     *,
     top_k: int = 5,
     embedding_property: str = DEFAULT_EMBEDDING_PROPERTY,
+    neighbor_weight: float = 0.0,
     type: str | None = None,
     label_contains: str | None = None,
     label_equals: str | None = None,
@@ -100,6 +138,14 @@ def localize_by_image(
     embedding_property:
         Node property key the embeddings live under. Defaults to
         ``"embedding"``.
+    neighbor_weight:
+        Context-aggregation strength in ``[0, 1]``. ``0.0`` (default) is
+        pure single-frame cosine ranking. When ``> 0``, each node's score
+        becomes ``(1 - w) * own + w * mean(scored 1-hop neighbors)``
+        before ranking, so a true place corroborated by its graph
+        neighbors outranks an isolated perceptual-aliasing spike. With
+        ``w > 0`` the returned ``score`` / ``ranked`` similarities are
+        these context-aggregated values, not raw cosines.
     type, label_contains, label_equals, properties:
         Optional candidate filters, forwarded to
         :func:`find_nodes_by_embedding`.
@@ -114,20 +160,40 @@ def localize_by_image(
     NoMatchError
         If no node satisfies the filters and carries an embedding.
     ValueError
-        If ``top_k < 1`` (from :func:`find_nodes_by_embedding`), or the
-        query vector's dimension does not match a candidate embedding.
+        If ``top_k < 1``, ``neighbor_weight`` is outside ``[0, 1]``, or
+        the query vector's dimension does not match a candidate
+        embedding.
     """
+    if not 0.0 <= neighbor_weight <= 1.0:
+        raise ValueError(
+            f"neighbor_weight must be in [0, 1], got {neighbor_weight}"
+        )
     query_vec = backend.embed_image(image)
-    ranked = find_nodes_by_embedding(
-        graph,
-        query_vec,
-        top_k=top_k,
-        embedding_property=embedding_property,
-        type=type,
-        label_contains=label_contains,
-        label_equals=label_equals,
-        properties=properties,
-    )
+    if neighbor_weight == 0.0:
+        ranked = find_nodes_by_embedding(
+            graph,
+            query_vec,
+            top_k=top_k,
+            embedding_property=embedding_property,
+            type=type,
+            label_contains=label_contains,
+            label_equals=label_equals,
+            properties=properties,
+        )
+    else:
+        # Score every candidate (not just top_k) so a node's neighbors
+        # are available to aggregate, then re-rank and slice.
+        all_scored = find_nodes_by_embedding(
+            graph,
+            query_vec,
+            top_k=max(1, sum(1 for _ in graph.nodes())),
+            embedding_property=embedding_property,
+            type=type,
+            label_contains=label_contains,
+            label_equals=label_equals,
+            properties=properties,
+        )
+        ranked = _neighbor_reranked(graph, all_scored, neighbor_weight, top_k)
     if not ranked:
         raise NoMatchError(
             "no node satisfies the filters and has an "

@@ -172,6 +172,21 @@ embeddings — cross-backend vectors are not comparable. The usual
 `find_nodes` predicate filters (`type=`, `label_contains=`, …) narrow
 the candidate set first.
 
+A single frame can spike on a look-alike place (perceptual aliasing).
+`neighbor_weight` damps that by re-ranking each candidate against its
+graph neighbors — `(1 - w) * own + w * mean(neighbor cosines)` — so a
+true place corroborated by its surroundings outranks an isolated
+spurious match (the in-graph analogue of RoboHop's descriptor
+aggregation; see [`related_work.md`](related_work.md)):
+
+```python
+loc = localize_by_image(graph, "frame.jpg", backend, neighbor_weight=0.3)
+```
+
+`plan_visual_route` and `VisualRouteFollower` accept the same
+`neighbor_weight`, so route-following can lean on graph context on every
+frame.
+
 Stacking localization with the planner closes an LM-Nav-style loop with
 no new machinery — ground the start, A*-plan to a goal, expand into
 semantic waypoints:

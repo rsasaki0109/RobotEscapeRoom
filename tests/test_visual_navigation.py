@@ -178,6 +178,20 @@ def test_follower_allow_skip_false_steps_one_at_a_time() -> None:
     assert follower.update(FRAMES["lab"]).index == 2
 
 
+def test_neighbor_weight_threads_through() -> None:
+    # Smoke: plan_visual_route and the follower accept neighbor_weight and
+    # still produce a valid route / progress (the re-rank math itself is
+    # unit-tested in test_visual_localization.py).
+    backend = HashingBackend(dim=64)
+    g = _chain_graph(backend)
+    vr = plan_visual_route(g, FRAMES["bay"], "dock", backend, neighbor_weight=0.3)
+    assert vr.route[0] == "bay" and vr.goal == "dock"
+    follower = VisualRouteFollower(g, vr.route, backend, neighbor_weight=0.3)
+    p = follower.update(FRAMES["bay"])
+    assert isinstance(p, RouteProgress)
+    assert 0 <= p.index < len(vr.route)
+
+
 def test_follower_rejects_empty_route() -> None:
     backend = HashingBackend(dim=64)
     g = _chain_graph(backend)
