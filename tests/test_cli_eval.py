@@ -109,6 +109,38 @@ def test_eval_report_missing_file_errors(capsys) -> None:
     assert "not found" in err.lower()
 
 
+_VISUAL_CORPUS = "tests/fixtures/grounding/visual_depot.yaml"
+
+
+def test_eval_visual_grounding_smoke(capsys) -> None:
+    rc = main(
+        ["eval-visual-grounding", _VISUAL_CORPUS, "--backend", "hashing",
+         "--dim", "64", "--min-score", "0.5"]
+    )
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert "Visual localization (image -> node)" in out
+    assert "precision@1" in out
+    assert "hashing(dim=64)" in out
+
+
+def test_eval_visual_grounding_writes_report(tmp_path: Path, capsys) -> None:
+    out_path = tmp_path / "visual.md"
+    rc = main(
+        ["eval-visual-grounding", _VISUAL_CORPUS, "--out", str(out_path)]
+    )
+    assert rc == 0
+    assert out_path.exists()
+    assert "recall@3" in out_path.read_text()
+
+
+def test_eval_visual_grounding_missing_corpus_errors(capsys) -> None:
+    rc = main(["eval-visual-grounding", "/tmp/definitely-not-here.yaml"])
+    err = capsys.readouterr().err
+    assert rc == 2
+    assert "not found" in err.lower()
+
+
 def test_eval_synthetic_unknown_scenario_errors(capsys) -> None:
     rc = main(
         [
