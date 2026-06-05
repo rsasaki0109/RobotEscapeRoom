@@ -1056,12 +1056,15 @@ post-MVP arc organized around five axes.
 - README polish 2026-05-15 (`3d31fd1`) — three-axis What-it-does,
   multi-floor gallery row, status section reflecting post-PR-59 surface
 
-## 22′. Current state — post-v1.0 (post-PR #71, post-Phase-C bootstrap, 2026-05-18)
+## 22′. Current state — post-v1.0 + launch polish (2026-05-28)
 
 Headline numbers and surfaces a future visitor should read first.
 
-- **71 PRs merged**, ~16,000 LOC of Python, **913 tests passing, 1
-  skipped**
+- **71 PRs merged before the direct launch-polish commits**, ~16,000
+  LOC of Python, **913 tests passing, 1 skipped** at the v1.0 / post-PR
+  #67 checkpoint. Main is green after the 2026-05-28 direct commits:
+  `ruff` plus pytest on Python 3.10 / 3.11 / 3.12 passed in GitHub
+  Actions run `26551836518`.
 - **`v1.0.0` tagged 2026-05-17** — annotated tag at commit `880de64`
   (release PR #71), GitHub Release published as latest. CHANGELOG's
   `[1.0.0] — pending` flipped to `2026-05-17`; `[Unreleased]` polish
@@ -1082,9 +1085,23 @@ Headline numbers and surfaces a future visitor should read first.
 - **Two eval suites** — `eval-synthetic` for coordination,
   `eval-grounding` for language. Both produce JSONL + Markdown
   for later re-rendering.
-- **Three-axis README gallery hero coverage**:
-  - Plan — `docs/images/demo.gif` (4-frame multi-floor cost
-    composition cycling)
+- **README first viewport is now a real Foxglove Studio replay**:
+  - Hero GIF — `docs/images/22_foxglove_replay.gif` (recorded from a
+    self-hosted Foxglove Studio session opening the generated MCAP)
+  - Hero MP4 — `docs/images/22_foxglove_replay.mp4`
+  - Replay source — `docs/foxglove/semantic_toponav_demo.mcap`
+  - Generator — `examples/export_foxglove_mcap.py`
+  - MCAP topics: `/tf` (`foxglove.FrameTransforms`),
+    `/semantic_toponav/pose` (`foxglove.PoseInFrame`),
+    `/semantic_toponav/scene` (`foxglove.SceneUpdate`),
+    `/semantic_toponav/markers` (`visualization_msgs/MarkerArray` for
+    old/new Foxglove 3D-panel compatibility),
+    `/semantic_toponav/resolve_trace`, `/semantic_toponav/route`,
+    `/semantic_toponav/waypoints`, `/semantic_toponav/admission`
+- **Gallery still covers the original three axes**:
+  - Plan — `docs/images/demo.gif` and the later launch demos
+    (`docs/images/21_semantic_toponav_visualization.gif`) show
+    multi-floor semantic routing / cost composition
   - Resolve — `docs/images/15_vlm_region_cycle.gif` (3-frame VLM
     region cosine-similarity heatmap cycling)
   - Coordinate — `docs/images/17_coordination_cycle.gif` (4-frame
@@ -1114,6 +1131,129 @@ Headline numbers and surfaces a future visitor should read first.
 `docs/paper_outline.md` organizes these into a 5-chapter paper
 evaluation structure with an evidence index pointing back at the
 exact test names that back each claim.
+
+### 22′.1 2026-05-28 launch / star-facing polish log
+
+This subsection is intentionally longer than normal because it records
+the GitHub-first positioning work that happened after the v1.0 / Phase C
+bootstrap plan was last synced. The user's immediate objective was not
+new core functionality; it was: make the repository look credible to a
+GPT Pro / robotics OSS reviewer quickly enough to earn stars. The
+result is a README first viewport that has a real visualization artifact,
+not just CLI text or a synthetic illustration.
+
+Direct commits on `main` after the previous plan sync:
+
+- `6c77100 Add TPS semantic navigation hero` — first attempt at a
+  semantic/topological navigation hero. Superseded by later recorded
+  demos but kept in history.
+- `03da210 Replace hero with recorded navigation demo` — replaced the
+  first static-ish hero with a recorded navigation demo.
+- `987f655 Polish launch metadata` — moved the package metadata to a
+  launch-ready posture: `version = "1.0.0"`, stable classifiers and
+  project URLs, `CITATION.cff`, `SECURITY.md`, `CODE_OF_CONDUCT.md`,
+  social preview asset, and GitHub topic polish
+  (`semantic-navigation`, `topological-navigation`, `multi-robot`,
+  `fleet-coordination`, `nav2`, `llm-robotics`, etc.). Community
+  profile reached 100%.
+- `f350009 Add real CLI demo hero` — made the demo claim more honest by
+  recording an actual CLI run rather than a purely designed animation.
+- `8455f01 Add visualization dashboard demo` — added
+  `examples/record_visualization_dashboard.py` plus
+  `docs/images/21_semantic_toponav_visualization.gif` / `.mp4`, a
+  Foxglove/RViz-style rendered dashboard using real
+  `resolve_goal("executive office on 3F")`,
+  `plan_astar(..., compose_costs(prefer_elevator))`, and
+  `path_to_semantic_waypoints(...)` outputs.
+- `89e2e61 Add Foxglove replay export` — added the first real MCAP
+  export surface: `examples/export_foxglove_mcap.py`,
+  `docs/foxglove/semantic_toponav_demo.mcap`, and
+  `docs/foxglove/README.md`.
+- `306f234 Add Foxglove replay hero` — upgraded the MCAP so Foxglove's
+  3D panel visibly renders the route via
+  `/semantic_toponav/markers` (`visualization_msgs/MarkerArray`), then
+  recorded a real Foxglove Studio replay to
+  `docs/images/22_foxglove_replay.gif` / `.mp4` and promoted that GIF
+  to the README hero.
+
+The truthfulness boundary is important and should be preserved in
+future docs:
+
+- It is accurate to say the current README hero is a **Foxglove Studio
+  replay**. It was recorded from a Foxglove Studio session opening the
+  generated MCAP.
+- It is accurate to say the MCAP is generated from real
+  semantic-toponav planner / resolver / waypoint APIs over the shipped
+  `examples/multi_floor_office.yaml` graph.
+- It is **not** a physical robot run, not a ROS2 bag captured from a
+  live robot, and not a real Foxglove cloud session. Do not imply those
+  things unless a future commit actually adds them.
+- The earlier `21_semantic_toponav_visualization.gif` is a rendered
+  preview dashboard, useful as a fallback visual, but the README hero is
+  now `22_foxglove_replay.gif` because that one is recorded from the
+  Foxglove UI.
+
+The MCAP generator's current replay story:
+
+- Load graph: `examples/multi_floor_office.yaml`
+- Resolve query: `"executive office on 3F"` → `exec_office_3f`
+- Plan route:
+  `entrance -> corridor_1f -> elevator_1f -> elevator_2f ->
+  elevator_3f -> corridor_3f -> exec_office_3f`
+- Cost policy: `compose_costs(prefer_elevator)`
+- Emit 8 seconds at 12 Hz, 97 frames
+- Emit:
+  - `/tf` (`map -> base_link`) at 97 messages
+  - `/semantic_toponav/pose` at 97 messages
+  - `/semantic_toponav/scene` at 98 messages
+  - `/semantic_toponav/markers` at 97 messages
+  - `/semantic_toponav/waypoints` at 97 messages
+  - one-shot `/semantic_toponav/resolve_trace`
+  - one-shot `/semantic_toponav/route`
+  - one-shot `/semantic_toponav/admission`
+
+Verification commands used before pushing `306f234`:
+
+```bash
+python3 examples/export_foxglove_mcap.py
+python3 -m ruff check examples/export_foxglove_mcap.py
+python3 -m compileall examples/export_foxglove_mcap.py
+python3 -m pytest tests/test_multi_floor.py tests/test_semantic_costs.py
+python3 - <<'PY'
+from collections import Counter
+from mcap.reader import make_reader
+counts = Counter()
+schemas = {}
+with open("docs/foxglove/semantic_toponav_demo.mcap", "rb") as stream:
+    reader = make_reader(stream)
+    for schema, channel, message in reader.iter_messages():
+        counts[channel.topic] += 1
+        schemas[channel.topic] = schema.name
+for topic, count in sorted(counts.items()):
+    print(topic, count, schemas[topic])
+PY
+```
+
+Current asset sizes are small enough for README use:
+
+- `docs/images/22_foxglove_replay.gif` — ~85 KB, 960×540, 44 frames
+- `docs/images/22_foxglove_replay.mp4` — ~47 KB, 960×540, 5.5 sec
+- `docs/foxglove/semantic_toponav_demo.mcap` — ~2.4 MB
+- `docs/images/21_semantic_toponav_visualization.gif` — ~4.7 MB
+  fallback dashboard preview, no longer the README hero
+
+Residual issues after the launch-polish pass:
+
+- GitHub Actions still emits a **Node.js 20 deprecation annotation** for
+  `actions/checkout@v4` / `actions/setup-python@v5`. The CI jobs pass;
+  this is a presentation/maintenance issue, not a test failure.
+- PyPI is explicitly skipped for now by user instruction. Do not spend
+  time on publish packaging unless the user reverses that instruction.
+- `STATUS_FOR_ADVICE.md` is an untracked local file and has repeatedly
+  been kept out of commits.
+- The README now gives a strong first impression, but there is still no
+  hosted docs site, no live ROS2 launch recording, and no physical robot
+  deployment artifact. Those should not be invented in copy.
 
 ## 23′. Forward direction — Phase B + Phase C
 
@@ -1192,9 +1332,36 @@ Order picked by adoption-pull:
      text), documented in `CMakeLists.txt` + `CHANGELOG.md`. BT
      factory builder lambdas refactored into anonymous-namespace
      functions so uncrustify lambda-indent rules apply cleanly.
-   - Open follow-up: v0.2 NavigateThroughPoses feedback wiring
-     (current_waypoint, distance_remaining → blackboard) so upper
-     BTs can branch on progress. Not started.
+   - **v0.2.0 shipped 2026-05-29 by PR #3** (`d5f7e52`, tag + GitHub
+     release `v0.2.0`) — NavigateThroughPoses feedback wiring. New
+     `on_wait_for_result(feedback)` override (Humble's parameterized
+     hook, not the no-arg form) forwards live feedback to four
+     blackboard output ports: `current_waypoint_index` (derived as
+     `n_poses_dispatched - number_of_poses_remaining`, clamped),
+     `number_of_poses_remaining`, `distance_remaining` (m),
+     `number_of_recoveries`. All seeded with sentinel `-1` / `NaN` in
+     `on_tick()`; mid-flight reads need a `ReactiveSequence` /
+     `ReactiveFallback`. gtest `ExposesDocumentedPorts` guards the
+     static `providedPorts()` contract. Green CI on the Humble
+     container.
+   - **v0.3.0 shipped 2026-05-29 by PR #4** (`32710a0`, tag + GitHub
+     release `v0.3.0`) — the end-to-end integration test the
+     v0.1.0/v0.2.0 smoke check had deferred to "integration tests".
+     `test/test_integration_navigate_through_poses.cpp` drives the
+     real node against an **in-process `NavigateThroughPoses` action
+     server** (a test double) so the full `BtActionNode` lifecycle is
+     covered, not just the static contract surface: goal translation
+     with the pose-less junction filtered out (server receives the
+     pose-bearing count), the BT tree built from XML and ticked
+     through the action client/server round-trip, mid-flight feedback
+     forwarded to the blackboard (`current_waypoint_index` in
+     `[0, n-1]`, `distance_remaining` off `NaN`), and `SUCCESS` with
+     `n_poses_dispatched` set. CI green first try (`dispatching 3 of
+     4`, test OK in 194 ms, all 7 ctest entries pass). Driving the
+     real Nav2 planner/controller stack needs a simulator and stays
+     out of scope for unit CI. **This closes the last open Phase C
+     follow-up** — nav2-bt is now contract-complete and validated
+     against the action interface.
 2. **`semantic-toponav-foxglove-panel`** (TypeScript) — Foxglove
    custom panel(s) visualizing the v1 wire formats.
    - **v0.1.0 scaffolded 2026-05-17, v0.2.0 shipped 2026-05-18**
@@ -1213,12 +1380,20 @@ Order picked by adoption-pull:
      jest-tested separately from the Foxglove extension API (12
      tests green on Node 20). Shared `reason_code` palette across
      panels.
-   - Open follow-up: issue #1 — wire `foxglove-extension build`
-     into CI for tagged `.foxe` artifact releases. Not started.
-   - Open follow-up: third panel `Semantic TopoNav Resolve` for the
-     `ResolveTrace` wire format (chosen_node / abstained / candidates
-     / scores). Would complete the per-wire-format panel coverage
-     story. Not started.
+   - **v0.3.0 shipped 2026-05-28 by PR #4** (`cb1833d`, tag + GitHub
+     release `v0.3.0` with the `.foxe` attached) — third panel
+     `Semantic TopoNav Resolve` subscribing to `/resolve_trace`,
+     decoding `ResolveTrace` v1 (query / candidates / base_candidates
+     / llm_pick / used_fallback / embedding_scores / clarification).
+     Renders a rank-movement table (↑/↓ vs base rank, embedding score
+     per node, LLM-pick flag), a status badge
+     (`clarification_pending` / `llm_pick` / `fallback` / `no_pick`),
+     and a clarification band. Pure transform `src/resolve.ts`
+     (`buildResolveView` / `normalizeResolveTrace`) jest-tested (12
+     cases). Completes the per-wire-format panel coverage story.
+   - **Issue #1 closed earlier** — `foxglove-extension build` wired
+     into CI; tagged pushes now build + upload the `.foxe`, attached
+     to the GitHub release (Node 24 runner via checkout/setup v6).
 3. **`semantic-toponav-mast3r`** (Python + torch) — Adapter
    implementing `AlignedRgbSource` against Mast3R rerenders. Plug
    point (PR #52) is already in core; this package fills in the
@@ -1245,6 +1420,59 @@ Explicitly *not* in scope for the current paper or v1.0:
 - Online environment learning (graph updates from execution feedback)
 - Multi-fleet coordination across service boundaries
 - Head-to-head MAPF on gridworld (CBS / EECBS / MAPF-LNS2 turf)
+
+### 23′.4 Star-facing repository polish after the Foxglove hero
+
+The 2026-05-28 work changed the immediate next-step calculus. Before
+the Foxglove hero, the repo's biggest adoption problem was that the
+first viewport did not immediately communicate "this is robotics
+navigation, not only a Python library". That is now substantially fixed:
+README opens with a real Foxglove replay and the MCAP can be opened in
+Foxglove Studio.
+
+The next moves should therefore be small, presentation-focused, and
+boring. Do not restart a major feature axis just because the README is
+now stronger.
+
+Recommended order:
+
+1. **Clear the GitHub Actions Node.js 20 warning.** The current CI is
+   green, but warning-free badges look better to visitors and reviewers.
+   The existing warning is emitted by `actions/checkout@v4` and
+   `actions/setup-python@v5` running on Node.js 20. The pragmatic fix is
+   likely either bumping to newer action major versions if available or
+   explicitly setting `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` in the
+   workflow. Verify against current GitHub Actions guidance before
+   editing the workflow.
+2. **Make "Open in Foxglove" even more obvious in README.** The current
+   caption and Visualization section are accurate, but a short
+   first-screen line such as "Open
+   `docs/foxglove/semantic_toponav_demo.mcap` in Foxglove Studio" could
+   reduce ambiguity for people who skim only the hero.
+3. **Refresh the social preview from the Foxglove hero.** The current
+   `docs/images/social_preview.png` was created during the launch
+   metadata pass before the final Foxglove replay hero. A social preview
+   built around an actual Foxglove frame would align GitHub cards with
+   the first viewport.
+4. **Consider a v1.0.1 GitHub Release only after 1–3.** Since PyPI is
+   skipped, a GitHub-only patch release could still make sense if the
+   README/MCAP polish is considered materially better than the v1.0.0
+   release page. Do not cut it automatically; ask first.
+
+Things to avoid under the current user direction:
+
+- Do not publish to PyPI. The user explicitly said "pypi ha skip".
+- Do not claim the replay is from a physical robot, ROS2 live bag, or
+  cloud Foxglove session.
+- Do not move the heavy Foxglove self-host / Docker recording machinery
+  into the repository unless a reproducible docs-recording workflow is
+  explicitly requested. The repo should keep only the generator, MCAP,
+  docs, and final assets.
+- Do not start Mast3R or a new vision adapter. That remains deferred
+  until after the paper.
+- Do not add new v1 schemas just to make the MCAP nicer. The MCAP custom
+  JSON schemas are replay/demo support; the actual v1 product schemas
+  remain the locked schemas under `schemas/`.
 
 ## 24′. Open holes — user-side decisions
 
@@ -1279,21 +1507,48 @@ planner that sits between dense maps and motion executors.
 Read plan.md sections 22′–24′ first to know the current state. The
 short version: v1.0.0 is tagged (PR #71 / 880de64), Phase B Python
 coding is closed, two Phase C external repos have been bootstrapped
-(see §23′.2), and §25′'s historic in-tree coding list is fully
-exhausted. There is **no in-tree work** remaining in this repo
-under the moratorium.
+(see §23′.2), and the 2026-05-28 GitHub-star launch polish has now
+landed directly on `main`:
+
+- `89e2e61 Add Foxglove replay export`
+- `306f234 Add Foxglove replay hero`
+
+The README first viewport now uses `docs/images/22_foxglove_replay.gif`,
+a real Foxglove Studio replay recorded from
+`docs/foxglove/semantic_toponav_demo.mcap`. The MCAP is generated by
+`examples/export_foxglove_mcap.py` from real semantic-toponav resolver,
+planner, and waypoint APIs over `examples/multi_floor_office.yaml`.
+
+There is **no new core feature work** remaining in this repo under the
+moratorium. Small in-tree launch polish is allowed when it directly
+improves trust, first impression, or release hygiene.
 
 The current ship surfaces are split:
 
-1. Phase C external repos (out-of-repo by design — D-16 / §23′.2):
-   - rsasaki0109/semantic-toponav-nav2-bt — v0.1.0 + lint cleanup
-     shipped. Open: v0.2 NavigateThroughPoses feedback wiring.
-   - rsasaki0109/semantic-toponav-foxglove-panel — v0.2.0 shipped
-     (2 panels). Open: issue #1 foxglove-extension build CI; new
-     ResolveTrace panel for v0.3.
+1. In-tree launch / README surfaces:
+   - README hero: `docs/images/22_foxglove_replay.gif`
+   - MP4 fallback: `docs/images/22_foxglove_replay.mp4`
+   - replay source: `docs/foxglove/semantic_toponav_demo.mcap`
+   - generator: `examples/export_foxglove_mcap.py`
+   - docs: `docs/foxglove/README.md`
+   - open issue: GitHub Actions Node.js 20 deprecation warning remains
+     even though CI is green
+   - user instruction: PyPI is skipped for now
+
+2. Phase C external repos (out-of-repo by design — D-16 / §23′.2):
+   - rsasaki0109/semantic-toponav-nav2-bt — v0.3.0 shipped
+     (v0.2.0 NavigateThroughPoses feedback ports + v0.3.0 end-to-end
+     integration test against an in-process NavigateThroughPoses
+     action server, PR #4 `32710a0`). No open follow-ups; the only
+     remaining step is exercising the full Nav2 planner/controller
+     stack, which needs a simulator (Gazebo) and is gated on
+     real-user demand, not a default next move.
+   - rsasaki0109/semantic-toponav-foxglove-panel — v0.3.0 shipped
+     (3 panels: FleetPlan / Conflicts / Resolve, full per-wire-format
+     coverage; issue #1 build-CI closed). No open follow-ups.
    - semantic-toponav-mast3r — deferred until after the paper.
 
-2. §24′ user-side decisions — paper venue / single-vs-companion /
+3. §24′ user-side decisions — paper venue / single-vs-companion /
    real-backend grounding numbers / human-eval scope. Not coding,
    not your call to ship.
 
@@ -1302,27 +1557,39 @@ If the user issues a `tugi` / `tugiikou` cue with this state:
 - Do NOT autonomously start a new feature axis in this repo.
 - Do NOT start a fourth Phase C package from scratch.
 - Surface 2–3 candidate moves with the main trade-off in 2–3
-  sentences and wait for the next cue (this is the established
-  AskUserQuestion pattern — see the user-ship-pattern memory).
+  sentences and wait for the next cue unless the cue is explicitly
+  "osusumede" / "yattekou", in which case choose the smallest
+  high-impact polishing unit and execute it end-to-end.
 
 Typical candidate menu at this state:
 
-- Phase C #1 (Nav2 BT) v0.2 — NavigateThroughPoses feedback ports
-  (current_waypoint, distance_remaining) → blackboard so upper
-  BTs can branch on progress.
-- Phase C #2 (Foxglove) v0.3 — `Semantic TopoNav Resolve` panel
-  for /resolve_trace, completing per-wire-format panel coverage.
-- Phase C #2 (Foxglove) issue #1 — wire `foxglove-extension build`
-  into CI for tagged `.foxe` artifact releases.
+- In-tree launch hygiene — remove the GitHub Actions Node.js 20
+  deprecation warning while keeping the test matrix green.
+- README polish — make "Open this MCAP in Foxglove Studio" even more
+  explicit near the hero without bloating the first viewport.
+- Social preview refresh — rebuild `docs/images/social_preview.png`
+  from a Foxglove replay frame so GitHub link previews match the hero.
+- GitHub-only v1.0.1 release consideration — only after asking; PyPI
+  remains skipped.
+- Phase C external follow-ups are all landed (nav2-bt v0.3.0,
+  foxglove-panel v0.3.0). nav2-bt's v0.3.0 integration test against an
+  in-process NavigateThroughPoses action server closed the last open
+  follow-up; the only remaining Phase C work — exercising the full
+  Nav2 planner/controller stack via a simulator — is gated on
+  real-user demand, not a default next move; Mast3R (#3) stays
+  deferred until after the paper.
 - §24′ decision support — surface state, do not pretend to decide.
 
 Do not:
 
 - add a 7th Protocol to this repo (moratorium still in force;
   the bar is in D-12)
+- publish to PyPI unless the user explicitly reverses "pypi ha skip"
 - restart Mast3R (Phase C #3 is deferred until after the paper)
 - start new in-tree feature axes (physical loop, online learning,
   multi-fleet) — those are post-v1 / next-paper territory
+- overclaim the Foxglove replay as a physical robot run, live ROS2 bag,
+  or cloud-hosted Foxglove session
 - compete head-to-head with MAPF specialists on gridworld
 - regenerate docs/grounding_report_sample.md from CI — it is a
   manual release-prep artifact by design (see the file's "Notes"
@@ -1379,3 +1646,53 @@ Cue cadence the user expects:
   Do not start new feature work.
 ```
 
+## 26′. Visual-localization / navigation axis (2026-06-05 → 06)
+
+A new axis landed after the post-v1.0 state above: **image grounding +
+topological navigation**, the perception companion to the text-driven
+resolver. It was prompted by a "check for existing OSS / papers" request
+and is positioned (in [`docs/related_work.md`](docs/related_work.md))
+against LM-Nav (≈1:1 layer map), SPTM, RoboHop / VLMaps / HOV-SG (graph
+producers we consume), and ViNT / NoMaD / Nav2 (the local executor we
+delegate to per D-16). It does **not** break the readable-core invariant:
+the encoder is a `Backend`, locomotion stays out of repo.
+
+Shipped PRs (all merged to `main`, CI green):
+
+| PR | What |
+|---|---|
+| #75 | `localize_by_image` (image → node, CLIP/Hashing `Backend` + cosine) + the LM-Nav loop `plan_visual_route` / `VisualRouteFollower` (monotonic progress) + `related_work.md` + two demos |
+| #76 | `eval-visual-grounding` — image→node `recall@K` arm of the grounding eval (`evaluate_visual_localizer`, gallery+cases corpus, abstention gate) |
+| #77 | Neighbor-aware re-rank — `neighbor_weight` blends each candidate's cosine with its scored graph neighbors to damp perceptual aliasing (RoboHop-style) |
+| #78 | CLI exposure — `localize` / `visual-route` subcommands |
+| #79 | Multi-hop aggregation — `neighbor_hops` widens the corroboration radius (RoboHop multi-layer) |
+| #80 | **Fix**: `CLIPBackend` works with `transformers >= 5` (the `get_*_features` return-type shift); deterministic `_feature_tensor` guard + `[vlm]`-gated real-embed smoke |
+| #81 | Real-CLIP evidence — `docs/images/24_visual_navigation.gif`, the `visual_depot_drive.yaml` corpus, and `docs/visual_grounding_report_sample.md` (precision@1 = recall@3 = recall@5 = 1.00 on the 5-place Depot benchmark) |
+
+Two-layer eval discipline, mirroring the language arm: the metric
+machinery is CI-covered deterministically via `HashingBackend`
+(`tests/test_eval_visual_grounding.py`, `test_visual_localization.py`,
+`test_visual_navigation.py`, `test_cli_visual.py`), while the real-CLIP
+numbers are a manual release-prep artifact (the `[vlm]` extra stays out
+of CI by design — same posture as the Anthropic resolver numbers).
+
+New public surface (`semantic_toponav.query`): `localize_by_image`,
+`VisualLocalization`, `plan_visual_route`, `VisualRoute`,
+`VisualRouteFollower`, `RouteProgress`; CLI `localize` / `visual-route` /
+`eval-visual-grounding`. No new Protocol was added — the encoder
+`Backend` already covered the plug point, so the §23′.1 moratorium holds.
+
+GitHub About was also trimmed to a single line:
+"Semantic topological map navigation in Python — the planning layer
+above HD maps and SLAM."
+
+### Open ends for this axis
+
+- Real-CLIP numbers + the navigation GIF were generated on a local
+  `[vlm]` checkout (`torch 2.12.0+cpu`, `transformers 5.10.2`); they are
+  not reproduced in CI by design.
+- `neighbor_weight` / `neighbor_hops` only bite on larger, self-similar
+  maps; the 5-place Depot benchmark is too easy to show the effect in
+  aggregate (it's unit-tested on an engineered aliasing graph instead).
+- Still deferred: the Mast3R `AlignedRgbSource` adapter (Phase C #3,
+  post-paper) — the natural heavy-deps source of per-node embeddings.
