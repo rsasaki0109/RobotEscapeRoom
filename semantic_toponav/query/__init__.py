@@ -26,6 +26,16 @@ from semantic_toponav.query.find import (
 )
 from semantic_toponav.query.llm_resolve import LLMResolveResult, llm_resolve_goal
 from semantic_toponav.query.resolve import GoalCandidate, resolve_goal
+from semantic_toponav.query.visual_localization import (
+    VisualLocalization,
+    localize_by_image,
+)
+from semantic_toponav.query.visual_navigation import (
+    RouteProgress,
+    VisualRoute,
+    VisualRouteFollower,
+    plan_visual_route,
+)
 
 __all__ = [
     "AmbiguousGoalError",
@@ -36,11 +46,17 @@ __all__ = [
     "GoalCandidate",
     "LLMResolveResult",
     "NoMatchError",
+    "RouteProgress",
+    "VisualLocalization",
+    "VisualRoute",
+    "VisualRouteFollower",
     "cosine_similarity",
     "find_nodes",
     "find_nodes_by_embedding",
     "llm_resolve_goal",
+    "localize_by_image",
     "nearest_node_by_embedding",
+    "plan_visual_route",
     "nearest_node_by_graph_distance",
     "nearest_node_by_pose",
     "resolve_goal",

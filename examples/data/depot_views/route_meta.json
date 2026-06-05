@@ -1,0 +1,121 @@
+{
+  "nodes": [
+    {
+      "x": -4.0,
+      "y": 0.0,
+      "yaw": 0.0,
+      "label": "Loading Bay",
+      "key": "bay"
+    },
+    {
+      "x": 0.0,
+      "y": 2.0,
+      "yaw": 1.57,
+      "label": "Brick Gateway",
+      "key": "brick"
+    },
+    {
+      "x": 3.0,
+      "y": 3.0,
+      "yaw": -2.3,
+      "label": "Drum Storage",
+      "key": "drum"
+    },
+    {
+      "x": 3.0,
+      "y": -2.0,
+      "yaw": -0.6,
+      "label": "Crate Aisle",
+      "key": "crate"
+    },
+    {
+      "x": 0.0,
+      "y": -2.0,
+      "yaw": -1.57,
+      "label": "Utility Corner",
+      "key": "util"
+    }
+  ],
+  "frames": [
+    {
+      "x": -4.0,
+      "y": 0.0,
+      "nearest": "bay"
+    },
+    {
+      "x": -4.0,
+      "y": 0.0,
+      "nearest": "bay"
+    },
+    {
+      "x": -4.0,
+      "y": 0.0,
+      "nearest": "bay"
+    },
+    {
+      "x": -2.0,
+      "y": 1.0,
+      "nearest": "brick"
+    },
+    {
+      "x": 0.0,
+      "y": 2.0,
+      "nearest": "brick"
+    },
+    {
+      "x": 0.0,
+      "y": 2.0,
+      "nearest": "brick"
+    },
+    {
+      "x": 0.0,
+      "y": 2.0,
+      "nearest": "brick"
+    },
+    {
+      "x": 3.0,
+      "y": 3.0,
+      "nearest": "drum"
+    },
+    {
+      "x": 3.0,
+      "y": 3.0,
+      "nearest": "drum"
+    },
+    {
+      "x": 3.0,
+      "y": 3.0,
+      "nearest": "drum"
+    },
+    {
+      "x": 3.0,
+      "y": -2.0,
+      "nearest": "crate"
+    },
+    {
+      "x": 3.0,
+      "y": -2.0,
+      "nearest": "crate"
+    },
+    {
+      "x": 3.0,
+      "y": -2.0,
+      "nearest": "crate"
+    },
+    {
+      "x": 0.0,
+      "y": -2.0,
+      "nearest": "util"
+    },
+    {
+      "x": 0.0,
+      "y": -2.0,
+      "nearest": "util"
+    },
+    {
+      "x": 0.0,
+      "y": -2.0,
+      "nearest": "util"
+    }
+  ]
+}
