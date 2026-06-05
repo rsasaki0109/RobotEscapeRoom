@@ -7,6 +7,7 @@ CLIPBackend is exercised only via its lazy-import guard — pulling
 from __future__ import annotations
 
 import math
+import types
 
 import pytest
 
@@ -127,3 +128,60 @@ def test_clip_backend_lazy_import_error_when_extras_missing() -> None:
     if not transformers_available:
         with pytest.raises(ImportError, match=r"\[vlm\] extra"):
             backend.embed_text("hello")
+
+
+def test_feature_tensor_handles_both_transformers_return_shapes() -> None:
+    """`transformers < 5` returns a tensor from get_*_features; `>= 5`
+    returns a BaseModelOutputWithPooling. The backend must accept either.
+
+    This guards the version-robustness deterministically without torch —
+    the real embed path (covered below) only runs where the [vlm] extra
+    is installed, so CI without torch would otherwise miss an API break.
+    """
+    backend = CLIPBackend()
+
+    class _Tensor:
+        pass
+
+    backend._torch = types.SimpleNamespace(Tensor=_Tensor)
+
+    # transformers<5: a plain tensor flows through unchanged.
+    t = _Tensor()
+    assert backend._feature_tensor(t, text=False) is t
+
+    # transformers>=5: image path prefers image_embeds, else pooler_output.
+    out = types.SimpleNamespace(image_embeds="IMG", pooler_output="POOL")
+    assert backend._feature_tensor(out, text=False) == "IMG"
+    out_pool = types.SimpleNamespace(image_embeds=None, pooler_output="POOL")
+    assert backend._feature_tensor(out_pool, text=False) == "POOL"
+
+    # text path prefers text_embeds.
+    out_txt = types.SimpleNamespace(text_embeds="TXT", pooler_output="POOL")
+    assert backend._feature_tensor(out_txt, text=True) == "TXT"
+
+    # An output object exposing no embedding attribute is an error.
+    with pytest.raises(TypeError, match="embedding tensor"):
+        backend._feature_tensor(types.SimpleNamespace(), text=False)
+
+
+def test_clip_backend_real_embed_smoke() -> None:
+    """Real CLIP embed path — runs only where the [vlm] extra is present.
+
+    Skipped in default CI (no torch). Where torch + transformers are
+    installed it actually loads the model and embeds, so an upstream API
+    change (e.g. the transformers 5.x get_*_features return-type shift)
+    is caught instead of silently skipped.
+    """
+    np = pytest.importorskip("numpy")
+    pytest.importorskip("torch")
+    pytest.importorskip("transformers")
+
+    backend = CLIPBackend()
+    img = (np.random.default_rng(0).random((8, 8, 3)) * 255).astype(np.uint8)
+    vec = backend.embed_image(img)
+    assert len(vec) == backend.dim
+    assert math.isclose(math.sqrt(sum(x * x for x in vec)), 1.0, abs_tol=1e-3)
+
+    tvec = backend.embed_text("a loading bay")
+    assert len(tvec) == backend.dim
+    assert math.isclose(math.sqrt(sum(x * x for x in tvec)), 1.0, abs_tol=1e-3)
