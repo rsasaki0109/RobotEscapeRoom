@@ -123,6 +123,7 @@ def plan_visual_route(
     heuristic_fn: Callable[[TopologyGraph, str, str], float] | None = None,
     top_k: int = 5,
     embedding_property: str = DEFAULT_EMBEDDING_PROPERTY,
+    neighbor_weight: float = 0.0,
     type: str | None = None,
     label_contains: str | None = None,
     label_equals: str | None = None,
@@ -152,9 +153,11 @@ def plan_visual_route(
     cost_fn, heuristic_fn:
         Optional planner overrides, forwarded to :func:`plan_astar`
         (e.g. ``compose_costs(prefer_elevator)``).
-    top_k, embedding_property, type, label_contains, label_equals,
-    properties:
-        Localization controls, forwarded to :func:`localize_by_image`.
+    top_k, embedding_property, neighbor_weight, type, label_contains,
+    label_equals, properties:
+        Localization controls, forwarded to :func:`localize_by_image`
+        (``neighbor_weight`` enables graph-context re-ranking of the
+        grounded start).
 
     Returns
     -------
@@ -176,6 +179,7 @@ def plan_visual_route(
         backend,
         top_k=top_k,
         embedding_property=embedding_property,
+        neighbor_weight=neighbor_weight,
         type=type,
         label_contains=label_contains,
         label_equals=label_equals,
@@ -227,6 +231,11 @@ class VisualRouteFollower:
         an unconfirmed waypoint.
     embedding_property:
         Node property key the embeddings live under.
+    neighbor_weight:
+        Graph-context aggregation strength forwarded to
+        :func:`localize_by_image` on every frame (``0.0`` = pure
+        single-frame cosine). Re-ranking each fix against its graph
+        neighbors damps perceptual-aliasing jumps mid-route.
     start_index:
         Where on the route to start tracking. Defaults to ``0`` (the
         robot begins at the route's first node).
@@ -241,6 +250,7 @@ class VisualRouteFollower:
         min_score: float = 0.0,
         allow_skip: bool = True,
         embedding_property: str = DEFAULT_EMBEDDING_PROPERTY,
+        neighbor_weight: float = 0.0,
         start_index: int = 0,
     ) -> None:
         if not route:
@@ -256,6 +266,7 @@ class VisualRouteFollower:
         self.min_score = min_score
         self.allow_skip = allow_skip
         self.embedding_property = embedding_property
+        self.neighbor_weight = neighbor_weight
         self._index = start_index
         # First on-route occurrence of each node id — A* paths are simple
         # so this is unambiguous, but be explicit about the convention.
@@ -301,6 +312,7 @@ class VisualRouteFollower:
             image,
             self.backend,
             embedding_property=self.embedding_property,
+            neighbor_weight=self.neighbor_weight,
         )
         prev = self._index
         node_id = localized.node.id
