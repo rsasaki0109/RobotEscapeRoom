@@ -227,6 +227,15 @@ python examples/visual_localization_demo.py   # frame -> node, per frame
 python examples/visual_navigation_demo.py      # localize -> plan -> follow
 ```
 
+The same two operations are exposed on the CLI (the graph must already
+carry embeddings stamped by the matching encoder, e.g. via
+`embed-regions`):
+
+```bash
+semantic-toponav localize graph.yaml frame.jpg --backend clip --neighbor-weight 0.3
+semantic-toponav visual-route graph.yaml start.jpg exec_office_3f --backend clip
+```
+
 ## LLM-augmented describe-path / resolve
 
 The deterministic `describe_path` / `resolve_goal` always run first;
