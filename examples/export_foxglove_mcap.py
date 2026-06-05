@@ -665,6 +665,10 @@ def _dynamic_messages(
     yaw = _yaw_between(points[segment_idx], points[next_idx], 0.0)
     pose = _pose(*robot_xyz, yaw=yaw)
 
+    # Bright "traveled" polyline that follows the route up to the robot, so the
+    # replay reads as progress filling in place-by-place (instead of a straight
+    # leader line cutting across floors).
+    traveled = [*points[: segment_idx + 1], robot_xyz]
     scene = {
         "deletions": [],
         "entities": [
@@ -672,23 +676,11 @@ def _dynamic_messages(
                 "base_link_robot",
                 timestamp_ns,
                 spheres=[
-                    _sphere(robot_xyz, (0.13, 0.83, 0.93, 0.35), diameter=0.72),
-                    _sphere(robot_xyz, (0.13, 0.83, 0.93, 1.0), diameter=0.36),
+                    _sphere(robot_xyz, (0.13, 0.83, 0.93, 0.30), diameter=0.86),
+                    _sphere(robot_xyz, (0.13, 0.83, 0.93, 1.0), diameter=0.38),
                 ],
                 lines=[
-                    _line(
-                        [points[segment_idx], robot_xyz],
-                        (0.99, 0.82, 0.25, 1.0),
-                        thickness=0.16,
-                    )
-                ],
-                texts=[
-                    _text(
-                        (robot_xyz[0], robot_xyz[1] - 0.48, robot_xyz[2] + 0.3),
-                        f"/tf base_link | {route[node_idx]}",
-                        (0.52, 0.92, 0.99, 1.0),
-                        size=0.24,
-                    )
+                    _line(traveled, (0.40, 0.95, 1.0, 1.0), thickness=0.2),
                 ],
             )
         ],

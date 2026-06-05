@@ -5,11 +5,11 @@
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 <p align="center">
-  <img src="docs/images/22_foxglove_replay.gif" width="720" alt="Foxglove Studio replay showing semantic topology, robot pose, route topics, and waypoint execution from semantic-toponav MCAP data">
+  <img src="docs/images/22_foxglove_replay.gif" width="720" alt="Foxglove replay: stacked floor-1/2/3 topology with the planned route filling in place-by-place as the robot rides the elevator up to the executive office, rendered from semantic-toponav MCAP data">
 </p>
 
 <p align="center">
-  <sub>Foxglove Studio replay from real planner output: semantic topology, robot pose, route topics, and waypoint stream. <strong>Open it yourself:</strong> drop <a href="docs/foxglove/semantic_toponav_demo.mcap"><code>docs/foxglove/semantic_toponav_demo.mcap</code></a> into <a href="https://studio.foxglove.dev/">Foxglove Studio</a> — see <a href="docs/foxglove/README.md">docs/foxglove/README.md</a> for the four-step panel setup.</sub>
+  <sub>Replay of real planner output — semantic topology, robot pose, route, and waypoint stream — rendered headless in open-source Foxglove (<a href="https://github.com/lichtblick-suite/lichtblick">Lichtblick</a>) from the shipped MCAP. <strong>Open it yourself:</strong> drop <a href="docs/foxglove/semantic_toponav_demo.mcap"><code>docs/foxglove/semantic_toponav_demo.mcap</code></a> into <a href="https://studio.foxglove.dev/">Foxglove Studio</a> — see <a href="docs/foxglove/README.md">docs/foxglove/README.md</a> for the panel setup, or <a href="scripts/foxglove_hero/README.md"><code>scripts/foxglove_hero/</code></a> to regenerate this GIF.</sub>
 </p>
 
 **Grounded middle planning layer for robot navigation.** Bridges
