@@ -170,18 +170,22 @@ with the planner closes an LM-Nav-style loop: ground the start
 along the route as frames stream in (`VisualRouteFollower`).
 
 <p align="center">
-  <img src="docs/images/23_visual_localization.gif" width="640" alt="robot camera view on the left, top-down topology on the right; each frame is grounded to a place node by CLIP and highlighted">
+  <img src="docs/images/24_visual_navigation.gif" width="640" alt="robot camera view on the left, top-down topology on the right; the planned route fills in place-by-place as each CLIP-grounded frame advances the progress bar to the goal">
 </p>
 
 <p align="center">
-  <sub>Each frame (Gazebo Depot world) grounded to a place node with a
-  real <code>CLIPBackend</code>. Node-to-node locomotion stays out of
-  repo by design — a learned image-goal policy (ViNT / NoMaD) or Nav2
-  owns <em>how to move</em>; this owns <em>where on the plan the robot
-  is</em> (see <a href="docs/related_work.md">related_work.md</a>).
-  Reproduce via <code>python examples/visual_localization_demo.py</code>
-  and the full loop via
-  <code>python examples/visual_navigation_demo.py</code>.</sub>
+  <sub>The full loop on the Gazebo Depot world with a <strong>real
+  <code>CLIPBackend</code></strong>: ground the start, A* to the goal,
+  then re-localize each drive frame to track monotonic progress
+  (1/5 → 5/5). On this five-place benchmark every drive frame grounds to
+  its place at <strong>precision@1 = 1.00</strong>
+  (<a href="docs/visual_grounding_report_sample.md">report</a>).
+  Node-to-node locomotion stays out of repo by design — a learned
+  image-goal policy (ViNT / NoMaD) or Nav2 owns <em>how to move</em>;
+  this owns <em>where on the plan the robot is</em>
+  (<a href="docs/related_work.md">related_work.md</a>). Reproduce:
+  <code>python examples/visual_localization_demo.py</code> (per-frame) /
+  <code>examples/visual_navigation_demo.py</code> (full loop).</sub>
 </p>
 
 ### Multi-agent coordination
