@@ -125,3 +125,79 @@ def test_invalid_top_k_raises() -> None:
     g = _graph(backend)
     with pytest.raises(ValueError):
         localize_by_image(g, FRAME_KITCHEN, backend, top_k=0)
+
+
+# --- neighbor-aware re-ranking (RoboHop-style context aggregation) ----
+
+from semantic_toponav.graph.types import TopologyEdge  # noqa: E402
+
+
+class _StubBackend:
+    """Returns a fixed query vector regardless of the image, so tests can
+    engineer an exact perceptual-aliasing scenario with explicit node
+    embeddings."""
+
+    def __init__(self, query_vec: list[float]) -> None:
+        self._q = list(query_vec)
+
+    def embed_image(self, image) -> list[float]:  # noqa: ANN001
+        return list(self._q)
+
+
+def _alias_graph() -> TopologyGraph:
+    """q=[1,0]. Node 'alias' has the highest *own* cosine but sits alone
+    next to a low-scoring node; the true place 'b' scores a touch lower
+    but is corroborated by a high-scoring neighbor 'c'."""
+    g = TopologyGraph()
+    embeds = {
+        "alias": [0.92, 0.3919],   # cos(q) = 0.92 — spurious top-1
+        "d": [0.30, 0.9539],       # cos = 0.30 — alias's only neighbor
+        "b": [0.85, 0.5268],       # cos = 0.85 — true place
+        "c": [0.88, 0.4750],       # cos = 0.88 — b's neighbor (corroborates)
+    }
+    for nid, vec in embeds.items():
+        g.add_node(
+            TopologyNode(id=nid, label=nid, type="room", pose=Pose2D(0, 0),
+                         properties={"embedding": vec})
+        )
+    g.add_edge(TopologyEdge(id="alias_d", source="alias", target="d", type="t"))
+    g.add_edge(TopologyEdge(id="b_c", source="b", target="c", type="t"))
+    return g
+
+
+def test_neighbor_weight_zero_keeps_alias_top1() -> None:
+    g = _alias_graph()
+    backend = _StubBackend([1.0, 0.0])
+    result = localize_by_image(g, b"any", backend, neighbor_weight=0.0)
+    # Pure single-frame cosine: the spurious isolated spike wins.
+    assert result.node.id == "alias"
+
+
+def test_neighbor_weight_demotes_isolated_alias() -> None:
+    g = _alias_graph()
+    backend = _StubBackend([1.0, 0.0])
+    result = localize_by_image(g, b"any", backend, neighbor_weight=0.5)
+    # Context aggregation: alias is dragged down by its low neighbor 'd',
+    # while the b/c cluster lifts each other — top-1 leaves the alias.
+    assert result.node.id != "alias"
+    assert result.node.id in {"b", "c"}
+
+
+def test_neighbor_weight_out_of_range_raises() -> None:
+    g = _alias_graph()
+    backend = _StubBackend([1.0, 0.0])
+    with pytest.raises(ValueError):
+        localize_by_image(g, b"any", backend, neighbor_weight=1.5)
+    with pytest.raises(ValueError):
+        localize_by_image(g, b"any", backend, neighbor_weight=-0.1)
+
+
+def test_isolated_node_keeps_own_score() -> None:
+    # A graph with no edges: aggregation has no neighbors to pull from, so
+    # ranking is identical to the pure-cosine path.
+    backend = HashingBackend(dim=64)
+    g = _graph(backend)  # _graph adds no edges
+    plain = localize_by_image(g, FRAME_ELEVATOR, backend)
+    rer = localize_by_image(g, FRAME_ELEVATOR, backend, neighbor_weight=0.7)
+    assert plain.node.id == rer.node.id == "elev"
+    assert math.isclose(plain.score, rer.score, abs_tol=1e-9)
