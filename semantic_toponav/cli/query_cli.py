@@ -16,6 +16,7 @@ from semantic_toponav.query import (
     NoMatchError,
     find_nodes,
     llm_resolve_goal,
+    localize_by_image,
     nearest_node_by_graph_distance,
     nearest_node_by_pose,
     resolve_goal,
@@ -299,6 +300,133 @@ def _add_filter_args(p: argparse.ArgumentParser) -> None:
     )
 
 
+def _build_image_encoder(args: argparse.Namespace):
+    """Construct the image encoder for `localize` / `visual-route`.
+
+    Unlike ``--vlm-backend`` (an optional augmenter for `resolve`), these
+    commands *require* an encoder, so the flag is ``--backend`` with a
+    concrete default. Raises ``SystemExit`` with a user-facing message
+    when the requested backend can't be loaded.
+    """
+    try:
+        from semantic_toponav.encoders.backends import CLIPBackend, HashingBackend
+    except ImportError as exc:  # pragma: no cover - core has zero deps
+        raise SystemExit(f"error: encoders module unavailable ({exc})") from exc
+    if args.backend == "hashing":
+        return HashingBackend(dim=args.dim)
+    if args.backend == "clip":
+        try:
+            return CLIPBackend(model_name=args.clip_model)
+        except ImportError as exc:
+            raise SystemExit(
+                f"error: --backend clip requires the [vlm] extra ({exc})"
+            ) from exc
+    raise SystemExit(f"error: unknown --backend {args.backend!r}")  # pragma: no cover
+
+
+def cmd_localize(args: argparse.Namespace) -> int:
+    try:
+        graph = load_graph(args.graph)
+    except (GraphLoadError, GraphValidationError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    backend = _build_image_encoder(args)
+    filters = _filters_from_args(args)
+    try:
+        result = localize_by_image(
+            graph,
+            args.image,
+            backend,
+            top_k=args.top_k,
+            neighbor_weight=args.neighbor_weight,
+            **filters,
+        )
+    except NoMatchError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    ranked = [
+        {"id": n.id, "label": n.label, "type": n.type, "score": round(s, 4)}
+        for n, s in result.ranked
+    ]
+    if args.format == "json":
+        print(json.dumps({"best": ranked[0], "ranked": ranked}, ensure_ascii=False, indent=2))
+    else:
+        print(f"Localized -> {result.node.id}  (score {result.score:.3f})")
+        print("Shortlist:")
+        for row in ranked:
+            print(f"  {row['score']:+.3f}  {row['id']:<16} {row['label']!r}")
+    return 0
+
+
+def cmd_visual_route(args: argparse.Namespace) -> int:
+    from semantic_toponav.planner.errors import PlanningError
+    from semantic_toponav.query import plan_visual_route
+
+    try:
+        graph = load_graph(args.graph)
+    except (GraphLoadError, GraphValidationError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    backend = _build_image_encoder(args)
+    try:
+        vr = plan_visual_route(
+            graph,
+            args.start_image,
+            args.goal,
+            backend,
+            top_k=args.top_k,
+            neighbor_weight=args.neighbor_weight,
+        )
+    except NoMatchError as exc:
+        print(f"error: could not ground start frame: {exc}", file=sys.stderr)
+        return 2
+    except PlanningError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    if args.format == "json":
+        payload = {
+            "start": {"id": vr.start.node.id, "score": round(vr.start.score, 4)},
+            "goal": vr.goal,
+            "route": vr.route,
+            "waypoints": [w.to_dict() for w in vr.waypoints],
+        }
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+    else:
+        print(
+            f"Grounded start -> {vr.start.node.id}  (score {vr.start.score:.3f})"
+        )
+        print("Route: " + " -> ".join(vr.route))
+        print("Waypoints:")
+        for i, w in enumerate(vr.waypoints, 1):
+            print(f"  {i}. {w.action:<12} {w.instruction}")
+    return 0
+
+
+def _add_image_backend_args(p: argparse.ArgumentParser) -> None:
+    p.add_argument(
+        "--backend", choices=["hashing", "clip"], default="hashing",
+        help="image encoder (default: hashing, no torch). Must match the "
+        "encoder that stamped the graph's node embeddings.",
+    )
+    p.add_argument(
+        "--dim", type=int, default=32,
+        help="HashingBackend dimension (default: 32; ignored for clip)",
+    )
+    p.add_argument(
+        "--clip-model", default="openai/clip-vit-base-patch32",
+        help="HuggingFace model name for --backend clip",
+    )
+    p.add_argument(
+        "--neighbor-weight", type=float, default=0.0,
+        help="graph-context re-rank strength in [0,1] (default: 0.0 = pure "
+        "single-frame cosine; >0 damps perceptual aliasing)",
+    )
+
+
 def register_subcommands(sub: argparse._SubParsersAction) -> None:
     p = sub.add_parser("find", help="list nodes matching semantic filters")
     p.add_argument("graph")
@@ -395,3 +523,37 @@ def register_subcommands(sub: argparse._SubParsersAction) -> None:
         ),
     )
     p.set_defaults(func=cmd_resolve)
+
+    p = sub.add_parser(
+        "localize",
+        help="ground a camera image to the topology node it most likely "
+        "depicts (graph nodes must already carry embeddings)",
+    )
+    p.add_argument("graph")
+    p.add_argument("image", help="path to the query frame")
+    p.add_argument(
+        "--top-k", type=int, default=5,
+        help="size of the ranked shortlist (default: 5)",
+    )
+    _add_image_backend_args(p)
+    _add_filter_args(p)
+    p.set_defaults(func=cmd_localize)
+
+    p = sub.add_parser(
+        "visual-route",
+        help="ground a start frame, then plan a route to a goal node "
+        "(image -> localize -> A* -> semantic waypoints)",
+    )
+    p.add_argument("graph")
+    p.add_argument("start_image", help="path to the robot's current frame")
+    p.add_argument("goal", help="goal node id")
+    p.add_argument(
+        "--top-k", type=int, default=5,
+        help="localization shortlist size for the start grounding (default: 5)",
+    )
+    _add_image_backend_args(p)
+    p.add_argument(
+        "--format", choices=["text", "json"], default="text",
+        help="output format (default: text)",
+    )
+    p.set_defaults(func=cmd_visual_route)
