@@ -59,4 +59,38 @@ This is a small, friendly five-place benchmark — the point is to show
 the `localize_by_image` → `eval-visual-grounding` path works end-to-end
 with a real encoder, not to claim a hard VPR result. Perceptual aliasing
 (and the `neighbor_weight` / `neighbor_hops` re-rank that damps it) only
-bites on larger, more self-similar maps.
+bites on larger, more self-similar maps — so this five-place corpus
+cannot move the aggregate numbers when re-ranking is toggled. The
+deterministic ablation below fills that gap.
+
+## Neighbor-aware re-ranking — aggregate ablation (deterministic, in CI)
+
+The Depot benchmark above is too easy to show the value of the
+graph-context re-rank in aggregate: CLIP already separates five places
+cleanly, so toggling `neighbor_weight` changes nothing visible. The
+per-case effect is unit-tested on a hand-built aliasing graph, but the
+*aggregate* claim needs a self-similar map where raw single-frame cosine
+actually fails.
+
+`semantic_toponav.eval.aliasing_visual_corpus` builds exactly that — a
+torch-free corpus where every genuine place has a higher-scoring
+look-alike elsewhere in the building, propped up only by a private
+low-scoring neighbor. Raw cosine is fooled on every case; blending each
+candidate with its graph neighbors (RoboHop-style) lets each true place's
+surroundings vouch for it. Reproduce with no extras:
+
+```text
+python examples/visual_neighbor_ablation_demo.py
+```
+
+| run | precision@1 | recall@3 | recall@5 |
+|---|---|---|---|
+| raw cosine (`neighbor_weight=0.0`) | 0.00 | 0.00 | 0.00 |
+| +neighbor (`neighbor_weight=0.5`, `neighbor_hops=1`) | 1.00 | 1.00 | 1.00 |
+
+Unlike the CLIP table above, these numbers **are** reproduced in CI
+(`tests/test_visual_benchmark.py`) — the geometry is analytic, so the
+0.00 → 1.00 lift is a deterministic regression guard, not a manual
+artifact. The same `--neighbor-weight` / `--neighbor-hops` flags are now
+on `eval-visual-grounding`, so the re-rank can also be measured against
+any real corpus.
