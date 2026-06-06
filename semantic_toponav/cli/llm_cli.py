@@ -19,6 +19,7 @@ from semantic_toponav.llm.backends import (
     AnthropicBackend,
     EchoBackend,
     LLMBackend,
+    OllamaBackend,
 )
 
 
@@ -31,21 +32,31 @@ def add_llm_args(p: argparse.ArgumentParser, *, with_style: bool = False) -> Non
     """
     p.add_argument(
         "--llm-backend",
-        choices=["echo", "anthropic"],
+        choices=["echo", "anthropic", "ollama"],
         default=None,
         help=(
             "opt into LLM-augmented output: `echo` is a deterministic "
             "test/demo backend (no deps), `anthropic` calls the Anthropic "
-            "API (requires the [llm] extra). When omitted, the command "
-            "runs its deterministic path unchanged."
+            "API (requires the [llm] extra), `ollama` calls a local Ollama "
+            "server (no key, no cloud). When omitted, the command runs its "
+            "deterministic path unchanged."
         ),
     )
     p.add_argument(
         "--llm-model",
-        default=AnthropicBackend.DEFAULT_MODEL,
+        default=None,
         help=(
-            f"model id for --llm-backend anthropic "
-            f"(default: {AnthropicBackend.DEFAULT_MODEL})"
+            "model id for the chosen backend. Defaults to "
+            f"{AnthropicBackend.DEFAULT_MODEL!r} for anthropic and "
+            f"{OllamaBackend.DEFAULT_MODEL!r} for ollama."
+        ),
+    )
+    p.add_argument(
+        "--llm-host",
+        default=OllamaBackend.DEFAULT_HOST,
+        help=(
+            f"Ollama server URL for --llm-backend ollama "
+            f"(default: {OllamaBackend.DEFAULT_HOST})"
         ),
     )
     p.add_argument(
@@ -92,13 +103,20 @@ def build_llm_backend_from_args(args: argparse.Namespace) -> LLMBackend | None:
     kind = getattr(args, "llm_backend", None)
     if kind is None:
         return None
+    model = getattr(args, "llm_model", None)
     if kind == "echo":
         script = getattr(args, "llm_script", None) or None
         return EchoBackend(script=script)
     if kind == "anthropic":
         return AnthropicBackend(
-            model=getattr(args, "llm_model", AnthropicBackend.DEFAULT_MODEL),
+            model=model or AnthropicBackend.DEFAULT_MODEL,
             api_key=getattr(args, "llm_api_key", None),
+            max_tokens=getattr(args, "llm_max_tokens", 1024),
+        )
+    if kind == "ollama":
+        return OllamaBackend(
+            model=model or OllamaBackend.DEFAULT_MODEL,
+            host=getattr(args, "llm_host", OllamaBackend.DEFAULT_HOST),
             max_tokens=getattr(args, "llm_max_tokens", 1024),
         )
     raise ValueError(f"unknown --llm-backend {kind!r}")

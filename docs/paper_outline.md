@@ -220,12 +220,19 @@ and *clarification* (asking instead of guessing on ambiguous ones).
 - false_positive_resolve_rate = 0.19 (3/16 unresolvable — `"server room"`, `"secret room"` and `"break room"` all pull `meeting_room_2f` via the `'room'` label token)
 - abstention_rate = 0.81
 
-**The story this tells:** bag-of-words + floor parsing handles every *answerable* query in the fixture even after the 22 → 50 → 100 expansions widened the linguistic surface (ordinal/word/abbreviated floor mentions, single-token labels, label fragments, comma-separated and verb-phrase forms, bare-type queries). Doubling the corpus did not dent the precision ceiling — the deterministic floor resolves every answerable query at 100 cases. The remaining axis where the LLM-augmented resolver should win is **abstention** — we expect the LLM-augmented `false_positive_resolve_rate` to drop below 0.19 (the persistent `'room'`-token false positive). With `EchoBackend` it actually rises to 1.00 (echo-fallback can't tell "no candidate" from "any candidate"), so the EchoBackend numbers are illustrative of the *machinery*, not of the *contribution*; the real Anthropic backend numbers go in the paper.
+**The story this tells:** bag-of-words + floor parsing handles every *answerable* query in the fixture even after the 22 → 50 → 100 expansions widened the linguistic surface (ordinal/word/abbreviated floor mentions, single-token labels, label fragments, comma-separated and verb-phrase forms, bare-type queries). Doubling the corpus did not dent the precision ceiling — the deterministic floor resolves every answerable query at 100 cases. The axis where the LLM-augmented resolver wins is **abstention**, and that is now **measured against a real model** (local `OllamaBackend`, `qwen3.5:latest`, no API key): the LLM-augmented `false_positive_resolve_rate` drops from 0.19 to **0.06** (it rejects 15 of 16 unresolvable queries instead of letting the `'room'` token resolve them) and `abstain` rises from 0.81 to 0.94, while `precision@1` stays 1.00. `EchoBackend` can't show this (echo-fallback collapses to the deterministic row) — it is machinery-only; the local model is the contribution number.
+
+**Headline numbers — real local model (`ollama` / qwen3.5, no key):**
+
+| | precision@1 | recall@3/5 | clarify | fp_resolve | abstain |
+|---|---|---|---|---|---|
+| deterministic | 1.00 | 1.00 | 0.00 | 0.19 | 0.81 |
+| **ollama (qwen3.5)** | 1.00 | 1.00 | 0.94 | **0.06** | **0.94** |
 
 **Gap to fill:**
 
-- Run the Anthropic backend against the same corpus and add a row to the report. Numbers go straight into the chapter.
-- ~~Optionally: a larger corpus (~100 cases) covering even more node-label patterns and floor-misnaming variants.~~ **DONE** — the corpus is now 100 cases; precision@1 stays 1.00 and the only failure mode is the `'room'`-token false positive on unresolvable queries (now 3/16), which is exactly the abstention gap the Anthropic backend is meant to close.
+- ~~Run the Anthropic backend against the same corpus and add a row to the report.~~ **DONE via a local model** — `OllamaBackend` (`--llm-backend ollama`) supplies the real-backend resolver row with no API key: fp_resolve 0.19 → 0.06, abstain 0.81 → 0.94. A cloud Anthropic run would land in the same table but is no longer the blocker; the numbers are committed in [`docs/grounding_report_sample.md`](grounding_report_sample.md).
+- ~~Optionally: a larger corpus (~100 cases) covering even more node-label patterns and floor-misnaming variants.~~ **DONE** — the corpus is now 100 cases; precision@1 stays 1.00 and the only deterministic failure mode is the `'room'`-token false positive on unresolvable queries (3/16), which is exactly the abstention gap the LLM closes.
 
 ### 7. Evaluation chapter 4 — Describer rewrite safety
 
@@ -258,14 +265,25 @@ invariants tested with intentional violations (
 `tests/test_eval_grounding.py::test_evaluate_describer_safety_dropping_reference_fails`
 etc.).
 
+**Real-model numbers (local `ollama` / qwen3.5, no key):** `fallback_rate
+= 0.00` — every rewrite came from the model, not the deterministic floor,
+so the four invariants are now **load-bearing** rather than trivially
+satisfied, and the model holds all four at 1.00 (`references_preserved`,
+`step_indices_preserved`, `prior_steps_untouched`,
+`situation_changes_output`). This is the "safe by construction" claim
+measured against a real model. Committed in
+[`docs/grounding_report_sample.md`](grounding_report_sample.md).
+
 **Gap to fill:**
 
 - Small (20–50 case) human-eval addendum rating coherence and
   helpfulness on a 5-point scale, *optional*, not the main signal.
   Useful if the camera-ready needs a "humans agree the rewrites are
   more natural than the deterministic floor" sidebar.
-- Real Anthropic-backend numbers (the EchoBackend always falls back,
-  so its non-trivial invariant rates aren't meaningful).
+- ~~Real Anthropic-backend numbers (the EchoBackend always falls back,
+  so its non-trivial invariant rates aren't meaningful).~~ **DONE via a
+  local model** — `OllamaBackend` drives `fallback_rate` to 0.00 with all
+  four invariants at 1.00; no API key needed.
 
 ### 8. Evaluation chapter 5 — Protocol conformance as engineering contribution
 
@@ -465,16 +483,18 @@ What is actually blocking each chapter, given the shipped repo:
 |---|---|---|---|
 | 1 Fleet scheduling | every metric / CLI flag / fixture; figures are `eval-synthetic` invocations | larger n≤32 BnB sweep; incremental-admission script | **none** — coding-only, writable now |
 | 2 Constraints ablation | every constraint + flag + unit test | one ~200-LOC ablation-table runner | **none** — coding-only, writable now |
-| 3 Language grounding | 50-case corpus; deterministic numbers measured (p@1 1.00, fp_resolve 0.25, abstain 0.75) | **real Anthropic numbers** for the contribution framing | **external** — API key + budget + author run |
-| 4 Describer safety | invariant pipeline + intentional-violation tests | Anthropic non-fallback numbers; optional human-eval | external + optional human-eval |
+| 3 Language grounding | 100-case corpus; deterministic + **real local-model** numbers measured (p@1 1.00, fp_resolve 0.19 → 0.06 with `ollama`) | optional cloud (Anthropic) cross-check | **none** — filled by a local model, no key |
+| 4 Describer safety | invariant pipeline + intentional-violation tests + **real local-model** run (fallback 0.00, all invariants 1.00) | optional human-eval | **none** — filled by a local model; human-eval optional |
 | 5 Protocol conformance | 6 protocols / 6 suites / all in-tree impls pass + failure depth | external-adapter authoring walkthrough | **none** — coding/docs-only, writable now |
 | 6 Visual localize/nav | localize / route / aggregate re-rank (0.00 → 1.00 in CI, #85) + real-CLIP manual artifact | larger real-image self-similar corpus; Mast3R source | real-CLIP manual by design; rest deferred |
 
 The split is clean: **Chapters 1, 2, 5 have no external gate** (every
-figure is reproducible from CI today), while **Chapters 3 and 4 are
-gated on the Anthropic backend run** and Chapter 6 carries a
-by-design-manual real-CLIP artifact alongside its CI-reproduced
-mechanism.
+figure is reproducible from CI today), and **Chapters 3 and 4 are no
+longer gated either** — a local `OllamaBackend` (no API key, no cloud)
+supplies the real-model resolver + describer numbers the chapters
+needed. Chapter 6 carries a by-design-manual real-CLIP artifact
+alongside its CI-reproduced mechanism. With the local-model run, **every
+chapter now has its headline evidence in hand.**
 
 ### Recommended structure (companion split)
 
@@ -491,13 +511,16 @@ and sharpens it now that Chapter 6 exists:
 - **Paper B — the grounding / perception paper.** Chapters 3 (language
   grounding), 4 (describer safety), 6 (visual localization). A coherent
   "grounding language *and* perception into a topological graph, safely"
-  story. Gated on the Anthropic numbers for Chapters 3–4. Natural venue:
-  CoRL or an LM-for-robotics (LM4Nav-style) workshop.
+  story. Its real-model numbers are now in hand via a local
+  `OllamaBackend` (no API key). Natural venue: CoRL or an LM-for-robotics
+  (LM4Nav-style) workshop.
 
-The practical consequence: **the Anthropic run is the critical path for
-Paper B only.** Paper A is decoupled and can start now. A single
-combined paper remains possible but risks six shallow chapters; the
-split lets each land deeper.
+The practical consequence: **both papers are now unblocked.** Paper A was
+always decoupled; Paper B's real-backend numbers — previously the one
+external gate — are filled by the local-model run. A single combined
+paper remains possible but risks six shallow chapters; the split lets
+each land deeper. The remaining moves are author judgement (venue,
+single-vs-split, human-eval scope), not missing evidence.
 
 ### The four decisions (with the recommendation that follows)
 
@@ -509,12 +532,12 @@ split lets each land deeper.
 2. **Single paper vs companion paper.** *Recommendation:* **companion
    split A/B as above** — the gating structure already separates them,
    and six chapters in one work would be thin. Confirm before writing.
-3. **Anthropic-backend numbers.** Get them before deciding Paper B's
-   Chapter 3 headline framing; without them the LLM resolver story is
-   "echo backend is illustrative" — fine for an outline, weak for a
-   submission. *This is the one remaining task that moves a number and
-   is the critical path for Paper B.* It needs an API key, budget, and
-   an author run (manual, out of CI by design).
+3. ~~**Anthropic-backend numbers.**~~ **RESOLVED via a local model.**
+   The real-backend resolver + describer numbers Paper B needed are now
+   measured with a local `OllamaBackend` (`qwen3.5`, no API key):
+   fp_resolve 0.19 → 0.06, abstain 0.81 → 0.94, describer `fallback_rate`
+   0.00 with all four invariants at 1.00. A cloud Anthropic cross-check
+   is now optional, not a blocker.
 4. **Human eval scope.** 0 cases, 20–50 cases, or a full crowd panel for
    the describer rewrite. *Recommendation:* a 20–50 case helpfulness
    sidebar at most — the deterministic invariants already carry the

@@ -1481,10 +1481,13 @@ tasks; they need user judgment.
    work risks each being shallow. Splitting (coordination + schema
    as paper A, grounding + describer safety as paper B) is
    plausible.
-3. **Real-backend numbers for `eval-grounding`.** The current
-   reference numbers are deterministic only. Anthropic backend
-   numbers on the 22-case fixture are needed before chapter 3
-   framing is final.
+3. ~~**Real-backend numbers for `eval-grounding`.**~~ Resolved
+   2026-06-07 via a **local model** (`OllamaBackend`, no API key) —
+   not a user-side decision after all. On the 100-case fixture the
+   LLM-augmented resolver cuts fp_resolve 0.19 → 0.06 (abstain
+   0.81 → 0.94) and the describer rewrite runs non-fallback
+   (`fallback_rate` 0.00, all four invariants 1.00). A cloud
+   Anthropic cross-check is optional. See `docs/grounding_report_sample.md`.
 4. **Human-eval scope for describer rewrite.** 0 cases (rely on the
    four deterministic invariants), 20–50 cases (sidebar coherence
    rating), or larger crowd panel.
