@@ -7,8 +7,29 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-Working area for changes that land after the v1.0.1 tag. Currently
-empty.
+Working area for changes that land after the v1.0.1 tag. Front-page
+visuals only — no public schema or behavior changes.
+
+### Changed — front-page leads with perception → navigation
+
+- README hero is now `docs/images/25_visual_hero.gif`, a three-panel
+  loop (live camera frame · CLIP cosine vs the place gallery · A* route
+  filling in to the goal) so the top of the page shows the image
+  grounding *and* the navigation, not just the planner output. The
+  Foxglove replay GIF keeps its caption and moves into its own
+  "Foxglove replay" section.
+- `docs/images/social_preview.png` (GitHub link-unfurl image) rebuilt
+  from a still of that hero, so shared links carry the same
+  perception → navigation story.
+
+### Added
+
+- `examples/record_visual_hero.py` — reproducible builder for the
+  three-panel hero GIF, driven by the same real `CLIPBackend` and the
+  `localize_by_image` / `plan_visual_route` / `VisualRouteFollower`
+  API the visual section documents.
+- `examples/build_social_preview.py` reworked to frame that hero still
+  as a full-width strip (was a Foxglove frame).
 
 ---
 

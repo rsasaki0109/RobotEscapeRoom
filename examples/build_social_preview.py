@@ -1,7 +1,12 @@
-"""Build a GitHub social preview image from the recorded demo GIF.
+"""Build a GitHub social preview image from the perception→navigation hero.
 
 The output is ``docs/images/social_preview.png``. Upload that PNG in
 GitHub repository settings as the social preview image.
+
+The preview frames a single still of the README hero
+(``25_visual_hero.gif``) as a full-width strip so a shared link unfurls
+the whole loop at a glance — the robot's camera frame, the CLIP cosine
+match against the place gallery, and the A* route filled in to the goal.
 
 Run from the repository root:
 
@@ -16,8 +21,13 @@ from PIL import Image, ImageDraw, ImageFont
 
 HERE = Path(__file__).parent
 ROOT = HERE.parent
-DEMO_GIF = ROOT / "docs" / "images" / "22_foxglove_replay.gif"
-DEMO_FRAME_INDEX = 40
+# The hero is wide (~3.4:1) and white-backed; frame 13 is the most
+# legible single still — the full route is green and the goal is reached.
+DEMO_GIF = ROOT / "docs" / "images" / "25_visual_hero.gif"
+DEMO_FRAME_INDEX = 13
+# Crop off the hero's own suptitle (top band); this preview supplies its
+# own title, and the per-panel headings below it survive the crop.
+HERO_CROP_TOP = 48
 OUT_PATH = ROOT / "docs" / "images" / "social_preview.png"
 
 W, H = 1280, 640
@@ -26,6 +36,8 @@ MUTED = (71, 85, 105)
 PANEL = (255, 255, 255)
 ACCENT = (225, 29, 72)
 TEAL = (14, 165, 233)
+AMBER = (245, 158, 11)
+GREEN = (22, 163, 74)
 
 
 def _font(size: int, *, bold: bool = False) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
@@ -62,17 +74,29 @@ def _rounded(
 def _load_demo_frame() -> Image.Image:
     if not DEMO_GIF.exists():
         raise FileNotFoundError(
-            f"{DEMO_GIF} does not exist; record a Foxglove Studio replay of "
-            "docs/foxglove/semantic_toponav_demo.mcap (see docs/foxglove/README.md)"
+            f"{DEMO_GIF} does not exist; regenerate the hero with "
+            "`python examples/record_visual_hero.py` (needs the [vlm,viz] extras)"
         )
     gif = Image.open(DEMO_GIF)
     gif.seek(min(DEMO_FRAME_INDEX, gif.n_frames - 1))
-    return gif.convert("RGB")
+    frame = gif.convert("RGB")
+    w, h = frame.size
+    return frame.crop((0, HERO_CROP_TOP, w, h))
+
+
+def _badge(
+    draw: ImageDraw.ImageDraw, x: int, y: int, label: str, color
+) -> int:
+    """Draw a pill badge at ``(x, y)``; return its right edge."""
+    tw = int(draw.textlength(label, font=FONT_BADGE))
+    _rounded(draw, (x, y, x + tw + 34, y + 42), 21, (248, 250, 252), color, 2)
+    draw.ellipse((x + 14, y + 15, x + 24, y + 25), fill=color)
+    draw.text((x + 32, y + 9), label, font=FONT_BADGE, fill=INK)
+    return x + tw + 34
 
 
 def main() -> None:
     frame = _load_demo_frame()
-    preview = frame.resize((527, 296), Image.Resampling.LANCZOS)
 
     img = Image.new("RGB", (W, H), (241, 245, 249))
     draw = ImageDraw.Draw(img)
@@ -83,36 +107,43 @@ def main() -> None:
     for y in range(0, H, 40):
         draw.line([(0, y), (W, y)], fill=(226, 232, 240), width=1)
 
-    _rounded(draw, (52, 64, 575, 576), 28, PANEL, (203, 213, 225), 2)
-    draw.text((92, 111), "semantic-toponav", font=FONT_TITLE, fill=INK)
-    draw.text((96, 205), "Semantic topological navigation", font=FONT_SUB, fill=MUTED)
-    draw.text((96, 247), "for language goals, graph routes,", font=FONT_SUB, fill=MUTED)
-    draw.text((96, 289), "waypoints, and fleet reservations.", font=FONT_SUB, fill=MUTED)
+    # --- title band -------------------------------------------------
+    draw.text((54, 40), "semantic-toponav", font=FONT_TITLE, fill=INK)
+    draw.text(
+        (58, 104), "Perception → navigation, in one glance",
+        font=FONT_SUB, fill=MUTED,
+    )
+    draw.text(
+        (58, 146),
+        "real CLIP:  camera frame → cosine match → grounded node → A* route",
+        font=FONT_SMALL, fill=MUTED,
+    )
+    # A few stage badges, color-keyed to the hero panels.
+    bx = 58
+    for label, color in (
+        ("camera", TEAL),
+        ("CLIP cosine", AMBER),
+        ("grounded node", ACCENT),
+        ("route progress", GREEN),
+    ):
+        bx = _badge(draw, bx, 190, label, color) + 14
 
-    badges = [
-        ("resolve_goal", TEAL),
-        ("A* topology route", ACCENT),
-        ("semantic waypoints", (245, 158, 11)),
-        ("ROS2/Nav2 adapter", (34, 197, 94)),
-    ]
-    bx, by = 96, 370
-    for label, color in badges:
-        tw = int(draw.textlength(label, font=FONT_BADGE))
-        _rounded(draw, (bx, by, bx + tw + 34, by + 42), 21, (248, 250, 252), color, 2)
-        draw.ellipse((bx + 14, by + 15, bx + 24, by + 25), fill=color)
-        draw.text((bx + 32, by + 9), label, font=FONT_BADGE, fill=INK)
-        by += 52
-
-    _rounded(draw, (615, 64, 1228, 576), 28, PANEL, (203, 213, 225), 2)
-    _rounded(draw, (647, 105, 1196, 536), 18, (15, 23, 42), None)
-    draw.rectangle((669, 124, 1174, 164), fill=(255, 255, 255))
-    draw.text((691, 132), "Foxglove · semantic_toponav_demo.mcap", font=FONT_SMALL, fill=MUTED)
-    img.paste(preview, (669, 176))
-    draw.line([(669, 500), (1174, 500)], fill=ACCENT, width=6)
+    # --- hero strip, full width ------------------------------------
+    panel = (40, 248, 1240, 628)
+    _rounded(draw, panel, 22, PANEL, (203, 213, 225), 2)
+    inner_w = (panel[2] - panel[0]) - 36          # 18 px padding each side
+    fw, fh = frame.size
+    scaled_h = round(inner_w * fh / fw)
+    hero = frame.resize((inner_w, scaled_h), Image.Resampling.LANCZOS)
+    px = panel[0] + 18
+    py = panel[1] + ((panel[3] - panel[1]) - scaled_h) // 2
+    img.paste(hero, (px, py))
+    draw.rectangle((px, py, px + inner_w - 1, py + scaled_h - 1),
+                   outline=(203, 213, 225), width=1)
 
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     img.save(OUT_PATH, optimize=True)
-    print(f"wrote {OUT_PATH.relative_to(ROOT)}")
+    print(f"wrote {OUT_PATH.relative_to(ROOT)} ({OUT_PATH.stat().st_size // 1024} KB)")
 
 
 if __name__ == "__main__":
