@@ -8,8 +8,25 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 Working area for changes that land after the v1.0.1 tag. Front-page
-visuals, positioning docs, and a new no-invent audit — no public schema
-or behavior changes (the audit only *reads* the existing resolver).
+visuals, positioning docs, a no-invent audit, and a Nav2 Route Server
+exporter — no public schema or behavior changes to existing surfaces.
+
+### Added — Nav2 Route Server GeoJSON exporter (feed Nav2, don't compete)
+
+- `semantic_toponav/conversion/nav2_route.py`
+  (`topology_to_nav2_geojson` / `write_nav2_geojson`) and a
+  `semantic-toponav export-nav2` CLI serialize a `TopologyGraph` into the
+  exact GeoJSON the ROS 2 **Nav2 Route Server**'s `GeoJsonGraphFileLoader`
+  parses: `Point` nodes with integer ids + semantic `class` / label /
+  floor under `metadata`, directed `LineString` edges with `startid` /
+  `endid` / `cost`, bidirectional edges split into two directed features,
+  `[x, y]` map-frame metres. Makes the "planning tier *above* Nav2, not a
+  rival" positioning concrete — the research (`related_work.md`) found
+  Nav2's Route Server now does semantic graph routing, so this hands it
+  our semantic graph rather than competing. Example
+  `examples/export_nav2_route.py` (+ committed sample
+  `examples/data/nav2/office_graph.geojson`); guarded by
+  `tests/test_nav2_route_export.py` and CLI tests.
 
 ### Added — adversarial no-invent audit for the resolver
 

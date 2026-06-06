@@ -90,7 +90,14 @@ costs — all authored as data, unit-testable, pure-Python, no ROS. That
 combination does not appear as a named capability in any OSS surveyed.
 The clean handoff is the v1-locked `SemanticWaypoint` stream a Nav2
 Waypoint Follower / Navigate-Through-Poses (or Route Server graph)
-consumes — this is the planning tier that *feeds* Nav2, not a rival.
+consumes — this is the planning tier that *feeds* Nav2, not a rival. That
+handoff is **shipped**: `topology_to_nav2_geojson` /
+[`export-nav2`](../semantic_toponav/conversion/nav2_route.py) serializes
+the topology into the exact GeoJSON the Route Server's
+`GeoJsonGraphFileLoader` parses (semantic `class` / floor under `metadata`,
+bidirectional edges split into two directed features), so the semantic
+graph this repo authors / grounds / repairs drops straight into Nav2 to
+execute over.
 
 ## Coordinate axis — multi-robot fleet OSS
 

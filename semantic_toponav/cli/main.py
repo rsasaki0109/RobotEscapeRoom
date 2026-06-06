@@ -206,6 +206,33 @@ def cmd_plan(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_export_nav2(args: argparse.Namespace) -> int:
+    from semantic_toponav.conversion.nav2_route import (
+        topology_to_nav2_geojson,
+        write_nav2_geojson,
+    )
+
+    try:
+        graph = load_graph(args.graph)
+        if args.output:
+            write_nav2_geojson(graph, args.output, route_frame=args.route_frame)
+        else:
+            fc = topology_to_nav2_geojson(graph, route_frame=args.route_frame)
+    except (GraphLoadError, GraphValidationError, ValueError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    if args.output:
+        n_nodes = len(graph.node_ids())
+        print(
+            f"ok: wrote {args.output} "
+            f"(Nav2 Route Server GeoJSON, {n_nodes} nodes)"
+        )
+    else:
+        print(json.dumps(fc, ensure_ascii=False, indent=2))
+    return 0
+
+
 def cmd_plot(args: argparse.Namespace) -> int:
     try:
         graph = load_graph(args.graph)
@@ -557,6 +584,21 @@ def build_parser() -> argparse.ArgumentParser:
     _add_plan_args(p_describe)
     add_llm_args(p_describe, with_style=True)
     p_describe.set_defaults(func=cmd_describe_path)
+
+    p_nav2 = sub.add_parser(
+        "export-nav2",
+        help="export the topology as a Nav2 Route Server GeoJSON graph",
+    )
+    p_nav2.add_argument("graph", help="path to YAML or JSON topology graph file")
+    p_nav2.add_argument(
+        "-o", "--output", default=None,
+        help="output .geojson path (prints to stdout when omitted)",
+    )
+    p_nav2.add_argument(
+        "--route-frame", default="map",
+        help="frame written to nodes whose pose carries no frame_id (default: map)",
+    )
+    p_nav2.set_defaults(func=cmd_export_nav2)
 
     p_plot = sub.add_parser("plot", help="render a graph (and optional path) with matplotlib")
     p_plot.add_argument("graph", help="path to YAML or JSON topology graph file")
