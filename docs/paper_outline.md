@@ -300,11 +300,17 @@ they conform — is the missing piece. Numbers live in
 
 **Gap to fill:**
 
-- A short "external adapter authoring" walkthrough showing a
+- ~~A short "external adapter authoring" walkthrough showing a
   Mast3R-style `AlignedRgbSource` outside the repo passing the
-  conformance suite. This is doubly useful — it doubles as the
-  ecosystem onboarding doc when Phase C (`semantic-toponav-mast3r`
-  package) lands.
+  conformance suite.~~ **DONE** —
+  [`docs/authoring_external_adapters.md`](authoring_external_adapters.md)
+  walks an out-of-repo author through implementing a rerender-style
+  `AlignedRgbSource` (no stored image) and passing
+  `run_aligned_rgb_source_conformance` in one call;
+  [`examples/external_adapter_conformance.py`](../examples/external_adapter_conformance.py)
+  is the runnable version, guarded by
+  [`tests/test_external_adapter_conformance.py`](../tests/test_external_adapter_conformance.py).
+  Doubles as the onboarding doc for Phase C (`semantic-toponav-mast3r`).
 
 ### 9. Evaluation chapter 6 — Visual localization and topological navigation
 
