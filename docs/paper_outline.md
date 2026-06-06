@@ -4,9 +4,12 @@
 > and design decisions are organized against. It is **not** the paper
 > itself — it tracks what claims the paper will make, where the
 > evidence for each claim already lives in the repo, and which gaps
-> still need filling before submission. The 5-chapter evaluation
-> structure follows the recommendation captured in
-> [`STATUS_FOR_ADVICE.md`](../STATUS_FOR_ADVICE.md) §7.
+> still need filling before submission. The evaluation structure
+> follows the recommendation captured in
+> [`STATUS_FOR_ADVICE.md`](../STATUS_FOR_ADVICE.md) §7; it grew from
+> five to **six chapters** when the visual-localization / topological-
+> navigation axis landed (PRs #75–#81, #85) — see Chapter 6 and the
+> refreshed decision section at the end.
 
 ## Working title
 
@@ -31,9 +34,11 @@ Three claims hold the abstract together:
 1. The middle layer is *expressive enough* to absorb language and
    time/preference constraints without losing fleet performance
    (Chapters 1–2).
-2. The LLM-grounding path is *safe by construction*: deterministic
-   floor first, LLM cannot invent node ids, rewrite invariants
-   measurable (Chapters 3–4).
+2. Grounding *into the graph* is *safe by construction* and works
+   from both language and perception: the deterministic floor goes
+   first, the LLM cannot invent node ids, rewrite invariants are
+   measurable, and the same graph an image grounds against is
+   re-rankable by its own topology (Chapters 3–4, 6).
 3. The plugin contracts are *testable*, not just declarative
    (Chapter 5).
 
@@ -58,8 +63,9 @@ Three claims hold the abstract together:
 6. **Evaluation chapter 3 — Language grounding**
 7. **Evaluation chapter 4 — Describer rewrite safety**
 8. **Evaluation chapter 5 — Protocol conformance as engineering contribution**
-9. **Discussion / limitations**
-10. **Conclusion**
+9. **Evaluation chapter 6 — Visual localization and topological navigation**
+10. **Discussion / limitations**
+11. **Conclusion**
 
 ### 1. Introduction
 
@@ -294,9 +300,76 @@ they conform — is the missing piece. Numbers live in
   ecosystem onboarding doc when Phase C (`semantic-toponav-mast3r`
   package) lands.
 
+### 9. Evaluation chapter 6 — Visual localization and topological navigation
+
+**Claim:** the same graph the language path grounds into is also an
+*image*-groundable map. A camera frame retrieves its node (node-level
+VPR); a goal image plans a topological route with monotonic progress
+(LM-Nav-style); and graph-context re-ranking (RoboHop-style) damps
+perceptual aliasing — all with the encoder behind an `Backend` Protocol,
+so torch stays optional and locomotion stays out of repo (decision D-16).
+This is the *perception twin* of Chapter 3: image → node where Chapter 3
+is language → node, reported with symmetric metrics.
+
+**Setup:**
+
+- `localize_by_image` (image → node, cosine over per-node embeddings,
+  optional `neighbor_weight` / `neighbor_hops` graph-context re-rank);
+  `plan_visual_route` / `VisualRouteFollower` (goal image → topological
+  route, monotonic progress). Pointer:
+  [`semantic_toponav/query/visual_localization.py`](../semantic_toponav/query/visual_localization.py),
+  [`semantic_toponav/query/visual_navigation.py`](../semantic_toponav/query/visual_navigation.py).
+- Two encoders behind the same `Backend` Protocol: deterministic
+  `HashingBackend` (CI, no torch) and `CLIPBackend` (`[vlm]` extra, real
+  semantics).
+- Corpora: `visual_depot.yaml` (byte-identical frames → deterministic CI
+  check), `visual_depot_drive.yaml` (16 distinct drive frames → real
+  CLIP), and the engineered aliasing corpus from
+  `semantic_toponav.eval.aliasing_visual_corpus` (deterministic, designed
+  to surface the re-rank lift in aggregate).
+
+**Metrics:** precision@1, recall@3, recall@5, false_positive_resolve_rate,
+abstention_rate — the *same* shape as Chapter 3, so the language and
+visual grounding arms report symmetric numbers (a standard VPR
+`recall@K` protocol phrased like the resolver eval).
+
+**Headline numbers:**
+
+- Real CLIP on the 5-place Depot drive (manual `[vlm]` artifact):
+  precision@1 = recall@3 = recall@5 = 1.00. Pointer:
+  [`docs/visual_grounding_report_sample.md`](visual_grounding_report_sample.md).
+- Neighbor re-rank aggregate ablation (deterministic, **reproduced in
+  CI**): precision@1 / recall@3 / recall@5 = **0.00 → 1.00** on the
+  engineered aliasing corpus where every genuine place has a
+  higher-cosine look-alike elsewhere in the building (PR #85). Pointer:
+  [`tests/test_visual_benchmark.py`](../tests/test_visual_benchmark.py),
+  [`docs/eval_grounding.md`](eval_grounding.md).
+
+**Already in the repo:** the `localize` / `visual-route` /
+`eval-visual-grounding` CLI (with `--neighbor-weight` / `--neighbor-hops`),
+both real and deterministic corpora, the aliasing benchmark, two demos,
+and the navigation GIF (`docs/images/24_visual_navigation.gif`).
+
+**Two-layer eval discipline (mirrors the language arm):** the metric
+machinery is CI-covered deterministically via `HashingBackend`
+(`tests/test_eval_visual_grounding.py`, `test_visual_localization.py`,
+`test_visual_navigation.py`, `test_visual_benchmark.py`), while the
+real-CLIP numbers are a manual release-prep artifact — the `[vlm]` extra
+stays out of CI by design, exactly as the Anthropic resolver numbers do.
+
+**Gap to fill:**
+
+- The real-CLIP numbers are a manual `[vlm]` artifact by design (same
+  posture as Chapter 3's Anthropic numbers); they are not CI-reproduced.
+- A larger self-similar *real-image* corpus where neighbor re-rank lifts
+  the aggregate under CLIP. The deterministic benchmark already proves
+  the mechanism; a CLIP-scale version would strengthen the empirical
+  claim. The natural heavy-deps source of per-node embeddings for such a
+  map is the Mast3R `AlignedRgbSource` adapter (Phase C #3, post-paper).
+
 ---
 
-## 9. Discussion / limitations
+## 10. Discussion / limitations
 
 Threads to be honest about:
 
@@ -307,6 +380,14 @@ Threads to be honest about:
 - Language grounding scope: the gold corpus tests retrieval against
   a topological graph, not free-form scene understanding. The LLM
   is a re-ranker / clarifier, not a perception system.
+- Visual grounding scope (Chapter 6): `localize_by_image` is
+  node-level VPR over a *pre-built* graph, not closed-loop visual
+  navigation — the encoder is a `Backend` and the locomotion stays
+  out of repo (ViNT / NoMaD / Nav2). The neighbor re-rank lift is
+  proven in aggregate on an engineered aliasing corpus and per case
+  on real CLIP; a large real-image self-similar benchmark is future
+  work. Per-node embeddings come from offline prototypes, not yet a
+  live Mast3R reconstruction (Phase C #3).
 - Single-machine scheduler: `SharedScheduler` is process-local;
   the RPC shim (`SchedulerService` + `Transport`) demonstrates
   the contract over HTTP but multi-DC consensus is not part of v1.
@@ -314,7 +395,7 @@ Threads to be honest about:
   natural physical-execution outlet) is intentionally
   out-of-repo and arrives after v1.0.
 
-## 10. Conclusion
+## 11. Conclusion
 
 Three sentences:
 
@@ -351,24 +432,81 @@ references. Every row points at code or fixtures already in the repo
 | Six conformance suites + failure-mode depth | `semantic_toponav/testing/conformance/`, `tests/test_conformance_builtins.py` |
 | HTTP transport round-trips | `tests/test_coordination_http_transport.py` |
 | Scheduler save/load round-trip | `tests/test_coordination_persistence.py` |
+| Image→node localization (node-level VPR) | `localize_by_image`, `tests/test_visual_localization.py`, `eval-visual-grounding` |
+| Neighbor re-rank lifts aggregate recall (RoboHop-style) | `tests/test_visual_benchmark.py` (0.00 → 1.00), `semantic_toponav/eval/visual_benchmark.py` |
+| Goal-image topological route + monotonic progress (LM-Nav-style) | `plan_visual_route` / `VisualRouteFollower`, `tests/test_visual_navigation.py` |
+| Real-CLIP grounding numbers (manual `[vlm]` artifact) | `docs/visual_grounding_report_sample.md` |
 
 ## Open holes — what to decide *before* writing
 
-1. **Venue.** Robotics-systems (RSS / IROS / ICRA / CoRL) vs OSS
-   tooling track (FOSDEM-style) vs LLM-for-robotics workshop. The
-   contract / conformance story is closer to systems; the grounding
-   chapter is closer to LM4Nav workshops.
-2. **Single paper vs companion paper.** All five evaluation chapters
-   in one work risks each being shallow. Splitting (e.g.
-   "coordination + schema" and "grounding + describer safety" as
-   two papers) is plausible.
-3. **Anthropic-backend numbers**: get them before deciding chapter
-   3's headline framing. Without them the LLM resolver story is
+> **Status (2026-06-07).** The decisions below are still the author's to
+> make, but the in-tree work is now done enough to *ground* them. This
+> section adds a maturity/gating read of all six chapters and a
+> recommended structure that falls out of it. Nothing here is committed —
+> it is decision support, not a decision.
+
+### Chapter maturity & gating
+
+What is actually blocking each chapter, given the shipped repo:
+
+| Chapter | Evidence shipped | Remaining gap | Gate type |
+|---|---|---|---|
+| 1 Fleet scheduling | every metric / CLI flag / fixture; figures are `eval-synthetic` invocations | larger n≤32 BnB sweep; incremental-admission script | **none** — coding-only, writable now |
+| 2 Constraints ablation | every constraint + flag + unit test | one ~200-LOC ablation-table runner | **none** — coding-only, writable now |
+| 3 Language grounding | 50-case corpus; deterministic numbers measured (p@1 1.00, fp_resolve 0.25, abstain 0.75) | **real Anthropic numbers** for the contribution framing | **external** — API key + budget + author run |
+| 4 Describer safety | invariant pipeline + intentional-violation tests | Anthropic non-fallback numbers; optional human-eval | external + optional human-eval |
+| 5 Protocol conformance | 6 protocols / 6 suites / all in-tree impls pass + failure depth | external-adapter authoring walkthrough | **none** — coding/docs-only, writable now |
+| 6 Visual localize/nav | localize / route / aggregate re-rank (0.00 → 1.00 in CI, #85) + real-CLIP manual artifact | larger real-image self-similar corpus; Mast3R source | real-CLIP manual by design; rest deferred |
+
+The split is clean: **Chapters 1, 2, 5 have no external gate** (every
+figure is reproducible from CI today), while **Chapters 3 and 4 are
+gated on the Anthropic backend run** and Chapter 6 carries a
+by-design-manual real-CLIP artifact alongside its CI-reproduced
+mechanism.
+
+### Recommended structure (companion split)
+
+The maturity read lines up with the long-hypothesised companion split,
+and sharpens it now that Chapter 6 exists:
+
+- **Paper A — the systems / contracts paper.** Chapters 1 (fleet
+  scheduling), 2 (constraints ablation), 5 (protocol conformance), on
+  top of the schema + system-overview. Every number is
+  CI-reproducible; **no external gate** — it can be drafted immediately.
+  The conformance-as-contribution angle is unusual and reads as
+  *systems*. Natural venue: a robotics-systems conference (ICRA / IROS)
+  or a software/tooling track.
+- **Paper B — the grounding / perception paper.** Chapters 3 (language
+  grounding), 4 (describer safety), 6 (visual localization). A coherent
+  "grounding language *and* perception into a topological graph, safely"
+  story. Gated on the Anthropic numbers for Chapters 3–4. Natural venue:
+  CoRL or an LM-for-robotics (LM4Nav-style) workshop.
+
+The practical consequence: **the Anthropic run is the critical path for
+Paper B only.** Paper A is decoupled and can start now. A single
+combined paper remains possible but risks six shallow chapters; the
+split lets each land deeper.
+
+### The four decisions (with the recommendation that follows)
+
+1. **Venue.** Robotics-systems (RSS / IROS / ICRA / CoRL) vs OSS tooling
+   track (FOSDEM-style) vs LLM-for-robotics workshop. *Recommendation:*
+   if splitting, Paper A → systems (ICRA/IROS or tooling), Paper B →
+   CoRL / LM4Nav workshop. The contract / conformance story is closer to
+   systems; the grounding + visual chapters are closer to LM4Nav.
+2. **Single paper vs companion paper.** *Recommendation:* **companion
+   split A/B as above** — the gating structure already separates them,
+   and six chapters in one work would be thin. Confirm before writing.
+3. **Anthropic-backend numbers.** Get them before deciding Paper B's
+   Chapter 3 headline framing; without them the LLM resolver story is
    "echo backend is illustrative" — fine for an outline, weak for a
-   conference submission.
-4. **Human eval scope**: 0 cases, 20 cases, or a full crowd-sourced
-   panel for the describer rewrite. The deterministic invariants
-   already make the safety claim; the human eval is purely the
-   *helpfulness* side.
+   submission. *This is the one remaining task that moves a number and
+   is the critical path for Paper B.* It needs an API key, budget, and
+   an author run (manual, out of CI by design).
+4. **Human eval scope.** 0 cases, 20–50 cases, or a full crowd panel for
+   the describer rewrite. *Recommendation:* a 20–50 case helpfulness
+   sidebar at most — the deterministic invariants already carry the
+   safety claim; human-eval is purely the *helpfulness* side and should
+   not gate submission.
 
 Update this section as decisions are made.
