@@ -8,9 +8,9 @@ the metric definitions and corpus format.
 ## Provenance
 
 ```text
-git ref:    feat/grounding-corpus-expansion @ 16be17bad650
-generated:  2026-05-17
-corpus:     tests/fixtures/grounding/multi_floor_office.yaml  (50 cases)
+git ref:    docs/grounding-corpus-100 (corpus expanded 50 -> 100)
+generated:  2026-06-07
+corpus:     tests/fixtures/grounding/multi_floor_office.yaml  (100 cases)
 command:    semantic-toponav eval-grounding \
               tests/fixtures/grounding/multi_floor_office.yaml \
               --llm-backend echo --describer-safety
@@ -26,25 +26,25 @@ here.
 
 | resolver | n | precise | ambiguous | unresolvable | precision@1 | recall@3 | recall@5 | clarify | fp_resolve | abstain |
 |---|---|---|---|---|---|---|---|---|---|---|
-| deterministic | 50 | 33 | 9 | 8 | 1.00 | 1.00 | 1.00 | 0.00 | 0.25 | 0.75 |
-| echo | 50 | 33 | 9 | 8 | 1.00 | 1.00 | 1.00 | 0.89 | 0.25 | 0.75 |
+| deterministic | 100 | 66 | 18 | 16 | 1.00 | 1.00 | 1.00 | 0.00 | 0.19 | 0.81 |
+| echo | 100 | 66 | 18 | 16 | 1.00 | 1.00 | 1.00 | 0.94 | 0.19 | 0.81 |
 
 ### How to read these numbers
 
 - **`precision@1`, `recall@3`, `recall@5`** are denominated against
-  the *answerable* cases (precise + ambiguous = 42). Both resolvers
+  the *answerable* cases (precise + ambiguous = 84). Both resolvers
   hit 1.00: every answerable query lands its gold target in the
   top-1 slot. The bag-of-words + floor parser handles every
   linguistic pattern in the corpus — prefix/postfix/ordinal/word/
   abbreviated floor mentions, single-token labels, label fragments,
-  and bare-type queries — without surprise. The corpus expansion
-  (22 → 50 cases in PR #69) widened the linguistic surface; the
-  ceiling held.
-- **`clarify`** is denominated against the *ambiguous* slice (9
+  comma-separated and verb-phrase forms, and bare-type queries —
+  without surprise. The corpus expansions (22 → 50 → 100 cases)
+  widened the linguistic surface; the ceiling held at every size.
+- **`clarify`** is denominated against the *ambiguous* slice (18
   cases). The deterministic resolver never raises a
   `ClarificationQuestion` on its own (`resolve_goal` just returns a
   ranked list), so its `clarify_rate` is 0 by construction. The
-  `echo` resolver lifts the rate to 0.89 = 8/9: every ambiguous
+  `echo` resolver lifts the rate to 0.94 = 17/18: every ambiguous
   case *except one* has a small enough deterministic top-1/top-2
   gap to fire `llm_resolve_goal`'s `ambiguity_threshold` check.
   The exception is `"a room"`, where the label-match on
@@ -53,14 +53,12 @@ here.
   gap threshold, so no clarification is raised even though the
   user intent ranges over all six rooms.
 - **`fp_resolve`** and **`abstain`** are denominated against the
-  *unresolvable* slice (8 cases) and sum to 1.0 by construction.
-  Both resolvers leak two out of eight unresolvable queries
-  (`fp_resolve = 0.25`):
-  - `"server room"` false-positives to `meeting_room_2f` via the
-    `'room'` label token.
-  - `"secret room"` does the same — `'secret'` has no anchor in any
-    label, but the `'room'` token still pulls `meeting_room_2f` to
-    the top.
+  *unresolvable* slice (16 cases) and sum to 1.0 by construction.
+  Both resolvers leak three out of sixteen unresolvable queries
+  (`fp_resolve = 0.19`) — `"server room"`, `"secret room"` and
+  `"break room"`: in each, the leading token has no anchor in any
+  label, but the trailing `'room'` token still pulls
+  `meeting_room_2f` to the top.
   That's exactly the abstention axis the LLM-augmented path on a
   real cloud backend (`--llm-backend anthropic`) is expected to
   harden — recorded as open hole §3 in

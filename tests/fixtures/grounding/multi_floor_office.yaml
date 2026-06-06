@@ -1,6 +1,12 @@
 # Gold-corpus for the multi-floor office example. Used by the
 # language-grounding eval (`semantic_toponav.eval.grounding`).
 #
+# 100 cases (66 precise / 18 ambiguous / 16 unresolvable), grown
+# 22 -> 50 -> 100 to widen the linguistic surface without changing
+# the graph. The deterministic resolver scores precision@1 = 1.00 on
+# every answerable query; its only failure mode is the 'room'-token
+# false positive on unresolvable queries (see docs/eval_grounding.md).
+#
 # Node ids in this graph:
 #   1F: entrance, corridor_1f, lobby_1f, kitchen_1f, lab_1f,
 #       elevator_1f, stairs_1f
@@ -133,6 +139,117 @@ cases:
     gold: office_2f
     kind: precise
 
+  # ----- precise (expansion: wider label + floor-mention surface) -----
+  - query: "kitchen"
+    gold: kitchen_1f
+    kind: precise
+    note: "bare single-token label, unique"
+  - query: "the robotics lab"
+    gold: lab_1f
+    kind: precise
+  - query: "robotics lab on the first floor"
+    gold: lab_1f
+    kind: precise
+    note: "redundant floor disambig (lab already unique)"
+  - query: "1st floor robotics lab"
+    gold: lab_1f
+    kind: precise
+  - query: "lab on 1f"
+    gold: lab_1f
+    kind: precise
+    note: "abbreviated floor, postfix"
+  - query: "entrance hall"
+    gold: entrance
+    kind: precise
+    note: "'hall' has no anchor; 'entrance' is unique"
+  - query: "first floor lobby"
+    gold: lobby_1f
+    kind: precise
+    note: "ordinal-word floor, prefix"
+  - query: "lobby on the first floor"
+    gold: lobby_1f
+    kind: precise
+  - query: "the 1f lobby"
+    gold: lobby_1f
+    kind: precise
+  - query: "the kitchen on 1f"
+    gold: kitchen_1f
+    kind: precise
+  - query: "kitchen on the first floor"
+    gold: kitchen_1f
+    kind: precise
+  - query: "executive office"
+    gold: exec_office_3f
+    kind: precise
+    note: "full label, unique"
+  - query: "exec office on 3f"
+    gold: exec_office_3f
+    kind: precise
+  - query: "exec office on the third floor"
+    gold: exec_office_3f
+    kind: precise
+  - query: "meeting room"
+    gold: meeting_room_2f
+    kind: precise
+    note: "label fragment, only one meeting room"
+  - query: "2nd floor meeting room"
+    gold: meeting_room_2f
+    kind: precise
+  - query: "the meeting room on floor 2"
+    gold: meeting_room_2f
+    kind: precise
+  - query: "the office on the 2nd floor"
+    gold: office_2f
+    kind: precise
+    note: "'office' is ambiguous; floor disambiguates"
+  - query: "office on floor 2"
+    gold: office_2f
+    kind: precise
+  - query: "corridor on the first floor"
+    gold: corridor_1f
+    kind: precise
+  - query: "first floor corridor"
+    gold: corridor_1f
+    kind: precise
+  - query: "corridor on the second floor"
+    gold: corridor_2f
+    kind: precise
+  - query: "balcony"
+    gold: balcony_3f
+    kind: precise
+    note: "single-token, unique"
+  - query: "the balcony on floor 3"
+    gold: balcony_3f
+    kind: precise
+  - query: "elevator on the first floor"
+    gold: elevator_1f
+    kind: precise
+  - query: "first floor elevator"
+    gold: elevator_1f
+    kind: precise
+  - query: "the elevator on the second floor"
+    gold: elevator_2f
+    kind: precise
+  - query: "second floor elevator"
+    gold: elevator_2f
+    kind: precise
+  - query: "stairs on the third floor"
+    gold: stairs_3f
+    kind: precise
+  - query: "third floor stairs"
+    gold: stairs_3f
+    kind: precise
+  - query: "north stairs on floor 1"
+    gold: stairs_1f
+    kind: precise
+  - query: "the north stairs on 2f"
+    gold: stairs_2f
+    kind: precise
+  - query: "kitchen, first floor"
+    gold: kitchen_1f
+    kind: precise
+    note: "comma-separated floor mention"
+
   # ----- ambiguous -----
   - query: "the corridor"
     gold: [corridor_1f, corridor_2f, corridor_3f]
@@ -168,6 +285,38 @@ cases:
     kind: ambiguous
     note: "type-level match across six rooms; label match only for meeting_room_2f"
 
+  # ----- ambiguous (expansion) -----
+  - query: "a corridor"
+    gold: [corridor_1f, corridor_2f, corridor_3f]
+    kind: ambiguous
+    note: "indefinite article, no floor hint"
+  - query: "which corridor"
+    gold: [corridor_1f, corridor_2f, corridor_3f]
+    kind: ambiguous
+  - query: "an elevator"
+    gold: [elevator_1f, elevator_2f, elevator_3f]
+    kind: ambiguous
+  - query: "go to the elevator"
+    gold: [elevator_1f, elevator_2f, elevator_3f]
+    kind: ambiguous
+    note: "verb phrase; only 'elevator' anchors, shared across floors"
+  - query: "some stairs"
+    gold: [stairs_1f, stairs_2f, stairs_3f]
+    kind: ambiguous
+  - query: "take the stairs"
+    gold: [stairs_1f, stairs_2f, stairs_3f]
+    kind: ambiguous
+  - query: "any office"
+    gold: [office_2f, exec_office_3f]
+    kind: ambiguous
+  - query: "find an office"
+    gold: [office_2f, exec_office_3f]
+    kind: ambiguous
+  - query: "an elevator on some floor"
+    gold: [elevator_1f, elevator_2f, elevator_3f]
+    kind: ambiguous
+    note: "'some floor' carries no parseable number"
+
   # ----- unresolvable -----
   - query: "the basement"
     gold: null
@@ -198,3 +347,31 @@ cases:
     gold: null
     kind: unresolvable
     note: "'secret' has no anchor; 'room' false-positives to meeting_room_2f"
+
+  # ----- unresolvable (expansion) -----
+  - query: "the parking garage"
+    gold: null
+    kind: unresolvable
+  - query: "rooftop bar"
+    gold: null
+    kind: unresolvable
+  - query: "the swimming pool"
+    gold: null
+    kind: unresolvable
+  - query: "fifth floor lounge"
+    gold: null
+    kind: unresolvable
+    note: "no 5F and no lounge"
+  - query: "the data center"
+    gold: null
+    kind: unresolvable
+  - query: "janitor closet"
+    gold: null
+    kind: unresolvable
+  - query: "the atrium"
+    gold: null
+    kind: unresolvable
+  - query: "the break room"
+    gold: null
+    kind: unresolvable
+    note: "'break' has no anchor; 'room' false-positives to meeting_room_2f"
