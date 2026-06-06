@@ -942,6 +942,8 @@ def evaluate_visual_localizer(
     top_k: int = 5,
     min_score: float = 0.0,
     embedding_property: str = "embedding",
+    neighbor_weight: float = 0.0,
+    neighbor_hops: int = 1,
 ) -> VisualLocalizerEvaluation:
     """Stamp the gallery, then score each query frame against the graph.
 
@@ -950,6 +952,17 @@ def evaluate_visual_localizer(
     each case image is localized with
     :func:`~semantic_toponav.query.localize_by_image`. ``min_score`` is
     the abstention gate used to score the ``unresolvable`` cases.
+
+    ``neighbor_weight`` / ``neighbor_hops`` are forwarded verbatim to
+    :func:`~semantic_toponav.query.localize_by_image`, so the eval can
+    measure RoboHop-style neighbor-aware re-ranking *in aggregate* (not
+    just per case): run it once at ``neighbor_weight=0.0`` for the raw
+    single-frame baseline and again at ``> 0`` to read the lift in
+    precision@1 / recall@K. The neighborhood is aggregated over the
+    corpus' own ``graph`` edges, so the effect only shows on a map with
+    topology — a nodes-only gallery has no neighbors to corroborate
+    with. See :mod:`semantic_toponav.eval.visual_benchmark` for a
+    deterministic corpus engineered to surface the lift.
 
     The encoder must be the *same identity* for gallery and queries —
     cross-backend vectors are not comparable. Use ``HashingBackend`` for
@@ -970,6 +983,7 @@ def evaluate_visual_localizer(
         result = localize_by_image(
             graph, case.image, backend,
             top_k=top_k, embedding_property=embedding_property,
+            neighbor_weight=neighbor_weight, neighbor_hops=neighbor_hops,
         )
         outcomes.append(
             VisualCaseOutcome(

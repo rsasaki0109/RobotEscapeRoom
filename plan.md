@@ -1696,9 +1696,15 @@ above HD maps and SLAM."
 - Real-CLIP numbers + the navigation GIF were generated on a local
   `[vlm]` checkout (`torch 2.12.0+cpu`, `transformers 5.10.2`); they are
   not reproduced in CI by design.
-- `neighbor_weight` / `neighbor_hops` only bite on larger, self-similar
-  maps; the 5-place Depot benchmark is too easy to show the effect in
-  aggregate (it's unit-tested on an engineered aliasing graph instead).
+- ~~`neighbor_weight` / `neighbor_hops` only bite on larger,
+  self-similar maps; the 5-place Depot benchmark is too easy to show the
+  effect in aggregate (it's unit-tested on an engineered aliasing graph
+  instead).~~ **CLOSED (§28′, PR #85).** The re-rank knobs are now
+  threaded through `evaluate_visual_localizer` + the CLI, and a
+  deterministic engineered aliasing corpus
+  (`semantic_toponav.eval.aliasing_visual_corpus`) shows the lift *in
+  aggregate* — precision@1 / recall@3 / recall@5 go 0.00 → 1.00,
+  reproduced in CI (`tests/test_visual_benchmark.py`).
 - Still deferred: the Mast3R `AlignedRgbSource` adapter (Phase C #3,
   post-paper) — the natural heavy-deps source of per-node embeddings.
 
@@ -1739,3 +1745,54 @@ In-tree launch/polish backlog is **empty**. Remaining moves are all
 non-coding (§24′ user-side paper decisions) or explicitly deferred
 (§23′.3 post-paper axes, Mast3R Phase C #3). A future `tugi` cue should
 surface those, not start new in-tree feature work.
+
+## 28′. Neighbor re-rank aggregate evidence (2026-06-07)
+
+Closed the one remaining §26′ open end that *was* a coding task: the
+neighbor-aware re-rank (`neighbor_weight` / `neighbor_hops`, PRs #77 /
+#79) only had per-case unit-test evidence, because every real-image
+corpus on hand (the 5-place Depot drive) was too easy to move the
+aggregate numbers. This makes the lift measurable and CI-guarded.
+
+| PR | What |
+|---|---|
+| #85 | `feat(eval): aggregate evidence for neighbor-aware visual re-ranking` |
+
+What landed:
+
+- **`evaluate_visual_localizer` gained `neighbor_weight` / `neighbor_hops`**,
+  forwarded verbatim to `localize_by_image`. Previously the eval could
+  not exercise re-ranking at all — that was the root reason no aggregate
+  number ever moved. The CLI `eval-visual-grounding` exposes the matching
+  `--neighbor-weight` / `--neighbor-hops` flags, so the re-rank can also
+  be measured against any real corpus.
+- **`semantic_toponav/eval/visual_benchmark.py`** — a torch-free,
+  deterministic aliasing benchmark:
+  - `VectorTableBackend` — the aggregate-scale sibling of the unit
+    tests' `_StubBackend`: returns an engineered unit vector per lookup
+    key, so a corpus can be built with analytic embeddings (no images,
+    no model).
+  - `aliasing_visual_corpus(n_clusters, n_distractors)` — one
+    orthogonal 2-D subspace per place; each genuine `true` node is
+    corroborated by a graph neighbor, while `n_distractors` higher-cosine
+    look-alikes are each propped up only by a private low-scoring
+    neighbor. Raw cosine ranks the look-alikes on top (true falls past
+    rank 5); neighbor aggregation collapses the isolated spikes and the
+    true place wins every case.
+  - `neighbor_rerank_ablation` / `neighbor_rerank_ablation_markdown` —
+    run the corpus raw vs re-ranked and render the before/after table.
+- **Result (deterministic, in CI):** precision@1 / recall@3 / recall@5 =
+  **0.00 → 1.00** when re-ranking is turned on. Asserted in
+  `tests/test_visual_benchmark.py`; printable via
+  `examples/visual_neighbor_ablation_demo.py`; documented in
+  `docs/visual_grounding_report_sample.md` and `docs/eval_grounding.md`.
+- The visual eval surface (`evaluate_visual_localizer`,
+  `load_visual_grounding_corpus`, `VisualGroundingCorpus`, …) is now also
+  exported from `semantic_toponav.eval` (it was reachable only via the
+  `.grounding` submodule before).
+
+No new Protocol, no new feature axis — this is measurement substrate for
+the existing visual axis under the §23′.1 moratorium. The in-tree backlog
+is empty again; the §26′ remaining open ends are now non-coding (the
+`[vlm]` real-CLIP numbers stay a manual artifact by design) or deferred
+(Mast3R Phase C #3).

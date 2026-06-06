@@ -250,3 +250,23 @@ is out of CI by design — while the metric machinery is still covered
 deterministically by `tests/test_eval_visual_grounding.py` under
 `HashingBackend`. See [`related_work.md`](related_work.md) for how this
 sits next to AnyLoc, VPR-Bench, and the gmberton benchmark.
+
+### Neighbor-aware re-ranking (`--neighbor-weight` / `--neighbor-hops`)
+
+`eval-visual-grounding` forwards `--neighbor-weight` / `--neighbor-hops`
+to `localize_by_image`, so the RoboHop-style graph-context re-rank can be
+measured *in aggregate*, not just per case. Each candidate's cosine is
+blended with its scored graph neighbors before ranking, damping an
+isolated perceptual-aliasing spike — a true place is corroborated by its
+surroundings, a look-alike usually is not.
+
+The five-place Depot corpus is too easy to move the aggregate numbers
+when this is toggled (CLIP already separates the places), so the lift is
+demonstrated deterministically on an engineered aliasing corpus built by
+`semantic_toponav.eval.aliasing_visual_corpus`. There, raw cosine is
+fooled on every case and neighbor aggregation recovers all of them —
+**precision@1 / recall@3 / recall@5 go 0.00 → 1.00**, reproduced in CI by
+`tests/test_visual_benchmark.py` and printable via
+`examples/visual_neighbor_ablation_demo.py`. See
+[`docs/visual_grounding_report_sample.md`](visual_grounding_report_sample.md#neighbor-aware-re-ranking--aggregate-ablation-deterministic-in-ci)
+for the ablation table.
