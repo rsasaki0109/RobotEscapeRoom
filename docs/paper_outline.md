@@ -229,6 +229,15 @@ and *clarification* (asking instead of guessing on ambiguous ones).
 | deterministic | 1.00 | 1.00 | 0.00 | 0.19 | 0.81 |
 | **ollama (qwen3.5)** | 1.00 | 1.00 | 0.94 | **0.06** | **0.94** |
 
+**Model robustness (caveat for the chapter):** the abstention lift is
+*capability-gated*, not universal — a small `gemma3:4b` resolves the
+`'room'`-token unresolvables exactly like the deterministic floor
+(fp_resolve 0.19, no rejection), while the larger `qwen3.5` is the one
+that drops it to 0.06. The contribution needs a model strong enough to
+reject a mismatched candidate, not merely pick from a list; the headline
+is therefore reported with the model named. See the model-robustness
+table in [`docs/grounding_report_sample.md`](grounding_report_sample.md).
+
 **Gap to fill:**
 
 - ~~Run the Anthropic backend against the same corpus and add a row to the report.~~ **DONE via a local model** — `OllamaBackend` (`--llm-backend ollama`) supplies the real-backend resolver row with no API key: fp_resolve 0.19 → 0.06, abstain 0.81 → 0.94. A cloud Anthropic run would land in the same table but is no longer the blocker; the numbers are committed in [`docs/grounding_report_sample.md`](grounding_report_sample.md).
