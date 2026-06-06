@@ -152,7 +152,7 @@ insertion-based repair planner handles the live-update case.
 **Gap to fill before camera-ready:**
 
 - A larger-scale sweep (n_agents up to 32 with `bnb` budget-bounded) to show the BnB partial-best behavior under tight time budgets
-- A dedicated incremental-admission scenario script (`examples/eval_incremental_admission.py`) wrapping `plan_fleet_insert` so the repair figure is reproducible without hand-stitching
+- ~~A dedicated incremental-admission scenario script wrapping `plan_fleet_insert` so the repair figure is reproducible without hand-stitching~~ **DONE** — [`examples/eval_incremental_admission.py`](../examples/eval_incremental_admission.py) renders the deterministic naive-append vs insertion-repair vs full-BnB table (insertion repair admits the urgent newcomer and matches the BnB optimum at 16× fewer trial orderings); guarded by [`tests/test_eval_incremental_admission.py`](../tests/test_eval_incremental_admission.py)
 
 ### 5. Evaluation chapter 2 — Semantic constraints ablation
 
