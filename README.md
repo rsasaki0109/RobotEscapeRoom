@@ -64,9 +64,12 @@ scheduler for fan-out across processes.
 Natural-language goals → node ids. The deterministic floor
 (bag-of-words + floor parsing) always runs first; an LLM may rewrite
 prose or re-rank the top-k pool but **cannot invent node ids** —
-out-of-pool picks silently fall back. Multi-turn `DialogSession` for
-ambiguous queries; optional CLIP / VLM cosine retrieval for
-embedding-grounded resolves.
+out-of-pool picks silently fall back, a property **adversarially
+audited** at a 0.00 leak rate (hallucinated ids, prompt-injection,
+payloads, near-misses — see
+[`eval/no_invent.py`](semantic_toponav/eval/no_invent.py)). Multi-turn
+`DialogSession` for ambiguous queries; optional CLIP / VLM cosine
+retrieval for embedding-grounded resolves.
 
 **See each axis run.** Three worked heroes in one style — *input → a
 scored decision → the result*, every bar and route from real API output:

@@ -188,7 +188,14 @@ false-positive-resolve**, as a sim-free OSS layer).
 node id** with a *structural* no-invent guarantee (out-of-pool picks
 silently fall back) **and** reporting `false_positive_resolve_rate` /
 `abstention_rate` / `clarification_rate` as first-class metrics — no OSS
-surveyed benchmarks language → node grounding with abstention at all.
+surveyed benchmarks language → node grounding with abstention at all. The
+no-invent property is not just asserted but **adversarially audited**:
+[`semantic_toponav/eval/no_invent.py`](../semantic_toponav/eval/no_invent.py)
+replays hallucinated ids, prompt-injection, payloads, substring / case
+near-misses and an out-of-pool clarification pin through the resolver and
+checks a **0.00 leak rate** (`run_no_invent_audit` /
+`run_no_invent_conformance`) — the regression Grounded Decoding /
+Mobility-VLA describe but never ship as a runnable check.
 
 ## Resolve / visual axis — perception, localization & locomotion
 
