@@ -104,16 +104,23 @@ different size and family:
 | deterministic (floor) | — | 1.00 | 0.00 | 0.19 | 0.81 |
 | ollama `gemma3:4b` | 3.3 GB | 1.00 | 0.94 | 0.19 | 0.81 |
 | ollama `qwen3.5:latest` | 6.6 GB | 1.00 | 0.94 | **0.06** | **0.94** |
+| ollama `qwen3.6:35b-a3b` (MoE) | 15.5 GB | 1.00 | 0.94 | **0.06** | **0.94** |
 
 The small 4 B model resolves the `'room'`-token unresolvables *exactly
 like the deterministic floor* — shown a candidate, it picks it rather
 than rejecting it, so its only lift is the (gap-driven) clarification
-rate. The larger `qwen3.5` is the one that actually rejects 15 of 16
-false positives. So the abstention contribution is real but needs a
-model strong enough to notice that a candidate's label does not match
-the query, not merely to pick from a list — a useful caveat for the
-chapter, and the reason the headline number is reported with the model
-named. (Single local runs at `temperature = 0`.)
+rate. Both larger models — the 6.6 GB `qwen3.5` and the 35 B-parameter
+`qwen3.6` MoE — reject 15 of 16 false positives and land at the **same
+0.06**: the lift has a *capability threshold* (the 4 B model is below it)
+and then a *ceiling* (the 35 B model does not beat the 6.6 GB one; the
+single remaining leak is a genuinely hard case where the unresolvable
+query has a defensible candidate). So the abstention contribution is
+real and reproduces across capable models of very different size, but it
+needs a model strong enough to notice that a candidate's label does not
+match the query, not merely to pick from a list — hence the headline is
+reported with the model named. (Single local runs at `temperature = 0`;
+the 35 B MoE was run with `--llm-timeout 600` to allow for slow CPU
+generation.)
 
 ## Describer rewrite safety
 

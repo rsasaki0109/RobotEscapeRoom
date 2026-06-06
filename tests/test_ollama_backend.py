@@ -139,3 +139,21 @@ def test_cli_ollama_respects_explicit_model() -> None:
     )
     backend = build_llm_backend_from_args(args)
     assert backend.model == "gemma4:latest"
+
+
+def test_cli_ollama_threads_timeout() -> None:
+    from argparse import Namespace
+
+    from semantic_toponav.cli.llm_cli import build_llm_backend_from_args
+
+    args = Namespace(
+        llm_backend="ollama", llm_model=None,
+        llm_host=OllamaBackend.DEFAULT_HOST, llm_max_tokens=1024,
+        llm_timeout=600.0,
+    )
+    backend = build_llm_backend_from_args(args)
+    assert backend._timeout == 600.0
+
+
+def test_timeout_default_is_120() -> None:
+    assert OllamaBackend()._timeout == 120.0

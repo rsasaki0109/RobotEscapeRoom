@@ -230,13 +230,16 @@ and *clarification* (asking instead of guessing on ambiguous ones).
 | **ollama (qwen3.5)** | 1.00 | 1.00 | 0.94 | **0.06** | **0.94** |
 
 **Model robustness (caveat for the chapter):** the abstention lift is
-*capability-gated*, not universal — a small `gemma3:4b` resolves the
-`'room'`-token unresolvables exactly like the deterministic floor
-(fp_resolve 0.19, no rejection), while the larger `qwen3.5` is the one
-that drops it to 0.06. The contribution needs a model strong enough to
-reject a mismatched candidate, not merely pick from a list; the headline
-is therefore reported with the model named. See the model-robustness
-table in [`docs/grounding_report_sample.md`](grounding_report_sample.md).
+*capability-gated* with a *ceiling*, measured across three local models.
+A small `gemma3:4b` resolves the `'room'`-token unresolvables exactly
+like the deterministic floor (fp_resolve 0.19, no rejection); both the
+6.6 GB `qwen3.5` and the 35 B-parameter `qwen3.6` MoE drop it to the same
+0.06 (the 35 B does not beat the smaller capable model — one leak is a
+genuinely hard case). So the contribution reproduces across capable
+models of very different size but needs one strong enough to reject a
+mismatched candidate; the headline is reported with the model named. See
+the model-robustness table in
+[`docs/grounding_report_sample.md`](grounding_report_sample.md).
 
 **Gap to fill:**
 
