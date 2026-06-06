@@ -279,6 +279,8 @@ def cmd_eval_visual_grounding(args: argparse.Namespace) -> int:
         encoder_name=encoder_name,
         top_k=args.top_k,
         min_score=args.min_score,
+        neighbor_weight=args.neighbor_weight,
+        neighbor_hops=args.neighbor_hops,
     )
     md = visual_grounding_report_markdown([ev])
     if args.out:
@@ -559,6 +561,20 @@ def register_subcommands(sub: argparse._SubParsersAction) -> None:
             "below this is counted as an abstention, otherwise a "
             "false-positive resolve (default: 0.0)"
         ),
+    )
+    v.add_argument(
+        "--neighbor-weight", type=float, default=0.0,
+        help=(
+            "RoboHop-style context aggregation strength in [0, 1] "
+            "(default: 0.0, raw single-frame cosine). When > 0, each "
+            "candidate's score is blended with its scored graph neighbors "
+            "before ranking, damping isolated perceptual-aliasing spikes"
+        ),
+    )
+    v.add_argument(
+        "--neighbor-hops", type=int, default=1,
+        help="corroboration radius in graph edges for --neighbor-weight "
+        "(default: 1; larger widens the neighborhood)",
     )
     v.add_argument(
         "--out",
