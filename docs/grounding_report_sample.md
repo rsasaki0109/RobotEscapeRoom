@@ -176,6 +176,38 @@ indexing, the untouched mid-traversal prefix, and reacting to the
 `situation=` hint. Single local run at `temperature = 0`; not a
 CI-pinned fixture.
 
+### Model robustness — the invariants are discriminating
+
+Running the same six describer-safety probes across the three local
+models shows the invariants are **load-bearing, not trivially 1.00**:
+a model can rewrite fluently (every model has `fallback_rate = 0.00`)
+and still violate the safety contract.
+
+| backend | size | refs | step_idx | prior_untouched | situation* | all_inv | fallback |
+|---|---|---|---|---|---|---|---|
+| `qwen3.5:latest` | 6.6 GB | 1.00 | 1.00 | **1.00** | 1.00 | **1.00** | 0.00 |
+| `gemma3:4b` | 3.3 GB | 1.00 | 1.00 | 0.67 | 0.0–0.5 | 0.50 | 0.00 |
+| `qwen3.6:35b-a3b` (MoE) | 15.5 GB | 1.00 | 1.00 | 0.67 | 0.00 | 0.50 | 0.00 |
+
+- `references_preserved` and `step_indices_preserved` are **universally
+  easy** — all three models hold them at 1.00.
+- `prior_steps_untouched` is the **stable discriminator**: only
+  `qwen3.5` keeps it at 1.00; both the small `gemma3:4b` *and* the large
+  `qwen3.6` MoE leak a label from an already-completed mid-traversal step
+  (0.67, reproducible across runs). Bigger is **not** safer here — the
+  35 B MoE fails this invariant exactly as the 4 B model does.
+- `situation*` (`situation_changes_output`) is measured over only the
+  two situation-bearing probes, so it is **noisy** for the weaker models
+  (gemma flips 0.50 ↔ 0.00 run-to-run); `qwen3.5` holds it stably at
+  1.00. For a real backend this invariant measures whether the model's
+  *output* reacts to the `situation=` hint (the prompt-difference
+  fallback in the checker is EchoBackend-only), so a 0.00 means the model
+  produced an identical rewrite with and without the hint.
+
+So only `qwen3.5` (of the three) passes all four invariants — the
+contract genuinely separates safe rewrites from unsafe ones, which is the
+point of Chapter 4. (Single local runs at `temperature = 0`.)
+
 ## Notes
 
 - This snapshot is regenerated manually as part of release prep, not
