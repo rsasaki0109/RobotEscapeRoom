@@ -188,9 +188,15 @@ tests under `tests/test_time_aware.py`, `tests/test_preference_aware.py`,
 
 **Gap to fill:**
 
-- An ablation runner that emits a one-row-per-config Markdown table.
-  Could be a thin wrapper on top of `plan_fleet_with_strategy` —
-  estimated ~200 LOC; build only if the camera-ready figure requires it.
+- ~~An ablation runner that emits a one-row-per-config Markdown table.~~
+  **DONE** — [`examples/eval_constraints_ablation.py`](../examples/eval_constraints_ablation.py)
+  runs nine configurations (baseline, three time-of-day/calendar variants,
+  edge- and node-level soft preference, floor-change penalty, a
+  `compose_costs` block, and the calendar-safety raise) on one office
+  graph + fixed query, emitting a one-row-per-config table that shows the
+  route migrating onto the scenic corridor, the penalty surfacing in the
+  plan cost, and the weekday-without-date query raising. Guarded by
+  [`tests/test_eval_constraints_ablation.py`](../tests/test_eval_constraints_ablation.py).
 
 ### 6. Evaluation chapter 3 — Language grounding
 
