@@ -68,6 +68,17 @@ out-of-pool picks silently fall back. Multi-turn `DialogSession` for
 ambiguous queries; optional CLIP / VLM cosine retrieval for
 embedding-grounded resolves.
 
+**See each axis run.** Three worked heroes in one style — *input → a
+scored decision → the result*, every bar and route from real API output:
+
+- 🗣️ [**Language grounding → route**](#language-grounding--route) — a
+  sentence → `resolve_goal` scores → the A* route up the elevator;
+- 📷 [**Visual localization → navigation**](#visual-localization--navigation)
+  ([top](#semantic-toponav)) — a camera frame → CLIP cosine → route
+  progress to the goal;
+- 🚦 [**Multi-agent coordination**](#multi-agent-coordination) — fleet
+  requests → the strategy decision → who gets the chain.
+
 ---
 
 ## Quick start
@@ -205,19 +216,22 @@ with the planner closes an LM-Nav-style loop: ground the start
 along the route as frames stream in (`VisualRouteFollower`).
 
 <p align="center">
-  <img src="docs/images/24_visual_navigation.gif" width="640" alt="robot camera view on the left, top-down topology on the right; the planned route fills in place-by-place as each CLIP-grounded frame advances the progress bar to the goal">
+  <img src="docs/images/23_visual_localization.gif" width="640" alt="robot camera view on the left, top-down topology on the right; CLIP grounds each current frame to the place it most likely depicts, with the cosine score">
 </p>
 
 <p align="center">
-  <sub>The full loop on the Gazebo Depot world with a <strong>real
-  <code>CLIPBackend</code></strong>: ground the start, A* to the goal,
-  then re-localize each drive frame to track monotonic progress
-  (1/5 → 5/5). On this five-place benchmark every drive frame grounds to
-  its place at <strong>precision@1 = 1.00</strong>
-  (<a href="docs/visual_grounding_report_sample.md">report</a>).
-  Node-to-node locomotion stays out of repo by design — a learned
-  image-goal policy (ViNT / NoMaD) or Nav2 owns <em>how to move</em>;
-  this owns <em>where on the plan the robot is</em>
+  <sub>The <strong>localization primitive</strong> on the Gazebo Depot
+  world with a <strong>real <code>CLIPBackend</code></strong>: each
+  camera frame is grounded to the place it most likely depicts by cosine
+  similarity — the image counterpart of <code>resolve_goal</code>. On
+  this five-place benchmark every drive frame grounds to its place at
+  <strong>precision@1 = 1.00</strong>
+  (<a href="docs/visual_grounding_report_sample.md">report</a>). The
+  <a href="#semantic-toponav">page hero</a> stacks this with the planner
+  for the full localize → plan → follow loop; node-to-node locomotion
+  stays out of repo by design — a learned image-goal policy (ViNT /
+  NoMaD) or Nav2 owns <em>how to move</em>, this owns <em>where on the
+  plan the robot is</em>
   (<a href="docs/related_work.md">related_work.md</a>). Reproduce:
   <code>python examples/visual_localization_demo.py</code> (per-frame) /
   <code>examples/visual_navigation_demo.py</code> (full loop).</sub>

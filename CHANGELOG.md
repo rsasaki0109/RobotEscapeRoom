@@ -21,6 +21,12 @@ visuals only — no public schema or behavior changes.
 - `docs/images/social_preview.png` (GitHub link-unfurl image) rebuilt
   from a still of that hero, so shared links carry the same
   perception → navigation story.
+- "What it does" now ends with a **See each axis run** block
+  cross-linking the three matched heroes (language / visual /
+  coordination), and the Visual-localization section shows the
+  per-frame localization GIF (`23_visual_localization.gif`) as the
+  localize *primitive* — the full localize → plan → follow loop it used
+  to duplicate is the page hero.
 
 ### Added
 
