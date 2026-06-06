@@ -104,7 +104,8 @@ Buckets to cover:
 | LLM navigation agents | SayCan, NavGPT, LM-Nav, Voyager | Architectural cousins; ours adds (a) deterministic floor + LLM-cannot-invent safety, (b) multi-agent admission. LM-Nav maps onto our layers almost 1:1 — see [`related_work.md`](related_work.md) |
 | Visual place recognition / topological localization | SPTM, RoboHop, AnyLoc, VPR-Bench, ViNT/NoMaD | `localize_by_image` is node-level VPR; `VisualRouteFollower` is the SPTM retrieval-network role. Perception (`Backend`) + locomotion (ViNT/Nav2) stay out of repo. Detail in [`related_work.md`](related_work.md) |
 | Multi-robot scheduling | EDF, MILP-based job-shop, lifelong MAPF | We do FCFS / priority / EDF / joint / BnB / exhaustive / insertion, all under one CLI — and an explanation surface they typically don't expose |
-| Robotic middleware | Nav2, Autoware, MoveIt | We sit *upstream* of these; the `SemanticWaypoint` schema (v1-locked) is the bridge |
+| Multi-robot fleet OSS | **Open-RMF** (traffic negotiation + task bidding), FreeFleet, RobotFleet | The dominant OSS fleet stack — heavy ROS2/DDS, deconflicts *trajectories* via negotiation. We sit *above/beside* it: graph-level **admission** with a machine-readable denial contract (`reason_code` / `ConflictExplanation`) + atomic node reservation, which RMF's silent-non-bidding model lacks. See [`related_work.md`](related_work.md) |
+| Robotic middleware / route planning | Nav2 (incl. **Route Server**, 2024–25), Autoware, MoveIt | We sit *upstream* via the v1-locked `SemanticWaypoint` bridge. **Honest:** Nav2's Route Server now does semantic graph routing with elevator/stairs nodes + `SemanticScorer` + runtime edge-closing, so multi-floor / semantic-cost is *not* our differentiator — the **declarative calendar / preference / reservation cost rules as data**, pure-Python and no-ROS, are. See [`related_work.md`](related_work.md) |
 
 ### 3. System overview
 

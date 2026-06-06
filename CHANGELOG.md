@@ -8,7 +8,24 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 Working area for changes that land after the v1.0.1 tag. Front-page
-visuals only — no public schema or behavior changes.
+visuals + positioning docs — no public schema or behavior changes.
+
+### Changed — related-work / positioning expanded to all three axes
+
+- `docs/related_work.md` grew from visual-only to a **per-axis** map
+  (Plan · Coordinate · Resolve) of how the library sits next to current
+  OSS and research, with an honest pass on the strong incumbents the old
+  doc didn't name: **Nav2 Route Server** (which since 2024–25 does
+  semantic graph routing with elevator/stairs nodes + `SemanticScorer`,
+  so multi-floor is no longer a differentiator), **Open-RMF** (fleet
+  trajectory negotiation + bidding), and the grounding-safety prior art
+  (**Grounded Decoding**, **Mobility-VLA**, constrained re-ranking,
+  abstention literature). The positioning summary now names the *remaining*
+  white space per axis (declarative calendar/preference/reservation
+  rules · machine-readable denial contract · measured abstention for
+  NL→node) rather than overclaiming.
+- `docs/paper_outline.md` §2 related-work table adds a Multi-robot-fleet-OSS
+  row (Open-RMF) and updates the middleware row for Nav2 Route Server.
 
 ### Changed — front-page leads with perception → navigation
 
