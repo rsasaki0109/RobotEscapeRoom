@@ -28,6 +28,13 @@ visuals only — no public schema or behavior changes.
   three-panel hero GIF, driven by the same real `CLIPBackend` and the
   `localize_by_image` / `plan_visual_route` / `VisualRouteFollower`
   API the visual section documents.
+- `examples/record_language_hero.py` + `docs/images/26_language_hero.gif`
+  — the language twin of the visual hero (new "Language grounding →
+  route" gallery item): the goal `"executive office on 3F"` parsed to a
+  floor + content tokens, `resolve_goal` scores drawn as a bar chart
+  with the winner in amber, and the A* route filling up the stacked
+  three-floor topology. Real deterministic resolver + planner output,
+  no model or API key.
 - `examples/build_social_preview.py` reworked to frame that hero still
   as a full-width strip (was a Foxglove frame).
 

@@ -107,6 +107,29 @@ For a deeper read, walk through the
 
 ## Gallery
 
+### Language grounding → route
+
+The **language twin** of the page hero: where that one grounds a
+*camera frame* to a place, this grounds a *sentence*. `resolve_goal`
+scores every node by a bag-of-words + floor-aware match, the top node
+becomes the goal, and `plan_astar` rides the elevator up to it.
+
+<p align="center">
+  <img src="docs/images/26_language_hero.gif" width="900" alt="three panels: the natural-language goal with its parsed floor and content tokens on the left, a bar chart of resolve_goal scores per node in the middle with the winner in amber, and the stacked three-floor topology on the right with the A* route filling in green from the entrance up the elevator to the grounded executive office">
+</p>
+
+<p align="center">
+  <sub>The query <code>"executive office on 3F"</code> parses to
+  <code>floor 3</code> + tokens <code>{executive, office}</code>;
+  <code>resolve_goal</code> scores <code>Executive Office</code> at 7
+  (floor + both labels) clear of the four floor-only 3F candidates at 3,
+  and <code>plan_astar(..., prefer_elevator)</code> climbs
+  <code>entrance → corridor → elevator 1F→2F→3F → executive office</code>.
+  Every bar and green leg is real output from the deterministic resolver
+  and planner — no model, no API key. Regenerate with
+  <code>python examples/record_language_hero.py</code>.</sub>
+</p>
+
 ### Cost composition
 
 The same graph re-planned under different cost stacks. The path
