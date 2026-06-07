@@ -232,14 +232,23 @@ bound and the exhaustive MIS baseline reorder the queue and fit four
 short-haul agents into disjoint segments (4/5 granted).
 
 <p align="center">
-  <img src="docs/images/17_coordination_cycle.gif" width="640" alt="cycling through four coordination strategies; greedy and priority grant 1/5, BnB and exhaustive grant 4/5">
+  <img src="docs/images/27_coordination_hero.gif" width="900" alt="three panels: the five fleet requests on one chain (the long-haul alpha listed first), a bar chart of agents granted per strategy (greedy and priority 1/5, bnb and exhaustive 4/5), and the per-strategy outcome showing greedy granting only the long-haul versus branch-and-bound tiling four short-haul agents into disjoint segments">
 </p>
 
 <p align="center">
-  <sub>greedy / priority → 1/5 (only the long-haul fits). bnb /
-  exhaustive → 4/5 (long-haul denied, four shorts fit). Reproduce via
-  <code>python examples/coordination_strategies_demo.py</code>. Static
-  2x2 reference: <code>docs/images/16_coordination_strategies.png</code>.</sub>
+  <sub>The <strong>Coordinate</strong> twin of the visual and language
+  heroes, in the same three-panel style: the <em>requests</em> (five
+  agents on one chain, the long-haul listed first), the <em>decision</em>
+  (agents granted per strategy), and the <em>outcome</em> for the strategy
+  in focus. greedy / priority → 1/5 (submission order locks the long-haul
+  in, denying everyone else); bnb / exhaustive → 4/5 (hold the long-haul
+  back, four shorts tile disjoint segments). Every number is real output
+  from <code>plan_fleet_with_strategy</code> on an identically-seeded
+  <code>SharedScheduler</code>. Regenerate via
+  <code>python examples/record_coordination_hero.py</code>; the cycling
+  per-strategy graph view (<code>17_coordination_cycle.gif</code>) and the
+  static 2×2 (<code>16_coordination_strategies.png</code>) come from
+  <code>examples/coordination_strategies_demo.py</code>.</sub>
 </p>
 
 ---
