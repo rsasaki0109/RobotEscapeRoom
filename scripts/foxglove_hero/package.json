@@ -1,0 +1,15 @@
+{
+  "name": "foxglove_hero",
+  "version": "1.0.0",
+  "description": "`docs/images/22_foxglove_replay.gif` (the README hero) is rendered **headless, with no manual screen recording**, from the committed [`docs/foxglove/semantic_toponav_demo.mcap`](../../docs/foxglove/semantic_toponav_demo.mcap).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "playwright": "^1.60.0"
+  }
+}

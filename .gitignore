@@ -25,6 +25,10 @@ examples/*_viewer.html
 # CLI editor backup files (semantic-toponav add-node / rm-edge / etc.)
 *.bak
 
+# Local Foxglove hero tooling (npm deps for headless render)
+scripts/foxglove_hero/node_modules/
+scripts/foxglove_hero/package-lock.json
+
 # Editors / OS
 .vscode/
 .idea/

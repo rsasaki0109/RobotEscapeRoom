@@ -1,8 +1,11 @@
 # Foxglove hero GIF — automated regeneration
 
-`docs/images/22_foxglove_replay.gif` (the README hero) is rendered **headless,
-with no manual screen recording**, from the committed
-[`docs/foxglove/semantic_toponav_demo.mcap`](../../docs/foxglove/semantic_toponav_demo.mcap).
+`docs/images/22_foxglove_replay.gif` (the multi-floor office gallery GIF) and
+`docs/images/robot_escape_room.gif` (the **README hero** — 3D escape-room replay)
+are rendered **headless,
+with no manual screen recording**, from committed MCAPs
+([`semantic_toponav_demo.mcap`](../../docs/foxglove/semantic_toponav_demo.mcap),
+[`robot_escape_room_demo.mcap`](../../docs/foxglove/robot_escape_room_demo.mcap)).
 
 The hosted app at `app.foxglove.dev` requires sign-in and would upload the MCAP
 to a third party, so instead we self-host the open-source Foxglove fork
@@ -17,10 +20,12 @@ frames with ffmpeg.
 npm install playwright && npx playwright install chrome   # Chrome channel
 # docker + ffmpeg must also be on PATH
 
-scripts/foxglove_hero/build_hero_gif.sh
+scripts/foxglove_hero/build_hero_gif.sh          # office demo
+scripts/foxglove_hero/build_escape_room_gif.sh  # README hero
 ```
 
-This overwrites `docs/images/22_foxglove_replay.gif` and `.mp4` in place.
+`build_hero_gif.sh` overwrites `docs/images/22_foxglove_replay.{gif,mp4}`.
+`build_escape_room_gif.sh` overwrites `docs/images/robot_escape_room.{gif,mp4}`.
 
 ## What it does
 
@@ -43,4 +48,5 @@ robot pose — comes from the MCAP. Change the graph/route there:
 ```bash
 pip install -e '.[foxglove]'
 python examples/export_foxglove_mcap.py
+PYTHONPATH=. python3 examples/export_escape_room_foxglove_mcap.py
 ```
