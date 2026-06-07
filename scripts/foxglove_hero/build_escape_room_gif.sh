@@ -21,8 +21,8 @@ CONTAINER="lichtblick-escape-hero"
 IMAGE="ghcr.io/lichtblick-suite/lichtblick:latest"
 GIF_OUT="$ROOT/docs/images/robot_escape_room.gif"
 MP4_OUT="$ROOT/docs/images/robot_escape_room.mp4"
-FPS="${FPS:-20}"
-GIF_WIDTH="${GIF_WIDTH:-960}"
+FPS="${FPS:-16}"
+GIF_WIDTH="${GIF_WIDTH:-1080}"
 
 cleanup() { docker rm -f "$CONTAINER" >/dev/null 2>&1 || true; }
 trap cleanup EXIT
@@ -43,6 +43,9 @@ docker cp "$MCAP" "$CONTAINER:/src/escape_room.mcap"
 echo "==> rendering 3D frames"
 node "$DIR/render_escape_room.cjs" "$FRAMES" "http://localhost:$PORT" "http://localhost:$PORT/escape_room.mcap"
 
+echo "==> adding caption overlay"
+python3 "$DIR/overlay_escape_room_frames.py" "$FRAMES"
+
 last="$(ls "$FRAMES"/f*.png | sort | tail -1)"
 n="$(ls "$FRAMES"/f*.png | wc -l)"
 for k in $(seq "$n" $((n + 8))); do
@@ -52,9 +55,9 @@ done
 echo "==> encoding GIF -> $GIF_OUT"
 palette="/tmp/erhero_palette.png"
 ffmpeg -y -framerate "$FPS" -i "$FRAMES/f%03d.png" \
-  -vf "scale=$GIF_WIDTH:-1:flags=lanczos,palettegen=max_colors=160:stats_mode=full" "$palette"
+  -vf "scale=$GIF_WIDTH:-1:flags=lanczos,palettegen=max_colors=220:stats_mode=full" "$palette"
 ffmpeg -y -framerate "$FPS" -i "$FRAMES/f%03d.png" -i "$palette" \
-  -lavfi "scale=$GIF_WIDTH:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=3" "$GIF_OUT"
+  -lavfi "scale=$GIF_WIDTH:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=2" "$GIF_OUT"
 
 echo "==> encoding MP4 -> $MP4_OUT"
 ffmpeg -y -framerate "$FPS" -i "$FRAMES/f%03d.png" \

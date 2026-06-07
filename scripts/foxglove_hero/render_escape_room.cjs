@@ -9,28 +9,28 @@ const FRAMES_DIR = process.argv[2] || "/tmp/erframes";
 const BASE_URL = process.argv[3] || "http://localhost:8080";
 const MCAP_URL = process.argv[4] || `${BASE_URL}/escape_room.mcap`;
 
-const SPEED = Number(process.env.SPEED || 0.42);
-const CAPTURE_MS = Number(process.env.CAPTURE_MS || 26000);
-const WIDTH = Number(process.env.WIDTH || 1600);
-const HEIGHT = Number(process.env.HEIGHT || 900);
+const SPEED = Number(process.env.SPEED || 0.38);
+const CAPTURE_MS = Number(process.env.CAPTURE_MS || 28000);
+const WIDTH = Number(process.env.WIDTH || 1920);
+const HEIGHT = Number(process.env.HEIGHT || 1080);
 
 function heroLayout() {
   const panel = {
     layers: {
       grid1: {
         visible: true, frameLocked: true, label: "Grid", instanceId: "grid1",
-        layerId: "foxglove.Grid", size: 28, divisions: 28, lineWidth: 0.5,
-        color: "#0f2342", position: [14, 0, -0.08], rotation: [0, 0, 0], order: 1,
+        layerId: "foxglove.Grid", size: 32, divisions: 32, lineWidth: 0.8,
+        color: "#1e4a7a", position: [14, 0, -0.08], rotation: [0, 0, 0], order: 1,
       },
     },
     cameraState: {
-      distance: 44, perspective: true, phi: 68,
-      target: [0, 0, 0], targetOffset: [14, 0, 2.8],
-      targetOrientation: [0, 0, 0, 1], thetaOffset: -12, fovy: 45, near: 0.5, far: 5000,
+      distance: 34, perspective: true, phi: 56,
+      target: [0, 0, 0], targetOffset: [14, 0, 4.5],
+      targetOrientation: [0, 0, 0, 1], thetaOffset: 18, fovy: 42, near: 0.5, far: 5000,
     },
     followMode: "follow-none",
     followTf: "map",
-    scene: { backgroundColor: "#060b1c", transforms: { showLabel: false, axisScale: 0, lineWidth: 0 } },
+    scene: { backgroundColor: "#0d1b33", transforms: { showLabel: false, axisScale: 0, lineWidth: 0 } },
     transforms: {},
     topics: { "/semantic_toponav/scene": { visible: true } },
     publish: {

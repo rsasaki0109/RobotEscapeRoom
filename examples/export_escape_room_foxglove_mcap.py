@@ -13,6 +13,7 @@ Regenerate the README hero with ``scripts/foxglove_hero/build_escape_room_gif.sh
 
 from __future__ import annotations
 
+import json
 import math
 import sys
 from dataclasses import dataclass, field
@@ -46,13 +47,14 @@ HERE = Path(__file__).parent
 ROOT = HERE.parent
 GRAPH_PATH = HERE / "robot_escape_room.yaml"
 OUTPUT_PATH = ROOT / "docs/foxglove/robot_escape_room_demo.mcap"
+TIMELINE_PATH = ROOT / "docs/foxglove/robot_escape_room_timeline.json"
 
 HZ = 12
-FRAMES_PER_HOP = 4
-HOLD_FRAMES = 3
-TWIST_HOLD = 5
-ESCAPE_HOLD = 6
-FLOOR_HEIGHT_M = 2.8
+FRAMES_PER_HOP = 5
+HOLD_FRAMES = 4
+TWIST_HOLD = 6
+ESCAPE_HOLD = 8
+FLOOR_HEIGHT_M = 4.2
 FLOOR_LABEL = {-1: "B1", 1: "1F", 2: "2F", 3: "3F"}
 
 NODE_COLORS = {
@@ -121,6 +123,21 @@ def _floor_rect(graph: Any, floor: int) -> list[tuple[float, float, float]]:
     ]
 
 
+def _caption(frame: TimelineFrame, graph: Any) -> tuple[str, str]:
+    evt = frame.events[-1] if frame.events else ""
+    if "ESCAPED" in evt:
+        return "ESCAPED", "Maintenance Exit (B1) — not the Floor-3 decoy sign"
+    if "twist" in evt.lower():
+        return "DECOY EXIT sealed", "Emergency Exit (3F) welded shut → route to sublevel"
+    if evt.startswith("item:"):
+        item = evt.split(":", 1)[1].strip().replace("_", " ")
+        return f"Collected {item}", "block_edges updated — door now open"
+    if evt.startswith("riddle:"):
+        return "Riddle solved", "resolve_goal grounded the clue → new objective unlocked"
+    goal = graph.get_node(frame.route[-1]).label if frame.route else "?"
+    return f"Route to {goal}", "A* replanned on live cost stack (no scripted path)"
+
+
 def _build_timeline(graph: Any) -> list[TimelineFrame]:
     world = World()
     events = ["T-0 online — Holding Cell"]
@@ -180,7 +197,7 @@ def _static_scene(graph: Any, frame: TimelineFrame, timestamp_ns: int) -> dict[s
         rect = _floor_rect(graph, floor)
         if rect:
             floor_lines.append(
-                fx._line(rect, (0.14, 0.20, 0.32, 0.55), line_type=fx.LINE_LOOP, thickness=0.04)
+                fx._line(rect, (0.22, 0.34, 0.52, 0.82), line_type=fx.LINE_LOOP, thickness=0.07)
             )
 
     edge_lines = []
@@ -201,24 +218,33 @@ def _static_scene(graph: Any, frame: TimelineFrame, timestamp_ns: int) -> dict[s
             color = (0.96, 0.62, 0.08, 0.75)
             width = 0.08
         else:
-            color = (0.45, 0.50, 0.58, 0.65)
-            width = 0.07
+            color = (0.62, 0.70, 0.82, 0.88)
+            width = 0.10
         edge_lines.append(fx._line(pts, color, line_type=fx.LINE_LIST, thickness=width))
 
+    route_set = set(frame.route)
     route_pts = [_node_xyz(graph, nid) for nid in frame.route]
     route_line = []
     if len(route_pts) >= 2:
-        route_line = [fx._line(route_pts, (0.96, 0.22, 0.45, 0.95), thickness=0.13)]
+        route_line = [fx._line(route_pts, (0.98, 0.28, 0.52, 1.0), thickness=0.20)]
 
-    spheres = [
-        fx._sphere(_node_xyz(graph, node.id), NODE_COLORS.get(node.type, (0.31, 0.62, 0.96, 1.0)))
-        for node in graph.nodes()
-    ]
+    spheres = []
+    for node in graph.nodes():
+        base = NODE_COLORS.get(node.type, (0.31, 0.62, 0.96, 1.0))
+        if node.id in route_set:
+            color = (base[0], base[1], base[2], 1.0)
+            dia = 0.52 if node.id in {frame.route[0], frame.route[-1]} else 0.42
+        else:
+            color = (base[0] * 0.45, base[1] * 0.45, base[2] * 0.45, 0.35)
+            dia = 0.26
+        spheres.append(fx._sphere(_node_xyz(graph, node.id), color, diameter=dia))
+
     labels = [
         fx._text(
-            (rect[0][0] + 0.5, rect[0][1] - 0.8, rect[0][2] + 0.1),
-            f"floor {FLOOR_LABEL.get(floor, floor)}",
-            size=0.36,
+            (sum(p[0] for p in rect) / len(rect), rect[0][1] - 1.0, rect[0][2] + 0.35),
+            f"FLOOR {FLOOR_LABEL.get(floor, floor)}",
+            (0.95, 0.98, 1.0, 1.0),
+            size=0.62,
         )
         for floor in floors
         if (rect := _floor_rect(graph, floor))
@@ -226,10 +252,10 @@ def _static_scene(graph: Any, frame: TimelineFrame, timestamp_ns: int) -> dict[s
     for nid in ("holding_cell", "emergency_exit", "maintenance_exit", "control_room"):
         if graph.has_node(nid):
             x, y, z = _node_xyz(graph, nid)
-            labels.append(fx._text((x, y + 0.55, z + 0.2), graph.get_node(nid).label, size=0.22))
+            labels.append(fx._text((x, y + 0.75, z + 0.35), graph.get_node(nid).label, size=0.38))
 
-    status = frame.events[-1] if frame.events else ""
-    labels.append(fx._text((2.0, -7.5, 0.5), f"turn {frame.turn} · {status}", (0.52, 0.92, 0.99, 1.0), size=0.28))
+    cap, _ = _caption(frame, graph)
+    labels.append(fx._text((14.0, -10.5, 2.0), cap, (1.0, 1.0, 1.0, 1.0), size=0.48))
 
     return {
         "deletions": [],
@@ -287,10 +313,11 @@ def _dynamic_scene(graph: Any, frame: TimelineFrame, timestamp_ns: int) -> tuple
                 "base_link_robot",
                 timestamp_ns,
                 spheres=[
-                    fx._sphere(robot_xyz, (0.13, 0.83, 0.93, 0.30), diameter=0.9),
-                    fx._sphere(robot_xyz, (0.13, 0.83, 0.93, 1.0), diameter=0.42),
+                    fx._sphere(robot_xyz, (0.13, 0.83, 0.93, 0.45), diameter=1.35),
+                    fx._sphere(robot_xyz, (0.13, 0.83, 0.93, 1.0), diameter=0.62),
+                    fx._sphere(robot_xyz, (1.0, 1.0, 1.0, 1.0), diameter=0.18),
                 ],
-                lines=[fx._line(traveled, (0.40, 0.95, 1.0, 1.0), thickness=0.2)],
+                lines=[fx._line(traveled, (0.45, 0.98, 1.0, 1.0), thickness=0.28)],
             )
         ],
     }
@@ -349,6 +376,23 @@ def _write_mcap(graph: Any, timeline: list[TimelineFrame]) -> None:
         writer.finish()
 
 
+def _write_timeline_json(graph: Any, timeline: list[TimelineFrame]) -> None:
+    frames = []
+    for frame in timeline:
+        cap, detail = _caption(frame, graph)
+        frames.append({
+            "turn": frame.turn,
+            "caption": cap,
+            "detail": detail,
+            "route_goal": frame.route[-1] if frame.route else "",
+        })
+    TIMELINE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    TIMELINE_PATH.write_text(
+        json.dumps({"frames": frames, "hz": HZ}, ensure_ascii=True, indent=2),
+        encoding="utf-8",
+    )
+
+
 def main() -> None:
     sys.path.insert(0, str(ROOT))
     graph = load_graph(GRAPH_PATH)
@@ -356,10 +400,12 @@ def main() -> None:
     if not timeline:
         raise SystemExit("escape room timeline is empty")
     _write_mcap(graph, timeline)
+    _write_timeline_json(graph, timeline)
     duration = len(timeline) / HZ
     size_kb = OUTPUT_PATH.stat().st_size / 1024
     print(f"frames: {len(timeline)} @ {HZ} Hz ({duration:.1f}s)")
     print(f"wrote {OUTPUT_PATH.relative_to(ROOT)} ({size_kb:.0f} KB)")
+    print(f"wrote {TIMELINE_PATH.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":
