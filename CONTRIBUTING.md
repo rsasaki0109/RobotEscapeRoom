@@ -23,7 +23,7 @@ issue *before* writing code — it's much cheaper to align early.
 ## Development setup
 
 ```bash
-git clone https://github.com/rsasaki0109/semantic-toponav.git
+git clone https://github.com/rsasaki0109/robot-escape-room.git
 cd semantic-toponav
 
 # Editable install with all dev/optional extras.

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/rsasaki0109/semantic-toponav/schemas/conflict_explanation/v1.json",
+  "$id": "https://github.com/rsasaki0109/robot-escape-room/schemas/conflict_explanation/v1.json",
   "title": "ConflictExplanation",
   "description": "Per-agent 'why was this request blocked' record emitted by the branch-and-bound search. CBS-lite contribution: surface-level diagnostics, not algorithmic conflict-tree state. Stable as of v1.",
   "type": "object",

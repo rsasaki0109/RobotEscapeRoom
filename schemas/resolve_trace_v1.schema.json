@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/rsasaki0109/semantic-toponav/schemas/resolve_trace/v1.json",
+  "$id": "https://github.com/rsasaki0109/robot-escape-room/schemas/resolve_trace/v1.json",
   "title": "ResolveTrace",
   "description": "Wire format for LLMResolveResult.to_dict — language-grounding evaluation and UI display consume this shape. Stable as of v1.",
   "type": "object",

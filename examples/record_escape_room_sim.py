@@ -296,7 +296,7 @@ def _draw_background(draw: ImageDraw.ImageDraw) -> None:
 def _draw_top_bar(draw, kf: Keyframe, t_sec: float) -> None:
     box = (12.0, 8.0, 948.0, 40.0)
     _round_rect(draw, box, 10, (10, 21, 40), (51, 65, 85), 1)
-    _text(draw, (34, 24), "Robot Escape Room · semantic-toponav", FONT_TITLE, TEXT)
+    _text(draw, (34, 24), "robot-escape-room", FONT_TITLE, TEXT)
     _text(draw, (430, 28), "live simulation / map · tf · semantic route", FONT_SM, MUTED)
     _round_rect(draw, (748, 14, 820, 34), 10, (6, 78, 59), (45, 212, 191), 1)
     _text(draw, (784, 18), "SIM", FONT_BOLD, (167, 243, 208), "ma")

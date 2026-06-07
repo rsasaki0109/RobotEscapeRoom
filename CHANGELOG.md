@@ -534,8 +534,8 @@ release consolidates). Future migration notes (for v2 schema
 bumps, removed CLI flags, etc.) will appear in this section per
 the freeze policy in [`docs/schema_v1.md`](docs/schema_v1.md).
 
-[Unreleased]: https://github.com/rsasaki0109/semantic-toponav/compare/v1.0.2...HEAD
-[1.0.2]: https://github.com/rsasaki0109/semantic-toponav/compare/v1.0.1...v1.0.2
-[1.0.1]: https://github.com/rsasaki0109/semantic-toponav/compare/v1.0.0...v1.0.1
-[1.0.0]: https://github.com/rsasaki0109/semantic-toponav/compare/v0.1.0...v1.0.0
-[0.1.0]: https://github.com/rsasaki0109/semantic-toponav/releases/tag/v0.1.0
+[Unreleased]: https://github.com/rsasaki0109/robot-escape-room/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/rsasaki0109/robot-escape-room/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/rsasaki0109/robot-escape-room/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/rsasaki0109/robot-escape-room/compare/v0.1.0...v1.0.0
+[0.1.0]: https://github.com/rsasaki0109/robot-escape-room/releases/tag/v0.1.0
