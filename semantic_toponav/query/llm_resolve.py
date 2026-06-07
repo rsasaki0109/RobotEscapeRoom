@@ -56,6 +56,32 @@ _DEFAULT_SYSTEM = (
     "`Clarify: <one short question for the user>` instead."
 )
 
+# Abstention-aware variant. The default prompt only licenses a `Clarify:`
+# reply when the candidates are mutually *ambiguous*; it still pressures the
+# model to pick *something*. That is exactly wrong for the token-leak failure
+# mode the abstention benchmark targets: the deterministic floor matches a
+# stray token (`room`, `kitchen`) and forwards an off-topic candidate, so the
+# model is handed a pool where the *right* answer is "none of these". This
+# prompt adds that escape hatch — abstain (via `Clarify:`) when no candidate
+# genuinely denotes the requested place, or when the query presupposes a
+# floor / attribute none of the candidates satisfy. The structural no-invent
+# guarantee is unchanged; this only changes *when the model is allowed to
+# decline*. See :mod:`semantic_toponav.eval.abstention`.
+ABSTAIN_AWARE_SYSTEM = (
+    "You resolve free-text navigation goals to a specific node id from a "
+    "pre-filtered candidate list. The list was produced by a keyword matcher "
+    "that can over-fire on a generic word (a candidate may appear only "
+    "because it shares the token `room` or `office`, not because it is the "
+    "place asked for). You MUST NOT invent a node id. Reply with exactly two "
+    "lines — `Top match: <node_id>` then `Reason: <one sentence>` — ONLY when "
+    "some candidate genuinely denotes the requested place. If NONE of the "
+    "candidates actually matches — the query names a place type, floor, or "
+    "attribute that no candidate satisfies (e.g. a `server room` when only a "
+    "meeting room is offered, or a `basement` floor that does not exist) — do "
+    "NOT force a pick: reply with a single line `Clarify: <one short "
+    "question>` instead. Abstaining is the correct answer when nothing fits."
+)
+
 
 @dataclass
 class LLMResolveResult:
@@ -502,4 +528,4 @@ def llm_resolve_goal(
     )
 
 
-__all__ = ["LLMResolveResult", "llm_resolve_goal"]
+__all__ = ["ABSTAIN_AWARE_SYSTEM", "LLMResolveResult", "llm_resolve_goal"]

@@ -1,0 +1,48 @@
+# Reference LLM transcript for the abstention benchmark (multi_floor_office).
+#
+# These are the replies a correctly-prompted model is *expected* to give
+# under semantic_toponav.query.llm_resolve.ABSTAIN_AWARE_SYSTEM, recorded
+# here so the LLM-augmented path runs reproducibly in CI without a live
+# model or an API key (replayed by eval.abstention.TranscriptBackend). To
+# reproduce against a real model instead, run
+#   python examples/eval_abstention_benchmark.py --llm-backend ollama
+# (or anthropic), which calls the actual backend rather than this file.
+#
+# Only the 9 queries whose deterministic candidate pool is NON-EMPTY appear
+# here — llm_resolve_goal short-circuits to abstention on an empty pool
+# without calling the backend, so the other 15 cases need no transcript.
+#
+# The 6 answerable queries get a `Top match:` pick; the 3 token-leak queries
+# (`basement kitchen` → kitchen leak; `server room` / `break room` → the
+# generic `room` token leaking to the meeting room) get a `Clarify:` line —
+# i.e. the model declines, which the benchmark scores as a (correct)
+# abstention. That flips false_premise fp 0.17 → 0.00 and out_of_map fp
+# 0.33 → 0.00 versus the deterministic floor.
+responses:
+  # --- answerable: a real candidate genuinely matches → pick it ----------
+  "the kitchen": |
+    Top match: kitchen_1f
+    Reason: The kitchen is the only kitchen node and it matches directly.
+  "executive office on 3F": |
+    Top match: exec_office_3f
+    Reason: The executive office on floor 3 matches both the role and floor.
+  "robotics lab": |
+    Top match: lab_1f
+    Reason: The lab node is the robotics lab.
+  "the entrance": |
+    Top match: entrance
+    Reason: The entrance node matches directly.
+  "second floor meeting room": |
+    Top match: meeting_room_2f
+    Reason: The meeting room on floor 2 matches the floor and the room.
+  "north stairs on the first floor": |
+    Top match: stairs_1f
+    Reason: The north stairs on floor 1 match the direction and floor.
+
+  # --- token-leak traps: no candidate denotes the place → abstain --------
+  "the basement kitchen": |
+    Clarify: There is no basement in this building; did you mean the kitchen on floor 1?
+  "the server room": |
+    Clarify: I don't see a server room here — the candidates are a meeting room, balcony, office, kitchen and lab. Which did you mean?
+  "the break room": |
+    Clarify: There is no break room in this map; none of the candidate rooms is a break room. Where would you like to go?
