@@ -63,6 +63,13 @@ from semantic_toponav.eval.metrics import (
     compute_metrics,
     jain_fairness,
 )
+from semantic_toponav.eval.no_invent import (
+    NoInventReport,
+    NoInventVerdict,
+    no_invent_audit_markdown,
+    run_no_invent_audit,
+    run_no_invent_conformance,
+)
 from semantic_toponav.eval.report import (
     jsonl_to_trials,
     summarize_sweep,
@@ -92,6 +99,8 @@ __all__ = [
     "GroundingMetrics",
     "LatencyStats",
     "NeighborRerankAblation",
+    "NoInventReport",
+    "NoInventVerdict",
     "ResolverEvaluation",
     "Scenario",
     "TrialMetrics",
@@ -118,6 +127,9 @@ __all__ = [
     "multi_floor_office",
     "neighbor_rerank_ablation",
     "neighbor_rerank_ablation_markdown",
+    "no_invent_audit_markdown",
+    "run_no_invent_audit",
+    "run_no_invent_conformance",
     "run_scenario",
     "run_sweep",
     "star_graph",

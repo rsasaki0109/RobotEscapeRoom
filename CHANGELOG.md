@@ -8,7 +8,23 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 Working area for changes that land after the v1.0.1 tag. Front-page
-visuals + positioning docs — no public schema or behavior changes.
+visuals, positioning docs, and a new no-invent audit — no public schema
+or behavior changes (the audit only *reads* the existing resolver).
+
+### Added — adversarial no-invent audit for the resolver
+
+- `semantic_toponav/eval/no_invent.py` turns the resolver's documented
+  "the LLM cannot invent a node id" property into a **runnable adversarial
+  regression**: `run_no_invent_audit` / `run_no_invent_conformance` replay
+  a catalog of hostile LLM replies (hallucinated ids, real-but-out-of-pool
+  ids, prompt-injection, payloads, substring / case near-misses, multi-pick
+  confusers) plus an out-of-pool `ClarificationAnswer.chosen_id`, and check
+  that **no out-of-pool id ever reaches the output** (leak rate 0.00).
+  Backend-free (scripted `EchoBackend`), so it runs in CI. Exposed from
+  `semantic_toponav.eval`; example `examples/eval_no_invent_audit.py`;
+  guarded by `tests/test_no_invent.py`. This is the language-grounding
+  twin of the describer-safety invariants — and the regression Grounded
+  Decoding / Mobility-VLA describe but never ship (see `related_work.md`).
 
 ### Changed — related-work / positioning expanded to all three axes
 
