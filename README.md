@@ -1,26 +1,29 @@
-# semantic-toponav
+# Robot Escape Room · semantic-toponav
 
 [![test](https://github.com/rsasaki0109/semantic-toponav/actions/workflows/test.yml/badge.svg)](https://github.com/rsasaki0109/semantic-toponav/actions/workflows/test.yml)
 [![python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 <p align="center">
-  <img src="docs/images/robot_escape_room.gif" width="900" alt="three panels: turn narrative on the left, a stacked B1–3F topology in the middle with the live A* route filling in green as robot T-0 collects keycards and solves riddle terminals, and the active block_edges / block_edge_types / avoid_restricted / prefer_elevator primitives plus inventory on the right — ending with the route plunging past a sealed Floor-3 emergency exit down to the sublevel">
+  <img src="docs/images/robot_escape_room.gif" width="900" alt="Foxglove-style live simulation dashboard: stacked B1–3F map with T-0 gliding along green A* legs, mission HUD, event log, and route timeline as the robot collects keycards, solves riddles, and escapes through the sublevel past a sealed Floor-3 decoy exit">
 </p>
 
 <p align="center">
-  <sub><strong>Every cost function, one self-solving escape game.</strong>
-  Robot <strong>T-0</strong> wakes in lockdown and has to reason its way out —
-  no scripted route. Each turn recomposes
+  <sub><strong>Every cost function, one self-solving escape game — live sim.</strong>
+  Foxglove/RViz-style dashboard: stacked-floor <code>map/tf</code> view,
+  smooth robot motion along real A* legs, mission HUD, and event log.
+  Robot <strong>T-0</strong> recomposes
   <code>block_edges</code> · <code>block_edge_types</code> ·
   <code>avoid_restricted</code> · <code>prefer_elevator</code> ·
-  <code>resolve_goal</code>, asks A* what is reachable now, and walks to
-  the nearest lead. The lit <code>EMERGENCY EXIT</code> on Floor 3 is a
-  decoy; the real way out is the sublevel. Every keycard, riddle, and green
-  leg is real planner output. Play it with
-  <code>python examples/robot_escape_room.py</code>; regenerate the GIF with
-  <code>python examples/record_escape_room.py</code>
-  (<a href="#escape-room--every-cost-function-in-one-self-solving-game">gallery write-up</a>).</sub>
+  <code>resolve_goal</code> each turn — no scripted route. The lit
+  <code>EMERGENCY EXIT</code> on Floor 3 is a decoy; the real way out is
+  the sublevel. Play it with
+  <code>python examples/robot_escape_room.py</code>; regenerate this sim GIF
+  with <code>python examples/record_escape_room_sim.py</code>
+  (three-panel analytics variant:
+  <code>python examples/record_escape_room.py</code> →
+  <code>docs/images/robot_escape_room_panels.gif</code>).
+  <a href="#escape-room--every-cost-function-in-one-self-solving-game">Gallery write-up</a>.</sub>
 </p>
 
 **Grounded middle planning layer for robot navigation.** Bridges
@@ -176,7 +179,10 @@ target — no per-floor sub-graphs needed.
 
 ### Escape room — every cost function in one self-solving game
 
-The [**page hero**](#semantic-toponav) is this demo. The gallery above shows
+The [**page hero**](#semantic-toponav) is the live-simulation GIF above
+(<code>record_escape_room_sim.py</code>). A three-panel analytics variant
+lives at <code>docs/images/robot_escape_room_panels.gif</code>. The gallery
+above shows
 each feature in isolation; the escape room ties them together. A robot,
 **T-0**, wakes in a locked-down facility and has to reason its way out.
 Each puzzle is a thin narrative skin over a real planner primitive:
