@@ -16,6 +16,10 @@ from semantic_toponav.conversion.map_io import (
     OccupancyMap,
     load_occupancy_map,
 )
+from semantic_toponav.conversion.nav2_route import (
+    topology_to_nav2_geojson,
+    write_nav2_geojson,
+)
 from semantic_toponav.conversion.occupancy import (
     DoorDetectionResult,
     RegionAnnotationResult,
@@ -54,4 +58,6 @@ __all__ = [
     "prune_low_traversal_edges",
     "topology_from_occupancy",
     "topology_from_trajectories",
+    "topology_to_nav2_geojson",
+    "write_nav2_geojson",
 ]

@@ -222,3 +222,22 @@ def test_viewer_rejects_start_without_goal(capsys) -> None:
     err = capsys.readouterr().err
     assert rc != 0
     assert "must be provided together" in err
+
+
+def test_export_nav2_stdout(capsys) -> None:
+    rc = main(["export-nav2", EXAMPLE_YAML])
+    out = capsys.readouterr().out
+    assert rc == 0
+    fc = json.loads(out)
+    assert fc["type"] == "FeatureCollection"
+    assert any(f["geometry"]["type"] == "Point" for f in fc["features"])
+
+
+def test_export_nav2_to_file(capsys, tmp_path) -> None:
+    dest = tmp_path / "graph.geojson"
+    rc = main(["export-nav2", EXAMPLE_YAML, "-o", str(dest)])
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert "Nav2 Route Server GeoJSON" in out
+    fc = json.loads(dest.read_text())
+    assert fc["type"] == "FeatureCollection"
