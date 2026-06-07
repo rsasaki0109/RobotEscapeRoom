@@ -105,6 +105,13 @@ semantic-toponav eval-grounding \
     tests/fixtures/grounding/multi_floor_office.yaml \
     --llm-backend echo --describer-safety
 
+# With a local Ollama model (no API key, no cloud) — the real-model
+# path. Run `ollama serve` and `ollama pull qwen3.5` first.
+semantic-toponav eval-grounding \
+    tests/fixtures/grounding/multi_floor_office.yaml \
+    --llm-backend ollama --llm-model qwen3.5:latest --describer-safety \
+    --out grounding_report.md
+
 # With AnthropicBackend (requires the [llm] extra + ANTHROPIC_API_KEY).
 semantic-toponav eval-grounding \
     tests/fixtures/grounding/multi_floor_office.yaml \
@@ -177,15 +184,19 @@ precision ceiling. The resolver still leaks three out of sixteen
 *unresolvable* queries as false positives (`server room`,
 `secret room`, `break room` — all pulled in by the `'room'` token
 matching `meeting_room_2f`'s label). That's the
-`abstention` axis the LLM-augmented resolver is supposed to
-harden. The ambiguous-case `clarify` rate is `0.00` for the
-deterministic floor by construction; switching to `--llm-backend
-echo` lifts it to 0.89 (8/9) because `llm_resolve_goal` then
-checks the top-1/top-2 gap against `--ambiguity-threshold` and
-raises `ClarificationQuestion` when the gap is below it. The one
-non-clarified ambiguous case is `"a room"`, where
-`meeting_room_2f`'s label-match opens a top-1/top-2 gap wider
-than the default threshold.
+`abstention` axis the LLM-augmented resolver hardens: a **real local
+model** (`--llm-backend ollama`, `qwen3.5`, no API key) cuts
+`fp_resolve` from 0.19 to **0.06** (it rejects 15 of 16 unresolvable
+queries) and lifts `abstain` to 0.94 while keeping `precision@1` at
+1.00 — the contribution measured, not asserted (committed numbers in
+[`grounding_report_sample.md`](grounding_report_sample.md)).
+The ambiguous-case `clarify` rate is `0.00` for the deterministic
+floor by construction; switching to `--llm-backend echo` lifts it to
+0.94 (17/18) because `llm_resolve_goal` then checks the top-1/top-2
+gap against `--ambiguity-threshold` and raises `ClarificationQuestion`
+when the gap is below it. The one non-clarified ambiguous case is
+`"a room"`, where `meeting_room_2f`'s label-match opens a top-1/top-2
+gap wider than the default threshold.
 
 ## Visual grounding (image → node)
 

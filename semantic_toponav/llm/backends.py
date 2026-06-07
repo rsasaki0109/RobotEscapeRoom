@@ -12,8 +12,12 @@ backends ship in this module:
 * :class:`AnthropicBackend` — lazy wrapper around the official
   ``anthropic`` SDK. The client is constructed on first call so just
   importing this module does not require the ``[llm]`` extra.
+* :class:`OllamaBackend` — talks to a locally running `Ollama
+  <https://ollama.com>`_ server over its HTTP API using only the
+  standard library (``urllib``). No API key, no cloud, no extra
+  dependency — the real-model path you can run on your own machine.
 
-Both record the prompts they receive so callers (and tests) can
+All three record the prompts they receive so callers (and tests) can
 introspect what was actually sent. The deterministic ``describe_path``
 and ``resolve_goal`` floors are unchanged; this subpackage only adds a
 *rewrite / refine* layer on top.
@@ -21,6 +25,10 @@ and ``resolve_goal`` floors are unchanged; this subpackage only adds a
 
 from __future__ import annotations
 
+import json
+import re
+import urllib.error
+import urllib.request
 from typing import Any, Protocol, runtime_checkable
 
 
@@ -147,3 +155,91 @@ class AnthropicBackend:
             self._client = anthropic.Anthropic(api_key=self._api_key)
         else:
             self._client = anthropic.Anthropic()
+
+
+# Qwen / DeepSeek-style reasoning models wrap their chain-of-thought in
+# <think>...</think>. The resolver / describer parsers want the final
+# answer only, so we strip those blocks before returning.
+_THINK_BLOCK = re.compile(r"<think>.*?</think>", re.DOTALL | re.IGNORECASE)
+
+
+class OllamaBackend:
+    """Local LLM backend over the `Ollama <https://ollama.com>`_ HTTP API.
+
+    Talks to a server you run yourself (``ollama serve``, default
+    ``http://localhost:11434``) using only the standard library — no API
+    key, no cloud round-trip, no extra dependency. This is the real-model
+    path for grounding / describer evals when a paid cloud key is not
+    wanted: pull a model (e.g. ``ollama pull qwen3.5``) and point the eval
+    at it with ``--llm-backend ollama --llm-model qwen3.5:latest``.
+
+    ``temperature`` defaults to ``0.0`` for the most reproducible output a
+    local model offers (sampling is not bit-exact across builds, so treat
+    the numbers as a single run, not a fixed fixture). ``think`` is sent as
+    ``False`` to ask reasoning models to skip the chain-of-thought; any
+    ``<think>...</think>`` block that still appears is stripped so the
+    resolver / describer line parsers see only the final answer.
+    """
+
+    DEFAULT_MODEL = "qwen3.5:latest"
+    DEFAULT_HOST = "http://localhost:11434"
+
+    def __init__(
+        self,
+        model: str = DEFAULT_MODEL,
+        *,
+        host: str = DEFAULT_HOST,
+        max_tokens: int = 1024,
+        temperature: float = 0.0,
+        think: bool = False,
+        timeout: float = 120.0,
+    ) -> None:
+        self._model = model
+        self._host = host.rstrip("/")
+        self._max_tokens = max_tokens
+        self._temperature = temperature
+        self._think = think
+        self._timeout = timeout
+        self.calls: list[dict[str, Any]] = []
+
+    @property
+    def model(self) -> str:
+        return self._model
+
+    def generate(self, prompt: str, *, system: str | None = None) -> str:
+        self.calls.append({"prompt": prompt, "system": system})
+        messages: list[dict[str, str]] = []
+        if system is not None:
+            messages.append({"role": "system", "content": system})
+        messages.append({"role": "user", "content": prompt})
+        body = {
+            "model": self._model,
+            "messages": messages,
+            "stream": False,
+            "think": self._think,
+            "options": {
+                "temperature": self._temperature,
+                "num_predict": self._max_tokens,
+            },
+        }
+        data = self._post("/api/chat", body)
+        content = data.get("message", {}).get("content", "")
+        return _THINK_BLOCK.sub("", content).strip()
+
+    def _post(self, path: str, body: dict[str, Any]) -> dict[str, Any]:
+        url = f"{self._host}{path}"
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(body).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=self._timeout) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except urllib.error.URLError as exc:
+            raise RuntimeError(
+                f"OllamaBackend could not reach {url}: {exc}. Is the Ollama "
+                f"server running (`ollama serve`) and the model pulled "
+                f"(`ollama pull {self._model}`)?"
+            ) from exc
