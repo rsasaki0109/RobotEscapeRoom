@@ -17,6 +17,9 @@ from semantic_toponav.conversion.map_io import (
     load_occupancy_map,
 )
 from semantic_toponav.conversion.nav2_route import (
+    Nav2GeoJsonError,
+    nav2_geojson_to_topology,
+    read_nav2_geojson,
     topology_to_nav2_geojson,
     write_nav2_geojson,
 )
@@ -43,6 +46,7 @@ __all__ = [
     "IterativeFusionResult",
     "IterativeFusionStep",
     "MapLoadError",
+    "Nav2GeoJsonError",
     "OccupancyMap",
     "RegionAnnotationResult",
     "RegionInfo",
@@ -54,7 +58,9 @@ __all__ = [
     "load_trajectories_from_csv",
     "load_trajectories_from_rosbag",
     "mark_doors_by_clearance",
+    "nav2_geojson_to_topology",
     "promote_unmapped_transitions",
+    "read_nav2_geojson",
     "prune_low_traversal_edges",
     "topology_from_occupancy",
     "topology_from_trajectories",

@@ -97,7 +97,12 @@ the topology into the exact GeoJSON the Route Server's
 `GeoJsonGraphFileLoader` parses (semantic `class` / floor under `metadata`,
 bidirectional edges split into two directed features), so the semantic
 graph this repo authors / grounds / repairs drops straight into Nav2 to
-execute over.
+execute over. The handoff is verified to lose nothing that matters: the
+exporter's inverse (`read_nav2_geojson`) parses the FeatureCollection the
+way Nav2's loader does, and `examples/nav2_roundtrip_demo.py` replans over
+the directed read-back to get the *identical* route — Nav2 plans what this
+tier planned — with export → read → export byte-identical on the lossless
+path (`tests/test_nav2_route_roundtrip.py`).
 
 ## Coordinate axis — multi-robot fleet OSS
 
