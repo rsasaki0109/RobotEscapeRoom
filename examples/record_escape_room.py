@@ -67,6 +67,7 @@ NODE_COLORS = {
     "room": "#3b82f6",
     "corridor": "#94a3b8",
     "intersection": "#a78bfa",
+    "stairs": "#fb923c",
     "exit": "#22c55e",
     "sealed_exit": "#64748b",
 }
@@ -94,6 +95,7 @@ def _active_rules(graph, world) -> list[tuple[str, str, str]]:
     """(name, detail, color) for the primitives panel."""
     rules: list[tuple[str, str, str]] = [
         ("avoid_restricted", "laser grid shortcut", "#d946ef"),
+        ("prefer_elevator", "accessibility — ride the lift", "#38bdf8"),
     ]
     locked = [
         edge.id
@@ -110,8 +112,12 @@ def _active_rules(graph, world) -> list[tuple[str, str, str]]:
 def _edge_style(graph, edge, world, path_edges):
     if edge.id in path_edges:
         return "#16a34a", 4.2, "solid", 4
+    if edge.type in {"stairs_up", "stairs_down"}:
+        return "#fb923c", 2.0, (0, (3, 2)), 1
     if edge.type == "restricted":
         return "#d946ef", 2.0, (0, (1, 3)), 1
+    if edge.type == "elevator_connection":
+        return "#38bdf8", 2.4, "solid", 2
     lock = edge.properties.get("lock")
     if lock and lock not in world.items:
         return "#ef4444", 2.2, (0, (4, 3)), 1
@@ -254,6 +260,8 @@ def _draw_map(ax, graph, world, path, filled: int, goal_id: str | None) -> None:
         Line2D([0], [0], color="#ef4444", lw=2, ls="--", label="locked"),
         Line2D([0], [0], color="#f59e0b", lw=2, ls="--", label="unpowered"),
         Line2D([0], [0], color="#d946ef", lw=2, ls=":", label="laser grid"),
+        Line2D([0], [0], color="#fb923c", lw=2, ls="--", label="stairs"),
+        Line2D([0], [0], color="#38bdf8", lw=2, label="elevator"),
     ]
     ax.legend(handles=legend, loc="lower left", fontsize=7, framealpha=0.2,
               facecolor="#111827", edgecolor="#334155", labelcolor="#e2e8f0")

@@ -179,8 +179,9 @@ The gallery above shows each feature in isolation; this ties them together.
 A robot, **T-0**, wakes in a locked-down facility and has to reason its way
 out. Each puzzle is a thin narrative skin over a real planner primitive:
 keycard doors are `block_edges`, the dead corridor is `block_edge_types`
-(power gate), the laser-grid shortcut is `avoid_restricted`, and every riddle
-terminal grounds its clue with `resolve_goal`. There is **no scripted route** —
+(power gate), the laser-grid shortcut is `avoid_restricted`, the parallel
+stairwell is `prefer_elevator` (cheaper stairs exist, but T-0 rides the
+lift), and every riddle terminal grounds its clue with `resolve_goal`. There is **no scripted route** —
 each turn the runner recomposes the *current* cost stack, asks A\* what is
 reachable now, walks to the nearest objective, and re-plans. The escape is an
 emergent consequence of the world changing under the planner.
@@ -194,7 +195,8 @@ emergent consequence of the world changing under the planner.
   multi-floor map · active primitives. Keycard doors are
   <code>block_edges</code>, the dark corridor is
   <code>block_edge_types</code>, the laser shortcut is
-  <code>avoid_restricted</code>, riddles ground with
+  <code>avoid_restricted</code>, the cheaper stairs are skipped via
+  <code>prefer_elevator</code>, riddles ground with
   <code>resolve_goal</code> — and the twist is structural: a lit
   <code>EMERGENCY EXIT</code> sign lures T-0 up to Floor 3, but that door is
   welded shut (<code>master_seal</code> — a lock with no key). A control-room
