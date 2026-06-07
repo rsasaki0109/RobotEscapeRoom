@@ -50,7 +50,9 @@ stacks `avoid_stairs` / `prefer_elevator` / `block_edges` /
 `time_aware` / `preference_aware` / `reservation_aware` /
 `floor_change_penalty` and a dozen others into a single A* call. No
 re-implementations per scenario — declare what you want, the planner
-honors it.
+honors it. Hand the graph to the ROS 2 **Nav2 Route Server** with
+`semantic-toponav export-nav2` (`topology_to_nav2_geojson`) — this is the
+planning tier that *feeds* Nav2, not a rival to it.
 
 ### Coordinate
 Multi-agent fleets with atomic reservations and **seven strategies**:
