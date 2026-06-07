@@ -203,6 +203,13 @@ splits the should-abstain space into `unresolvable` / `false_premise` /
 `out_of_map` and reports per-category `abstain_rate` /
 `false_positive_resolve_rate`, surfacing exactly where the deterministic
 floor leaks (a stray `room` / `kitchen` token pulling a real label up).
+That surfaced leak is then **closed by the LLM-augmented path**: an
+abstention-aware system prompt (`ABSTAIN_AWARE_SYSTEM`) lets the re-ranker
+*decline* when no candidate genuinely denotes the place, dropping
+`false_premise` fp 0.17 → 0.00 and `out_of_map` fp 0.33 → 0.00 on the
+committed corpus while still resolving every answerable control — run
+reproducibly in CI from a recorded reference transcript, or against a real
+model via `examples/eval_abstention_benchmark.py --llm-backend ollama`.
 The no-invent property is not just asserted but **adversarially audited**:
 [`semantic_toponav/eval/no_invent.py`](../semantic_toponav/eval/no_invent.py)
 replays hallucinated ids, prompt-injection, payloads, substring / case

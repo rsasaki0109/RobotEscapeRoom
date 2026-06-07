@@ -35,13 +35,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 import yaml
 
 from semantic_toponav.graph.topology_graph import TopologyGraph
 from semantic_toponav.llm.backends import LLMBackend
-from semantic_toponav.query.llm_resolve import llm_resolve_goal
+from semantic_toponav.query.llm_resolve import ABSTAIN_AWARE_SYSTEM, llm_resolve_goal
 from semantic_toponav.query.resolve import resolve_goal
 
 AbstentionCategory = Literal[
@@ -131,6 +131,60 @@ def load_abstention_corpus(path: str | Path) -> list[AbstentionCase]:
     return cases
 
 
+class TranscriptBackend:
+    """Replay a recorded transcript of model replies, keyed by query.
+
+    The abstention benchmark's LLM path needs to be **reproducible in CI**,
+    which a live model is not. This backend replays a committed transcript —
+    ``{query: reply}`` — so the benchmark measures the LLM-augmented path
+    deterministically without a network call or an API key. The transcript is
+    a *reference* of the replies a correctly-prompted model is expected to
+    give (see ``tests/fixtures/grounding/abstention_llm_transcript.yaml``); to
+    reproduce against a real model instead, pass an ``AnthropicBackend`` /
+    ``OllamaBackend`` to :func:`run_abstention_benchmark` (see
+    ``examples/eval_abstention_benchmark.py``).
+
+    The prompt :func:`llm_resolve_goal` builds opens with a ``User query:
+    <query>`` line; ``generate`` parses that line and looks the query up. A
+    miss raises ``KeyError`` rather than echoing, so transcript / corpus drift
+    fails loudly instead of silently scoring the wrong path. Each call is
+    recorded in ``calls`` for introspection, mirroring the other backends.
+    """
+
+    def __init__(self, responses: dict[str, str]) -> None:
+        self._responses = dict(responses)
+        self.calls: list[dict[str, Any]] = []
+
+    @staticmethod
+    def _query_of(prompt: str) -> str | None:
+        for line in prompt.splitlines():
+            if line.startswith("User query: "):
+                return line[len("User query: ") :]
+        return None
+
+    def generate(self, prompt: str, *, system: str | None = None) -> str:
+        self.calls.append({"prompt": prompt, "system": system})
+        query = self._query_of(prompt)
+        if query is None or query not in self._responses:
+            raise KeyError(
+                f"TranscriptBackend has no recorded reply for query {query!r}. "
+                f"The transcript and corpus have drifted — re-record the "
+                f"transcript or update it to cover this query."
+            )
+        return self._responses[query]
+
+
+def load_abstention_transcript(path: str | Path) -> TranscriptBackend:
+    """Load a recorded LLM transcript (``responses: {query: reply}``).
+
+    Returns a :class:`TranscriptBackend` ready to hand to
+    :func:`run_abstention_benchmark` as ``backend=``.
+    """
+    raw = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+    responses = raw["responses"] if isinstance(raw, dict) else raw
+    return TranscriptBackend({str(k): str(v) for k, v in dict(responses).items()})
+
+
 def _rate(num: int, den: int) -> float:
     return num / den if den else 0.0
 
@@ -140,6 +194,7 @@ def _resolve_abstains(
     query: str,
     backend: LLMBackend | None,
     top_k: int,
+    system: str | None,
 ) -> tuple[bool, str | None]:
     """Return ``(abstained, top1_id)`` for one query.
 
@@ -151,7 +206,7 @@ def _resolve_abstains(
         if not ranked:
             return True, None
         return False, ranked[0].node_id
-    result = llm_resolve_goal(graph, query, backend, top_k=top_k)
+    result = llm_resolve_goal(graph, query, backend, top_k=top_k, system=system)
     if not result.candidates or result.clarification is not None:
         return True, None
     return False, result.candidates[0].node_id
@@ -163,15 +218,22 @@ def run_abstention_benchmark(
     *,
     backend: LLMBackend | None = None,
     top_k: int = 5,
+    system: str | None = None,
 ) -> AbstentionReport:
     """Run the abstention benchmark over ``cases`` on ``graph``.
 
     Deterministic and backend-free by default (uses :func:`resolve_goal`);
-    pass ``backend`` to measure the LLM-augmented path.
+    pass ``backend`` to measure the LLM-augmented path. On the LLM path the
+    system instruction defaults to :data:`ABSTAIN_AWARE_SYSTEM` — the variant
+    that licenses the model to decline (``Clarify:``) when no candidate
+    genuinely matches, which is what hardens the token-leak categories. Pass
+    ``system`` to override it (e.g. to measure the stock prompt).
     """
+    if backend is not None and system is None:
+        system = ABSTAIN_AWARE_SYSTEM
     outcomes: list[AbstentionOutcome] = []
     for case in cases:
-        abstained, top1 = _resolve_abstains(graph, case.query, backend, top_k)
+        abstained, top1 = _resolve_abstains(graph, case.query, backend, top_k, system)
         outcomes.append(AbstentionOutcome(case=case, abstained=abstained, top1=top1))
 
     by_category: dict[str, CategoryMetrics] = {}
@@ -221,13 +283,60 @@ def abstention_report_markdown(report: AbstentionReport) -> str:
     return "\n".join(lines)
 
 
+def abstention_comparison_markdown(
+    deterministic: AbstentionReport,
+    llm: AbstentionReport,
+) -> str:
+    """Render a side-by-side fp-resolve comparison of two reports.
+
+    Shows the headline of the LLM-augmented path: the should-abstain
+    categories the deterministic floor leaks on (``false_premise`` /
+    ``out_of_map``) drop to zero false-positive resolves once the model is
+    allowed to decline. The leaks the LLM path *closed* are listed below the
+    table — the exact queries that flipped from a wrongful resolve to an
+    abstention.
+    """
+    lines = [
+        "Abstention: deterministic floor vs LLM-augmented path",
+        "",
+        "| category | n | fp_resolve (deterministic) | fp_resolve (LLM) |",
+        "|---|---|---|---|",
+    ]
+    for cat in _CATEGORIES:
+        d = deterministic.by_category.get(cat)
+        m = llm.by_category.get(cat)
+        if d is None or m is None:
+            continue
+        lines.append(
+            f"| `{cat}` | {d.n} | {d.false_positive_resolve_rate:.2f} | "
+            f"{m.false_positive_resolve_rate:.2f} |"
+        )
+
+    det_leaks = {
+        o.case.query: o.top1
+        for o in deterministic.outcomes
+        if o.case.category in _SHOULD_ABSTAIN and not o.abstained
+    }
+    llm_abstained = {
+        o.case.query for o in llm.outcomes if o.abstained
+    }
+    closed = sorted(q for q, _ in det_leaks.items() if q in llm_abstained)
+    if closed:
+        lines += ["", "Leaks closed by the LLM path (resolve → abstain):", ""]
+        lines += [f"- `{q}` (was `{det_leaks[q]}`)" for q in closed]
+    return "\n".join(lines)
+
+
 __all__ = [
     "AbstentionCase",
     "AbstentionCategory",
     "AbstentionOutcome",
     "AbstentionReport",
     "CategoryMetrics",
+    "TranscriptBackend",
+    "abstention_comparison_markdown",
     "abstention_report_markdown",
     "load_abstention_corpus",
+    "load_abstention_transcript",
     "run_abstention_benchmark",
 ]

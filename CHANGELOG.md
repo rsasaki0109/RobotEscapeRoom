@@ -9,8 +9,32 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 Working area for changes that land after the v1.0.1 tag. Front-page
 visuals, positioning docs, a no-invent audit, a Nav2 Route Server
-exporter, and an abstention-taxonomy benchmark — no public schema or
-behavior changes to existing surfaces.
+exporter, and an abstention-taxonomy benchmark (plus its LLM-augmented
+path) — no public schema or behavior changes to existing surfaces.
+
+### Added — LLM-augmented abstention path closes the token-leak categories
+
+- `semantic_toponav.query.llm_resolve.ABSTAIN_AWARE_SYSTEM`: a system
+  prompt that licenses the resolver to **decline** (emit `Clarify:`) when
+  *no* candidate genuinely denotes the requested place — the stock prompt
+  only allowed a clarify on mutual *ambiguity*, so it still pressured the
+  model to pick an off-topic candidate the keyword matcher had leaked in.
+  The structural no-invent guarantee is unchanged; only *when the model
+  may abstain* changes.
+- `run_abstention_benchmark` gains a `system=` passthrough (defaulting to
+  `ABSTAIN_AWARE_SYSTEM` on the LLM path), `eval.abstention.TranscriptBackend`
+  + `load_abstention_transcript` replay a recorded reference transcript so
+  the LLM path runs reproducibly in CI (no API key, no network — a miss
+  raises so transcript/corpus drift fails loudly), and
+  `abstention_comparison_markdown` renders the before/after. On the
+  committed corpus the LLM-augmented path drives the leak categories to
+  zero false-positive resolves — **`false_premise` 0.17 → 0.00**,
+  **`out_of_map` 0.33 → 0.00** — abstaining on the exact three queries the
+  deterministic floor leaked (`the basement kitchen`, `the server room`,
+  `the break room`) while still resolving all six answerable controls. The
+  example `examples/eval_abstention_benchmark.py` prints the comparison and
+  takes `--llm-backend ollama|anthropic` to reproduce against a real model;
+  guarded by `tests/test_abstention.py`.
 
 ### Added — abstention benchmark for NL→node grounding, by category
 
