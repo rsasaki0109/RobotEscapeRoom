@@ -5,23 +5,22 @@
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 <p align="center">
-  <img src="docs/images/25_visual_hero.gif" width="900" alt="three-panel loop: the robot's live camera frame on the left, the CLIP cosine similarity of that frame against every gallery place in the middle (matched reference photo inset), and the topology on the right with the planned route filling in green place-by-place as each grounded frame advances the robot to the goal">
+  <img src="docs/images/robot_escape_room.gif" width="900" alt="three panels: turn narrative on the left, a stacked B1–3F topology in the middle with the live A* route filling in green as robot T-0 collects keycards and solves riddle terminals, and the active block_edges / block_edge_types / avoid_restricted / prefer_elevator primitives plus inventory on the right — ending with the route plunging past a sealed Floor-3 emergency exit down to the sublevel">
 </p>
 
 <p align="center">
-  <sub><strong>Perception → navigation, in one glance.</strong> A real
-  <code>CLIPBackend</code> embeds each live camera frame (left), scores it
-  by cosine similarity against every place in the gallery (middle — the
-  matched reference photo inset, the winning bar in amber), and the
-  grounded node drives the robot one step further along its A* route
-  (right, filling green <code>1/5 → 5/5</code> to the goal). Every bar and
-  every green leg is real CLIP output on the Gazebo <em>Depot</em> frames —
-  not a mock-up. Regenerate with
-  <code>python examples/record_visual_hero.py</code>; the API behind it
-  (<code>localize_by_image</code> · <code>plan_visual_route</code> ·
-  <code>VisualRouteFollower</code>) is documented under
-  <a href="#visual-localization--navigation">Visual localization &amp;
-  navigation</a>.</sub>
+  <sub><strong>Every cost function, one self-solving escape game.</strong>
+  Robot <strong>T-0</strong> wakes in lockdown and has to reason its way out —
+  no scripted route. Each turn recomposes
+  <code>block_edges</code> · <code>block_edge_types</code> ·
+  <code>avoid_restricted</code> · <code>prefer_elevator</code> ·
+  <code>resolve_goal</code>, asks A* what is reachable now, and walks to
+  the nearest lead. The lit <code>EMERGENCY EXIT</code> on Floor 3 is a
+  decoy; the real way out is the sublevel. Every keycard, riddle, and green
+  leg is real planner output. Play it with
+  <code>python examples/robot_escape_room.py</code>; regenerate the GIF with
+  <code>python examples/record_escape_room.py</code>
+  (<a href="#escape-room--every-cost-function-in-one-self-solving-game">gallery write-up</a>).</sub>
 </p>
 
 **Grounded middle planning layer for robot navigation.** Bridges
@@ -73,14 +72,16 @@ payloads, near-misses — see
 `DialogSession` for ambiguous queries; optional CLIP / VLM cosine
 retrieval for embedding-grounded resolves.
 
-**See each axis run.** Three worked heroes in one style — *input → a
-scored decision → the result*, every bar and route from real API output:
+**See each axis run.** Four worked demos in one style — *input → a scored
+decision → the result*, every bar and route from real API output:
 
+- 🎮 [**Escape room**](#escape-room--every-cost-function-in-one-self-solving-game)
+  ([top](#semantic-toponav)) — puzzles as planner primitives, emergent
+  six-turn escape;
 - 🗣️ [**Language grounding → route**](#language-grounding--route) — a
   sentence → `resolve_goal` scores → the A* route up the elevator;
 - 📷 [**Visual localization → navigation**](#visual-localization--navigation)
-  ([top](#semantic-toponav)) — a camera frame → CLIP cosine → route
-  progress to the goal;
+  — a camera frame → CLIP cosine → route progress to the goal;
 - 🚦 [**Multi-agent coordination**](#multi-agent-coordination) — fleet
   requests → the strategy decision → who gets the chain.
 
@@ -175,38 +176,26 @@ target — no per-floor sub-graphs needed.
 
 ### Escape room — every cost function in one self-solving game
 
-The gallery above shows each feature in isolation; this ties them together.
-A robot, **T-0**, wakes in a locked-down facility and has to reason its way
-out. Each puzzle is a thin narrative skin over a real planner primitive:
-keycard doors are `block_edges`, the dead corridor is `block_edge_types`
-(power gate), the laser-grid shortcut is `avoid_restricted`, the parallel
-stairwell is `prefer_elevator` (cheaper stairs exist, but T-0 rides the
-lift), and every riddle terminal grounds its clue with `resolve_goal`. There is **no scripted route** —
-each turn the runner recomposes the *current* cost stack, asks A\* what is
-reachable now, walks to the nearest objective, and re-plans. The escape is an
-emergent consequence of the world changing under the planner.
+The [**page hero**](#semantic-toponav) is this demo. The gallery above shows
+each feature in isolation; the escape room ties them together. A robot,
+**T-0**, wakes in a locked-down facility and has to reason its way out.
+Each puzzle is a thin narrative skin over a real planner primitive:
 
-<p align="center">
-  <img src="docs/images/robot_escape_room.gif" width="900" alt="three panels: turn narrative on the left, a stacked B1–3F topology in the middle with the live A* route filling in green as T-0 collects keycards and solves riddle terminals, and the active block_edges / block_edge_types / avoid_restricted primitives plus inventory on the right — ending with the route plunging past a sealed Floor-3 emergency exit down to the sublevel">
-</p>
+| Puzzle | Primitive |
+|---|---|
+| Keycard lock | `block_edges` until the matching item is held |
+| Dark corridor | `block_edge_types("unpowered")` until the power core is collected |
+| Laser shortcut | `avoid_restricted` — shown via reckless-vs-safe briefing at startup |
+| Stairs vs lift | `prefer_elevator` — cheaper stairs exist, T-0 rides the lift |
+| Riddle terminal | `resolve_goal` grounds the clue and reveals hidden items |
 
-<p align="center">
-  <sub>Three panels, same style as the page heroes: narrative · stacked
-  multi-floor map · active primitives. Keycard doors are
-  <code>block_edges</code>, the dark corridor is
-  <code>block_edge_types</code>, the laser shortcut is
-  <code>avoid_restricted</code>, the cheaper stairs are skipped via
-  <code>prefer_elevator</code>, riddles ground with
-  <code>resolve_goal</code> — and the twist is structural: a lit
-  <code>EMERGENCY EXIT</code> sign lures T-0 up to Floor 3, but that door is
-  welded shut (<code>master_seal</code> — a lock with no key). A control-room
-  riddle grounds <code>"maintenance exit"</code> to the sublevel and hands over
-  the hatch code, flipping the route from all-the-way-up to all-the-way-down.
-  Every keycard, riddle, and green leg is real output from the deterministic
-  resolver and planner. Play it in the terminal with
-  <code>python examples/robot_escape_room.py</code>; regenerate the GIF with
-  <code>python examples/record_escape_room.py</code>.</sub>
-</p>
+There is **no scripted route** — each turn the runner recomposes the
+*current* cost stack, asks A\* what is reachable now, walks to the nearest
+objective, and re-plans. The twist is structural: a lit
+`EMERGENCY EXIT` on Floor 3 is welded shut (`master_seal` — no key exists);
+a control-room riddle grounds `"maintenance exit"` to the sublevel and
+hands over the hatch code, flipping the route from all-the-way-up to
+all-the-way-down.
 
 ### Conversion pipeline
 
@@ -247,34 +236,31 @@ the same wire format the LLM resolver consumes as
 
 ### Visual localization & navigation
 
-`localize_by_image` grounds the robot's current camera frame to the
-topology node it most likely depicts — the image counterpart of the
-language resolver — by embedding the frame with a real CLIP encoder and
-ranking the per-node gallery vectors by cosine similarity. Stacking it
-with the planner closes an LM-Nav-style loop: ground the start
-(`plan_visual_route`), A*-plan to a goal, then track monotonic progress
-along the route as frames stream in (`VisualRouteFollower`).
+The **perception twin** of the language hero: where that one grounds a
+*sentence* to a place, this grounds a *camera frame*. `localize_by_image`
+embeds the frame with a real CLIP encoder and ranks per-node gallery
+vectors by cosine similarity; stacking it with the planner closes an
+LM-Nav-style loop — `plan_visual_route`, A* to a goal, monotonic progress
+via `VisualRouteFollower`.
 
 <p align="center">
-  <img src="docs/images/23_visual_localization.gif" width="640" alt="robot camera view on the left, top-down topology on the right; CLIP grounds each current frame to the place it most likely depicts, with the cosine score">
+  <img src="docs/images/25_visual_hero.gif" width="900" alt="three-panel loop: the robot's live camera frame on the left, the CLIP cosine similarity of that frame against every gallery place in the middle (matched reference photo inset), and the topology on the right with the planned route filling in green place-by-place as each grounded frame advances the robot to the goal">
 </p>
 
 <p align="center">
-  <sub>The <strong>localization primitive</strong> on the Gazebo Depot
-  world with a <strong>real <code>CLIPBackend</code></strong>: each
-  camera frame is grounded to the place it most likely depicts by cosine
-  similarity — the image counterpart of <code>resolve_goal</code>. On
-  this five-place benchmark every drive frame grounds to its place at
+  <sub>Camera frame → CLIP cosine bars → route progress
+  (<code>1/5 → 5/5</code>). Every bar and green leg is real
+  <code>CLIPBackend</code> output on Gazebo <em>Depot</em> frames — not a
+  mock-up. Regenerate with <code>python examples/record_visual_hero.py</code>.
+  On the five-place benchmark every drive frame grounds at
   <strong>precision@1 = 1.00</strong>
-  (<a href="docs/visual_grounding_report_sample.md">report</a>). The
-  <a href="#semantic-toponav">page hero</a> stacks this with the planner
-  for the full localize → plan → follow loop; node-to-node locomotion
-  stays out of repo by design — a learned image-goal policy (ViNT /
-  NoMaD) or Nav2 owns <em>how to move</em>, this owns <em>where on the
-  plan the robot is</em>
-  (<a href="docs/related_work.md">related_work.md</a>). Reproduce:
-  <code>python examples/visual_localization_demo.py</code> (per-frame) /
-  <code>examples/visual_navigation_demo.py</code> (full loop).</sub>
+  (<a href="docs/visual_grounding_report_sample.md">report</a>).
+  Locomotion stays out of repo — ViNT / NoMaD or Nav2 owns <em>how to
+  move</em>, this owns <em>where on the plan the robot is</em>
+  (<a href="docs/related_work.md">related_work.md</a>). Also see the
+  per-frame primitive:
+  <code>python examples/visual_localization_demo.py</code> /
+  <code>examples/visual_navigation_demo.py</code>.</sub>
 </p>
 
 ### Multi-agent coordination
