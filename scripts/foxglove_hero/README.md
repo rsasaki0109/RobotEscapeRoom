@@ -26,6 +26,10 @@ scripts/foxglove_hero/build_escape_room_gif.sh  # README hero
 
 `build_hero_gif.sh` overwrites `docs/images/22_foxglove_replay.{gif,mp4}`.
 `build_escape_room_gif.sh` overwrites `docs/images/robot_escape_room.{gif,mp4}`.
+It renders **one PNG per planner timeline frame** via `render_escape_room_hero.py`
+(deterministic robot motion). The older `render_escape_room.cjs` Lichtblick capture
+path is kept for optional manual use but is no longer the default — headless
+playback often froze mid-GIF.
 
 ## What it does
 
