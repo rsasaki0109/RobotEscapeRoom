@@ -22,7 +22,7 @@ IMAGE="ghcr.io/lichtblick-suite/lichtblick:latest"
 GIF_OUT="$ROOT/docs/images/robot_escape_room.gif"
 MP4_OUT="$ROOT/docs/images/robot_escape_room.mp4"
 FPS="${FPS:-16}"
-GIF_WIDTH="${GIF_WIDTH:-1080}"
+GIF_WIDTH="${GIF_WIDTH:-1200}"
 
 cleanup() { docker rm -f "$CONTAINER" >/dev/null 2>&1 || true; }
 trap cleanup EXIT
@@ -44,7 +44,7 @@ echo "==> rendering 3D frames"
 node "$DIR/render_escape_room.cjs" "$FRAMES" "http://localhost:$PORT" "http://localhost:$PORT/escape_room.mcap"
 
 echo "==> adding caption overlay"
-python3 "$DIR/overlay_escape_room_frames.py" "$FRAMES"
+PYTHONPATH="$ROOT" python3 "$DIR/overlay_escape_room_frames.py" "$FRAMES"
 
 last="$(ls "$FRAMES"/f*.png | sort | tail -1)"
 n="$(ls "$FRAMES"/f*.png | wc -l)"
