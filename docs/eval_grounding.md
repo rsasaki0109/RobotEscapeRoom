@@ -47,7 +47,7 @@ absolute, so a corpus can ship next to its reference graph.
 
 A shipped fixture for `examples/multi_floor_office.yaml` lives at
 [`tests/fixtures/grounding/multi_floor_office.yaml`](../tests/fixtures/grounding/multi_floor_office.yaml)
-— 50 cases (33 precise / 9 ambiguous / 8 unresolvable) across all
+— 100 cases (66 precise / 18 ambiguous / 16 unresolvable) across all
 three kinds.
 
 ## Metrics
@@ -158,8 +158,8 @@ Running the corpus shipped with the repo against the deterministic
 resolver:
 
 ```
-| resolver      | n  | precision@1 | recall@3 | recall@5 | clarify | fp_resolve | abstain |
-| deterministic | 50 | 1.00        | 1.00     | 1.00     | 0.00    | 0.25       | 0.75    |
+| resolver      | n   | precision@1 | recall@3 | recall@5 | clarify | fp_resolve | abstain |
+| deterministic | 100 | 1.00        | 1.00     | 1.00     | 0.00    | 0.19       | 0.81    |
 ```
 
 A committed full sample including the EchoBackend row + describer
@@ -169,13 +169,14 @@ regenerated manually as part of release prep, with a provenance
 header noting the commit it came from.
 
 Reading: bag-of-words + floor parsing handles every *answerable*
-query in the fixture (precision@1 = 1.0) — the 22 → 50 expansion
-in PR #69 widened the linguistic surface (ordinal/word/abbreviated
-floor mentions, single-token labels, label fragments, bare-type
-queries) without dropping the precision ceiling. The resolver
-still leaks two out of eight *unresolvable* queries as false
-positives (`server room`, `secret room` — both pulled in by the
-`'room'` token matching `meeting_room_2f`'s label). That's the
+query in the fixture (precision@1 = 1.0) — the 22 → 50 → 100
+expansions widened the linguistic surface (ordinal/word/abbreviated
+floor mentions, single-token labels, label fragments, comma-separated
+and verb-phrase forms, bare-type queries) without dropping the
+precision ceiling. The resolver still leaks three out of sixteen
+*unresolvable* queries as false positives (`server room`,
+`secret room`, `break room` — all pulled in by the `'room'` token
+matching `meeting_room_2f`'s label). That's the
 `abstention` axis the LLM-augmented resolver is supposed to
 harden. The ambiguous-case `clarify` rate is `0.00` for the
 deterministic floor by construction; switching to `--llm-backend
