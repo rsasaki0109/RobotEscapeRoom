@@ -80,7 +80,17 @@ def add_llm_args(p: argparse.ArgumentParser, *, with_style: bool = False) -> Non
         "--llm-max-tokens",
         type=int,
         default=1024,
-        help="max output tokens for --llm-backend anthropic (default: 1024)",
+        help="max output tokens for --llm-backend anthropic / ollama (default: 1024)",
+    )
+    p.add_argument(
+        "--llm-timeout",
+        type=float,
+        default=120.0,
+        help=(
+            "per-request timeout in seconds for --llm-backend ollama "
+            "(default: 120). Raise it for large local models on CPU, where "
+            "a single generate can take minutes."
+        ),
     )
     if with_style:
         p.add_argument(
@@ -118,5 +128,6 @@ def build_llm_backend_from_args(args: argparse.Namespace) -> LLMBackend | None:
             model=model or OllamaBackend.DEFAULT_MODEL,
             host=getattr(args, "llm_host", OllamaBackend.DEFAULT_HOST),
             max_tokens=getattr(args, "llm_max_tokens", 1024),
+            timeout=getattr(args, "llm_timeout", 120.0),
         )
     raise ValueError(f"unknown --llm-backend {kind!r}")
