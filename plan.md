@@ -1911,32 +1911,38 @@ crisp one-line thesis. The remaining gates are still the §24′ user-side
 *decisions* (venue, single-vs-companion, human-eval scope), not code. The
 moratorium (§23′.1) holds: no 7th Protocol, no new feature axis, no PyPI.
 
-## 32′. Robot Escape Room demo — every cost function in one self-solving game (2026-06-08, in progress / uncommitted)
+## 32′. Robot Escape Room demo — every cost function in one self-solving game (2026-06-08, ✅ shipped)
 
-A new in-tree **example + gallery** unit built this session at the user's
-request ("make the robot complete an escape-game-like quest", then "leave
-various puzzles around", then the user's own twist: *"I thought it was the
-3rd floor — turns out it was the basement"*). It is presentation/teaching
-surface under the §23′.1 moratorium (a worked example, not a feature
-axis), in the same spirit as the §23′.4 demos — it reuses only existing
-planner primitives.
+A new in-tree **example + gallery** unit built at the user's request
+("make the robot complete an escape-game-like quest", then "leave various
+puzzles around", then the user's twist: *"I thought it was the 3rd floor
+— turns out it was the basement"*). It is presentation/teaching surface
+under the §23′.1 moratorium (a worked example, not a feature axis), in
+the same spirit as the §23′.4 demos — it reuses only existing planner
+primitives.
 
-**Status: committed** (`f210d1b`, 2026-06-08). Files:
+**Status: shipped** — repo renamed to `robot-escape-room`
+(`ba40fe8`), hero dashboard GIF landed (`2e8f9cd`, v1.0.3). Files:
 
-- `examples/robot_escape_room.yaml` — **multi-floor** escape topology, 15
-  nodes / 15 edges across **B1 / 1F / 2F / 3F** (`floor` property +
+- `examples/robot_escape_room.yaml` — **multi-floor** escape topology, 18
+  nodes across **B1 / 1F / 2F / 3F** (`floor` property +
   `elevator_connection` edges).
 - `examples/robot_escape_room.py` — the terminal runner. No scripted
   route: each turn it recomposes the *current* cost stack, asks A\* what
   is reachable now, walks to the nearest objective, acts on arrival, and
   re-plans. Escapes in 6 turns (items 4/4, riddles 3/3).
-- `examples/record_escape_room.py` — GIF recorder that **imports the
-  runner's logic** (never reimplements the puzzle) and renders each turn.
-- `docs/images/robot_escape_room.gif` — 39 frames, three-panel hero style,
-  ~1.2 MB (regenerated after the stairs mechanic landed).
-- `README.md` — new gallery row **"Escape room — every cost function in
-  one self-solving game"**, placed after "Multi-floor planning" as the
-  capstone that ties the individually-demoed cost functions together.
+- `examples/record_escape_room_sim.py` — **README hero** recorder:
+  1280×720 Foxglove/RViz-style dashboard (same layout class as
+  `record_visualization_dashboard.py`): stacked-floor map + `/tf`,
+  topic list, message inspector, route timeline, semantic waypoint
+  array. Drives from the runner's real plans — no second game logic.
+- `examples/record_escape_room.py` — three-panel analytics variant
+  (`docs/images/robot_escape_room_panels.gif`).
+- `docs/images/robot_escape_room.gif` — 154 frames @ 18 fps, ~1.6 MB
+  (ffmpeg palette pass, 96 colors).
+- `README.md` — page hero is the live-simulation GIF; gallery row
+  **"Escape room — every cost function in one self-solving game"**
+  capstones the individually-demoed cost functions.
 
 ### 32′.1 Mechanic → planner-primitive mapping
 
@@ -1967,8 +1973,8 @@ item state, which is the point:
   `maintenance_exit` (score 4.0) via `resolve_goal`, revealing the hatch
   code. The route then flips from all-the-way-up to all-the-way-down — an
   emergent consequence of the world state changing under A\*, not a
-  scripted branch. The GIF's escape frame shows the green route plunging
-  past the sealed 3F sign down to the green sublevel exit.
+  scripted branch. The GIF's escape frame shows the pink route plunging
+  past the sealed 3F sign down to the B1 sublevel exit.
 
 ### 32′.3 Stairs vs lift mechanic — ✅ shipped (2026-06-08)
 
@@ -1987,14 +1993,30 @@ initial commit:
   penalties decide the route — Euclidean pose distance would wrongly bias
   toward the lift shaft when stairs and lift tie on node hops.
 
-### 32′.4 Reproduction
+### 32′.4 Full dashboard hero — ✅ shipped (2026-06-08)
+
+The user rejected the first 960×540 "toy" sim (`f30ba31`). The hero was
+rewritten to match `record_visualization_dashboard.py`:
+
+- 1280×720 layout: top bar (`live`, `t=`, turn/wp), map with locked /
+  unpowered / restricted edge styling, topics + JSON message inspector,
+  route timeline, semantic waypoint array + inventory strip.
+- No static "awaiting planner…" intro — motion starts on frame 0.
+- `examples/build_social_preview.py` frames a mid-run still from the
+  hero GIF for `docs/images/social_preview.png`.
+
+### 32′.5 Reproduction
 
 ```bash
 # Play it in the terminal (no ROS2, no model, no API key):
 PYTHONPATH=. python3 examples/robot_escape_room.py
-# Regenerate the GIF:
+# Regenerate the README hero (dashboard sim):
+PYTHONPATH=. python3 examples/record_escape_room_sim.py
+# Three-panel analytics variant:
 PYTHONPATH=. python3 examples/record_escape_room.py
+# GitHub social preview still:
+PYTHONPATH=. python3 examples/build_social_preview.py
 ```
 
-Both are deterministic — every keycard, riddle grounding, and green leg
-is real resolver/planner output.
+All recorders are deterministic — every keycard, riddle grounding, and
+route leg is real resolver/planner output.
