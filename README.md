@@ -5,11 +5,23 @@
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 <p align="center">
-  <img src="docs/images/22_foxglove_replay.gif" width="720" alt="Foxglove replay: stacked floor-1/2/3 topology with the planned route filling in place-by-place as the robot rides the elevator up to the executive office, rendered from semantic-toponav MCAP data">
+  <img src="docs/images/25_visual_hero.gif" width="900" alt="three-panel loop: the robot's live camera frame on the left, the CLIP cosine similarity of that frame against every gallery place in the middle (matched reference photo inset), and the topology on the right with the planned route filling in green place-by-place as each grounded frame advances the robot to the goal">
 </p>
 
 <p align="center">
-  <sub>Replay of real planner output — semantic topology, robot pose, route, and waypoint stream — rendered headless in open-source Foxglove (<a href="https://github.com/lichtblick-suite/lichtblick">Lichtblick</a>) from the shipped MCAP. <strong>Open it yourself:</strong> drop <a href="docs/foxglove/semantic_toponav_demo.mcap"><code>docs/foxglove/semantic_toponav_demo.mcap</code></a> into <a href="https://studio.foxglove.dev/">Foxglove Studio</a> — see <a href="docs/foxglove/README.md">docs/foxglove/README.md</a> for the panel setup, or <a href="scripts/foxglove_hero/README.md"><code>scripts/foxglove_hero/</code></a> to regenerate this GIF.</sub>
+  <sub><strong>Perception → navigation, in one glance.</strong> A real
+  <code>CLIPBackend</code> embeds each live camera frame (left), scores it
+  by cosine similarity against every place in the gallery (middle — the
+  matched reference photo inset, the winning bar in amber), and the
+  grounded node drives the robot one step further along its A* route
+  (right, filling green <code>1/5 → 5/5</code> to the goal). Every bar and
+  every green leg is real CLIP output on the Gazebo <em>Depot</em> frames —
+  not a mock-up. Regenerate with
+  <code>python examples/record_visual_hero.py</code>; the API behind it
+  (<code>localize_by_image</code> · <code>plan_visual_route</code> ·
+  <code>VisualRouteFollower</code>) is documented under
+  <a href="#visual-localization--navigation">Visual localization &amp;
+  navigation</a>.</sub>
 </p>
 
 **Grounded middle planning layer for robot navigation.** Bridges
@@ -248,6 +260,14 @@ and the highlighted path is overlaid in pink. `live-viewer` adds a
 file-watch loop so edits to the YAML reload the browser tab.
 
 ### Foxglove replay
+
+<p align="center">
+  <img src="docs/images/22_foxglove_replay.gif" width="720" alt="Foxglove replay: stacked floor-1/2/3 topology with the planned route filling in place-by-place as the robot rides the elevator up to the executive office, rendered from semantic-toponav MCAP data">
+</p>
+
+<p align="center">
+  <sub>Replay of real planner output — semantic topology, robot pose, route, and waypoint stream — rendered headless in open-source Foxglove (<a href="https://github.com/lichtblick-suite/lichtblick">Lichtblick</a>) from the shipped MCAP. <strong>Open it yourself:</strong> drop <a href="docs/foxglove/semantic_toponav_demo.mcap"><code>docs/foxglove/semantic_toponav_demo.mcap</code></a> into <a href="https://studio.foxglove.dev/">Foxglove Studio</a> — see <a href="docs/foxglove/README.md">docs/foxglove/README.md</a> for the panel setup, or <a href="scripts/foxglove_hero/README.md"><code>scripts/foxglove_hero/</code></a> to regenerate this GIF.</sub>
+</p>
 
 ```bash
 pip install -e '.[foxglove]'
