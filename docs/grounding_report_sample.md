@@ -93,6 +93,28 @@ local sampling is not bit-exact across builds, so treat them as one run,
 not a CI-pinned fixture (the metric machinery itself is pinned in
 `tests/test_eval_grounding.py`).
 
+### Model robustness — the abstention lift tracks capability
+
+The `fp_resolve` drop is not a single-model fluke, but it is *capability-
+gated*. Running the same resolver eval across two local models of
+different size and family:
+
+| resolver | size | precision@1 | clarify | fp_resolve | abstain |
+|---|---|---|---|---|---|
+| deterministic (floor) | — | 1.00 | 0.00 | 0.19 | 0.81 |
+| ollama `gemma3:4b` | 3.3 GB | 1.00 | 0.94 | 0.19 | 0.81 |
+| ollama `qwen3.5:latest` | 6.6 GB | 1.00 | 0.94 | **0.06** | **0.94** |
+
+The small 4 B model resolves the `'room'`-token unresolvables *exactly
+like the deterministic floor* — shown a candidate, it picks it rather
+than rejecting it, so its only lift is the (gap-driven) clarification
+rate. The larger `qwen3.5` is the one that actually rejects 15 of 16
+false positives. So the abstention contribution is real but needs a
+model strong enough to notice that a candidate's label does not match
+the query, not merely to pick from a list — a useful caveat for the
+chapter, and the reason the headline number is reported with the model
+named. (Single local runs at `temperature = 0`.)
+
 ## Describer rewrite safety
 
 Backend: `echo`, n = 6 probes (full-plan + mid-traversal + situation
