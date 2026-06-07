@@ -35,6 +35,14 @@ visuals only — no public schema or behavior changes.
   with the winner in amber, and the A* route filling up the stacked
   three-floor topology. Real deterministic resolver + planner output,
   no model or API key.
+- `examples/record_coordination_hero.py` + `docs/images/27_coordination_hero.gif`
+  — the Coordinate twin (replaces the cycling GIF in the README's
+  "Multi-agent coordination" section): the five fleet requests on one
+  chain, a per-strategy "agents granted" bar chart, and the per-strategy
+  outcome cycling greedy (1/5) → branch-and-bound (4/5). Real
+  `plan_fleet_with_strategy` output. With the visual and language heroes
+  this completes a matched three-panel hero per axis
+  (Resolve · Plan/Coordinate · Visual).
 - `examples/build_social_preview.py` reworked to frame that hero still
   as a full-width strip (was a Foxglove frame).
 
