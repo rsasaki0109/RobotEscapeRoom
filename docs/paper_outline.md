@@ -280,11 +280,23 @@ etc.).
 **Real-model numbers (local `ollama` / qwen3.5, no key):** `fallback_rate
 = 0.00` — every rewrite came from the model, not the deterministic floor,
 so the four invariants are now **load-bearing** rather than trivially
-satisfied, and the model holds all four at 1.00 (`references_preserved`,
-`step_indices_preserved`, `prior_steps_untouched`,
-`situation_changes_output`). This is the "safe by construction" claim
-measured against a real model. Committed in
+satisfied, and `qwen3.5` holds all four at 1.00. This is the "safe by
+construction" claim measured against a real model. Committed in
 [`docs/grounding_report_sample.md`](grounding_report_sample.md).
+
+**The invariants discriminate (3-model robustness).** Running the same
+probes across three local models proves the contract is not a rubber
+stamp — a model can rewrite fluently (`fallback_rate = 0.00` for all
+three) and still violate it. `references_preserved` /
+`step_indices_preserved` are universally easy (1.00 everywhere), but
+`prior_steps_untouched` **stably separates the models**: only `qwen3.5`
+keeps it at 1.00, while *both* the small `gemma3:4b` and the large
+`qwen3.6:35b` MoE leak a completed-step label (0.67) — bigger is not
+safer. Only `qwen3.5` passes all four. This is exactly the evidence
+Chapter 4 wants: invariants that catch unsafe rewrites a fluent model
+would otherwise slip through. (`situation_changes_output` is over only
+two probes and is noisy for the weaker models; lead with
+`prior_steps_untouched`.)
 
 **Gap to fill:**
 
