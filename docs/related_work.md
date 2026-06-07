@@ -195,8 +195,15 @@ false-positive-resolve**, as a sim-free OSS layer).
 node id** with a *structural* no-invent guarantee (out-of-pool picks
 silently fall back) **and** reporting `false_positive_resolve_rate` /
 `abstention_rate` / `clarification_rate` as first-class metrics — no OSS
-surveyed benchmarks language → node grounding with abstention at all. The
-no-invent property is not just asserted but **adversarially audited**:
+surveyed benchmarks language → node grounding with abstention at all, and
+this one does it **by category**: a taxonomy benchmark
+([`semantic_toponav/eval/abstention.py`](../semantic_toponav/eval/abstention.py),
+mirroring AbstentionBench / *Know Your Limits* for spatial grounding)
+splits the should-abstain space into `unresolvable` / `false_premise` /
+`out_of_map` and reports per-category `abstain_rate` /
+`false_positive_resolve_rate`, surfacing exactly where the deterministic
+floor leaks (a stray `room` / `kitchen` token pulling a real label up).
+The no-invent property is not just asserted but **adversarially audited**:
 [`semantic_toponav/eval/no_invent.py`](../semantic_toponav/eval/no_invent.py)
 replays hallucinated ids, prompt-injection, payloads, substring / case
 near-misses and an out-of-pool clarification pin through the resolver and
