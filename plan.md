@@ -1799,3 +1799,193 @@ the existing visual axis under the §23′.1 moratorium. The in-tree backlog
 is empty again; the §26′ remaining open ends are now non-coding (the
 `[vlm]` real-CLIP numbers stay a manual artifact by design) or deferred
 (Mast3R Phase C #3).
+
+## 29′. Paper-evidence build-out — the six-chapter figure/corpus arc (2026-06-07)
+
+After §28′ the in-tree backlog was "empty" only in the sense that no new
+*feature axis* was open. What remained was the other half of Phase B: the
+paper (`docs/paper_outline.md`) named six chapters but several still
+pointed at claims without a committed, reproducible figure or corpus
+behind them. The 2026-06-07 arc (#86–#95) closed that gap. The framing
+throughout: each chapter's headline claim must trace to a deterministic,
+CI-guarded artifact a reviewer can regenerate — the same two-layer
+discipline (deterministic machinery in CI, optional real-model numbers as
+a manual artifact) the eval suites already used.
+
+| PR | Chapter | What landed |
+|---|---|---|
+| #86 | 6 (visual) | `docs/paper_outline.md` gains the visual-localization chapter + a maturity-grounded decision-support framing tying the §26′ image-grounding axis into the paper structure |
+| #87 | 1 (coordination) | **Incremental-admission figure** — insertion repair (`plan_fleet_insert`, PR #59) vs full re-search, quantifying the `O(k·(n+k))`-vs-`O((n+k)!)` win as a committed eval figure |
+| #88 | 2 (constraints) | **Semantic-constraints ablation figure** — the same graph re-planned with/without each cost constraint, showing route divergence as a measured table, not just the gallery's visual side-by-side |
+| #89 | 1 (coordination) | **Budget-bounded BnB scaling sweep** — branch-and-bound grant-rate / latency as the problem scales, with a token/twork budget bound so the sweep is bounded and reproducible |
+| #90 | 5 (conformance) | **External-adapter authoring walkthrough** — `docs/authoring_external_adapters.md`, a contract-page-sized guide to implementing the six Protocols out of repo (the D-16 readable-core split made legible to an integrator) |
+| #91 | 3 (grounding) | Language gold corpus **50 → 100 cases**, deepening the precise/ambiguous/unresolvable split that backs the resolver precision@1 / abstention numbers |
+| #92 | 3/4 (grounding) | **Local Ollama backend** + real-model grounding numbers with **no API key** — `OllamaBackend`, `tests/test_ollama_backend.py`. Resolves the long-standing "real-backend numbers" open hole (§24′.3) locally rather than via cloud creds |
+| #93 | 3/4 (grounding) | **Multi-model robustness** — the abstention/fp-resolve lift is shown to be **capability-gated** (bigger/stronger models abstain more correctly), so the claim is "the contract holds when the model is capable enough", not "any LLM helps" |
+| #94 | 3/4 (grounding) | `--llm-timeout` CLI flag + a **35B local-model row** marking the capability ceiling reached on-device |
+| #95 | 4 (describer safety) | **3-model describer-safety robustness** — the four deterministic describer invariants are shown to *discriminate* (they catch unsafe rewrites across three models), so Chapter 4's safety property is evidence-backed |
+
+After this arc every paper chapter has at least one committed,
+regenerable artifact behind its lead claim, and the real-model grounding
+story is reproducible offline (Ollama) instead of gated on cloud
+credentials. The §24′.3 "real-backend numbers" hole is effectively closed
+(local-model variant); a cloud Anthropic cross-check stays optional.
+
+## 30′. Three-hero README + positioning refresh (2026-06-07)
+
+In parallel with the paper evidence, the README first-viewport story was
+upgraded from a single Foxglove hero to **one hero per axis**, so a
+visitor sees Plan / Resolve / Coordinate each rendered as a purpose-built
+animation rather than inferring all three from one replay.
+
+| PR | What |
+|---|---|
+| #96 | **Perception → navigation hero** — `docs/images/25_visual_hero.gif`: camera frame → CLIP cosine bars → route progress; the visual-axis twin of the language hero |
+| #97 | Rebuilt the GitHub link-unfurl / social image from the perception→navigation hero so the card matches the new first viewport |
+| #98 | **Language-grounding hero** — `docs/images/26_language_hero.gif`: sentence → `resolve_goal` score bars → route up the elevator (the gallery's "Language grounding → route" lead) |
+| #99 | **Coordination hero** — `docs/images/27_coordination_hero.gif`: fleet requests → strategy decision → who gets the contended chain (greedy vs BnB) |
+| #100 | Cross-linked the three heroes in the README and **de-duped** the visual section so the page reads as one three-axis story, not three overlapping demos |
+| #101 | `docs/related_work.md` expanded to **all three axes** with honest positioning vs **Nav2 Route Server** and **Open-RMF** (we are the semantic/topological planning layer that *feeds* them, not a competitor) |
+
+The positioning thesis in #101 — "feed the executor, don't compete with
+it" — is the same D-16 boundary, now stated explicitly against the two
+ecosystems a robotics reviewer will immediately compare against
+(Nav2 Route Server for single-robot routing, Open-RMF for fleet
+coordination). This sets up §31′.
+
+## 31′. The verifiable-contracts thesis — abstention / no-invent + Nav2 GeoJSON hand-off (2026-06-07 → 06-08)
+
+This arc is the current intellectual center of gravity. Two threads that
+had been running separately — *LLM grounding safety* and *Nav2
+positioning* — converged into a single thesis, captured in #107's
+related-work refresh: **what this project offers above the executor is
+verifiable contracts.** The planner does not just produce a route; it
+produces a route with checkable properties (it will abstain rather than
+invent a destination; it hands Nav2 a schema Nav2 already reads), and
+those properties are CI-guarded.
+
+### 31′.1 The abstention / no-invent contract (#102, #104, #105)
+
+| PR | What |
+|---|---|
+| #102 | **Adversarial no-invent audit** — `semantic_toponav/eval/no_invent.py`: prove the LLM-augmented resolver **cannot invent a destination** that is not a real node. Adversarial prompts (nonexistent rooms, leading phrasing) must resolve to abstention, never to a hallucinated node id |
+| #104 | **Abstention benchmark by category** — `semantic_toponav/eval/abstention.py`: NL→node grounding scored on *when it correctly declines*, broken out by failure category (unresolvable / ambiguous / out-of-graph / token-leak) so abstention is measured per-reason, not as one blended rate |
+| #105 | **LLM-augmented abstention path** closes the **token-leak categories** — the cases where lexical overlap alone would wrongly resolve (a stray matching word leaks a false positive); the LLM arm is shown to abstain on exactly those, lifting the per-category numbers the deterministic resolver could not |
+
+Together these turn "the resolver is safe" from an assertion into a
+measured, category-broken-out contract: the deterministic resolver gives
+the floor, the LLM arm closes the token-leak gap, and the no-invent audit
+proves the upper bound (no fabricated destinations) holds adversarially.
+This is the grounding-safety half of the verifiable-contracts thesis and
+the strongest version yet of Chapters 3–4.
+
+### 31′.2 The Nav2 Route Server GeoJSON hand-off (#103, #106)
+
+The execution-side half: make the "feed Nav2, don't compete" boundary a
+*working round trip*, not just a stated position.
+
+| PR | What |
+|---|---|
+| #103 | **Export topology → Nav2 Route Server GeoJSON** — `semantic_toponav/conversion/nav2_route.py` + `examples/export_nav2_route.py` + sample `examples/data/nav2/office_graph.geojson` + `tests/test_nav2_route_export.py`. The semantic topology is emitted in the exact GeoJSON dialect Nav2's Route Server consumes, so the planning layer feeds the executor directly |
+| #106 | **Nav2 Route Server GeoJSON reader closes the loop** — the reverse direction + `examples/nav2_roundtrip_demo.py` + `tests/test_nav2_route_roundtrip.py`: a graph can round-trip topology → Nav2 GeoJSON → topology, proving the hand-off is lossless on the shared fields and that we interoperate with (not reimplement) Nav2's routing format |
+
+With both directions committed and round-trip-tested, the D-16 boundary
+is now demonstrable: semantic-toponav decides *where and why* and hands
+Nav2's Route Server a format it already reads to decide *how to move*.
+
+### 31′.3 Related-work refresh + the thesis statement (#101, #107)
+
+- #101 (logged in §30′) did the three-axis positioning vs Nav2 Route
+  Server / Open-RMF.
+- #107 refreshed `docs/related_work.md` against **mid-2026 literature**
+  and framed the unifying **verifiable-contracts thesis**: the value this
+  layer adds over a bare executor is *checkable guarantees* — abstention
+  instead of invention, schema-locked wire formats (§21′.5), round-trip
+  interop with the executor's own format — all CI-guarded. This is the
+  sentence the paper's introduction can now lead with.
+
+### 31′.4 State after this arc
+
+Phase B's paper evidence is materially complete and the project has a
+crisp one-line thesis. The remaining gates are still the §24′ user-side
+*decisions* (venue, single-vs-companion, human-eval scope), not code. The
+moratorium (§23′.1) holds: no 7th Protocol, no new feature axis, no PyPI.
+
+## 32′. Robot Escape Room demo — every cost function in one self-solving game (2026-06-08, in progress / uncommitted)
+
+A new in-tree **example + gallery** unit built this session at the user's
+request ("make the robot complete an escape-game-like quest", then "leave
+various puzzles around", then the user's own twist: *"I thought it was the
+3rd floor — turns out it was the basement"*). It is presentation/teaching
+surface under the §23′.1 moratorium (a worked example, not a feature
+axis), in the same spirit as the §23′.4 demos — it reuses only existing
+planner primitives.
+
+**Status: not yet committed.** Local working-tree changes only; no PR cut.
+Awaiting an explicit `comit!` (the user's update cue this session was the
+plan.md-without-commit variant — see §25′ cue cadence). Files touched:
+
+- `examples/robot_escape_room.yaml` — **multi-floor** escape topology, 15
+  nodes / 15 edges across **B1 / 1F / 2F / 3F** (`floor` property +
+  `elevator_connection` edges).
+- `examples/robot_escape_room.py` — the terminal runner. No scripted
+  route: each turn it recomposes the *current* cost stack, asks A\* what
+  is reachable now, walks to the nearest objective, acts on arrival, and
+  re-plans. Escapes in 6 turns (items 4/4, riddles 3/3).
+- `examples/record_escape_room.py` — GIF recorder that **imports the
+  runner's logic** (never reimplements the puzzle) and renders each turn.
+- `docs/images/robot_escape_room.gif` — 14 frames, ~384 KB.
+- `README.md` — new gallery row **"Escape room — every cost function in
+  one self-solving game"**, placed after "Multi-floor planning" as the
+  capstone that ties the individually-demoed cost functions together.
+
+### 32′.1 Mechanic → planner-primitive mapping
+
+Each puzzle is a thin narrative skin over a real primitive, so the demo
+doubles as a feature tour:
+
+| Puzzle | Primitive |
+|---|---|
+| Keycard lock (blue / red) | `block_edges(locked_edge_ids)` — door blocked until the matching item is held |
+| Riddle terminal | `resolve_goal(graph, clue_answer)` grounds the clue to a node id; a correct grounding reveals where a hidden item is stashed |
+| Power gate (Dark Corridor) | `block_edge_types(("unpowered",))` until the power core is collected |
+| Laser grid (shortcut) | `avoid_restricted` — a `restricted` shortcut the planner must route around (shown via a reckless-vs-safe `plan_astar` contrast at startup) |
+
+### 32′.2 The structural twist (the user's idea)
+
+The twist is *not* coded into the planner — it is pure graph topology +
+item state, which is the point:
+
+- A lit **EMERGENCY EXIT** sign on **Floor 3** lures T-0 upward. Its door
+  is welded shut: `type: locked`, `properties: {lock: master_seal}` — a
+  lock whose key never exists, so `block_edges` keeps it closed forever.
+  The runner separates `DECOY_EXIT = "emergency_exit"` from
+  `TRUE_EXIT = "maintenance_exit"`.
+- The real way out is a **maintenance tunnel in the sublevel (B1)**,
+  behind a hatch locked with `hatch_code`.
+- A **Floor-3 control-room riddle** grounds `"maintenance exit"` →
+  `maintenance_exit` (score 4.0) via `resolve_goal`, revealing the hatch
+  code. The route then flips from all-the-way-up to all-the-way-down — an
+  emergent consequence of the world state changing under A\*, not a
+  scripted branch. The GIF's escape frame shows the green route plunging
+  past the sealed 3F sign down to the green sublevel exit.
+
+### 32′.3 Open follow-up (proposed, not built)
+
+A **fifth mechanic** was offered but not implemented: add a parallel
+`stairs_up` / `stairs_down` chain alongside the elevator and demonstrate
+`avoid_stairs` / `prefer_elevator` (the route preferring the elevator) as
+a soft-preference cost — the one major cost-function family the escape
+room does not yet exercise. Gated on a user go-ahead.
+
+### 32′.4 Reproduction
+
+```bash
+# Play it in the terminal (no ROS2, no model, no API key):
+PYTHONPATH=. python3 examples/robot_escape_room.py
+# Regenerate the GIF:
+PYTHONPATH=. python3 examples/record_escape_room.py
+```
+
+Both are deterministic — every keycard, riddle grounding, and green leg
+is real resolver/planner output.
