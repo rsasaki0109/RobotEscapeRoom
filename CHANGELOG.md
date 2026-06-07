@@ -8,8 +8,28 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 Working area for changes that land after the v1.0.1 tag. Front-page
-visuals, positioning docs, a no-invent audit, and a Nav2 Route Server
-exporter — no public schema or behavior changes to existing surfaces.
+visuals, positioning docs, a no-invent audit, a Nav2 Route Server
+exporter, and an abstention-taxonomy benchmark — no public schema or
+behavior changes to existing surfaces.
+
+### Added — abstention benchmark for NL→node grounding, by category
+
+- `semantic_toponav/eval/abstention.py` (`run_abstention_benchmark` /
+  `load_abstention_corpus` / `abstention_report_markdown`) measures
+  whether a resolver correctly **abstains** on a query it cannot ground,
+  broken out by a taxonomy — `answerable` / `unresolvable` /
+  `false_premise` / `out_of_map` — mirroring text-QA abstention
+  benchmarks (AbstentionBench / *Know Your Limits*) for spatial
+  grounding. Per category it reports `abstain_rate` /
+  `false_positive_resolve_rate`. On the committed 24-case corpus
+  (`tests/fixtures/grounding/abstention_taxonomy.yaml`) the deterministic
+  floor scores: answerable 0.00 abstain (resolves all), unresolvable 1.00,
+  `false_premise` 0.17 fp, **`out_of_map` 0.33 fp** — surfacing exactly
+  where a stray `room` / `kitchen` token leaks ("the server room" → the
+  meeting room). Per the landscape survey, no OSS benchmarks language→node
+  grounding with an abstention taxonomy. Example
+  `examples/eval_abstention_benchmark.py`; guarded by
+  `tests/test_abstention.py`.
 
 ### Added — Nav2 Route Server GeoJSON exporter (feed Nav2, don't compete)
 

@@ -29,6 +29,15 @@ The CLI side (`semantic-toponav eval-synthetic` / `eval-report`) is
 wired in :mod:`semantic_toponav.cli.eval_cli`.
 """
 
+from semantic_toponav.eval.abstention import (
+    AbstentionCase,
+    AbstentionOutcome,
+    AbstentionReport,
+    CategoryMetrics,
+    abstention_report_markdown,
+    load_abstention_corpus,
+    run_abstention_benchmark,
+)
 from semantic_toponav.eval.generators import (
     chain_graph,
     doorway_graph,
@@ -91,6 +100,10 @@ from semantic_toponav.eval.visual_benchmark import (
 )
 
 __all__ = [
+    "AbstentionCase",
+    "AbstentionOutcome",
+    "AbstentionReport",
+    "CategoryMetrics",
     "DescriberSafetyCase",
     "DescriberSafetyEvaluation",
     "DescriberSafetyMetrics",
@@ -110,6 +123,7 @@ __all__ = [
     "VisualGroundingCorpus",
     "VisualGroundingMetrics",
     "VisualLocalizerEvaluation",
+    "abstention_report_markdown",
     "aliasing_visual_corpus",
     "chain_graph",
     "compute_metrics",
@@ -122,12 +136,14 @@ __all__ = [
     "grounding_report_markdown",
     "jain_fairness",
     "jsonl_to_trials",
+    "load_abstention_corpus",
     "load_grounding_corpus",
     "load_visual_grounding_corpus",
     "multi_floor_office",
     "neighbor_rerank_ablation",
     "neighbor_rerank_ablation_markdown",
     "no_invent_audit_markdown",
+    "run_abstention_benchmark",
     "run_no_invent_audit",
     "run_no_invent_conformance",
     "run_scenario",

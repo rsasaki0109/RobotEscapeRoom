@@ -1,0 +1,43 @@
+# Abstention taxonomy corpus for the multi_floor_office graph (3 floors:
+# entrance/corridors/lobby/kitchen/lab on 1F; corridor/meeting_room/office
+# on 2F; corridor/exec_office/balcony on 3F; elevators + stairs per floor).
+#
+# Categories — see semantic_toponav/eval/abstention.py:
+#   answerable    a real in-map place; the resolver SHOULD resolve.
+#   unresolvable  gibberish / vague; no anchor; SHOULD abstain.
+#   false_premise presupposes a false fact (a floor / attribute that does
+#                 not exist); SHOULD abstain.
+#   out_of_map    a coherent place type simply absent from this graph;
+#                 SHOULD abstain — the token-leak trap (e.g. "server room").
+cases:
+  # --- answerable (control: must resolve, not abstain) ----------------
+  - {query: "the kitchen", category: answerable, note: kitchen_1f}
+  - {query: "executive office on 3F", category: answerable, note: exec_office_3f}
+  - {query: "robotics lab", category: answerable, note: lab_1f}
+  - {query: "the entrance", category: answerable, note: entrance}
+  - {query: "second floor meeting room", category: answerable, note: meeting_room_2f}
+  - {query: "north stairs on the first floor", category: answerable, note: stairs_1f}
+
+  # --- unresolvable (gibberish / vague) ------------------------------
+  - {query: "asdf qwer zxcv", category: unresolvable}
+  - {query: "somewhere nice and quiet", category: unresolvable}
+  - {query: "the thing over there", category: unresolvable}
+  - {query: "wherever you think is best", category: unresolvable}
+  - {query: "blah blah blah", category: unresolvable}
+  - {query: "xyzzy", category: unresolvable}
+
+  # --- false_premise (presupposes a floor/attribute that doesn't exist)
+  - {query: "the office on the 5th floor", category: false_premise, note: only 3 floors}
+  - {query: "the 4th floor lobby", category: false_premise, note: only 3 floors}
+  - {query: "the basement kitchen", category: false_premise, note: no basement; 'kitchen' token leaks}
+  - {query: "the rooftop helipad", category: false_premise, note: no rooftop}
+  - {query: "the 10th floor corridor", category: false_premise, note: only 3 floors}
+  - {query: "the underground parking on floor minus 2", category: false_premise, note: no negative floors}
+
+  # --- out_of_map (coherent place type absent from this graph) --------
+  - {query: "the swimming pool", category: out_of_map}
+  - {query: "the server room", category: out_of_map, note: "'room' token leaks to meeting_room_2f"}
+  - {query: "the cafeteria", category: out_of_map}
+  - {query: "the parking garage", category: out_of_map}
+  - {query: "the operating theater", category: out_of_map}
+  - {query: "the break room", category: out_of_map, note: "'room' token leaks"}
