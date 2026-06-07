@@ -106,7 +106,8 @@ semantic-toponav eval-grounding \
     --llm-backend echo --describer-safety
 
 # With a local Ollama model (no API key, no cloud) — the real-model
-# path. Run `ollama serve` and `ollama pull qwen3.5` first.
+# path. Run `ollama serve` and `ollama pull qwen3.5` first. For a large
+# model on CPU, raise the per-request timeout: `--llm-timeout 600`.
 semantic-toponav eval-grounding \
     tests/fixtures/grounding/multi_floor_office.yaml \
     --llm-backend ollama --llm-model qwen3.5:latest --describer-safety \
