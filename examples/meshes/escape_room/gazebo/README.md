@@ -39,7 +39,15 @@ ros2 launch semantic_toponav_ros escape_room_gz_nav2.launch.py \
   goal_node:=maintenance_exit prefer_elevator:=true avoid_restricted:=true
 ```
 
-Requires ROS 2 Jazzy/Humble with ``nav2_bringup``, ``ros_gz_sim``, ``ros_gz_bridge``.
+Requires ROS 2 Jazzy/Humble with ``nav2_bringup``, ``ros_gz_sim``, and
+``ros_gz_bridge``.
+
+## Record Gazebo MP4
+
+```bash
+./scripts/record_escape_room_gz_sim.sh
+# → docs/images/robot_escape_room_gz.mp4
+```
 
 ## Nav2 GeoJSON only
 
