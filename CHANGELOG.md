@@ -7,6 +7,26 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.0.7] — 2026-06-09
+
+Per-room quests in the escape-room demo surface (hero GIF, MCAP, Foxglove
+panel). No changes to the six v1-locked public wire schemas or core planner
+behavior.
+
+### Added
+
+- **Per-room quests** — `semantic_toponav.escape_room.quests` defines one
+  visible quest per graph node (`ROOM_QUESTS`, `quest_fields`,
+  `room_at_progress`, `quest_complete`). Each stop along T-0's route shows
+  title, objective, and mechanic (e.g. `resolve_goal`, `block_edges`,
+  `prefer_elevator`).
+- **README hero GIF** — quest banner on the camera panel, highlighted quest
+  room on the map, quest title in the bottom bar (`#111`).
+- **Foxglove MCAP / timeline JSON** — `EscapeRoomStatus` carries
+  `room_id`, `quest_title`, `quest_detail`, `quest_mechanic`,
+  `quest_complete`.
+- Unit tests in `tests/test_escape_room_quests.py`.
+
 ### Changed
 
 - GitHub repository renamed to **`RobotEscapeRoom`**
@@ -14,6 +34,8 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   that held the slug moved to **`Nav2PlannerBattle`**. Old URLs
   (`robot-escape-room`, `semantic-toponav`) redirect automatically.
   Python package / CLI remain `semantic-toponav`.
+- Foxglove panel companion release **v0.5.0** — Escape Room panel renders
+  the quest banner when replaying `robot_escape_room_demo.mcap`.
 
 ## [1.0.6] — 2026-06-09
 
@@ -626,7 +648,8 @@ release consolidates). Future migration notes (for v2 schema
 bumps, removed CLI flags, etc.) will appear in this section per
 the freeze policy in [`docs/schema_v1.md`](docs/schema_v1.md).
 
-[Unreleased]: https://github.com/rsasaki0109/RobotEscapeRoom/compare/v1.0.6...HEAD
+[Unreleased]: https://github.com/rsasaki0109/RobotEscapeRoom/compare/v1.0.7...HEAD
+[1.0.7]: https://github.com/rsasaki0109/RobotEscapeRoom/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/rsasaki0109/RobotEscapeRoom/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/rsasaki0109/RobotEscapeRoom/compare/v1.0.4...v1.0.5
 [1.0.2]: https://github.com/rsasaki0109/RobotEscapeRoom/compare/v1.0.1...v1.0.2
