@@ -19,7 +19,29 @@ gz sim examples/meshes/escape_room/gazebo/escape_room.world
 Robot **T-0** spawns at the holding cell `(0.0, 0.0, 0.05)`
 in the `map` frame. Drive with `/cmd_vel` (DiffDrive plugin).
 
-## Nav2 hand-off
+## Nav2 + ros_gz_bridge (full stack)
+
+One-shot launch (Gazebo Harmonic + Nav2 + semantic waypoints):
+
+```bash
+pip install -e .
+cd ros2 && colcon build --packages-select semantic_toponav_msgs semantic_toponav_ros
+source install/setup.bash
+cd ..
+PYTHONPATH=. python3 examples/generate_escape_room_nav2_map.py
+./scripts/run_escape_room_gz_nav2.sh
+```
+
+Or manually:
+
+```bash
+ros2 launch semantic_toponav_ros escape_room_gz_nav2.launch.py \
+  goal_node:=maintenance_exit prefer_elevator:=true avoid_restricted:=true
+```
+
+Requires ROS 2 Jazzy/Humble with ``nav2_bringup``, ``ros_gz_sim``, ``ros_gz_bridge``.
+
+## Nav2 GeoJSON only
 
 Export the escape-room topology for Nav2 Route Server:
 

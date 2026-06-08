@@ -156,6 +156,35 @@ repository does **not** declare it as a build dependency so that the
 adapter package still builds on robots without Nav2. The node fails fast
 with a clear error message if `nav2_msgs` is not importable at runtime.
 
+## Escape room — Gazebo + Nav2 end-to-end
+
+The furnished escape-room facility ships with a one-shot launch that wires
+**Gazebo Harmonic → ros_gz_bridge → Nav2 → semantic waypoints → T-0**:
+
+```bash
+# from repository root
+pip install -e .
+cd ros2 && colcon build --packages-select semantic_toponav_msgs semantic_toponav_ros
+source install/setup.bash
+cd ..
+PYTHONPATH=. python3 examples/generate_escape_room_meshes.py
+PYTHONPATH=. python3 examples/generate_escape_room_gazebo_world.py
+PYTHONPATH=. python3 examples/generate_escape_room_nav2_map.py
+./scripts/run_escape_room_gz_nav2.sh
+```
+
+After ~25 s Nav2 receives a `NavigateThroughPoses` goal built from
+`robot_escape_room.yaml` (`holding_cell` → `maintenance_exit` by default).
+Override the goal:
+
+```bash
+ros2 launch semantic_toponav_ros escape_room_gz_nav2.launch.py goal_node:=main_lab
+```
+
+Requires ROS 2 Humble/Jazzy with `nav2_bringup`, `ros_gz_sim`, and
+`ros_gz_bridge`. See
+[`examples/meshes/escape_room/gazebo/README.md`](../examples/meshes/escape_room/gazebo/README.md).
+
 ## JSON vs custom messages
 
 | | `output_format:=json` (default) | `output_format:=msg` |

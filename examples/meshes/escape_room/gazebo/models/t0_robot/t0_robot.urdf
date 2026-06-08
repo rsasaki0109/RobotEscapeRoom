@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <robot name="t0_robot">
+  <link name="base_footprint"/>
   <link name="base_link">
     <visual>
       <geometry><box size="0.36 0.28 0.12"/></geometry>
@@ -13,6 +14,10 @@
       <inertia ixx="0.08" ixy="0" ixz="0" iyy="0.12" iyz="0" izz="0.14"/>
     </inertial>
   </link>
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint"/><child link="base_link"/>
+    <origin xyz="0 0 0.05" rpy="0 0 0"/>
+  </joint>
   <link name="left_wheel">
     <visual>
       <origin xyz="0 0 0" rpy="1.5707 0 0"/>
@@ -33,7 +38,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="1.5707 0 0"/>
       <geometry><cylinder radius="0.05" length="0.04"/></geometry>
-      <material name="black"/><color rgba="0.15 0.15 0.15 1"/>
+      <material name="black"><color rgba="0.15 0.15 0.15 1"/></material>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="1.5707 0 0"/>
