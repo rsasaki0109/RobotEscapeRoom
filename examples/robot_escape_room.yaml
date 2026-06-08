@@ -1,0 +1,236 @@
+version: 1
+metadata:
+  name: robot_escape_room
+  frame_id: map
+  description: >
+    A locked-down robotics facility laid out as a multi-floor "escape room"
+    topology for the robot T-0. The map is deliberately built so that several
+    puzzle mechanics — each backed by a real semantic-toponav planner
+    feature — gate the way to the exit:
+
+      * Keycard locks   : ``locked`` doors blocked via ``block_edges`` until
+                          the matching item is collected.
+      * Riddle terminals: a clue is grounded to a node id with
+                          ``resolve_goal``; solving it reveals where a hidden
+                          item is stashed.
+      * Power gate      : an ``unpowered`` corridor blocked via
+                          ``block_edge_types`` until the power core restores it.
+      * Laser grid      : a ``restricted`` shortcut the planner must route
+                          around via ``avoid_restricted``.
+
+    The twist is structural, not coded into the planner: a brightly-lit
+    EMERGENCY EXIT sign points up to Floor 3, so T-0 climbs toward it — but
+    that door is welded shut (``master_seal``, a lock with no key). The real
+    way out is a maintenance tunnel in the *sublevel*. A Floor-3 control room
+    riddle grounds the truth ("maintenance exit") and hands over the hatch
+    code, flipping T-0's route from all-the-way-up to all-the-way-down.
+
+    See examples/robot_escape_room.py for the runner that plays the room.
+
+nodes:
+  # --- Floor 1: the main facility -------------------------------------
+  - id: holding_cell
+    label: Holding Cell
+    type: room
+    pose: {x: 0.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: west_corridor
+    label: West Corridor
+    type: corridor
+    pose: {x: 4.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: server_room
+    label: Server Room
+    type: room
+    pose: {x: 4.0, y: 4.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: main_lab
+    label: Main Lab
+    type: room
+    pose: {x: 8.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: security_office
+    label: Security Office
+    type: room
+    pose: {x: 8.0, y: -4.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: atrium
+    label: Central Atrium
+    type: intersection
+    pose: {x: 12.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: storage_bay
+    label: Storage Bay
+    type: room
+    pose: {x: 12.0, y: 4.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: dark_corridor
+    label: Dark Corridor
+    type: corridor
+    pose: {x: 16.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+  - id: elevator_lobby
+    label: Elevator Lobby
+    type: intersection
+    pose: {x: 20.0, y: 0.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
+
+  # --- Floor 2 / Floor 3: the way "up" (toward the decoy) -------------
+  - id: mid_landing
+    label: 2F Landing
+    type: corridor
+    pose: {x: 24.0, y: 6.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 2}
+  - id: top_landing
+    label: 3F Landing
+    type: corridor
+    pose: {x: 24.0, y: 11.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 3}
+  - id: control_room
+    label: Control Room
+    type: room
+    pose: {x: 28.0, y: 11.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 3}
+  # The decoy: a green EXIT sign that is actually sealed shut.
+  - id: emergency_exit
+    label: Emergency Exit (3F)
+    type: sealed_exit
+    pose: {x: 24.0, y: 15.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 3}
+
+  # --- Sublevel (B1): the real way out --------------------------------
+  - id: basement_tunnel
+    label: Sublevel Tunnel
+    type: corridor
+    pose: {x: 20.0, y: -7.0, yaw: 0.0, frame_id: map}
+    properties: {floor: -1}
+  - id: maintenance_exit
+    label: Maintenance Exit
+    type: exit
+    pose: {x: 24.0, y: -7.0, yaw: 0.0, frame_id: map}
+    properties: {floor: -1}
+
+edges:
+  # --- Open doors: always traversable ---------------------------------
+  - id: door_cell_corridor
+    source: holding_cell
+    target: west_corridor
+    type: traversable
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+  - id: door_corridor_server
+    source: west_corridor
+    target: server_room
+    type: traversable
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+  - id: door_corridor_lab
+    source: west_corridor
+    target: main_lab
+    type: traversable
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+  - id: door_lab_atrium
+    source: main_lab
+    target: atrium
+    type: traversable
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+
+  # --- Keycard locks: blocked until the matching item is held ---------
+  # Blue keycard opens the door from the lab into security.
+  - id: door_lab_security
+    source: main_lab
+    target: security_office
+    type: locked
+    cost: 1.0
+    bidirectional: true
+    properties: {lock: keycard_blue}
+  # Red keycard opens the storage bay off the atrium.
+  - id: door_atrium_storage
+    source: atrium
+    target: storage_bay
+    type: locked
+    cost: 1.0
+    bidirectional: true
+    properties: {lock: keycard_red}
+
+  # --- Power gate: unpowered until the power core is held --------------
+  - id: door_atrium_dark
+    source: atrium
+    target: dark_corridor
+    type: unpowered
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+  - id: door_dark_lobby
+    source: dark_corridor
+    target: elevator_lobby
+    type: traversable
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+
+  # --- Laser grid: a tempting shortcut the planner must avoid ---------
+  # Without avoid_restricted this would let T-0 skip straight to the
+  # atrium and bypass the whole room.
+  - id: laser_shortcut
+    source: west_corridor
+    target: atrium
+    type: restricted
+    cost: 1.0
+    bidirectional: true
+    properties: {hazard: laser_grid}
+
+  # --- The way up: elevator to the decoy emergency exit on Floor 3 -----
+  - id: lift_lobby_mid
+    source: elevator_lobby
+    target: mid_landing
+    type: elevator_connection
+    cost: 1.5
+    bidirectional: true
+    properties: {}
+  - id: lift_mid_top
+    source: mid_landing
+    target: top_landing
+    type: elevator_connection
+    cost: 1.5
+    bidirectional: true
+    properties: {}
+  - id: door_top_control
+    source: top_landing
+    target: control_room
+    type: traversable
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+  # The decoy exit: welded shut. ``master_seal`` is a lock with no key,
+  # so block_edges keeps this door closed forever — the sign lies.
+  - id: door_top_emergency
+    source: top_landing
+    target: emergency_exit
+    type: locked
+    cost: 1.0
+    bidirectional: true
+    properties: {lock: master_seal}
+
+  # --- The real way out: a hatch down to the sublevel -----------------
+  # Locked until the control-room riddle reveals the hatch code.
+  - id: hatch_lobby_basement
+    source: elevator_lobby
+    target: basement_tunnel
+    type: locked
+    cost: 1.5
+    bidirectional: true
+    properties: {lock: hatch_code, kind: maintenance_hatch}
+  - id: door_basement_exit
+    source: basement_tunnel
+    target: maintenance_exit
+    type: traversable
+    cost: 1.0
+    bidirectional: true
+    properties: {}

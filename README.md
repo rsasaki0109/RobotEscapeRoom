@@ -173,6 +173,39 @@ target — no per-floor sub-graphs needed.
 |---|---|
 | ![mf prefer 2](docs/images/11_mf_prefer_2.png) | ![mf floor penalty](docs/images/12_mf_floor_penalty.png) |
 
+### Escape room — every cost function in one self-solving game
+
+The gallery above shows each feature in isolation; this ties them together.
+A robot, **T-0**, wakes in a locked-down facility and has to reason its way
+out. Each puzzle is a thin narrative skin over a real planner primitive:
+keycard doors are `block_edges`, the dead corridor is `block_edge_types`
+(power gate), the laser-grid shortcut is `avoid_restricted`, and every riddle
+terminal grounds its clue with `resolve_goal`. There is **no scripted route** —
+each turn the runner recomposes the *current* cost stack, asks A\* what is
+reachable now, walks to the nearest objective, and re-plans. The escape is an
+emergent consequence of the world changing under the planner.
+
+<p align="center">
+  <img src="docs/images/robot_escape_room.gif" width="900" alt="three panels: turn narrative on the left, a stacked B1–3F topology in the middle with the live A* route filling in green as T-0 collects keycards and solves riddle terminals, and the active block_edges / block_edge_types / avoid_restricted primitives plus inventory on the right — ending with the route plunging past a sealed Floor-3 emergency exit down to the sublevel">
+</p>
+
+<p align="center">
+  <sub>Three panels, same style as the page heroes: narrative · stacked
+  multi-floor map · active primitives. Keycard doors are
+  <code>block_edges</code>, the dark corridor is
+  <code>block_edge_types</code>, the laser shortcut is
+  <code>avoid_restricted</code>, riddles ground with
+  <code>resolve_goal</code> — and the twist is structural: a lit
+  <code>EMERGENCY EXIT</code> sign lures T-0 up to Floor 3, but that door is
+  welded shut (<code>master_seal</code> — a lock with no key). A control-room
+  riddle grounds <code>"maintenance exit"</code> to the sublevel and hands over
+  the hatch code, flipping the route from all-the-way-up to all-the-way-down.
+  Every keycard, riddle, and green leg is real output from the deterministic
+  resolver and planner. Play it in the terminal with
+  <code>python examples/robot_escape_room.py</code>; regenerate the GIF with
+  <code>python examples/record_escape_room.py</code>.</sub>
+</p>
+
 ### Conversion pipeline
 
 Topology graphs can be authored by hand or **generated from
