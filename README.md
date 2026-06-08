@@ -14,8 +14,9 @@
   <strong>robot camera · rgb</strong> (first-person furnished interior),
   and isometric <strong>3D sim · furnished rooms</strong> (imported OBJ meshes).
   Colour legend: cyan = traveled, pink = planned, red = locked.
-  Every GIF frame is one real A* planner step from
-  <code>robot_escape_room.py</code> — the robot moves each frame.
+  Every GIF frame is one real A* planner step — puzzle captions show items,
+  riddles, and the Floor-3 decoy twist. Live stack:
+  Gazebo + AMCL + Nav2 + <code>escape_room_runner</code> dynamic replan.
   Interactive Foxglove replay:
   <code>docs/foxglove/robot_escape_room_demo.mcap</code>.
   Robot <strong>T-0</strong> recomposes
@@ -32,7 +33,9 @@
   <code>PYTHONPATH=. python3 examples/export_escape_room_foxglove_mcap.py</code>).
   Other variants:
   <code>python examples/record_escape_room_sim.py</code> → dashboard GIF;
-  <code>python examples/record_escape_room.py</code> → three-panel analytics GIF.
+  <code>python examples/record_escape_room.py</code> → three-panel analytics GIF;
+  <code>./scripts/record_escape_room_gz_sim.sh</code> → Gazebo overview MP4
+  (<code>docs/images/robot_escape_room_gz.mp4</code>).
   <a href="#escape-room--every-cost-function-in-one-self-solving-game">Gallery write-up</a>.</sub>
 </p>
 
@@ -193,7 +196,10 @@ The [**page hero**](#robot-escape-room) is the 3D Foxglove replay GIF above
 (<code>export_escape_room_foxglove_mcap.py</code> +
 <code>build_escape_room_gif.sh</code>). A Foxglove dashboard variant lives at
 <code>docs/images/robot_escape_room_dashboard.gif</code>; a three-panel
-analytics variant at <code>docs/images/robot_escape_room_panels.gif</code>.
+analytics variant at <code>docs/images/robot_escape_room_panels.gif</code>;
+a Gazebo overview MP4 at
+<code>docs/images/robot_escape_room_gz.mp4</code>
+(<code>./scripts/record_escape_room_gz_sim.sh</code>).
 The gallery
 above shows
 each feature in isolation; the escape room ties them together. A robot,
@@ -235,6 +241,12 @@ See [`examples/meshes/escape_room/gazebo/README.md`](examples/meshes/escape_room
 **Full sim stack:** `./scripts/run_escape_room_gz_nav2.sh` launches Gazebo +
 ros_gz_bridge + Nav2 + semantic waypoint following — see
 [`ros2/README.md`](ros2/README.md).
+
+**Record Gazebo MP4:** `./scripts/record_escape_room_gz_sim.sh` replays the
+shipped timeline, drives T-0, and captures the overview camera →
+`docs/images/robot_escape_room_gz.mp4`. When gz-sim camera output is blank
+(headless / no GPU), the script falls back to a CPU overview renderer that
+matches the Gazebo camera pose.
 
 ### Conversion pipeline
 
