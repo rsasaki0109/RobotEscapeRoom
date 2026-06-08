@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: Questions and discussion
-    url: https://github.com/rsasaki0109/robot-escape-room/discussions
+    url: https://github.com/rsasaki0109/RobotEscapeRoom/discussions
     about: For open-ended questions or design discussion, prefer Discussions over the issue tracker.

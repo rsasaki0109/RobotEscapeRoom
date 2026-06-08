@@ -308,7 +308,7 @@ def _draw_panel(draw, box, title):
 
 def _draw_top_bar(draw, st: FrameState, t_sec: float):
     _round_rect(draw, TOP_BAR, 12, (10, 21, 40), (51, 65, 85), 1)
-    _text(draw, (34, 27), "robot-escape-room simulation", FONT_TITLE, TEXT)
+    _text(draw, (34, 27), "RobotEscapeRoom simulation", FONT_TITLE, TEXT)
     _text(draw, (380, 31), "map / tf / semantic route / waypoint array", FONT_SM, MUTED)
     _round_rect(draw, (940, 23, 1035, 49), 13, (6, 78, 59), (45, 212, 191), 1)
     _text(draw, (987, 29), "live", FONT_BOLD, (167, 243, 208), "ma")

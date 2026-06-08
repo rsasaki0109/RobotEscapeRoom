@@ -24,7 +24,7 @@ GRAPH_PATH = Path(__file__).parent / "robot_escape_room.yaml"
 
 
 def _write_combined(path: Path, rooms) -> None:
-    lines = ["# robot-escape-room detailed interior", "# units: metres, Z-up"]
+    lines = ["# RobotEscapeRoom detailed interior", "# units: metres, Z-up"]
     offset = 0
     for room in rooms:
         lines.append(f"# {room.label} ({room.node_id}) floor {room.floor}")

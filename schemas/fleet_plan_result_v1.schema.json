@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/rsasaki0109/robot-escape-room/schemas/fleet_plan_result/v1.json",
+  "$id": "https://github.com/rsasaki0109/RobotEscapeRoom/schemas/fleet_plan_result/v1.json",
   "title": "FleetPlanResult",
   "description": "Outcome of plan_fleet / plan_fleet_with_strategy / plan_fleet_bnb / plan_fleet_insert across all agents. Stable as of v1.",
   "type": "object",

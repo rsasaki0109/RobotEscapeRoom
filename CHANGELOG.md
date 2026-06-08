@@ -7,6 +7,14 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- GitHub repository renamed to **`RobotEscapeRoom`**
+  (`rsasaki0109/RobotEscapeRoom`). The former Nav2 planner-battle repo
+  that held the slug moved to **`Nav2PlannerBattle`**. Old URLs
+  (`robot-escape-room`, `semantic-toponav`) redirect automatically.
+  Python package / CLI remain `semantic-toponav`.
+
 ## [1.0.6] — 2026-06-09
 
 Gazebo overview MP4 recording with CPU renderer fallback. No changes to
@@ -618,10 +626,10 @@ release consolidates). Future migration notes (for v2 schema
 bumps, removed CLI flags, etc.) will appear in this section per
 the freeze policy in [`docs/schema_v1.md`](docs/schema_v1.md).
 
-[Unreleased]: https://github.com/rsasaki0109/robot-escape-room/compare/v1.0.6...HEAD
-[1.0.6]: https://github.com/rsasaki0109/robot-escape-room/compare/v1.0.5...v1.0.6
-[1.0.5]: https://github.com/rsasaki0109/robot-escape-room/compare/v1.0.4...v1.0.5
-[1.0.2]: https://github.com/rsasaki0109/robot-escape-room/compare/v1.0.1...v1.0.2
-[1.0.1]: https://github.com/rsasaki0109/robot-escape-room/compare/v1.0.0...v1.0.1
-[1.0.0]: https://github.com/rsasaki0109/robot-escape-room/compare/v0.1.0...v1.0.0
-[0.1.0]: https://github.com/rsasaki0109/robot-escape-room/releases/tag/v0.1.0
+[Unreleased]: https://github.com/rsasaki0109/RobotEscapeRoom/compare/v1.0.6...HEAD
+[1.0.6]: https://github.com/rsasaki0109/RobotEscapeRoom/compare/v1.0.5...v1.0.6
+[1.0.5]: https://github.com/rsasaki0109/RobotEscapeRoom/compare/v1.0.4...v1.0.5
+[1.0.2]: https://github.com/rsasaki0109/RobotEscapeRoom/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/rsasaki0109/RobotEscapeRoom/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/rsasaki0109/RobotEscapeRoom/compare/v0.1.0...v1.0.0
+[0.1.0]: https://github.com/rsasaki0109/RobotEscapeRoom/releases/tag/v0.1.0

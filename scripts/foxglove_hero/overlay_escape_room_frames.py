@@ -227,7 +227,7 @@ def annotate(path: Path, graph, meta: dict) -> None:
     draw.line([(0, TOP_H), (total_w, TOP_H)], fill=(51, 65, 85), width=2)
     draw.line([(0, body_h + TOP_H), (total_w, body_h + TOP_H)], fill=(51, 65, 85), width=2)
 
-    draw.text((18, 14), "robot-escape-room", font=FONT_TITLE, fill=TEXT)
+    draw.text((18, 14), "RobotEscapeRoom", font=FONT_TITLE, fill=TEXT)
     draw.text((300, 18), "2D map + 3D sim · real A* replan each turn", font=FONT_LEGEND, fill=MUTED)
 
     _round_rect(draw, (total_w - 108, 12, total_w - 18, 42), 14, (6, 78, 59), (45, 212, 191), 1)

@@ -74,11 +74,11 @@ foxglove = [
 semantic-toponav = "semantic_toponav.cli.main:main"
 
 [project.urls]
-Homepage = "https://github.com/rsasaki0109/robot-escape-room"
-Repository = "https://github.com/rsasaki0109/robot-escape-room"
-Issues = "https://github.com/rsasaki0109/robot-escape-room/issues"
-Changelog = "https://github.com/rsasaki0109/robot-escape-room/blob/main/CHANGELOG.md"
-Documentation = "https://github.com/rsasaki0109/robot-escape-room/tree/main/docs"
+Homepage = "https://github.com/rsasaki0109/RobotEscapeRoom"
+Repository = "https://github.com/rsasaki0109/RobotEscapeRoom"
+Issues = "https://github.com/rsasaki0109/RobotEscapeRoom/issues"
+Changelog = "https://github.com/rsasaki0109/RobotEscapeRoom/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/rsasaki0109/RobotEscapeRoom/tree/main/docs"
 
 [tool.setuptools.packages.find]
 where = ["."]

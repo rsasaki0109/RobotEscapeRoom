@@ -350,7 +350,7 @@ def render_frame(graph, meta: dict) -> Image.Image:
     draw.line([(0, TOP_H), (total_w, TOP_H)], fill=(51, 65, 85), width=2)
     draw.line([(0, BODY_H + TOP_H), (total_w, BODY_H + TOP_H)], fill=(51, 65, 85), width=2)
 
-    draw.text((18, 14), "robot-escape-room", font=FONT_TITLE, fill=TEXT)
+    draw.text((18, 14), "RobotEscapeRoom", font=FONT_TITLE, fill=TEXT)
     draw.text((300, 18), "2D topo + camera + furnished sim · puzzle replan each turn", font=FONT_LEGEND, fill=MUTED)
     _round_rect(draw, (total_w - 108, 12, total_w - 18, 42), 14, (6, 78, 59), (45, 212, 191), 1)
     draw.text((total_w - 63, 18), "live", font=FONT_BADGE, fill=(167, 243, 208), anchor="ma")
