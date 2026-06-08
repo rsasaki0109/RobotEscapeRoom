@@ -5,14 +5,14 @@
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 <p align="center">
-  <img src="docs/images/robot_escape_room.gif" width="900" alt="3D Gazebo/RViz-style Foxglove replay: stacked B1–3F escape facility with T-0 gliding along cyan A* legs, collecting keycards, solving riddles, and escaping via the sublevel past a sealed Floor-3 decoy exit">
+  <img src="docs/images/robot_escape_room.gif" width="900" alt="Annotated 3D Gazebo/RViz-style Foxglove replay: stacked B1–3F escape facility with turn-by-turn captions, cyan traveled route, pink planned legs, and T-0 escaping via the sublevel past a sealed Floor-3 decoy exit">
 </p>
 
 <p align="center">
-  <sub><strong>Every cost function, one self-solving escape game — 3D sim replay.</strong>
-  Gazebo/RViz-class 3D view rendered headless from real planner output
-  (<code>docs/foxglove/robot_escape_room_demo.mcap</code>): stacked-floor
-  topology, <code>/tf</code> robot pose, and cyan route progress.
+  <sub><strong>Every cost function, one self-solving escape game — annotated 3D sim.</strong>
+  Gazebo/RViz-class 3D view with a turn-by-turn caption bar and colour legend
+  (cyan = traveled, pink = planned, red = locked), rendered headless from real
+  planner output (<code>docs/foxglove/robot_escape_room_demo.mcap</code>).
   Robot <strong>T-0</strong> recomposes
   <code>block_edges</code> · <code>block_edge_types</code> ·
   <code>avoid_restricted</code> · <code>prefer_elevator</code> ·
