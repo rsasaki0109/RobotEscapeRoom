@@ -5,22 +5,26 @@
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 <p align="center">
-  <img src="docs/images/robot_escape_room.gif" width="900" alt="Foxglove-style live simulation dashboard (1280×720): stacked B1–3F map, /tf robot pose, topic inspector, semantic waypoint array, and route timeline as T-0 collects keycards, solves riddles, and escapes via the sublevel past a sealed Floor-3 decoy exit">
+  <img src="docs/images/robot_escape_room.gif" width="900" alt="3D Gazebo/RViz-style Foxglove replay: stacked B1–3F escape facility with T-0 gliding along cyan A* legs, collecting keycards, solving riddles, and escaping via the sublevel past a sealed Floor-3 decoy exit">
 </p>
 
 <p align="center">
-  <sub><strong>Every cost function, one self-solving escape game — live sim.</strong>
-  Foxglove/RViz-style dashboard: stacked-floor <code>map/tf</code> view,
-  smooth robot motion along real A* legs, mission HUD, and event log.
+  <sub><strong>Every cost function, one self-solving escape game — 3D sim replay.</strong>
+  Gazebo/RViz-class 3D view rendered headless from real planner output
+  (<code>docs/foxglove/robot_escape_room_demo.mcap</code>): stacked-floor
+  topology, <code>/tf</code> robot pose, and cyan route progress.
   Robot <strong>T-0</strong> recomposes
   <code>block_edges</code> · <code>block_edge_types</code> ·
   <code>avoid_restricted</code> · <code>prefer_elevator</code> ·
   <code>resolve_goal</code> each turn — no scripted route. The lit
   <code>EMERGENCY EXIT</code> on Floor 3 is a decoy; the real way out is
   the sublevel. Play it with
-  <code>python examples/robot_escape_room.py</code>; regenerate this sim GIF
-  with <code>python examples/record_escape_room_sim.py</code>
-  (three-panel analytics variant:
+  <code>python examples/robot_escape_room.py</code>; regenerate this 3D hero
+  with <code>scripts/foxglove_hero/build_escape_room_gif.sh</code>
+  (Foxglove dashboard variant:
+  <code>python examples/record_escape_room_sim.py</code> →
+  <code>docs/images/robot_escape_room_dashboard.gif</code>;
+  three-panel analytics:
   <code>python examples/record_escape_room.py</code> →
   <code>docs/images/robot_escape_room_panels.gif</code>).
   <a href="#escape-room--every-cost-function-in-one-self-solving-game">Gallery write-up</a>.</sub>
@@ -179,9 +183,12 @@ target — no per-floor sub-graphs needed.
 
 ### Escape room — every cost function in one self-solving game
 
-The [**page hero**](#semantic-toponav) is the live-simulation GIF above
-(<code>record_escape_room_sim.py</code>). A three-panel analytics variant
-lives at <code>docs/images/robot_escape_room_panels.gif</code>. The gallery
+The [**page hero**](#robot-escape-room) is the 3D Foxglove replay GIF above
+(<code>export_escape_room_foxglove_mcap.py</code> +
+<code>build_escape_room_gif.sh</code>). A Foxglove dashboard variant lives at
+<code>docs/images/robot_escape_room_dashboard.gif</code>; a three-panel
+analytics variant at <code>docs/images/robot_escape_room_panels.gif</code>.
+The gallery
 above shows
 each feature in isolation; the escape room ties them together. A robot,
 **T-0**, wakes in a locked-down facility and has to reason its way out.

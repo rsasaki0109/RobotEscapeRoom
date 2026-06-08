@@ -235,7 +235,15 @@ shut (`master_seal` — no key exists). A control-room riddle grounds
 `"maintenance exit"` to the **B1 sublevel**, flipping the route from
 all-the-way-up to all-the-way-down.
 
-Regenerate the README hero (1280×720 Foxglove-style dashboard GIF):
+Regenerate the README hero (3D Gazebo/RViz-style Foxglove replay):
+
+```bash
+pip install -e '.[foxglove]'
+PYTHONPATH=. python3 examples/export_escape_room_foxglove_mcap.py
+scripts/foxglove_hero/build_escape_room_gif.sh
+```
+
+Foxglove dashboard variant (1280×720 topic inspector layout):
 
 ```bash
 PYTHONPATH=. python3 examples/record_escape_room_sim.py

@@ -23,7 +23,7 @@ HERE = Path(__file__).parent
 ROOT = HERE.parent
 # Mid-run frame: route is green, HUD populated, robot mid-leg on the map.
 DEMO_GIF = ROOT / "docs" / "images" / "robot_escape_room.gif"
-DEMO_FRAME_INDEX = 80
+DEMO_FRAME_INDEX = 120
 OUT_PATH = ROOT / "docs" / "images" / "social_preview.png"
 
 W, H = 1280, 640
@@ -104,7 +104,7 @@ def main() -> None:
     )
     draw.text(
         (58, 136),
-        "1280×720 dashboard: map/tf · topics · waypoints · timeline",
+        "3D sim replay: stacked floors · /tf · cyan route progress",
         font=FONT_SMALL, fill=MUTED,
     )
     bx = 58

@@ -9,6 +9,15 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 Working area for changes that land after the v1.0.3 tag.
 
+### Changed — README hero is now a 3D Gazebo/RViz-class Foxglove replay
+
+- `examples/export_escape_room_foxglove_mcap.py` — exports the full escape-game
+  timeline to `docs/foxglove/robot_escape_room_demo.mcap`.
+- `scripts/foxglove_hero/build_escape_room_gif.sh` + `render_escape_room.cjs` —
+  headless Lichtblick capture → `docs/images/robot_escape_room.gif`.
+- `examples/record_escape_room_sim.py` now writes the dashboard variant to
+  `docs/images/robot_escape_room_dashboard.gif`.
+
 ## [1.0.3] — 2026-06-08
 
 README hero polish: replace the 960×540 toy sim with a full 1280×720

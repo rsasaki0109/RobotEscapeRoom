@@ -7,7 +7,9 @@ from ``robot_escape_room.py`` — no scripted animation.
 
     python examples/record_escape_room_sim.py
 
-Writes ``docs/images/robot_escape_room.gif``.
+Writes ``docs/images/robot_escape_room_dashboard.gif``.
+  The README hero (3D Gazebo-style replay) is built via
+  ``scripts/foxglove_hero/build_escape_room_gif.sh``.
 """
 
 from __future__ import annotations
@@ -42,8 +44,8 @@ game.VERBOSE = False
 
 ROOT = Path(__file__).resolve().parents[1]
 GRAPH_PATH = Path(__file__).parent / "robot_escape_room.yaml"
-OUT_GIF = ROOT / "docs/images/robot_escape_room.gif"
-OUT_MP4 = ROOT / "docs/images/robot_escape_room.mp4"
+OUT_GIF = ROOT / "docs/images/robot_escape_room_dashboard.gif"
+OUT_MP4 = ROOT / "docs/images/robot_escape_room_dashboard.mp4"
 
 W, H = 1280, 720
 FPS = 18
