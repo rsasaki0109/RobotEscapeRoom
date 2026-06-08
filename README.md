@@ -5,16 +5,18 @@
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 <p align="center">
-  <img src="docs/images/robot_escape_room.gif" width="900" alt="Split-view hero: 2D stacked-floor topology map beside an enhanced 3D Gazebo/RViz Foxglove replay, with turn-by-turn captions as T-0 collects keycards, solves riddles, and escapes via the sublevel past a sealed Floor-3 decoy exit">
+  <img src="docs/images/robot_escape_room.gif" width="900" alt="Three-panel hero: stacked-floor topology map, robot RGB camera with furnished interior, and isometric 3D sim with OBJ room meshes — turn-by-turn captions as T-0 escapes via the sublevel">
 </p>
 
 <p align="center">
-  <sub><strong>Every cost function, one self-solving escape game — map + 3D sim.</strong>
-  Left: stacked-floor <strong>topology map</strong> (2D). Right: enhanced
-  isometric 3D sim with caption bar and colour legend
-  (cyan = traveled, pink = planned, red = locked). Every GIF frame is one real
-  A* planner step from <code>robot_escape_room.py</code> — the robot moves
-  each frame. Interactive Foxglove replay:
+  <sub><strong>Every cost function, one self-solving escape game — map + camera + 3D sim.</strong>
+  Three panels: stacked-floor <strong>topology map</strong> (2D),
+  <strong>robot camera · rgb</strong> (first-person furnished interior),
+  and isometric <strong>3D sim · furnished rooms</strong> (imported OBJ meshes).
+  Colour legend: cyan = traveled, pink = planned, red = locked.
+  Every GIF frame is one real A* planner step from
+  <code>robot_escape_room.py</code> — the robot moves each frame.
+  Interactive Foxglove replay:
   <code>docs/foxglove/robot_escape_room_demo.mcap</code>.
   Robot <strong>T-0</strong> recomposes
   <code>block_edges</code> · <code>block_edge_types</code> ·
@@ -22,14 +24,15 @@
   <code>resolve_goal</code> each turn — no scripted route. The lit
   <code>EMERGENCY EXIT</code> on Floor 3 is a decoy; the real way out is
   the sublevel. Play it with
-  <code>python examples/robot_escape_room.py</code>; regenerate this 3D hero
-  with <code>scripts/foxglove_hero/build_escape_room_gif.sh</code>
-  (Foxglove dashboard variant:
-  <code>python examples/record_escape_room_sim.py</code> →
-  <code>docs/images/robot_escape_room_dashboard.gif</code>;
-  three-panel analytics:
-  <code>python examples/record_escape_room.py</code> →
-  <code>docs/images/robot_escape_room_panels.gif</code>).
+  <code>python examples/robot_escape_room.py</code>.
+  Regenerate the hero:
+  <code>PYTHONPATH=. python3 examples/generate_escape_room_meshes.py</code> then
+  <code>scripts/foxglove_hero/build_escape_room_gif.sh</code>
+  (Foxglove MCAP first:
+  <code>PYTHONPATH=. python3 examples/export_escape_room_foxglove_mcap.py</code>).
+  Other variants:
+  <code>python examples/record_escape_room_sim.py</code> → dashboard GIF;
+  <code>python examples/record_escape_room.py</code> → three-panel analytics GIF.
   <a href="#escape-room--every-cost-function-in-one-self-solving-game">Gallery write-up</a>.</sub>
 </p>
 

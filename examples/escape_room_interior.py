@@ -307,3 +307,138 @@ def geometry_to_obj(room: RoomGeometry) -> str:
         lines.append(f"f {base + 1} {base + 2} {base + 3}")
         base += 3
     return "\n".join(lines) + "\n"
+
+
+@dataclass(frozen=True)
+class FoxgloveCube:
+    center: tuple[float, float, float]
+    size: tuple[float, float, float]
+    rgba: tuple[float, float, float, float]
+
+
+def _fg_cube(
+    x0: float,
+    y0: float,
+    z0: float,
+    x1: float,
+    y1: float,
+    z1: float,
+    rgba: tuple[float, float, float, float],
+    out: list[FoxgloveCube],
+) -> None:
+    out.append(
+        FoxgloveCube(
+            center=((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2),
+            size=(abs(x1 - x0), abs(y1 - y0), abs(z1 - z0)),
+            rgba=rgba,
+        )
+    )
+
+
+def _fg_wall_y(
+    x: float,
+    y0: float,
+    y1: float,
+    z0: float,
+    z1: float,
+    *,
+    door: bool,
+    door_cy: float,
+    rgba: tuple[float, float, float, float],
+    out: list[FoxgloveCube],
+) -> None:
+    gap0, gap1 = door_cy - DOOR_W / 2, door_cy + DOOR_W / 2
+    for ya, yb in _wall_segments(y0, y1, gap0, gap1) if door else [(y0, y1)]:
+        _fg_cube(x - WALL_T / 2, ya, z0, x + WALL_T / 2, yb, z1, rgba, out)
+    if door:
+        frame = (rgba[0] * 0.45, rgba[1] * 0.45, rgba[2] * 0.45, rgba[3])
+        _fg_cube(x - 0.06, gap0, z0, x + 0.06, gap0 + 0.07, z0 + DOOR_H, frame, out)
+        _fg_cube(x - 0.06, gap1 - 0.07, z0, x + 0.06, gap1, z0 + DOOR_H, frame, out)
+        _fg_cube(x - 0.06, gap0, z0 + DOOR_H - 0.07, x + 0.06, gap1, z0 + DOOR_H, frame, out)
+
+
+def _fg_wall_x(
+    y: float,
+    x0: float,
+    x1: float,
+    z0: float,
+    z1: float,
+    *,
+    door: bool,
+    door_cx: float,
+    rgba: tuple[float, float, float, float],
+    out: list[FoxgloveCube],
+) -> None:
+    gap0, gap1 = door_cx - DOOR_W / 2, door_cx + DOOR_W / 2
+    for xa, xb in _wall_segments(x0, x1, gap0, gap1) if door else [(x0, x1)]:
+        _fg_cube(xa, y - WALL_T / 2, z0, xb, y + WALL_T / 2, z1, rgba, out)
+    if door:
+        frame = (rgba[0] * 0.45, rgba[1] * 0.45, rgba[2] * 0.45, rgba[3])
+        _fg_cube(gap0, y - 0.06, z0, gap0 + 0.07, y + 0.06, z0 + DOOR_H, frame, out)
+        _fg_cube(gap1 - 0.07, y - 0.06, z0, gap1, y + 0.06, z0 + DOOR_H, frame, out)
+        _fg_cube(gap0, y - 0.06, z0 + DOOR_H - 0.07, gap1, y + 0.06, z0 + DOOR_H, frame, out)
+
+
+def foxglove_furnished_cubes(graph: Any, route_set: set[str]) -> list[FoxgloveCube]:
+    """Compact furnished-room primitives for Foxglove (floors, walls, props)."""
+    cubes: list[FoxgloveCube] = []
+    for node_id in sorted(graph.node_ids()):
+        node = graph.get_node(node_id)
+        fl = int(node.properties.get("floor", 1))
+        sx, sy, sz = MESH_SIZE.get(node.type, (3.0, 3.0, WALL_HEIGHT_M))
+        cx, cy = node.pose.x, node.pose.y
+        z0 = floor_z(fl)
+        z1 = z0 + sz
+        hx, hy = sx / 2, sy / 2
+        r, g, b, a = MESH_RGBA.get(node.type, (0.4, 0.5, 0.6, 0.5))
+        if node_id in route_set:
+            wall = (r, g, b, min(1.0, a + 0.3))
+            floor = (0.34, 0.36, 0.42, 0.95)
+            prop = (r * 0.85 + 0.1, g * 0.85 + 0.1, b * 0.85 + 0.1, 0.92)
+        else:
+            wall = (r * 0.65, g * 0.65, b * 0.65, a * 0.75)
+            floor = (0.26, 0.28, 0.32, 0.85)
+            prop = (r * 0.55, g * 0.55, b * 0.55, 0.8)
+
+        ih, iw = hx - WALL_T, hy - WALL_T
+        _fg_cube(cx - ih, cy - iw, z0, cx + ih, cy + iw, z0 + SLAB_T, floor, cubes)
+        _fg_cube(cx - hx, cy - hy, z1 - SLAB_T, cx + hx, cy + hy, z1, (wall[0] * 0.8, wall[1] * 0.8, wall[2] * 0.8, 0.7), cubes)
+        for ox, oy in ((0, 0), (-hx * 0.45, 0), (hx * 0.45, 0)):
+            _fg_cube(
+                cx + ox - 0.35, cy + oy - 0.18, z1 - 0.06,
+                cx + ox + 0.35, cy + oy + 0.18, z1 - 0.01,
+                (1.0, 0.98, 0.88, 0.95),
+                cubes,
+            )
+
+        doors = _door_walls(graph, node_id)
+        door_x_pos = {sign for axis, sign in doors if axis == "x"}
+        door_y_pos = {sign for axis, sign in doors if axis == "y"}
+        xi0, xi1 = cx - hx, cx + hx
+        yi0, yi1 = cy - hy, cy + hy
+        _fg_wall_y(xi0, yi0, yi1, z0, z1, door=(-1 in door_x_pos), door_cy=cy, rgba=wall, out=cubes)
+        _fg_wall_y(xi1, yi0, yi1, z0, z1, door=(1 in door_x_pos), door_cy=cy, rgba=wall, out=cubes)
+        _fg_wall_x(yi0, xi0, xi1, z0, z1, door=(-1 in door_y_pos), door_cx=cx, rgba=wall, out=cubes)
+        _fg_wall_x(yi1, xi0, xi1, z0, z1, door=(1 in door_y_pos), door_cx=cx, rgba=wall, out=cubes)
+
+        for _name, dx, dy, bsx, bsy, bsz, bz in ROOM_PROPS.get(node_id, []):
+            _fg_cube(
+                cx + dx - bsx / 2, cy + dy - bsy / 2, z0 + bz,
+                cx + dx + bsx / 2, cy + dy + bsy / 2, z0 + bz + bsz,
+                prop,
+                cubes,
+            )
+        if node.type == "stairs":
+            for i in range(5):
+                t = i / 5
+                _fg_cube(
+                    cx - hx * 0.5,
+                    cy - hy * 0.4 + (hy * 0.8) * t,
+                    z0 + sz * t / 5,
+                    cx + hx * 0.5,
+                    cy - hy * 0.4 + (hy * 0.8) * (t + 1 / 5),
+                    z0 + sz * (t + 1 / 5) / 5,
+                    prop,
+                    cubes,
+                )
+    return cubes

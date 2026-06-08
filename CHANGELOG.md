@@ -7,16 +7,27 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-Working area for changes that land after the v1.0.3 tag.
+## [1.0.4] — 2026-06-09
 
-### Changed — README hero is now a 3D Gazebo/RViz-class Foxglove replay
+Escape-room hero refresh: three-panel GIF (2D topo + robot RGB camera +
+furnished OBJ interiors) and matching Foxglove MCAP geometry. No changes to
+core planner / resolver / coordinator wire schemas.
 
-- `examples/export_escape_room_foxglove_mcap.py` — exports the full escape-game
-  timeline to `docs/foxglove/robot_escape_room_demo.mcap`.
-- `scripts/foxglove_hero/build_escape_room_gif.sh` + `render_escape_room.cjs` —
-  headless Lichtblick capture → `docs/images/robot_escape_room.gif`.
-- `examples/record_escape_room_sim.py` now writes the dashboard variant to
-  `docs/images/robot_escape_room_dashboard.gif`.
+### Added
+
+- `examples/escape_room_interior.py` — furnished room shells (tiled floors,
+  doorways, ceiling lights, per-room props) for OBJ export and rendering.
+- `examples/escape_room_mesh_render.py` — isometric + first-person mesh renderer.
+- `examples/escape_room_camera.py` — robot RGB camera panel for the hero GIF.
+- Robot camera column in the README hero (3-panel layout).
+
+### Changed
+
+- README hero caption and alt text match the 3-panel furnished-room GIF.
+- `examples/export_escape_room_foxglove_mcap.py` — Foxglove scene uses furnished
+  interior cubes (walls, floors, props) instead of plain topology boxes.
+- `docs/images/robot_escape_room.gif`, `docs/images/social_preview.png` refreshed.
+- OBJ assets under `examples/meshes/escape_room/` regenerated with interior detail.
 
 ## [1.0.3] — 2026-06-08
 

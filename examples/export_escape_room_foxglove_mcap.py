@@ -40,7 +40,7 @@ from semantic_toponav.graph.serialization import load_graph
 from semantic_toponav.waypoint import path_to_semantic_waypoints
 
 import export_foxglove_mcap as fx
-from escape_room_meshes import all_meshes
+from escape_room_interior import foxglove_furnished_cubes
 
 game.VERBOSE = False
 
@@ -234,22 +234,19 @@ def _static_scene(graph: Any, frame: TimelineFrame, timestamp_ns: int) -> dict[s
     if len(route_pts) >= 2:
         route_line = [fx._line(route_pts, (0.98, 0.28, 0.52, 1.0), thickness=0.20)]
 
-    def _cube(mesh, color: tuple[float, float, float, float]) -> dict[str, Any]:
-        cx, cy, cz = mesh.center
-        sx, sy, sz = mesh.size
+    def _cube(center, size, color: tuple[float, float, float, float]) -> dict[str, Any]:
+        cx, cy, cz = center
+        sx, sy, sz = size
         return {
             "pose": fx._pose(cx, cy, cz),
             "size": fx._point(sx, sy, sz),
             "color": fx._color(*color),
         }
 
-    cubes = []
-    for mesh in all_meshes(graph):
-        r, g, b, a = mesh.color
-        if mesh.node_id in route_set:
-            cubes.append(_cube(mesh, (r, g, b, min(1.0, a + 0.25))))
-        else:
-            cubes.append(_cube(mesh, (r * 0.6, g * 0.6, b * 0.6, a * 0.7)))
+    cubes = [
+        _cube(fg.center, fg.size, fg.rgba)
+        for fg in foxglove_furnished_cubes(graph, route_set)
+    ]
 
     labels = [
         fx._text(
@@ -281,6 +278,7 @@ def _static_scene(graph: Any, frame: TimelineFrame, timestamp_ns: int) -> dict[s
                 metadata=[
                     {"key": "source", "value": "examples/robot_escape_room.yaml"},
                     {"key": "demo", "value": "robot_escape_room"},
+                    {"key": "meshes", "value": "escape_room_interior.obj"},
                 ],
             )
         ],
