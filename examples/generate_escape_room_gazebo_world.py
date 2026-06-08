@@ -361,6 +361,22 @@ def _write_world() -> None:
               <name>t0</name>
               <pose>{sx:.4f} {sy:.4f} {sz:.4f} 0 0 0</pose>
             </include>
+
+            <model name="overview_camera">
+              <static>true</static>
+              <link name="link">
+                <pose>14 -10 24 0 0.65 0.85</pose>
+                <sensor name="camera" type="camera">
+                  <camera>
+                    <horizontal_fov>1.05</horizontal_fov>
+                    <image><width>1280</width><height>720</height></image>
+                    <clip><near>0.1</near><far>200</far></clip>
+                  </camera>
+                  <topic>/escape_room/camera</topic>
+                  <update_rate>12</update_rate>
+                </sensor>
+              </link>
+            </model>
           </world>
         </sdf>
         """
