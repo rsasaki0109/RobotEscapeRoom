@@ -7,6 +7,32 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.0.5] — 2026-06-09
+
+Gazebo / Nav2 sim stack + dynamic escape-room replan + puzzle-caption hero refresh.
+No changes to the six v1-locked public wire schemas or core planner behavior.
+
+### Added
+
+- **Gazebo / gz-sim world** — `examples/generate_escape_room_gazebo_world.py`,
+  furnished facility mesh + collision boxes, T-0 diff-drive robot (SDF + URDF).
+- **Nav2 hand-off** — `examples/export_escape_room_nav2_route.py`,
+  `examples/generate_escape_room_nav2_map.py` (wall-rasterized occupancy map).
+- **ROS2 launch** — `escape_room_gz_nav2.launch.py` wires Gazebo, ros_gz_bridge,
+  AMCL, Nav2, and semantic waypoints; `scripts/run_escape_room_gz_nav2.sh`.
+- **T-0 lidar** — 360° GPU lidar on `/scan` for Nav2 obstacle layers.
+- **`semantic_toponav.escape_room`** — puzzle runner library extracted from
+  `robot_escape_room.py`.
+- **`escape_room_runner` ROS node** — dynamic replan on arrival; `/semantic_toponav/escape_room/status`.
+- **`nav2_demo` continuous mode** — preempt NavigateThroughPoses on replan.
+- Foxglove MCAP topic `/semantic_toponav/escape_room/status` (turn captions + events).
+
+### Changed
+
+- README hero GIF regenerated with per-turn puzzle captions (items, riddles, decoy twist).
+- AMCL localization enabled by default in the escape-room Gazebo launch.
+- `docs/images/social_preview.png` refreshed from the new hero.
+
 ## [1.0.4] — 2026-06-09
 
 Escape-room hero refresh: three-panel GIF (2D topo + robot RGB camera +
