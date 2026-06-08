@@ -168,11 +168,59 @@ def write_manifest(meshes: list[RoomMesh]) -> None:
 ISO_SCALE = 5.6
 
 
-def iso_project(x: float, y: float, z: float, cx: float, cy: float) -> tuple[float, float]:
+@dataclass(frozen=True)
+class IsoView:
+    cx: float
+    cy: float
+    scale: float = ISO_SCALE
+
+
+def iso_project(
+    x: float,
+    y: float,
+    z: float,
+    cx: float,
+    cy: float,
+    *,
+    scale: float = ISO_SCALE,
+) -> tuple[float, float]:
     dx, dy = x - 14.0, y
-    sx = cx + (dx - dy) * ISO_SCALE * 0.74
-    sy = cy - z * ISO_SCALE * 1.1 + (dx + dy) * ISO_SCALE * 0.30
+    sx = cx + (dx - dy) * scale * 0.74
+    sy = cy - z * scale * 1.1 + (dx + dy) * scale * 0.30
     return sx, sy
+
+
+def fit_iso_view(
+    graph: Any,
+    width: int,
+    height: int,
+    *,
+    margin: float = 0.10,
+    header_h: int = 26,
+) -> IsoView:
+    """Scale and centre the facility to fill the 3D sim panel."""
+    base_cx, base_cy, base_scale = width / 2, height / 2, ISO_SCALE
+    corners = [c for m in all_meshes(graph) for c in m.corners()]
+    screen = [iso_project(*c, base_cx, base_cy, scale=base_scale) for c in corners]
+    xs = [p[0] for p in screen]
+    ys = [p[1] for p in screen]
+    bbox_w = max(xs) - min(xs)
+    bbox_h = max(ys) - min(ys)
+    usable_w = width * (1 - 2 * margin)
+    usable_h = (height - header_h) * (1 - 2 * margin)
+    zoom = min(usable_w / max(bbox_w, 1), usable_h / max(bbox_h, 1))
+    scale = base_scale * zoom
+    screen = [iso_project(*c, base_cx, base_cy, scale=scale) for c in corners]
+    xs = [p[0] for p in screen]
+    ys = [p[1] for p in screen]
+    bbox_cx = (min(xs) + max(xs)) / 2
+    bbox_cy = (min(ys) + max(ys)) / 2
+    target_cy = header_h + (height - header_h) / 2
+    return IsoView(
+        cx=width / 2 + (width / 2 - bbox_cx),
+        cy=target_cy + (target_cy - bbox_cy),
+        scale=scale,
+    )
 
 
 def iso_depth(x: float, y: float, z: float) -> float:

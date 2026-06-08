@@ -27,6 +27,16 @@ PYTHONPATH=. python3 examples/generate_escape_room_meshes.py
 
 File → Import → `escape_room_scene.obj` (Z-up; scale 1.0 = 1 metre).
 
+## 3DGS background (README hero)
+
+Synthetic Gaussian-splat facility map for the 3D sim panel:
+
+```bash
+PYTHONPATH=. python3 examples/generate_escape_room_3dgs_map.py
+```
+
+Outputs `escape_room_3dgs_map.png` (isometric splats aligned to room meshes).
+
 ## Gazebo / Foxglove
 
 The MCAP exporter (`export_escape_room_foxglove_mcap.py`) and README hero
