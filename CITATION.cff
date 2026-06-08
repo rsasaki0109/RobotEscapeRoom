@@ -1,14 +1,14 @@
 cff-version: 1.2.0
 message: "If you use semantic-toponav in research or deployed experiments, please cite this software."
 type: software
-title: "Robot Escape Room · semantic-toponav"
+title: "robot-escape-room"
 version: "1.0.2"
 date-released: "2026-05-28"
 authors:
   - name: "semantic-toponav contributors"
 license: Apache-2.0
-repository-code: "https://github.com/rsasaki0109/semantic-toponav"
-url: "https://github.com/rsasaki0109/semantic-toponav"
+repository-code: "https://github.com/rsasaki0109/robot-escape-room"
+url: "https://github.com/rsasaki0109/robot-escape-room"
 abstract: >-
   semantic-toponav is a Python middle planning layer for robot navigation,
   showcased by a self-solving Robot Escape Room where every puzzle maps to a

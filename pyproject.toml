@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "semantic-toponav"
 version = "1.0.2"
-description = "Self-solving Robot Escape Room demo plus semantic topological navigation — language goals, composable A* costs, fleet coordination, and Nav2 hand-off."
+description = "Robot escape game + semantic graph navigation in Python."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
@@ -74,11 +74,11 @@ foxglove = [
 semantic-toponav = "semantic_toponav.cli.main:main"
 
 [project.urls]
-Homepage = "https://github.com/rsasaki0109/semantic-toponav"
-Repository = "https://github.com/rsasaki0109/semantic-toponav"
-Issues = "https://github.com/rsasaki0109/semantic-toponav/issues"
-Changelog = "https://github.com/rsasaki0109/semantic-toponav/blob/main/CHANGELOG.md"
-Documentation = "https://github.com/rsasaki0109/semantic-toponav/tree/main/docs"
+Homepage = "https://github.com/rsasaki0109/robot-escape-room"
+Repository = "https://github.com/rsasaki0109/robot-escape-room"
+Issues = "https://github.com/rsasaki0109/robot-escape-room/issues"
+Changelog = "https://github.com/rsasaki0109/robot-escape-room/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/rsasaki0109/robot-escape-room/tree/main/docs"
 
 [tool.setuptools.packages.find]
 where = ["."]

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/rsasaki0109/semantic-toponav/schemas/plan_with_scheduler_result/v1.json",
+  "$id": "https://github.com/rsasaki0109/robot-escape-room/schemas/plan_with_scheduler_result/v1.json",
   "title": "PlanWithSchedulerResult",
   "description": "Outcome of plan_with_scheduler for one agent. Stable as of v1 — the explainability backbone of the fleet scheduler (Nav2 / Autoware bridges, dashboards, and adapters all dispatch on `reason_code`).",
   "type": "object",

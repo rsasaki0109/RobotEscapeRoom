@@ -97,7 +97,7 @@ def main() -> None:
     for y in range(0, H, 44):
         draw.line([(0, y), (W, y)], fill=(30, 41, 59), width=1)
 
-    draw.text((54, 36), "Robot Escape Room · semantic-toponav", font=FONT_TITLE, fill=INK)
+    draw.text((54, 36), "robot-escape-room", font=FONT_TITLE, fill=INK)
     draw.text(
         (58, 98), "Every cost function, one self-solving escape game",
         font=FONT_SUB, fill=MUTED,
