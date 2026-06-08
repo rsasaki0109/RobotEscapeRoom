@@ -37,6 +37,7 @@ Autoware). This repository does **not** implement that local executor.
 | `graph_loader_node` | `graph_loader` | load and validate a topology graph at startup, and publish it as a latched `TopologyGraph` |
 | `waypoint_publisher_node` | `waypoint_publisher` | plan a route and publish semantic waypoints |
 | `nav2_demo_node` | `nav2_demo` | worked example: forward semantic waypoints to Nav2's `NavigateThroughPoses` action |
+| `escape_room_runner_node` | `escape_room_runner` | run the escape-room puzzle loop; republish waypoints on each arrival |
 
 ### Build
 
@@ -173,12 +174,16 @@ PYTHONPATH=. python3 examples/generate_escape_room_nav2_map.py
 ./scripts/run_escape_room_gz_nav2.sh
 ```
 
-After ~25 s Nav2 receives a `NavigateThroughPoses` goal built from
-`robot_escape_room.yaml` (`holding_cell` → `maintenance_exit` by default).
-Override the goal:
+After ~20 s the **escape-room runner** drives the full puzzle loop: T-0 picks
+the nearest item/riddle objective, Nav2 follows the semantic waypoints, and on
+arrival the runner resolves puzzles and replans until T-0 reaches the sublevel
+exit. Status strings publish on `/semantic_toponav/escape_room/status`.
+
+For a single static route instead, disable the puzzle runner:
 
 ```bash
-ros2 launch semantic_toponav_ros escape_room_gz_nav2.launch.py goal_node:=main_lab
+ros2 launch semantic_toponav_ros escape_room_gz_nav2.launch.py escape_room:=false \\
+  goal_node:=maintenance_exit
 ```
 
 Requires ROS 2 Humble/Jazzy with `nav2_bringup`, `ros_gz_sim`, and
