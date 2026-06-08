@@ -38,7 +38,7 @@ export GZ_SIM_RESOURCE_PATH="${MODELS}:${GZ_SIM_RESOURCE_PATH:-}"
 export LIBGL_ALWAYS_SOFTWARE="${LIBGL_ALWAYS_SOFTWARE:-1}"
 
 echo "==> start gz-sim (headless server + rendering)"
-gz sim -s -r --headless-rendering "$WORLD" &
+gz sim -s -r --headless-rendering --render-engine ogre2 "$WORLD" &
 GZ_PID=$!
 cleanup() {
   kill "$GZ_PID" 2>/dev/null || true
