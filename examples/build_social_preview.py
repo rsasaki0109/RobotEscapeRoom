@@ -22,7 +22,7 @@ HERE = Path(__file__).parent
 ROOT = HERE.parent
 # Mid-run frame: route is green, HUD populated, robot mid-leg on the map.
 DEMO_GIF = ROOT / "docs" / "images" / "robot_escape_room.gif"
-DEMO_FRAME_INDEX = 120
+DEMO_FRAME_INDEX = 88
 OUT_PATH = ROOT / "docs" / "images" / "social_preview.png"
 
 W, H = 1280, 640
@@ -103,7 +103,7 @@ def main() -> None:
     )
     draw.text(
         (58, 136),
-        "2D topo · robot camera · furnished OBJ rooms · real A* each frame",
+        "Gazebo + AMCL + Nav2 · puzzle replan captions · furnished sim",
         font=FONT_SMALL, fill=MUTED,
     )
     bx = 58
