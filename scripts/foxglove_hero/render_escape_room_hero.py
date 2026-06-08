@@ -22,7 +22,7 @@ sys.path.insert(0, str(ROOT / "examples"))
 from escape_room_3dgs_map import load_map  # noqa: E402
 from escape_room_camera import render_camera_view  # noqa: E402
 from escape_room_meshes import IsoView, all_meshes, fit_iso_view, iso_project  # noqa: E402
-from robot_escape_room import POWER_ITEM, UNPOWERED_TYPES  # noqa: E402
+from semantic_toponav.escape_room.runner import POWER_ITEM, UNPOWERED_TYPES  # noqa: E402
 from semantic_toponav.graph.serialization import load_graph  # noqa: E402
 
 GRAPH_PATH = ROOT / "examples/robot_escape_room.yaml"
@@ -351,7 +351,7 @@ def render_frame(graph, meta: dict) -> Image.Image:
     draw.line([(0, BODY_H + TOP_H), (total_w, BODY_H + TOP_H)], fill=(51, 65, 85), width=2)
 
     draw.text((18, 14), "robot-escape-room", font=FONT_TITLE, fill=TEXT)
-    draw.text((300, 18), "2D topo + camera + OBJ meshes · real A* each frame", font=FONT_LEGEND, fill=MUTED)
+    draw.text((300, 18), "2D topo + camera + furnished sim · puzzle replan each turn", font=FONT_LEGEND, fill=MUTED)
     _round_rect(draw, (total_w - 108, 12, total_w - 18, 42), 14, (6, 78, 59), (45, 212, 191), 1)
     draw.text((total_w - 63, 18), "live", font=FONT_BADGE, fill=(167, 243, 208), anchor="ma")
 

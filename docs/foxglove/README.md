@@ -37,3 +37,24 @@ python examples/export_foxglove_mcap.py
 ```
 
 The README GIF is recorded from a Foxglove Studio replay of this MCAP.
+
+## Robot Escape Room MCAP
+
+`robot_escape_room_demo.mcap` replays the full puzzle loop — every route is a
+live A* plan over the escape-room cost stack (no scripted path).
+
+```bash
+pip install -e '.[foxglove]'
+PYTHONPATH=. python3 examples/export_escape_room_foxglove_mcap.py
+scripts/foxglove_hero/build_escape_room_gif.sh
+```
+
+| Topic | Schema | Purpose |
+|---|---|---|
+| `/semantic_toponav/escape_room/status` | `semantic_toponav.EscapeRoomStatus` | Turn caption + puzzle events (matches README hero subtitles) |
+| `/semantic_toponav/scene` | `foxglove.SceneUpdate` | Furnished interior cubes + route + robot marker |
+| `/semantic_toponav/waypoints` | `semantic_toponav.WaypointArray` | Semantic waypoints per frame |
+
+Open `docs/foxglove/robot_escape_room_demo.mcap` in Foxglove Studio and add a
+Raw Messages panel on `/semantic_toponav/escape_room/status` to read turn
+narrative alongside the 3D scene.

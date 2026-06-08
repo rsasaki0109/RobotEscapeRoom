@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "examples"))
 
-from robot_escape_room import POWER_ITEM, UNPOWERED_TYPES  # noqa: E402
+from semantic_toponav.escape_room.runner import POWER_ITEM, UNPOWERED_TYPES  # noqa: E402
 from semantic_toponav.graph.serialization import load_graph  # noqa: E402
 
 GRAPH_PATH = ROOT / "examples/robot_escape_room.yaml"
