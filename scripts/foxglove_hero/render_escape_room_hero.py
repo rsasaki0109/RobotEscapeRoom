@@ -251,44 +251,25 @@ def _render_camera(graph, meta: dict) -> Image.Image:
     return panel
 
 
-_3DGS_BG: Image.Image | None = None
-
-
-def _mesh_wireframes(graph, view: IsoView) -> list[tuple[float, tuple, tuple, tuple, int]]:
-    """Semi-transparent topology boxes over the 3DGS splat map."""
-    lines: list[tuple[float, tuple, tuple, tuple, int]] = []
-    edges = (
-        (0, 1), (1, 2), (2, 3), (3, 0),
-        (4, 5), (5, 6), (6, 7), (7, 4),
-        (0, 4), (1, 5), (2, 6), (3, 7),
-    )
-    for mesh in all_meshes(graph):
-        corners = mesh.corners()
-        pts = [iso_project(*c, view.cx, view.cy, scale=view.scale) for c in corners]
-        r, g, b, _ = mesh.color
-        stroke = (int(r * 255), int(g * 255), int(b * 255), 200)
-        depth = sum(mesh.center) / 3
-        for i, j in edges:
-            lines.append((depth, stroke, pts[i], pts[j], 1))
-    return lines
+_FACILITY_BG: Image.Image | None = None
 
 
 def _render_sim(graph, meta: dict) -> Image.Image:
-    global _3DGS_BG
+    global _FACILITY_BG
     view = _iso_view(graph)
-    if _3DGS_BG is None:
-        _3DGS_BG = load_map(graph)
+    if _FACILITY_BG is None:
+        _FACILITY_BG = load_map(graph)
 
     items = set(meta.get("items", []))
     route = meta.get("route") or []
     progress = float(meta.get("progress", 0.0))
     panel = Image.new("RGBA", (SIM_W, BODY_H), (10, 18, 34))
-    panel.paste(_3DGS_BG, (0, 0), _3DGS_BG)
+    panel.paste(_FACILITY_BG, (0, 0), _FACILITY_BG)
     draw = ImageDraw.Draw(panel, "RGBA")
 
     draw.rectangle((0, 0, SIM_W, 26), fill=(9, 17, 31, 240))
-    draw.text((14, 6), "3D sim · 3DGS map", font=FONT_PANEL, fill=TEXT)
-    draw.text((SIM_W - 14, 6), "Gaussian splats", font=FONT_SM, fill=MUTED, anchor="ra")
+    draw.text((14, 6), "3D sim · furnished rooms", font=FONT_PANEL, fill=TEXT)
+    draw.text((SIM_W - 14, 6), "OBJ interior meshes", font=FONT_SM, fill=MUTED, anchor="ra")
 
     segment = min(int(progress), len(route) - 2) if len(route) >= 2 else 0
     local = progress - segment if len(route) >= 2 else 0.0
@@ -328,9 +309,6 @@ def _render_sim(graph, meta: dict) -> Image.Image:
                 edges.append(((_depth(*a) + _depth(*b)) / 2, (*PINK, 120), _iso(*a, view), _iso(*b, view), 4))
 
     for depth, color, a, b, width in sorted(edges, key=lambda e: e[0]):
-        draw.line([a, b], fill=color, width=width)
-
-    for depth, color, a, b, width in sorted(_mesh_wireframes(graph, view), key=lambda e: e[0]):
         draw.line([a, b], fill=color, width=width)
 
     rsx, rsy = _iso(rx, ry, rz, view)
@@ -373,7 +351,7 @@ def render_frame(graph, meta: dict) -> Image.Image:
     draw.line([(0, BODY_H + TOP_H), (total_w, BODY_H + TOP_H)], fill=(51, 65, 85), width=2)
 
     draw.text((18, 14), "robot-escape-room", font=FONT_TITLE, fill=TEXT)
-    draw.text((300, 18), "2D topo + camera + 3DGS sim · real A* each frame", font=FONT_LEGEND, fill=MUTED)
+    draw.text((300, 18), "2D topo + camera + OBJ meshes · real A* each frame", font=FONT_LEGEND, fill=MUTED)
     _round_rect(draw, (total_w - 108, 12, total_w - 18, 42), 14, (6, 78, 59), (45, 212, 191), 1)
     draw.text((total_w - 63, 18), "live", font=FONT_BADGE, fill=(167, 243, 208), anchor="ma")
 

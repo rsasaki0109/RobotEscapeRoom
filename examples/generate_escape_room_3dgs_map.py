@@ -22,7 +22,7 @@ GRAPH = ROOT / "examples" / "robot_escape_room.yaml"
 def main() -> None:
     graph = load_graph(GRAPH)
     out = write_map(graph)
-    print(f"wrote 3DGS map -> {out.relative_to(ROOT)} ({out.stat().st_size // 1024} KB)")
+    print(f"wrote facility mesh render -> {out.relative_to(ROOT)} ({out.stat().st_size // 1024} KB)")
 
 
 if __name__ == "__main__":

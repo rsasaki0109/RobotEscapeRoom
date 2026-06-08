@@ -27,18 +27,18 @@ PYTHONPATH=. python3 examples/generate_escape_room_meshes.py
 
 File → Import → `escape_room_scene.obj` (Z-up; scale 1.0 = 1 metre).
 
-## 3DGS background (README hero)
+## Facility mesh render (README hero)
 
-Synthetic Gaussian-splat facility map for the 3D sim panel:
+Detailed interior rooms (tiled floor, doorways, ceiling lights, props) export
+to OBJ and feed the hero GIF renderer:
 
 ```bash
+PYTHONPATH=. python3 examples/generate_escape_room_meshes.py
 PYTHONPATH=. python3 examples/generate_escape_room_3dgs_map.py
 ```
 
-Outputs `escape_room_3dgs_map.png` (isometric splats aligned to room meshes).
-
-Robot RGB camera frames for the hero GIF come from the same splat cloud via
-`examples/escape_room_camera.py`.
+Each `<node_id>.obj` is a furnished room shell — import `escape_room_scene.obj`
+into Blender for the full facility.
 
 ## Gazebo / Foxglove
 
