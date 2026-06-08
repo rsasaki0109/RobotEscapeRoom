@@ -182,7 +182,8 @@ ros2 launch semantic_toponav_ros escape_room_gz_nav2.launch.py goal_node:=main_l
 ```
 
 Requires ROS 2 Humble/Jazzy with `nav2_bringup`, `ros_gz_sim`, and
-`ros_gz_bridge`. See
+`ros_gz_bridge`. T-0 publishes `/scan` (360° GPU lidar); the Nav2 map
+rasterizes interior walls from furnished collision boxes. See
 [`examples/meshes/escape_room/gazebo/README.md`](../examples/meshes/escape_room/gazebo/README.md).
 
 ## JSON vs custom messages
