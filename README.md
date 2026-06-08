@@ -5,7 +5,7 @@
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 <p align="center">
-  <img src="docs/images/robot_escape_room.gif" width="900" alt="Foxglove-style live simulation dashboard: stacked B1–3F map with T-0 gliding along green A* legs, mission HUD, event log, and route timeline as the robot collects keycards, solves riddles, and escapes through the sublevel past a sealed Floor-3 decoy exit">
+  <img src="docs/images/robot_escape_room.gif" width="900" alt="Foxglove-style live simulation dashboard (1280×720): stacked B1–3F map, /tf robot pose, topic inspector, semantic waypoint array, and route timeline as T-0 collects keycards, solves riddles, and escapes via the sublevel past a sealed Floor-3 decoy exit">
 </p>
 
 <p align="center">
