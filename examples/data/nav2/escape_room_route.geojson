@@ -1,0 +1,587 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 0,
+        "frame": "map",
+        "metadata": {
+          "node_id": "atrium",
+          "label": "Central Atrium",
+          "class": "intersection",
+          "floor": 1
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          12.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 1,
+        "frame": "map",
+        "metadata": {
+          "node_id": "basement_tunnel",
+          "label": "Sublevel Tunnel",
+          "class": "corridor",
+          "floor": -1
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.0,
+          -7.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 2,
+        "frame": "map",
+        "metadata": {
+          "node_id": "dark_corridor",
+          "label": "Dark Corridor",
+          "class": "corridor",
+          "floor": 1
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 3,
+        "frame": "map",
+        "metadata": {
+          "node_id": "elevator_lobby",
+          "label": "Elevator Lobby",
+          "class": "intersection",
+          "floor": 1
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 4,
+        "frame": "map",
+        "metadata": {
+          "node_id": "holding_cell",
+          "label": "Holding Cell",
+          "class": "room",
+          "floor": 1
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 5,
+        "frame": "map",
+        "metadata": {
+          "node_id": "main_lab",
+          "label": "Main Lab",
+          "class": "room",
+          "floor": 1
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 6,
+        "frame": "map",
+        "metadata": {
+          "node_id": "maintenance_exit",
+          "label": "Maintenance Exit",
+          "class": "exit",
+          "floor": -1
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          24.0,
+          -7.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 7,
+        "frame": "map",
+        "metadata": {
+          "node_id": "west_corridor",
+          "label": "West Corridor",
+          "class": "corridor",
+          "floor": 1
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 8,
+        "startid": 4,
+        "endid": 7,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "door_cell_corridor",
+          "class": "traversable"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            4.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 9,
+        "startid": 7,
+        "endid": 4,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "door_cell_corridor",
+          "class": "traversable"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            4.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 10,
+        "startid": 7,
+        "endid": 5,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "door_corridor_lab",
+          "class": "traversable"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            4.0,
+            0.0
+          ],
+          [
+            8.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 11,
+        "startid": 5,
+        "endid": 7,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "door_corridor_lab",
+          "class": "traversable"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            8.0,
+            0.0
+          ],
+          [
+            4.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 12,
+        "startid": 5,
+        "endid": 0,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "door_lab_atrium",
+          "class": "traversable"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            8.0,
+            0.0
+          ],
+          [
+            12.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 13,
+        "startid": 0,
+        "endid": 5,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "door_lab_atrium",
+          "class": "traversable"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            12.0,
+            0.0
+          ],
+          [
+            8.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 14,
+        "startid": 0,
+        "endid": 2,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "door_atrium_dark",
+          "class": "unpowered"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            12.0,
+            0.0
+          ],
+          [
+            16.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 15,
+        "startid": 2,
+        "endid": 0,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "door_atrium_dark",
+          "class": "unpowered"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            16.0,
+            0.0
+          ],
+          [
+            12.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 16,
+        "startid": 2,
+        "endid": 3,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "door_dark_lobby",
+          "class": "traversable"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            16.0,
+            0.0
+          ],
+          [
+            20.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 17,
+        "startid": 3,
+        "endid": 2,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "door_dark_lobby",
+          "class": "traversable"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            20.0,
+            0.0
+          ],
+          [
+            16.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 18,
+        "startid": 7,
+        "endid": 0,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "laser_shortcut",
+          "class": "restricted",
+          "hazard": "laser_grid"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            4.0,
+            0.0
+          ],
+          [
+            12.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 19,
+        "startid": 0,
+        "endid": 7,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "laser_shortcut",
+          "class": "restricted",
+          "hazard": "laser_grid"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            12.0,
+            0.0
+          ],
+          [
+            4.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 20,
+        "startid": 3,
+        "endid": 1,
+        "cost": 1.5,
+        "metadata": {
+          "edge_id": "hatch_lobby_basement",
+          "class": "locked",
+          "lock": "hatch_code",
+          "kind": "maintenance_hatch"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            20.0,
+            0.0
+          ],
+          [
+            20.0,
+            -7.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 21,
+        "startid": 1,
+        "endid": 3,
+        "cost": 1.5,
+        "metadata": {
+          "edge_id": "hatch_lobby_basement",
+          "class": "locked",
+          "lock": "hatch_code",
+          "kind": "maintenance_hatch"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            20.0,
+            -7.0
+          ],
+          [
+            20.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 22,
+        "startid": 1,
+        "endid": 6,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "door_basement_exit",
+          "class": "traversable"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            20.0,
+            -7.0
+          ],
+          [
+            24.0,
+            -7.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 23,
+        "startid": 6,
+        "endid": 1,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "door_basement_exit",
+          "class": "traversable"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            24.0,
+            -7.0
+          ],
+          [
+            20.0,
+            -7.0
+          ]
+        ]
+      }
+    }
+  ]
+}

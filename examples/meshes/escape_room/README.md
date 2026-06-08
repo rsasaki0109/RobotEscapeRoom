@@ -40,7 +40,16 @@ PYTHONPATH=. python3 examples/generate_escape_room_3dgs_map.py
 Each `<node_id>.obj` is a furnished room shell — import `escape_room_scene.obj`
 into Blender for the full facility.
 
-## Gazebo / Foxglove
+## Gazebo / gz-sim
+
+```bash
+PYTHONPATH=. python3 examples/generate_escape_room_meshes.py
+PYTHONPATH=. python3 examples/generate_escape_room_gazebo_world.py
+export GZ_SIM_RESOURCE_PATH="$(pwd)/examples/meshes/escape_room/gazebo/models:$GZ_SIM_RESOURCE_PATH"
+gz sim examples/meshes/escape_room/gazebo/escape_room.world
+```
+
+See `gazebo/README.md` for details.
 
 The MCAP exporter (`export_escape_room_foxglove_mcap.py`) and README hero
 renderer (`render_escape_room_hero.py`) use the same box dimensions from

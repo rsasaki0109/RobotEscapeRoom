@@ -216,6 +216,22 @@ a control-room riddle grounds `"maintenance exit"` to the sublevel and
 hands over the hatch code, flipping the route from all-the-way-up to
 all-the-way-down.
 
+**Gazebo / gz-sim:** furnished facility mesh + interior collision boxes — open
+in Harmonic with:
+
+```bash
+PYTHONPATH=. python3 examples/generate_escape_room_meshes.py
+PYTHONPATH=. python3 examples/generate_escape_room_gazebo_world.py
+export GZ_SIM_RESOURCE_PATH="$(pwd)/examples/meshes/escape_room/gazebo/models:$GZ_SIM_RESOURCE_PATH"
+gz sim examples/meshes/escape_room/gazebo/escape_room.world
+```
+
+See [`examples/meshes/escape_room/gazebo/README.md`](examples/meshes/escape_room/gazebo/README.md).
+
+**Nav2:** export the topology with
+`python examples/export_escape_room_nav2_route.py` →
+`examples/data/nav2/escape_room_graph.geojson`.
+
 ### Conversion pipeline
 
 Topology graphs can be authored by hand or **generated from
