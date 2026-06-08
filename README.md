@@ -14,8 +14,8 @@
   <strong>robot camera · rgb</strong> (first-person furnished interior),
   and isometric <strong>3D sim · furnished rooms</strong> (imported OBJ meshes).
   Colour legend: cyan = traveled, pink = planned, red = locked.
-  Every GIF frame is one real A* planner step — puzzle captions show items,
-  riddles, and the Floor-3 decoy twist. Live stack:
+  Every GIF frame is one real A* planner step — <strong>room quests</strong> and puzzle
+  captions show items, riddles, and the Floor-3 decoy twist. Live stack:
   Gazebo + AMCL + Nav2 + <code>escape_room_runner</code> dynamic replan.
   Interactive Foxglove replay:
   <code>docs/foxglove/robot_escape_room_demo.mcap</code>.

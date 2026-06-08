@@ -22,6 +22,7 @@ from escape_room_3dgs_map import load_map  # noqa: E402
 from escape_room_camera import render_camera_view  # noqa: E402
 from escape_room_meshes import IsoView, all_meshes, fit_iso_view, iso_project  # noqa: E402
 
+from semantic_toponav.escape_room.quests import quest_fields  # noqa: E402
 from semantic_toponav.escape_room.runner import POWER_ITEM, UNPOWERED_TYPES  # noqa: E402
 from semantic_toponav.graph.serialization import load_graph  # noqa: E402
 
@@ -30,7 +31,7 @@ TIMELINE_PATH = ROOT / "docs/foxglove/robot_escape_room_timeline.json"
 
 MAP_W, CAM_W, SIM_W = 280, 340, 660
 BODY_H = 480
-TOP_H, BOT_H = 56, 64
+TOP_H, BOT_H = 56, 78
 FLOOR_HEIGHT_M = 4.2
 FLOOR_LABEL = {-1: "B1", 1: "1F", 2: "2F", 3: "3F"}
 X_MIN, X_MAX = -2.0, 30.0
@@ -157,6 +158,44 @@ def _robot_xy(graph, meta: dict) -> tuple[float, float, float]:
     return _node_xyz(graph, loc)
 
 
+def _enrich_meta(graph, meta: dict) -> dict:
+    out = dict(meta)
+    if "quest_title" not in out:
+        out.update(
+            quest_fields(
+                meta.get("route") or [],
+                float(meta.get("progress", 0.0)),
+                location=str(meta.get("location") or "holding_cell"),
+                events=list(meta.get("events") or []),
+            )
+        )
+    room_id = out.get("room_id")
+    if room_id and graph.has_node(str(room_id)):
+        out["room_label"] = graph.get_node(str(room_id)).label
+    return out
+
+
+def _quest_banner(draw, meta: dict, *, x: int, y: int, width: int) -> None:
+    title = meta.get("quest_title")
+    if not title:
+        return
+    complete = bool(meta.get("quest_complete"))
+    room = str(meta.get("room_label") or meta.get("room_id") or "")
+    detail = str(meta.get("quest_detail") or "")
+    mechanic = str(meta.get("quest_mechanic") or "")
+    fill = (6, 60, 45) if complete else (45, 35, 8)
+    outline = (45, 212, 191) if complete else (245, 158, 11)
+    accent = (167, 243, 208) if complete else AMBER
+    _round_rect(draw, (x, y, x + width, y + 78), 12, fill, outline, 2)
+    status = "COMPLETE" if complete else "ACTIVE"
+    draw.text((x + 12, y + 8), f"{status} · {room[:18]}", font=FONT_SM, fill=accent)
+    draw.text((x + 12, y + 26), str(title)[:28], font=FONT_PANEL, fill=TEXT)
+    draw.text((x + 12, y + 48), detail[:42], font=FONT_SM, fill=MUTED)
+    if mechanic:
+        _round_rect(draw, (x + width - 96, y + 8, x + width - 10, y + 28), 8, (18, 30, 52), outline, 1)
+        draw.text((x + width - 53, y + 10), mechanic[:12], font=FONT_XS, fill=accent, anchor="ma")
+
+
 def _render_map(graph, meta: dict) -> Image.Image:
     items = set(meta.get("items", []))
     route = meta.get("route") or []
@@ -203,10 +242,14 @@ def _render_map(graph, meta: dict) -> Image.Image:
                 draw.line([a, b], fill=(*PINK, 100), width=3)
 
     route_set = set(route)
+    quest_room = meta.get("room_id")
     for node in graph.nodes():
         x, y = _map_px(*_world_xy(node), box)
         color = NODE_COLORS.get(node.type, BLUE)
         r = 7 if node.id in route_set else 5
+        if node.id == quest_room:
+            draw.ellipse((x - 16, y - 16, x + 16, y + 16), fill=(*AMBER, 55))
+            r = 9
         draw.ellipse((x - r, y - r, x + r, y + r), fill=(*color, 240), outline=(3, 7, 18), width=1)
 
     if len(route) >= 2:
@@ -233,7 +276,7 @@ def _render_camera(graph, meta: dict) -> Image.Image:
     draw = ImageDraw.Draw(panel, "RGBA")
     draw.text((14, 6), "robot camera · rgb", font=FONT_PANEL, fill=TEXT)
 
-    loc = meta.get("location") or "holding_cell"
+    loc = meta.get("room_id") or meta.get("location") or "holding_cell"
     if graph.has_node(loc):
         node = graph.get_node(loc)
         fl = int(node.properties.get("floor", 1))
@@ -248,6 +291,8 @@ def _render_camera(graph, meta: dict) -> Image.Image:
     draw.line([(cx + 4, cy), (cx + 14, cy)], fill=(148, 163, 184, 180), width=1)
     draw.line([(cx, cy - 14), (cx, cy - 4)], fill=(148, 163, 184, 180), width=1)
     draw.line([(cx, cy + 4), (cx, cy + 14)], fill=(148, 163, 184, 180), width=1)
+
+    _quest_banner(draw, meta, x=12, y=34, width=CAM_W - 24)
     return panel
 
 
@@ -351,15 +396,23 @@ def render_frame(graph, meta: dict) -> Image.Image:
     draw.line([(0, BODY_H + TOP_H), (total_w, BODY_H + TOP_H)], fill=(51, 65, 85), width=2)
 
     draw.text((18, 14), "RobotEscapeRoom", font=FONT_TITLE, fill=TEXT)
-    draw.text((300, 18), "2D topo + camera + furnished sim · puzzle replan each turn", font=FONT_LEGEND, fill=MUTED)
+    draw.text((300, 18), "2D topo + camera + furnished sim · room quest each stop", font=FONT_LEGEND, fill=MUTED)
     _round_rect(draw, (total_w - 108, 12, total_w - 18, 42), 14, (6, 78, 59), (45, 212, 191), 1)
     draw.text((total_w - 63, 18), "live", font=FONT_BADGE, fill=(167, 243, 208), anchor="ma")
 
     turn = meta.get("turn", 0)
+    quest_title = meta.get("quest_title")
     draw.text((18, BODY_H + TOP_H + 10), f"Turn {turn}", font=FONT_STATUS, fill=AMBER)
-    draw.text((110, BODY_H + TOP_H + 10), meta.get("caption", ""), font=FONT_STATUS, fill=TEXT)
-    if meta.get("detail"):
-        draw.text((18, BODY_H + TOP_H + 36), meta["detail"], font=FONT_LEGEND, fill=MUTED)
+    if quest_title:
+        qcolor = GREEN if meta.get("quest_complete") else AMBER
+        draw.text((110, BODY_H + TOP_H + 10), str(quest_title), font=FONT_STATUS, fill=qcolor)
+        draw.text((18, BODY_H + TOP_H + 36), meta.get("caption", ""), font=FONT_LEGEND, fill=TEXT)
+        if meta.get("detail"):
+            draw.text((18, BODY_H + TOP_H + 52), meta["detail"], font=FONT_SM, fill=MUTED)
+    else:
+        draw.text((110, BODY_H + TOP_H + 10), meta.get("caption", ""), font=FONT_STATUS, fill=TEXT)
+        if meta.get("detail"):
+            draw.text((18, BODY_H + TOP_H + 36), meta["detail"], font=FONT_LEGEND, fill=MUTED)
 
     lx = total_w - 620
     _legend_chip(draw, lx, 14, CYAN, "cyan = traveled")
@@ -376,7 +429,8 @@ def main() -> None:
     if not timeline:
         raise SystemExit("timeline is empty")
 
-    for idx, meta in enumerate(timeline):
+    for idx, raw in enumerate(timeline):
+        meta = _enrich_meta(graph, raw)
         render_frame(graph, meta).save(frames_dir / f"f{idx:03d}.png")
 
     print(f"rendered {len(timeline)} deterministic frames -> {frames_dir}")

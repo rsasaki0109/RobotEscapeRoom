@@ -15,7 +15,12 @@
       "items": [],
       "events": [
         "T-0 online \u2014 Holding Cell"
-      ]
+      ],
+      "room_id": "holding_cell",
+      "quest_title": "Quest \u00b7 Boot",
+      "quest_detail": "Confirm systems online in the holding cell",
+      "quest_mechanic": "start",
+      "quest_complete": true
     },
     {
       "turn": 1,
@@ -32,7 +37,12 @@
       "items": [],
       "events": [
         "T-0 online \u2014 Holding Cell"
-      ]
+      ],
+      "room_id": "holding_cell",
+      "quest_title": "Quest \u00b7 Boot",
+      "quest_detail": "Confirm systems online in the holding cell",
+      "quest_mechanic": "start",
+      "quest_complete": true
     },
     {
       "turn": 1,
@@ -49,7 +59,12 @@
       "items": [],
       "events": [
         "T-0 online \u2014 Holding Cell"
-      ]
+      ],
+      "room_id": "holding_cell",
+      "quest_title": "Quest \u00b7 Boot",
+      "quest_detail": "Confirm systems online in the holding cell",
+      "quest_mechanic": "start",
+      "quest_complete": true
     },
     {
       "turn": 1,
@@ -66,7 +81,12 @@
       "items": [],
       "events": [
         "T-0 online \u2014 Holding Cell"
-      ]
+      ],
+      "room_id": "west_corridor",
+      "quest_title": "Quest \u00b7 Patrol",
+      "quest_detail": "Scout the west corridor toward the server wing",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 1,
@@ -83,7 +103,12 @@
       "items": [],
       "events": [
         "T-0 online \u2014 Holding Cell"
-      ]
+      ],
+      "room_id": "west_corridor",
+      "quest_title": "Quest \u00b7 Patrol",
+      "quest_detail": "Scout the west corridor toward the server wing",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 1,
@@ -100,7 +125,12 @@
       "items": [],
       "events": [
         "T-0 online \u2014 Holding Cell"
-      ]
+      ],
+      "room_id": "west_corridor",
+      "quest_title": "Quest \u00b7 Patrol",
+      "quest_detail": "Scout the west corridor toward the server wing",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 1,
@@ -117,7 +147,12 @@
       "items": [],
       "events": [
         "T-0 online \u2014 Holding Cell"
-      ]
+      ],
+      "room_id": "west_corridor",
+      "quest_title": "Quest \u00b7 Patrol",
+      "quest_detail": "Scout the west corridor toward the server wing",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 1,
@@ -134,7 +169,12 @@
       "items": [],
       "events": [
         "T-0 online \u2014 Holding Cell"
-      ]
+      ],
+      "room_id": "west_corridor",
+      "quest_title": "Quest \u00b7 Patrol",
+      "quest_detail": "Scout the west corridor toward the server wing",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 1,
@@ -151,7 +191,12 @@
       "items": [],
       "events": [
         "T-0 online \u2014 Holding Cell"
-      ]
+      ],
+      "room_id": "server_room",
+      "quest_title": "Quest \u00b7 Terminal I",
+      "quest_detail": "Ground the clue \u2014 where is the blue keycard?",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": false
     },
     {
       "turn": 1,
@@ -168,7 +213,12 @@
       "items": [],
       "events": [
         "T-0 online \u2014 Holding Cell"
-      ]
+      ],
+      "room_id": "server_room",
+      "quest_title": "Quest \u00b7 Terminal I",
+      "quest_detail": "Ground the clue \u2014 where is the blue keycard?",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": false
     },
     {
       "turn": 1,
@@ -186,7 +236,12 @@
       "events": [
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1"
-      ]
+      ],
+      "room_id": "server_room",
+      "quest_title": "Quest \u00b7 Terminal I",
+      "quest_detail": "Ground the clue \u2014 where is the blue keycard?",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 1,
@@ -204,7 +259,12 @@
       "events": [
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1"
-      ]
+      ],
+      "room_id": "server_room",
+      "quest_title": "Quest \u00b7 Terminal I",
+      "quest_detail": "Ground the clue \u2014 where is the blue keycard?",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 1,
@@ -222,7 +282,12 @@
       "events": [
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1"
-      ]
+      ],
+      "room_id": "server_room",
+      "quest_title": "Quest \u00b7 Terminal I",
+      "quest_detail": "Ground the clue \u2014 where is the blue keycard?",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 1,
@@ -240,7 +305,12 @@
       "events": [
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1"
-      ]
+      ],
+      "room_id": "server_room",
+      "quest_title": "Quest \u00b7 Terminal I",
+      "quest_detail": "Ground the clue \u2014 where is the blue keycard?",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 2,
@@ -258,7 +328,12 @@
       "events": [
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1"
-      ]
+      ],
+      "room_id": "server_room",
+      "quest_title": "Quest \u00b7 Terminal I",
+      "quest_detail": "Ground the clue \u2014 where is the blue keycard?",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 2,
@@ -276,7 +351,12 @@
       "events": [
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1"
-      ]
+      ],
+      "room_id": "server_room",
+      "quest_title": "Quest \u00b7 Terminal I",
+      "quest_detail": "Ground the clue \u2014 where is the blue keycard?",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 2,
@@ -294,7 +374,12 @@
       "events": [
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1"
-      ]
+      ],
+      "room_id": "server_room",
+      "quest_title": "Quest \u00b7 Terminal I",
+      "quest_detail": "Ground the clue \u2014 where is the blue keycard?",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 2,
@@ -312,7 +397,12 @@
       "events": [
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1"
-      ]
+      ],
+      "room_id": "west_corridor",
+      "quest_title": "Quest \u00b7 Patrol",
+      "quest_detail": "Scout the west corridor toward the server wing",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 2,
@@ -330,7 +420,12 @@
       "events": [
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1"
-      ]
+      ],
+      "room_id": "west_corridor",
+      "quest_title": "Quest \u00b7 Patrol",
+      "quest_detail": "Scout the west corridor toward the server wing",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 2,
@@ -348,7 +443,12 @@
       "events": [
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1"
-      ]
+      ],
+      "room_id": "west_corridor",
+      "quest_title": "Quest \u00b7 Patrol",
+      "quest_detail": "Scout the west corridor toward the server wing",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 2,
@@ -366,7 +466,12 @@
       "events": [
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1"
-      ]
+      ],
+      "room_id": "west_corridor",
+      "quest_title": "Quest \u00b7 Patrol",
+      "quest_detail": "Scout the west corridor toward the server wing",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 2,
@@ -384,7 +489,12 @@
       "events": [
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1"
-      ]
+      ],
+      "room_id": "west_corridor",
+      "quest_title": "Quest \u00b7 Patrol",
+      "quest_detail": "Scout the west corridor toward the server wing",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 2,
@@ -402,7 +512,12 @@
       "events": [
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1"
-      ]
+      ],
+      "room_id": "main_lab",
+      "quest_title": "Quest \u00b7 Blue lock",
+      "quest_detail": "Collect the blue keycard for Security",
+      "quest_mechanic": "block_edges",
+      "quest_complete": false
     },
     {
       "turn": 2,
@@ -420,7 +535,12 @@
       "events": [
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1"
-      ]
+      ],
+      "room_id": "main_lab",
+      "quest_title": "Quest \u00b7 Blue lock",
+      "quest_detail": "Collect the blue keycard for Security",
+      "quest_mechanic": "block_edges",
+      "quest_complete": false
     },
     {
       "turn": 2,
@@ -441,7 +561,12 @@
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1",
         "item: keycard_blue"
-      ]
+      ],
+      "room_id": "main_lab",
+      "quest_title": "Quest \u00b7 Blue lock",
+      "quest_detail": "Collect the blue keycard for Security",
+      "quest_mechanic": "block_edges",
+      "quest_complete": true
     },
     {
       "turn": 2,
@@ -462,7 +587,12 @@
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1",
         "item: keycard_blue"
-      ]
+      ],
+      "room_id": "main_lab",
+      "quest_title": "Quest \u00b7 Blue lock",
+      "quest_detail": "Collect the blue keycard for Security",
+      "quest_mechanic": "block_edges",
+      "quest_complete": true
     },
     {
       "turn": 2,
@@ -483,7 +613,12 @@
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1",
         "item: keycard_blue"
-      ]
+      ],
+      "room_id": "main_lab",
+      "quest_title": "Quest \u00b7 Blue lock",
+      "quest_detail": "Collect the blue keycard for Security",
+      "quest_mechanic": "block_edges",
+      "quest_complete": true
     },
     {
       "turn": 2,
@@ -504,7 +639,12 @@
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1",
         "item: keycard_blue"
-      ]
+      ],
+      "room_id": "main_lab",
+      "quest_title": "Quest \u00b7 Blue lock",
+      "quest_detail": "Collect the blue keycard for Security",
+      "quest_mechanic": "block_edges",
+      "quest_complete": true
     },
     {
       "turn": 3,
@@ -524,7 +664,12 @@
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1",
         "item: keycard_blue"
-      ]
+      ],
+      "room_id": "main_lab",
+      "quest_title": "Quest \u00b7 Blue lock",
+      "quest_detail": "Collect the blue keycard for Security",
+      "quest_mechanic": "block_edges",
+      "quest_complete": true
     },
     {
       "turn": 3,
@@ -544,7 +689,12 @@
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1",
         "item: keycard_blue"
-      ]
+      ],
+      "room_id": "main_lab",
+      "quest_title": "Quest \u00b7 Blue lock",
+      "quest_detail": "Collect the blue keycard for Security",
+      "quest_mechanic": "block_edges",
+      "quest_complete": true
     },
     {
       "turn": 3,
@@ -564,7 +714,12 @@
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1",
         "item: keycard_blue"
-      ]
+      ],
+      "room_id": "main_lab",
+      "quest_title": "Quest \u00b7 Blue lock",
+      "quest_detail": "Collect the blue keycard for Security",
+      "quest_mechanic": "block_edges",
+      "quest_complete": true
     },
     {
       "turn": 3,
@@ -584,7 +739,12 @@
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1",
         "item: keycard_blue"
-      ]
+      ],
+      "room_id": "security_office",
+      "quest_title": "Quest \u00b7 Terminal II",
+      "quest_detail": "Decode the terminal \u2192 find the power core",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": false
     },
     {
       "turn": 3,
@@ -604,7 +764,12 @@
         "T-0 online \u2014 Holding Cell",
         "riddle: riddle_1",
         "item: keycard_blue"
-      ]
+      ],
+      "room_id": "security_office",
+      "quest_title": "Quest \u00b7 Terminal II",
+      "quest_detail": "Decode the terminal \u2192 find the power core",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": false
     },
     {
       "turn": 3,
@@ -627,7 +792,12 @@
         "item: keycard_blue",
         "item: keycard_red",
         "riddle: riddle_2"
-      ]
+      ],
+      "room_id": "security_office",
+      "quest_title": "Quest \u00b7 Terminal II",
+      "quest_detail": "Decode the terminal \u2192 find the power core",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 3,
@@ -650,7 +820,12 @@
         "item: keycard_blue",
         "item: keycard_red",
         "riddle: riddle_2"
-      ]
+      ],
+      "room_id": "security_office",
+      "quest_title": "Quest \u00b7 Terminal II",
+      "quest_detail": "Decode the terminal \u2192 find the power core",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 3,
@@ -673,7 +848,12 @@
         "item: keycard_blue",
         "item: keycard_red",
         "riddle: riddle_2"
-      ]
+      ],
+      "room_id": "security_office",
+      "quest_title": "Quest \u00b7 Terminal II",
+      "quest_detail": "Decode the terminal \u2192 find the power core",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 3,
@@ -696,7 +876,12 @@
         "item: keycard_blue",
         "item: keycard_red",
         "riddle: riddle_2"
-      ]
+      ],
+      "room_id": "security_office",
+      "quest_title": "Quest \u00b7 Terminal II",
+      "quest_detail": "Decode the terminal \u2192 find the power core",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 4,
@@ -721,7 +906,12 @@
         "item: keycard_blue",
         "item: keycard_red",
         "riddle: riddle_2"
-      ]
+      ],
+      "room_id": "security_office",
+      "quest_title": "Quest \u00b7 Terminal II",
+      "quest_detail": "Decode the terminal \u2192 find the power core",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 4,
@@ -746,7 +936,12 @@
         "item: keycard_blue",
         "item: keycard_red",
         "riddle: riddle_2"
-      ]
+      ],
+      "room_id": "security_office",
+      "quest_title": "Quest \u00b7 Terminal II",
+      "quest_detail": "Decode the terminal \u2192 find the power core",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 4,
@@ -771,7 +966,12 @@
         "item: keycard_blue",
         "item: keycard_red",
         "riddle: riddle_2"
-      ]
+      ],
+      "room_id": "security_office",
+      "quest_title": "Quest \u00b7 Terminal II",
+      "quest_detail": "Decode the terminal \u2192 find the power core",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 4,
@@ -796,7 +996,12 @@
         "item: keycard_blue",
         "item: keycard_red",
         "riddle: riddle_2"
-      ]
+      ],
+      "room_id": "main_lab",
+      "quest_title": "Quest \u00b7 Blue lock",
+      "quest_detail": "Collect the blue keycard for Security",
+      "quest_mechanic": "block_edges",
+      "quest_complete": true
     },
     {
       "turn": 4,
@@ -821,7 +1026,12 @@
         "item: keycard_blue",
         "item: keycard_red",
         "riddle: riddle_2"
-      ]
+      ],
+      "room_id": "main_lab",
+      "quest_title": "Quest \u00b7 Blue lock",
+      "quest_detail": "Collect the blue keycard for Security",
+      "quest_mechanic": "block_edges",
+      "quest_complete": true
     },
     {
       "turn": 4,
@@ -846,7 +1056,12 @@
         "item: keycard_blue",
         "item: keycard_red",
         "riddle: riddle_2"
-      ]
+      ],
+      "room_id": "main_lab",
+      "quest_title": "Quest \u00b7 Blue lock",
+      "quest_detail": "Collect the blue keycard for Security",
+      "quest_mechanic": "block_edges",
+      "quest_complete": true
     },
     {
       "turn": 4,
@@ -871,7 +1086,12 @@
         "item: keycard_blue",
         "item: keycard_red",
         "riddle: riddle_2"
-      ]
+      ],
+      "room_id": "main_lab",
+      "quest_title": "Quest \u00b7 Blue lock",
+      "quest_detail": "Collect the blue keycard for Security",
+      "quest_mechanic": "block_edges",
+      "quest_complete": true
     },
     {
       "turn": 4,
@@ -896,7 +1116,12 @@
         "item: keycard_blue",
         "item: keycard_red",
         "riddle: riddle_2"
-      ]
+      ],
+      "room_id": "main_lab",
+      "quest_title": "Quest \u00b7 Blue lock",
+      "quest_detail": "Collect the blue keycard for Security",
+      "quest_mechanic": "block_edges",
+      "quest_complete": true
     },
     {
       "turn": 4,
@@ -921,7 +1146,12 @@
         "item: keycard_blue",
         "item: keycard_red",
         "riddle: riddle_2"
-      ]
+      ],
+      "room_id": "atrium",
+      "quest_title": "Quest \u00b7 Route",
+      "quest_detail": "Pick a safe path through the central atrium",
+      "quest_mechanic": "avoid_restricted",
+      "quest_complete": false
     },
     {
       "turn": 4,
@@ -946,7 +1176,12 @@
         "item: keycard_blue",
         "item: keycard_red",
         "riddle: riddle_2"
-      ]
+      ],
+      "room_id": "atrium",
+      "quest_title": "Quest \u00b7 Route",
+      "quest_detail": "Pick a safe path through the central atrium",
+      "quest_mechanic": "avoid_restricted",
+      "quest_complete": false
     },
     {
       "turn": 4,
@@ -971,7 +1206,12 @@
         "item: keycard_blue",
         "item: keycard_red",
         "riddle: riddle_2"
-      ]
+      ],
+      "room_id": "atrium",
+      "quest_title": "Quest \u00b7 Route",
+      "quest_detail": "Pick a safe path through the central atrium",
+      "quest_mechanic": "avoid_restricted",
+      "quest_complete": false
     },
     {
       "turn": 4,
@@ -996,7 +1236,12 @@
         "item: keycard_blue",
         "item: keycard_red",
         "riddle: riddle_2"
-      ]
+      ],
+      "room_id": "atrium",
+      "quest_title": "Quest \u00b7 Route",
+      "quest_detail": "Pick a safe path through the central atrium",
+      "quest_mechanic": "avoid_restricted",
+      "quest_complete": false
     },
     {
       "turn": 4,
@@ -1021,7 +1266,12 @@
         "item: keycard_blue",
         "item: keycard_red",
         "riddle: riddle_2"
-      ]
+      ],
+      "room_id": "atrium",
+      "quest_title": "Quest \u00b7 Route",
+      "quest_detail": "Pick a safe path through the central atrium",
+      "quest_mechanic": "avoid_restricted",
+      "quest_complete": false
     },
     {
       "turn": 4,
@@ -1046,7 +1296,12 @@
         "item: keycard_blue",
         "item: keycard_red",
         "riddle: riddle_2"
-      ]
+      ],
+      "room_id": "storage_bay",
+      "quest_title": "Quest \u00b7 Power",
+      "quest_detail": "Recover the power core for the dark corridor",
+      "quest_mechanic": "block_edge_types",
+      "quest_complete": false
     },
     {
       "turn": 4,
@@ -1071,7 +1326,12 @@
         "item: keycard_blue",
         "item: keycard_red",
         "riddle: riddle_2"
-      ]
+      ],
+      "room_id": "storage_bay",
+      "quest_title": "Quest \u00b7 Power",
+      "quest_detail": "Recover the power core for the dark corridor",
+      "quest_mechanic": "block_edge_types",
+      "quest_complete": false
     },
     {
       "turn": 4,
@@ -1098,7 +1358,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "storage_bay",
+      "quest_title": "Quest \u00b7 Power",
+      "quest_detail": "Recover the power core for the dark corridor",
+      "quest_mechanic": "block_edge_types",
+      "quest_complete": true
     },
     {
       "turn": 4,
@@ -1125,7 +1390,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "storage_bay",
+      "quest_title": "Quest \u00b7 Power",
+      "quest_detail": "Recover the power core for the dark corridor",
+      "quest_mechanic": "block_edge_types",
+      "quest_complete": true
     },
     {
       "turn": 4,
@@ -1152,7 +1422,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "storage_bay",
+      "quest_title": "Quest \u00b7 Power",
+      "quest_detail": "Recover the power core for the dark corridor",
+      "quest_mechanic": "block_edge_types",
+      "quest_complete": true
     },
     {
       "turn": 4,
@@ -1179,7 +1454,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "storage_bay",
+      "quest_title": "Quest \u00b7 Power",
+      "quest_detail": "Recover the power core for the dark corridor",
+      "quest_mechanic": "block_edge_types",
+      "quest_complete": true
     },
     {
       "turn": 5,
@@ -1209,7 +1489,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "storage_bay",
+      "quest_title": "Quest \u00b7 Power",
+      "quest_detail": "Recover the power core for the dark corridor",
+      "quest_mechanic": "block_edge_types",
+      "quest_complete": true
     },
     {
       "turn": 5,
@@ -1239,7 +1524,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "storage_bay",
+      "quest_title": "Quest \u00b7 Power",
+      "quest_detail": "Recover the power core for the dark corridor",
+      "quest_mechanic": "block_edge_types",
+      "quest_complete": true
     },
     {
       "turn": 5,
@@ -1269,7 +1559,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "storage_bay",
+      "quest_title": "Quest \u00b7 Power",
+      "quest_detail": "Recover the power core for the dark corridor",
+      "quest_mechanic": "block_edge_types",
+      "quest_complete": true
     },
     {
       "turn": 5,
@@ -1299,7 +1594,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "atrium",
+      "quest_title": "Quest \u00b7 Route",
+      "quest_detail": "Pick a safe path through the central atrium",
+      "quest_mechanic": "avoid_restricted",
+      "quest_complete": false
     },
     {
       "turn": 5,
@@ -1329,7 +1629,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "atrium",
+      "quest_title": "Quest \u00b7 Route",
+      "quest_detail": "Pick a safe path through the central atrium",
+      "quest_mechanic": "avoid_restricted",
+      "quest_complete": false
     },
     {
       "turn": 5,
@@ -1359,7 +1664,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "atrium",
+      "quest_title": "Quest \u00b7 Route",
+      "quest_detail": "Pick a safe path through the central atrium",
+      "quest_mechanic": "avoid_restricted",
+      "quest_complete": false
     },
     {
       "turn": 5,
@@ -1389,7 +1699,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "atrium",
+      "quest_title": "Quest \u00b7 Route",
+      "quest_detail": "Pick a safe path through the central atrium",
+      "quest_mechanic": "avoid_restricted",
+      "quest_complete": false
     },
     {
       "turn": 5,
@@ -1419,7 +1734,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "atrium",
+      "quest_title": "Quest \u00b7 Route",
+      "quest_detail": "Pick a safe path through the central atrium",
+      "quest_mechanic": "avoid_restricted",
+      "quest_complete": false
     },
     {
       "turn": 5,
@@ -1449,7 +1769,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "dark_corridor",
+      "quest_title": "Quest \u00b7 Blackout",
+      "quest_detail": "Cross the corridor once power is restored",
+      "quest_mechanic": "block_edge_types",
+      "quest_complete": true
     },
     {
       "turn": 5,
@@ -1479,7 +1804,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "dark_corridor",
+      "quest_title": "Quest \u00b7 Blackout",
+      "quest_detail": "Cross the corridor once power is restored",
+      "quest_mechanic": "block_edge_types",
+      "quest_complete": true
     },
     {
       "turn": 5,
@@ -1509,7 +1839,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "dark_corridor",
+      "quest_title": "Quest \u00b7 Blackout",
+      "quest_detail": "Cross the corridor once power is restored",
+      "quest_mechanic": "block_edge_types",
+      "quest_complete": true
     },
     {
       "turn": 5,
@@ -1539,7 +1874,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "dark_corridor",
+      "quest_title": "Quest \u00b7 Blackout",
+      "quest_detail": "Cross the corridor once power is restored",
+      "quest_mechanic": "block_edge_types",
+      "quest_complete": true
     },
     {
       "turn": 5,
@@ -1569,7 +1909,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "dark_corridor",
+      "quest_title": "Quest \u00b7 Blackout",
+      "quest_detail": "Cross the corridor once power is restored",
+      "quest_mechanic": "block_edge_types",
+      "quest_complete": true
     },
     {
       "turn": 5,
@@ -1599,7 +1944,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "elevator_lobby",
+      "quest_title": "Quest \u00b7 Mobility",
+      "quest_detail": "Ride the lift (prefer_elevator) toward 3F",
+      "quest_mechanic": "prefer_elevator",
+      "quest_complete": true
     },
     {
       "turn": 5,
@@ -1629,7 +1979,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "elevator_lobby",
+      "quest_title": "Quest \u00b7 Mobility",
+      "quest_detail": "Ride the lift (prefer_elevator) toward 3F",
+      "quest_mechanic": "prefer_elevator",
+      "quest_complete": true
     },
     {
       "turn": 5,
@@ -1659,7 +2014,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "elevator_lobby",
+      "quest_title": "Quest \u00b7 Mobility",
+      "quest_detail": "Ride the lift (prefer_elevator) toward 3F",
+      "quest_mechanic": "prefer_elevator",
+      "quest_complete": true
     },
     {
       "turn": 5,
@@ -1689,7 +2049,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "elevator_lobby",
+      "quest_title": "Quest \u00b7 Mobility",
+      "quest_detail": "Ride the lift (prefer_elevator) toward 3F",
+      "quest_mechanic": "prefer_elevator",
+      "quest_complete": true
     },
     {
       "turn": 5,
@@ -1719,7 +2084,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "elevator_lobby",
+      "quest_title": "Quest \u00b7 Mobility",
+      "quest_detail": "Ride the lift (prefer_elevator) toward 3F",
+      "quest_mechanic": "prefer_elevator",
+      "quest_complete": true
     },
     {
       "turn": 5,
@@ -1749,7 +2119,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "mid_landing",
+      "quest_title": "Quest \u00b7 2F landing",
+      "quest_detail": "Transfer to the elevator shaft or stairwell",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 5,
@@ -1779,7 +2154,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "mid_landing",
+      "quest_title": "Quest \u00b7 2F landing",
+      "quest_detail": "Transfer to the elevator shaft or stairwell",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 5,
@@ -1809,7 +2189,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "mid_landing",
+      "quest_title": "Quest \u00b7 2F landing",
+      "quest_detail": "Transfer to the elevator shaft or stairwell",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 5,
@@ -1839,7 +2224,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "mid_landing",
+      "quest_title": "Quest \u00b7 2F landing",
+      "quest_detail": "Transfer to the elevator shaft or stairwell",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 5,
@@ -1869,7 +2259,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "mid_landing",
+      "quest_title": "Quest \u00b7 2F landing",
+      "quest_detail": "Transfer to the elevator shaft or stairwell",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 5,
@@ -1899,7 +2294,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "top_landing",
+      "quest_title": "Quest \u00b7 Decoy lure",
+      "quest_detail": "Follow the EMERGENCY EXIT sign upward",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 5,
@@ -1929,7 +2329,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "top_landing",
+      "quest_title": "Quest \u00b7 Decoy lure",
+      "quest_detail": "Follow the EMERGENCY EXIT sign upward",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 5,
@@ -1959,7 +2364,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "top_landing",
+      "quest_title": "Quest \u00b7 Decoy lure",
+      "quest_detail": "Follow the EMERGENCY EXIT sign upward",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 5,
@@ -1989,7 +2399,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "top_landing",
+      "quest_title": "Quest \u00b7 Decoy lure",
+      "quest_detail": "Follow the EMERGENCY EXIT sign upward",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 5,
@@ -2019,7 +2434,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "top_landing",
+      "quest_title": "Quest \u00b7 Decoy lure",
+      "quest_detail": "Follow the EMERGENCY EXIT sign upward",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 5,
@@ -2049,7 +2469,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "control_room",
+      "quest_title": "Quest \u00b7 Terminal III",
+      "quest_detail": "Ground the truth \u2014 maintenance exit is below",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": false
     },
     {
       "turn": 5,
@@ -2079,7 +2504,12 @@
         "item: keycard_red",
         "riddle: riddle_2",
         "item: power_core"
-      ]
+      ],
+      "room_id": "control_room",
+      "quest_title": "Quest \u00b7 Terminal III",
+      "quest_detail": "Ground the truth \u2014 maintenance exit is below",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": false
     },
     {
       "turn": 5,
@@ -2113,7 +2543,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "control_room",
+      "quest_title": "Quest \u00b7 Terminal III",
+      "quest_detail": "Ground the truth \u2014 maintenance exit is below",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 5,
@@ -2147,7 +2582,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "control_room",
+      "quest_title": "Quest \u00b7 Terminal III",
+      "quest_detail": "Ground the truth \u2014 maintenance exit is below",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 5,
@@ -2181,7 +2621,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "control_room",
+      "quest_title": "Quest \u00b7 Terminal III",
+      "quest_detail": "Ground the truth \u2014 maintenance exit is below",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 5,
@@ -2215,7 +2660,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "control_room",
+      "quest_title": "Quest \u00b7 Terminal III",
+      "quest_detail": "Ground the truth \u2014 maintenance exit is below",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 5,
@@ -2249,7 +2699,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "control_room",
+      "quest_title": "Quest \u00b7 Terminal III",
+      "quest_detail": "Ground the truth \u2014 maintenance exit is below",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 5,
@@ -2283,7 +2738,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "control_room",
+      "quest_title": "Quest \u00b7 Terminal III",
+      "quest_detail": "Ground the truth \u2014 maintenance exit is below",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -2316,7 +2776,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "control_room",
+      "quest_title": "Quest \u00b7 Terminal III",
+      "quest_detail": "Ground the truth \u2014 maintenance exit is below",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -2349,7 +2814,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "control_room",
+      "quest_title": "Quest \u00b7 Terminal III",
+      "quest_detail": "Ground the truth \u2014 maintenance exit is below",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -2382,7 +2852,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "control_room",
+      "quest_title": "Quest \u00b7 Terminal III",
+      "quest_detail": "Ground the truth \u2014 maintenance exit is below",
+      "quest_mechanic": "resolve_goal",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -2415,7 +2890,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "top_landing",
+      "quest_title": "Quest \u00b7 Decoy lure",
+      "quest_detail": "Follow the EMERGENCY EXIT sign upward",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 6,
@@ -2448,7 +2928,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "top_landing",
+      "quest_title": "Quest \u00b7 Decoy lure",
+      "quest_detail": "Follow the EMERGENCY EXIT sign upward",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 6,
@@ -2481,7 +2966,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "top_landing",
+      "quest_title": "Quest \u00b7 Decoy lure",
+      "quest_detail": "Follow the EMERGENCY EXIT sign upward",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 6,
@@ -2514,7 +3004,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "top_landing",
+      "quest_title": "Quest \u00b7 Decoy lure",
+      "quest_detail": "Follow the EMERGENCY EXIT sign upward",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 6,
@@ -2547,7 +3042,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "top_landing",
+      "quest_title": "Quest \u00b7 Decoy lure",
+      "quest_detail": "Follow the EMERGENCY EXIT sign upward",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 6,
@@ -2580,7 +3080,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "mid_landing",
+      "quest_title": "Quest \u00b7 2F landing",
+      "quest_detail": "Transfer to the elevator shaft or stairwell",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 6,
@@ -2613,7 +3118,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "mid_landing",
+      "quest_title": "Quest \u00b7 2F landing",
+      "quest_detail": "Transfer to the elevator shaft or stairwell",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 6,
@@ -2646,7 +3156,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "mid_landing",
+      "quest_title": "Quest \u00b7 2F landing",
+      "quest_detail": "Transfer to the elevator shaft or stairwell",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 6,
@@ -2679,7 +3194,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "mid_landing",
+      "quest_title": "Quest \u00b7 2F landing",
+      "quest_detail": "Transfer to the elevator shaft or stairwell",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 6,
@@ -2712,7 +3232,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "mid_landing",
+      "quest_title": "Quest \u00b7 2F landing",
+      "quest_detail": "Transfer to the elevator shaft or stairwell",
+      "quest_mechanic": "plan",
+      "quest_complete": false
     },
     {
       "turn": 6,
@@ -2745,7 +3270,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "elevator_lobby",
+      "quest_title": "Quest \u00b7 Mobility",
+      "quest_detail": "Ride the lift (prefer_elevator) toward 3F",
+      "quest_mechanic": "prefer_elevator",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -2778,7 +3308,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "elevator_lobby",
+      "quest_title": "Quest \u00b7 Mobility",
+      "quest_detail": "Ride the lift (prefer_elevator) toward 3F",
+      "quest_mechanic": "prefer_elevator",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -2811,7 +3346,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "elevator_lobby",
+      "quest_title": "Quest \u00b7 Mobility",
+      "quest_detail": "Ride the lift (prefer_elevator) toward 3F",
+      "quest_mechanic": "prefer_elevator",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -2844,7 +3384,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "elevator_lobby",
+      "quest_title": "Quest \u00b7 Mobility",
+      "quest_detail": "Ride the lift (prefer_elevator) toward 3F",
+      "quest_mechanic": "prefer_elevator",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -2877,7 +3422,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "elevator_lobby",
+      "quest_title": "Quest \u00b7 Mobility",
+      "quest_detail": "Ride the lift (prefer_elevator) toward 3F",
+      "quest_mechanic": "prefer_elevator",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -2910,7 +3460,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "basement_tunnel",
+      "quest_title": "Quest \u00b7 Sublevel",
+      "quest_detail": "Crawl the maintenance tunnel with the hatch code",
+      "quest_mechanic": "block_edges",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -2943,7 +3498,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "basement_tunnel",
+      "quest_title": "Quest \u00b7 Sublevel",
+      "quest_detail": "Crawl the maintenance tunnel with the hatch code",
+      "quest_mechanic": "block_edges",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -2976,7 +3536,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "basement_tunnel",
+      "quest_title": "Quest \u00b7 Sublevel",
+      "quest_detail": "Crawl the maintenance tunnel with the hatch code",
+      "quest_mechanic": "block_edges",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -3009,7 +3574,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "basement_tunnel",
+      "quest_title": "Quest \u00b7 Sublevel",
+      "quest_detail": "Crawl the maintenance tunnel with the hatch code",
+      "quest_mechanic": "block_edges",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -3042,7 +3612,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "basement_tunnel",
+      "quest_title": "Quest \u00b7 Sublevel",
+      "quest_detail": "Crawl the maintenance tunnel with the hatch code",
+      "quest_mechanic": "block_edges",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -3075,7 +3650,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "maintenance_exit",
+      "quest_title": "Quest \u00b7 Escape",
+      "quest_detail": "Reach the real exit on B1",
+      "quest_mechanic": "exit",
+      "quest_complete": false
     },
     {
       "turn": 6,
@@ -3108,7 +3688,12 @@
         "item: hatch_code",
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed"
-      ]
+      ],
+      "room_id": "maintenance_exit",
+      "quest_title": "Quest \u00b7 Escape",
+      "quest_detail": "Reach the real exit on B1",
+      "quest_mechanic": "exit",
+      "quest_complete": false
     },
     {
       "turn": 6,
@@ -3142,7 +3727,12 @@
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed",
         "ESCAPED"
-      ]
+      ],
+      "room_id": "maintenance_exit",
+      "quest_title": "Quest \u00b7 Escape",
+      "quest_detail": "Reach the real exit on B1",
+      "quest_mechanic": "exit",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -3176,7 +3766,12 @@
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed",
         "ESCAPED"
-      ]
+      ],
+      "room_id": "maintenance_exit",
+      "quest_title": "Quest \u00b7 Escape",
+      "quest_detail": "Reach the real exit on B1",
+      "quest_mechanic": "exit",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -3210,7 +3805,12 @@
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed",
         "ESCAPED"
-      ]
+      ],
+      "room_id": "maintenance_exit",
+      "quest_title": "Quest \u00b7 Escape",
+      "quest_detail": "Reach the real exit on B1",
+      "quest_mechanic": "exit",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -3244,7 +3844,12 @@
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed",
         "ESCAPED"
-      ]
+      ],
+      "room_id": "maintenance_exit",
+      "quest_title": "Quest \u00b7 Escape",
+      "quest_detail": "Reach the real exit on B1",
+      "quest_mechanic": "exit",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -3278,7 +3883,12 @@
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed",
         "ESCAPED"
-      ]
+      ],
+      "room_id": "maintenance_exit",
+      "quest_title": "Quest \u00b7 Escape",
+      "quest_detail": "Reach the real exit on B1",
+      "quest_mechanic": "exit",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -3312,7 +3922,12 @@
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed",
         "ESCAPED"
-      ]
+      ],
+      "room_id": "maintenance_exit",
+      "quest_title": "Quest \u00b7 Escape",
+      "quest_detail": "Reach the real exit on B1",
+      "quest_mechanic": "exit",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -3346,7 +3961,12 @@
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed",
         "ESCAPED"
-      ]
+      ],
+      "room_id": "maintenance_exit",
+      "quest_title": "Quest \u00b7 Escape",
+      "quest_detail": "Reach the real exit on B1",
+      "quest_mechanic": "exit",
+      "quest_complete": true
     },
     {
       "turn": 6,
@@ -3380,7 +4000,12 @@
         "riddle: riddle_3",
         "twist: Floor-3 exit sealed",
         "ESCAPED"
-      ]
+      ],
+      "room_id": "maintenance_exit",
+      "quest_title": "Quest \u00b7 Escape",
+      "quest_detail": "Reach the real exit on B1",
+      "quest_mechanic": "exit",
+      "quest_complete": true
     }
   ],
   "hz": 12

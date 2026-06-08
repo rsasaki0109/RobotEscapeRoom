@@ -27,6 +27,7 @@ except ImportError as exc:  # pragma: no cover
 import export_foxglove_mcap as fx
 from escape_room_interior import foxglove_furnished_cubes
 
+from semantic_toponav.escape_room.quests import quest_fields
 from semantic_toponav.escape_room.runner import (
     ITEMS,
     POWER_ITEM,
@@ -61,6 +62,11 @@ STATUS_SCHEMA = {
         "caption": {"type": "string"},
         "detail": {"type": "string"},
         "events": {"type": "array", "items": {"type": "string"}},
+        "room_id": {"type": "string"},
+        "quest_title": {"type": "string"},
+        "quest_detail": {"type": "string"},
+        "quest_mechanic": {"type": "string"},
+        "quest_complete": {"type": "boolean"},
     },
 }
 
@@ -454,6 +460,12 @@ def _write_mcap(graph: Any, timeline: list[TimelineFrame]) -> None:
                 "caption": frame.caption,
                 "detail": frame.detail,
                 "events": frame.events,
+                **quest_fields(
+                    frame.route,
+                    frame.progress,
+                    location=frame.location,
+                    events=frame.events,
+                ),
             })
 
         writer.finish()
@@ -462,7 +474,7 @@ def _write_mcap(graph: Any, timeline: list[TimelineFrame]) -> None:
 def _write_timeline_json(graph: Any, timeline: list[TimelineFrame]) -> None:
     frames = []
     for frame in timeline:
-        frames.append({
+        row = {
             "turn": frame.turn,
             "caption": frame.caption,
             "detail": frame.detail,
@@ -472,7 +484,16 @@ def _write_timeline_json(graph: Any, timeline: list[TimelineFrame]) -> None:
             "location": frame.location,
             "items": sorted(frame.items),
             "events": frame.events,
-        })
+        }
+        row.update(
+            quest_fields(
+                frame.route,
+                frame.progress,
+                location=frame.location,
+                events=frame.events,
+            )
+        )
+        frames.append(row)
     TIMELINE_PATH.parent.mkdir(parents=True, exist_ok=True)
     TIMELINE_PATH.write_text(
         json.dumps({"frames": frames, "hz": HZ}, ensure_ascii=True, indent=2),
