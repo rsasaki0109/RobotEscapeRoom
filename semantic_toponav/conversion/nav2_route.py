@@ -39,9 +39,13 @@ from pathlib import Path
 from typing import Any
 
 from semantic_toponav.graph.topology_graph import TopologyGraph
-from semantic_toponav.graph.types import TopologyNode
+from semantic_toponav.graph.types import Pose2D, TopologyEdge, TopologyNode
 
 _RESERVED_NODE_META = {"id", "frame", "metadata"}
+# metadata keys :func:`_node_metadata` / the edge writer synthesize — restored
+# to first-class node/edge fields on read, never echoed back into properties.
+_SYNTH_NODE_META = {"node_id", "label", "class"}
+_SYNTH_EDGE_META = {"edge_id", "class"}
 
 
 def _node_metadata(node: TopologyNode) -> dict[str, Any]:
@@ -188,4 +192,200 @@ def write_nav2_geojson(
     return out
 
 
-__all__ = ["topology_to_nav2_geojson", "write_nav2_geojson"]
+class Nav2GeoJsonError(ValueError):
+    """Raised when a FeatureCollection cannot be parsed as a Nav2 route graph."""
+
+
+def _is_point(feature: dict[str, Any]) -> bool:
+    return (feature.get("geometry") or {}).get("type") == "Point"
+
+
+def _is_linestring(feature: dict[str, Any]) -> bool:
+    return (feature.get("geometry") or {}).get("type") == "LineString"
+
+
+def _read_node(feature: dict[str, Any]) -> tuple[int, TopologyNode]:
+    """Parse a ``Point`` feature into ``(int_id, TopologyNode)``.
+
+    Mirrors :func:`_node_metadata`: the original string id / label / semantic
+    ``type`` are restored from ``metadata`` (``node_id`` / ``label`` /
+    ``class``); every other metadata key flows back into ``properties``. A
+    feature without ``metadata.node_id`` (a hand-authored or third-party Nav2
+    graph) falls back to the integer id stringified, so any conformant Route
+    Server graph still loads.
+    """
+    props = feature.get("properties") or {}
+    if "id" not in props:
+        raise Nav2GeoJsonError("Point feature has no `properties.id`")
+    int_id = int(props["id"])
+    meta = dict(props.get("metadata") or {})
+    coords = (feature.get("geometry") or {}).get("coordinates")
+    if not coords or len(coords) < 2:
+        raise Nav2GeoJsonError(f"node id={int_id} has no [x, y] coordinates")
+    str_id = str(meta.get("node_id", int_id))
+    pose = Pose2D(x=float(coords[0]), y=float(coords[1]), frame_id=str(props.get("frame", "map")))
+    extra = {k: v for k, v in meta.items() if k not in _SYNTH_NODE_META}
+    node = TopologyNode(
+        id=str_id,
+        label=str(meta.get("label", str_id)),
+        type=str(meta.get("class", "")),
+        pose=pose,
+        properties=extra,
+    )
+    return int_id, node
+
+
+def nav2_geojson_to_topology(
+    fc: dict[str, Any],
+    *,
+    recombine_bidirectional: bool = True,
+) -> TopologyGraph:
+    """Parse a Nav2 Route Server FeatureCollection back into a topology graph.
+
+    The inverse of :func:`topology_to_nav2_geojson`, reading a graph the same
+    way Nav2's ``GeoJsonGraphFileLoader`` does: each ``Point`` feature is a
+    node (keyed by integer ``id``, with its string id / label / semantic
+    ``class`` restored from ``metadata``) and each ``LineString`` feature is a
+    directed edge between integer node ids.
+
+    Parameters
+    ----------
+    fc:
+        A GeoJSON ``FeatureCollection`` dict (e.g. from :func:`json.load` or
+        :func:`topology_to_nav2_geojson`).
+    recombine_bidirectional:
+        How to treat the two directed ``LineString`` features the exporter
+        emits for one bidirectional edge (same ``metadata.edge_id``, swapped
+        ``startid`` / ``endid``):
+
+        * ``True`` (default) — recombine each such reverse pair into one
+          ``bidirectional=True`` edge. This makes a graph exported by
+          :func:`topology_to_nav2_geojson` round-trip back to an *equivalent*
+          :class:`TopologyGraph` (same nodes, edges, costs, directionality) —
+          a fidelity check on the export.
+        * ``False`` — keep every ``LineString`` as its own directed
+          (``bidirectional=False``) edge, i.e. exactly the directed graph
+          Nav2's loader materializes. Connectivity is identical, so planning
+          yields the same route; use this to verify what Nav2 actually plans
+          over.
+
+    Returns
+    -------
+    TopologyGraph
+        The reconstructed graph.
+
+    Raises
+    ------
+    Nav2GeoJsonError
+        If the FeatureCollection is malformed, or an edge references a node
+        id with no corresponding ``Point`` feature.
+    """
+    if (fc.get("type") or "") != "FeatureCollection":
+        raise Nav2GeoJsonError("not a GeoJSON FeatureCollection")
+    features = fc.get("features") or []
+
+    graph = TopologyGraph()
+    int_to_str: dict[int, str] = {}
+    for feature in features:
+        if not _is_point(feature):
+            continue
+        int_id, node = _read_node(feature)
+        int_to_str[int_id] = node.id
+        graph.add_node(node)
+
+    def _endpoint(props: dict[str, Any], key: str) -> str:
+        if key not in props:
+            raise Nav2GeoJsonError(f"edge feature missing `{key}`")
+        ref = int(props[key])
+        if ref not in int_to_str:
+            raise Nav2GeoJsonError(
+                f"edge references node id {ref} with no Point feature"
+            )
+        return int_to_str[ref]
+
+    # Index edge features by their writer-assigned `edge_id` so the two
+    # directed halves of one bidirectional edge can be recombined.
+    edge_features = [f for f in features if _is_linestring(f)]
+    consumed: set[int] = set()
+    fallback_id = 0
+    used_ids: set[str] = set()
+
+    for i, feature in enumerate(edge_features):
+        if i in consumed:
+            continue
+        props = feature.get("properties") or {}
+        meta = dict(props.get("metadata") or {})
+        source = _endpoint(props, "startid")
+        target = _endpoint(props, "endid")
+        cost = float(props.get("cost", 1.0))
+        edge_meta_id = meta.get("edge_id")
+        bidirectional = False
+
+        if recombine_bidirectional and edge_meta_id is not None:
+            for j in range(i + 1, len(edge_features)):
+                if j in consumed:
+                    continue
+                other = edge_features[j]
+                o_props = other.get("properties") or {}
+                o_meta = dict(o_props.get("metadata") or {})
+                if (
+                    o_meta.get("edge_id") == edge_meta_id
+                    and _endpoint(o_props, "startid") == target
+                    and _endpoint(o_props, "endid") == source
+                ):
+                    consumed.add(j)
+                    bidirectional = True
+                    break
+
+        extra = {k: v for k, v in meta.items() if k not in _SYNTH_EDGE_META}
+        if edge_meta_id is not None:
+            edge_id = str(edge_meta_id)
+        else:
+            edge_id = f"e{fallback_id}"
+            fallback_id += 1
+        # In Nav2-faithful mode the two directed halves keep the same
+        # `edge_id`; disambiguate so node/edge ids stay unique.
+        if edge_id in used_ids:
+            edge_id = f"{edge_id}__{source}_{target}"
+        suffix = 1
+        while edge_id in used_ids:
+            edge_id = f"{edge_id}_{suffix}"
+            suffix += 1
+        used_ids.add(edge_id)
+        graph.add_edge(
+            TopologyEdge(
+                id=edge_id,
+                source=source,
+                target=target,
+                type=str(meta.get("class", "")),
+                cost=cost,
+                bidirectional=bidirectional,
+                properties=extra,
+            )
+        )
+
+    return graph
+
+
+def read_nav2_geojson(
+    path: str | Path,
+    *,
+    recombine_bidirectional: bool = True,
+) -> TopologyGraph:
+    """Read a Nav2 Route Server GeoJSON file into a :class:`TopologyGraph`.
+
+    The inverse of :func:`write_nav2_geojson`. See
+    :func:`nav2_geojson_to_topology` for ``recombine_bidirectional`` and the
+    raised :class:`Nav2GeoJsonError`.
+    """
+    fc = json.loads(Path(path).read_text(encoding="utf-8"))
+    return nav2_geojson_to_topology(fc, recombine_bidirectional=recombine_bidirectional)
+
+
+__all__ = [
+    "Nav2GeoJsonError",
+    "nav2_geojson_to_topology",
+    "read_nav2_geojson",
+    "topology_to_nav2_geojson",
+    "write_nav2_geojson",
+]
