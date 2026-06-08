@@ -30,8 +30,8 @@ from escape_room_meshes import (
 HERE = Path(__file__).parent
 MAP_PATH = MESH_DIR / "escape_room_3dgs_map.png"
 
-# Must match scripts/foxglove_hero/render_escape_room_hero.py
-SIM_W, BODY_H = 780, 480
+# Must match scripts/foxglove_hero/render_escape_room_hero.py (SIM_W)
+SIM_W, BODY_H = 660, 480
 SPLAT_SEED = 42
 
 

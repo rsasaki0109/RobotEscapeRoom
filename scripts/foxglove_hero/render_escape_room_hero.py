@@ -20,6 +20,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "examples"))
 
 from escape_room_3dgs_map import load_map  # noqa: E402
+from escape_room_camera import render_camera_view  # noqa: E402
 from escape_room_meshes import IsoView, all_meshes, fit_iso_view, iso_project  # noqa: E402
 from robot_escape_room import POWER_ITEM, UNPOWERED_TYPES  # noqa: E402
 from semantic_toponav.graph.serialization import load_graph  # noqa: E402
@@ -27,7 +28,7 @@ from semantic_toponav.graph.serialization import load_graph  # noqa: E402
 GRAPH_PATH = ROOT / "examples/robot_escape_room.yaml"
 TIMELINE_PATH = ROOT / "docs/foxglove/robot_escape_room_timeline.json"
 
-MAP_W, SIM_W = 400, 780
+MAP_W, CAM_W, SIM_W = 280, 340, 660
 BODY_H = 480
 TOP_H, BOT_H = 56, 64
 FLOOR_HEIGHT_M = 4.2
@@ -227,6 +228,29 @@ def _render_map(graph, meta: dict) -> Image.Image:
     return panel
 
 
+def _render_camera(graph, meta: dict) -> Image.Image:
+    panel = render_camera_view(graph, meta, width=CAM_W, height=BODY_H)
+    draw = ImageDraw.Draw(panel, "RGBA")
+    draw.text((14, 6), "robot camera · rgb", font=FONT_PANEL, fill=TEXT)
+
+    loc = meta.get("location") or "holding_cell"
+    if graph.has_node(loc):
+        node = graph.get_node(loc)
+        fl = int(node.properties.get("floor", 1))
+        floor_tag = FLOOR_LABEL.get(fl, str(fl))
+        draw.text((CAM_W - 14, 6), f"{node.label[:16]} · {floor_tag}", font=FONT_SM, fill=MUTED, anchor="ra")
+
+    # REC badge + crosshair
+    draw.ellipse((16, BODY_H - 28, 28, BODY_H - 16), fill=(239, 68, 68))
+    draw.text((34, BODY_H - 30), "REC", font=FONT_SM, fill=(252, 165, 165))
+    cx, cy = CAM_W // 2, BODY_H // 2 + 8
+    draw.line([(cx - 14, cy), (cx - 4, cy)], fill=(148, 163, 184, 180), width=1)
+    draw.line([(cx + 4, cy), (cx + 14, cy)], fill=(148, 163, 184, 180), width=1)
+    draw.line([(cx, cy - 14), (cx, cy - 4)], fill=(148, 163, 184, 180), width=1)
+    draw.line([(cx, cy + 4), (cx, cy + 14)], fill=(148, 163, 184, 180), width=1)
+    return panel
+
+
 _3DGS_BG: Image.Image | None = None
 
 
@@ -331,12 +355,14 @@ def _legend_chip(draw, x, y, color, label):
 
 
 def render_frame(graph, meta: dict) -> Image.Image:
-    total_w = MAP_W + SIM_W
+    total_w = MAP_W + CAM_W + SIM_W
     body = Image.new("RGB", (total_w, BODY_H), BG)
     body.paste(_render_map(graph, meta).convert("RGB"), (0, 0))
-    body.paste(_render_sim(graph, meta).convert("RGB"), (MAP_W, 0))
+    body.paste(_render_camera(graph, meta).convert("RGB"), (MAP_W, 0))
+    body.paste(_render_sim(graph, meta).convert("RGB"), (MAP_W + CAM_W, 0))
     draw_body = ImageDraw.Draw(body)
     draw_body.line([(MAP_W, 0), (MAP_W, BODY_H)], fill=(51, 65, 85), width=3)
+    draw_body.line([(MAP_W + CAM_W, 0), (MAP_W + CAM_W, BODY_H)], fill=(51, 65, 85), width=3)
 
     out = Image.new("RGB", (total_w, BODY_H + TOP_H + BOT_H), BG)
     out.paste(body, (0, TOP_H))
@@ -347,7 +373,7 @@ def render_frame(graph, meta: dict) -> Image.Image:
     draw.line([(0, BODY_H + TOP_H), (total_w, BODY_H + TOP_H)], fill=(51, 65, 85), width=2)
 
     draw.text((18, 14), "robot-escape-room", font=FONT_TITLE, fill=TEXT)
-    draw.text((300, 18), "2D topo + 3DGS sim · real A* each frame", font=FONT_LEGEND, fill=MUTED)
+    draw.text((300, 18), "2D topo + camera + 3DGS sim · real A* each frame", font=FONT_LEGEND, fill=MUTED)
     _round_rect(draw, (total_w - 108, 12, total_w - 18, 42), 14, (6, 78, 59), (45, 212, 191), 1)
     draw.text((total_w - 63, 18), "live", font=FONT_BADGE, fill=(167, 243, 208), anchor="ma")
 
