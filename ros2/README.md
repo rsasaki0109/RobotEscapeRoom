@@ -187,8 +187,13 @@ ros2 launch semantic_toponav_ros escape_room_gz_nav2.launch.py escape_room:=fals
 ```
 
 Requires ROS 2 Humble/Jazzy with `nav2_bringup`, `ros_gz_sim`, and
-`ros_gz_bridge`. T-0 publishes `/scan` (360° GPU lidar); the Nav2 map
-rasterizes interior walls from furnished collision boxes. See
+`ros_gz_bridge`. T-0 publishes `/scan` (360° GPU lidar); AMCL localizes on
+the rasterized facility map by default (`use_localization:=true`). Disable
+AMCL to fall back to a static `map→odom` identity:
+
+```bash
+ros2 launch semantic_toponav_ros escape_room_gz_nav2.launch.py use_localization:=false
+```
 [`examples/meshes/escape_room/gazebo/README.md`](../examples/meshes/escape_room/gazebo/README.md).
 
 ## JSON vs custom messages

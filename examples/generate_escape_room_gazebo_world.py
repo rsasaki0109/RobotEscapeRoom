@@ -143,6 +143,7 @@ def _write_robot_model() -> None:
                   <sensor name="lidar" type="gpu_lidar">
                     <pose>0.12 0 0.06 0 0 0</pose>
                     <topic>scan</topic>
+                    <gz_frame_id>laser_link</gz_frame_id>
                     <update_rate>10</update_rate>
                     <lidar>
                       <scan>

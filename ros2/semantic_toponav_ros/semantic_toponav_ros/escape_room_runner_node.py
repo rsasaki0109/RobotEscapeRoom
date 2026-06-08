@@ -1,8 +1,8 @@
 """ROS2 node: run the escape-room puzzle loop and republish semantic waypoints.
 
-Subscribes to robot odometry; when T-0 reaches the current objective node it
-runs on-arrival puzzle actions, replans, and publishes a fresh
-``SemanticWaypointArray`` for Nav2 to follow.
+Subscribes to robot pose (AMCL map pose by default, or raw odometry); when T-0
+reaches the current objective node it runs on-arrival puzzle actions, replans,
+and publishes a fresh ``SemanticWaypointArray`` for Nav2 to follow.
 """
 
 from __future__ import annotations
@@ -11,6 +11,7 @@ import math
 import sys
 
 import rclpy
+from geometry_msgs.msg import PoseWithCovarianceStamped
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
 from std_msgs.msg import String
@@ -31,12 +32,14 @@ class EscapeRoomRunnerNode(Node):
         super().__init__("escape_room_runner")
 
         self.declare_parameter("graph_path", "")
+        self.declare_parameter("pose_source", "amcl")
+        self.declare_parameter("amcl_pose_topic", "/amcl_pose")
         self.declare_parameter("odom_topic", "/odom")
         self.declare_parameter("waypoints_topic", "/semantic_toponav/waypoints")
         self.declare_parameter("status_topic", "/semantic_toponav/escape_room/status")
         self.declare_parameter("frame_id", "map")
         self.declare_parameter("arrival_radius", 0.45)
-        self.declare_parameter("startup_delay_sec", 20.0)
+        self.declare_parameter("startup_delay_sec", 25.0)
 
         graph_path = self.get_parameter("graph_path").get_parameter_value().string_value
         if not graph_path:
@@ -65,7 +68,9 @@ class EscapeRoomRunnerNode(Node):
         status_topic = (
             self.get_parameter("status_topic").get_parameter_value().string_value
         )
-        odom_topic = self.get_parameter("odom_topic").get_parameter_value().string_value
+        pose_source = (
+            self.get_parameter("pose_source").get_parameter_value().string_value
+        )
 
         try:
             from semantic_toponav_msgs.msg import SemanticWaypointArray
@@ -82,7 +87,18 @@ class EscapeRoomRunnerNode(Node):
         self._to_msg = semantic_waypoint_array_to_msg
         self._wp_pub = self.create_publisher(SemanticWaypointArray, waypoints_topic, 10)
         self._status_pub = self.create_publisher(String, status_topic, 10)
-        self._odom_sub = self.create_subscription(Odometry, odom_topic, self._on_odom, 10)
+        if pose_source == "odom":
+            odom_topic = self.get_parameter("odom_topic").get_parameter_value().string_value
+            self._pose_sub = self.create_subscription(Odometry, odom_topic, self._on_odom, 10)
+            pose_label = odom_topic
+        else:
+            amcl_topic = (
+                self.get_parameter("amcl_pose_topic").get_parameter_value().string_value
+            )
+            self._pose_sub = self.create_subscription(
+                PoseWithCovarianceStamped, amcl_topic, self._on_amcl_pose, 10
+            )
+            pose_label = amcl_topic
 
         delay = float(self.get_parameter("startup_delay_sec").value)
         self.create_timer(delay, self._start_once)
@@ -90,7 +106,7 @@ class EscapeRoomRunnerNode(Node):
 
         self.get_logger().info(
             f"escape_room_runner loaded graph ({len(self._graph.node_ids())} nodes); "
-            f"waiting {delay:.0f}s before first plan"
+            f"pose source {pose_label!r}; waiting {delay:.0f}s before first plan"
         )
 
     def _start_once(self) -> None:
@@ -100,6 +116,12 @@ class EscapeRoomRunnerNode(Node):
         self._dispatch_turn()
 
     def _on_odom(self, msg: Odometry) -> None:
+        self._pose = (
+            float(msg.pose.pose.position.x),
+            float(msg.pose.pose.position.y),
+        )
+
+    def _on_amcl_pose(self, msg: PoseWithCovarianceStamped) -> None:
         self._pose = (
             float(msg.pose.pose.position.x),
             float(msg.pose.pose.position.y),
