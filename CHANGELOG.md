@@ -9,8 +9,9 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 Working area for changes that land after the v1.0.1 tag. Front-page
 visuals, positioning docs, a no-invent audit, a Nav2 Route Server
-exporter, and an abstention-taxonomy benchmark (plus its LLM-augmented
-path) — no public schema or behavior changes to existing surfaces.
+exporter and its round-tripping reader, and an abstention-taxonomy
+benchmark (plus its LLM-augmented path) — no public schema or behavior
+changes to existing surfaces.
 
 ### Added — LLM-augmented abstention path closes the token-leak categories
 
@@ -54,6 +55,25 @@ path) — no public schema or behavior changes to existing surfaces.
   grounding with an abstention taxonomy. Example
   `examples/eval_abstention_benchmark.py`; guarded by
   `tests/test_abstention.py`.
+
+### Added — Nav2 Route Server GeoJSON reader closes the hand-off loop
+
+- `semantic_toponav.conversion.nav2_route` gains the exporter's inverse —
+  `nav2_geojson_to_topology` / `read_nav2_geojson` (+ `Nav2GeoJsonError`) —
+  reading a Route Server FeatureCollection back the way Nav2's
+  `GeoJsonGraphFileLoader` does: `Point` features → nodes (string id /
+  label / semantic `class` restored from `metadata`, integer-id fallback
+  for hand-authored graphs), `LineString` features → directed edges. A
+  `recombine_bidirectional` toggle either rejoins the two directed halves
+  the exporter splits (lossless: **export → read → export is
+  byte-identical**) or keeps them directed (exactly what Nav2 materializes).
+- New `examples/nav2_roundtrip_demo.py` closes the loop end to end with no
+  ROS install: plan an elevator-preferring route, export it, **replan over
+  the directed read-back and get the identical sequence** (the semantic
+  `class` survives, so the same cost shaping reproduces the route), then
+  re-export losslessly to confirm byte-identity. Proves Nav2 plans what we
+  planned — the "feed Nav2, don't compete" claim, in code. Guarded by
+  `tests/test_nav2_route_roundtrip.py`.
 
 ### Added — Nav2 Route Server GeoJSON exporter (feed Nav2, don't compete)
 
