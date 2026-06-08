@@ -69,11 +69,18 @@ NODE_COLORS = {
 
 @dataclass
 class TimelineFrame:
-    world: World
+    items: frozenset[str]
+    location: str
     route: list[str]
     progress: float
     turn: int
     events: list[str] = field(default_factory=list)
+
+
+def _snapshot(world: World, route: list[str], progress: float, turn: int, events: list[str]) -> TimelineFrame:
+    return TimelineFrame(
+        frozenset(world.items), world.location, list(route), progress, turn, list(events),
+    )
 
 
 def _ease(t: float) -> float:
@@ -93,11 +100,11 @@ def _node_xyz(graph: Any, node_id: str) -> tuple[float, float, float]:
     return node.pose.x, node.pose.y, z
 
 
-def _edge_open(graph: Any, edge: Any, world: World) -> bool:
+def _edge_open(graph: Any, edge: Any, items: frozenset[str]) -> bool:
     lock = edge.properties.get("lock")
-    if lock and lock not in world.items:
+    if lock and lock not in items:
         return False
-    if edge.type in UNPOWERED_TYPES and POWER_ITEM not in world.items:
+    if edge.type in UNPOWERED_TYPES and POWER_ITEM not in items:
         return False
     if edge.type == "restricted":
         return False
@@ -145,13 +152,11 @@ def _build_timeline(graph: Any) -> list[TimelineFrame]:
 
     def push_motion(path: list[str], turn: int):
         if len(path) < 2:
-            timeline.append(TimelineFrame(world, path or [world.location], 0.0, turn, list(events)))
+            timeline.append(_snapshot(world, path or [world.location], 0.0, turn, events))
             return
         for hop in range(len(path) - 1):
             for step in range(FRAMES_PER_HOP):
-                timeline.append(TimelineFrame(
-                    world, path, hop + _ease(step / FRAMES_PER_HOP), turn, list(events),
-                ))
+                timeline.append(_snapshot(world, path, hop + _ease(step / FRAMES_PER_HOP), turn, events))
 
     def hold(state: TimelineFrame, n: int):
         timeline.extend([state] * n)
@@ -161,7 +166,7 @@ def _build_timeline(graph: Any) -> list[TimelineFrame]:
         exit_path = plan(graph, world, TRUE_EXIT)
         if exit_path is not None:
             push_motion(exit_path, turn)
-            hold(TimelineFrame(world, exit_path, len(exit_path) - 1, turn, events + ["ESCAPED"]), ESCAPE_HOLD)
+            hold(_snapshot(world, exit_path, len(exit_path) - 1, turn, events + ["ESCAPED"]), ESCAPE_HOLD)
             break
 
         opts = objectives(graph, world)
@@ -180,12 +185,12 @@ def _build_timeline(graph: Any) -> list[TimelineFrame]:
         for rid in sorted(world.solved - solved_before):
             events.append(f"riddle: {rid}")
 
-        hold(TimelineFrame(world, path, len(path) - 1, turn, list(events)), HOLD_FRAMES)
+        hold(_snapshot(world, path, len(path) - 1, turn, events), HOLD_FRAMES)
 
         if not twist_seen and "riddle_3" in world.solved:
             twist_seen = True
             events.append("twist: Floor-3 exit sealed")
-            hold(TimelineFrame(world, path, len(path) - 1, turn, list(events)), TWIST_HOLD)
+            hold(_snapshot(world, path, len(path) - 1, turn, events), TWIST_HOLD)
 
     return timeline
 
@@ -203,7 +208,7 @@ def _static_scene(graph: Any, frame: TimelineFrame, timestamp_ns: int) -> dict[s
     edge_lines = []
     for edge in graph.edges():
         pts = [_node_xyz(graph, edge.source), _node_xyz(graph, edge.target)]
-        if not _edge_open(graph, edge, frame.world):
+        if not _edge_open(graph, edge, frame.items):
             if edge.properties.get("lock"):
                 color = (0.95, 0.34, 0.34, 0.55)
             elif edge.type == "restricted":
@@ -387,8 +392,8 @@ def _write_timeline_json(graph: Any, timeline: list[TimelineFrame]) -> None:
             "route_goal": frame.route[-1] if frame.route else "",
             "route": frame.route,
             "progress": frame.progress,
-            "location": frame.world.location,
-            "items": sorted(frame.world.items),
+            "location": frame.location,
+            "items": sorted(frame.items),
         })
     TIMELINE_PATH.parent.mkdir(parents=True, exist_ok=True)
     TIMELINE_PATH.write_text(

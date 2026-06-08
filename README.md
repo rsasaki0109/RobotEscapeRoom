@@ -11,9 +11,11 @@
 <p align="center">
   <sub><strong>Every cost function, one self-solving escape game — map + 3D sim.</strong>
   Left: stacked-floor <strong>topology map</strong> (2D). Right: enhanced
-  Gazebo/RViz-class 3D replay with caption bar and colour legend
-  (cyan = traveled, pink = planned, red = locked), from real planner output
-  (<code>docs/foxglove/robot_escape_room_demo.mcap</code>).
+  isometric 3D sim with caption bar and colour legend
+  (cyan = traveled, pink = planned, red = locked). Every GIF frame is one real
+  A* planner step from <code>robot_escape_room.py</code> — the robot moves
+  each frame. Interactive Foxglove replay:
+  <code>docs/foxglove/robot_escape_room_demo.mcap</code>.
   Robot <strong>T-0</strong> recomposes
   <code>block_edges</code> · <code>block_edge_types</code> ·
   <code>avoid_restricted</code> · <code>prefer_elevator</code> ·
