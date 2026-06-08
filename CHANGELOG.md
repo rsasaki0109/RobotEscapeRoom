@@ -7,7 +7,24 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-Working area for changes that land after the v1.0.2 tag.
+Working area for changes that land after the v1.0.3 tag.
+
+## [1.0.3] — 2026-06-08
+
+README hero polish: replace the 960×540 toy sim with a full 1280×720
+Foxglove/RViz-style dashboard GIF. No changes to the six v1-locked public
+wire schemas or core planner / resolver / coordinator behavior.
+
+### Changed — escape-room hero dashboard
+
+- `examples/record_escape_room_sim.py` rewritten to match the layout of
+  `record_visualization_dashboard.py`: stacked-floor map, `/tf` robot
+  pose, topic list, message inspector, route timeline, and semantic
+  waypoint array — all driven from `robot_escape_room.py` plans.
+- `docs/images/robot_escape_room.gif` regenerated (154 frames @ 18 fps).
+- `docs/images/social_preview.png` refreshed from a mid-run dashboard frame.
+- `docs/tutorial.md` — new §9 walkthrough for the escape-room example.
+- `plan.md` §32 brought up to date (shipped status, reproduction commands).
 
 ## [1.0.2] — 2026-06-08
 

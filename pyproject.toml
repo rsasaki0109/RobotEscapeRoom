@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "semantic-toponav"
-version = "1.0.2"
+version = "1.0.3"
 description = "Robot escape game + semantic graph navigation in Python."
 readme = "README.md"
 requires-python = ">=3.10"

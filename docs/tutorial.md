@@ -209,7 +209,41 @@ python examples/web_viewer_demo.py
 xdg-open examples/multi_floor_viewer.html
 ```
 
-## 9. Going further
+## 9. Robot Escape Room — every cost function in one game
+
+The multi-floor office tutorial above shows each planner primitive in
+isolation. The **Robot Escape Room** example ties them together in a
+self-solving escape game: robot **T-0** wakes in a locked-down facility,
+collects keycards, solves riddles, and escapes — with **no scripted
+route**. Each turn the runner recomposes the live cost stack and asks A\*
+what is reachable now.
+
+```bash
+PYTHONPATH=. python3 examples/robot_escape_room.py
+```
+
+| Puzzle | Planner primitive |
+|---|---|
+| Keycard doors | `block_edges` until the matching item is held |
+| Dark corridor | `block_edge_types("unpowered")` until power core collected |
+| Laser shortcut | `avoid_restricted` (briefing shows reckless vs safe at startup) |
+| Stairs vs lift | `prefer_elevator` (mobility briefing compares both routes) |
+| Riddle terminals | `resolve_goal` grounds clues and reveals hidden items |
+
+The twist is structural: a lit **EMERGENCY EXIT** on Floor 3 is welded
+shut (`master_seal` — no key exists). A control-room riddle grounds
+`"maintenance exit"` to the **B1 sublevel**, flipping the route from
+all-the-way-up to all-the-way-down.
+
+Regenerate the README hero (1280×720 Foxglove-style dashboard GIF):
+
+```bash
+PYTHONPATH=. python3 examples/record_escape_room_sim.py
+```
+
+See also the gallery row in [`README.md`](../README.md#escape-room--every-cost-function-in-one-self-solving-game).
+
+## 10. Going further
 
 This tutorial walks the *foundational* flow (load → inspect → plan →
 waypoint → visualize). The rest of the project goes further on every
