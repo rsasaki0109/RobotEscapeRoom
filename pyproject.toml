@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "semantic-toponav"
-version = "1.0.1"
+version = "1.0.2"
 description = "Self-solving Robot Escape Room demo plus semantic topological navigation — language goals, composable A* costs, fleet coordination, and Nav2 hand-off."
 readme = "README.md"
 requires-python = ">=3.10"

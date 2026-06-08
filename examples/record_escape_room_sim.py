@@ -498,14 +498,31 @@ def main() -> None:
     frames = [_render_frame(graph, kf, i) for i, kf in enumerate(timeline)]
 
     OUT_GIF.parent.mkdir(parents=True, exist_ok=True)
-    palette_frames = [f.convert("P", palette=Image.ADAPTIVE, colors=128) for f in frames]
+    palette_frames = [f.convert("P", palette=Image.ADAPTIVE, colors=96) for f in frames]
     palette_frames[0].save(
         OUT_GIF, save_all=True, append_images=palette_frames[1:],
         duration=FRAME_MS, loop=0, optimize=True, disposal=2,
     )
+    _optimize_gif(OUT_GIF)
     _write_mp4(frames)
     size_kb = OUT_GIF.stat().st_size / 1024
     print(f"wrote {OUT_GIF.relative_to(ROOT)} ({size_kb:.0f} KB, {len(frames)} frames @ {FPS} fps)")
+
+
+def _optimize_gif(path: Path) -> None:
+    """Second-pass palette quantization via ffmpeg when available."""
+    if shutil.which("ffmpeg") is None:
+        return
+    tmp = path.with_suffix(".opt.gif")
+    cmd = [
+        "ffmpeg", "-y", "-i", str(path),
+        "-lavfi",
+        f"fps={FPS},split[s0][s1];[s0]palettegen=stats_mode=diff:max_colors=96[p];"
+        "[s1][p]paletteuse=dither=bayer:bayer_scale=3",
+        str(tmp),
+    ]
+    subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    tmp.replace(path)
 
 
 if __name__ == "__main__":

@@ -7,11 +7,34 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-Working area for changes that land after the v1.0.1 tag. Front-page
-visuals, positioning docs, a no-invent audit, a Nav2 Route Server
-exporter and its round-tripping reader, and an abstention-taxonomy
-benchmark (plus its LLM-augmented path) — no public schema or behavior
-changes to existing surfaces.
+Working area for changes that land after the v1.0.2 tag.
+
+## [1.0.2] — 2026-06-08
+
+Escape-room front-page polish on top of v1.0.1. No changes to the six
+v1-locked public wire schemas or core planner / resolver / coordinator
+behavior.
+
+### Added — Robot Escape Room demo + live-simulation hero
+
+- `examples/robot_escape_room.yaml` / `robot_escape_room.py` — a
+  self-solving multi-floor escape game where every puzzle is a real
+  planner primitive (`block_edges`, `block_edge_types`, `avoid_restricted`,
+  `prefer_elevator`, `resolve_goal`); no scripted route.
+- `examples/record_escape_room_sim.py` — Foxglove/RViz-style dashboard
+  GIF recorder with smooth `/tf` motion, mission HUD, and event log.
+- `examples/record_escape_room.py` — three-panel analytics variant
+  (`docs/images/robot_escape_room_panels.gif`).
+
+### Changed — README / GitHub positioning
+
+- README hero is the live-simulation escape-room GIF; title leads with
+  **Robot Escape Room · semantic-toponav**.
+- GitHub About description and topics (`escape-room`, `game-demo`)
+  updated to match.
+- `examples/build_social_preview.py` rebuilt from the escape-room sim
+  hero; `docs/images/social_preview.png` refreshed.
+- Hero GIF second-pass ffmpeg palette optimization (~2.9 MB → ~640 KB).
 
 ### Added — LLM-augmented abstention path closes the token-leak categories
 
@@ -511,6 +534,8 @@ release consolidates). Future migration notes (for v2 schema
 bumps, removed CLI flags, etc.) will appear in this section per
 the freeze policy in [`docs/schema_v1.md`](docs/schema_v1.md).
 
-[Unreleased]: https://github.com/rsasaki0109/semantic-toponav/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/rsasaki0109/semantic-toponav/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/rsasaki0109/semantic-toponav/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/rsasaki0109/semantic-toponav/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/rsasaki0109/semantic-toponav/compare/v0.1.0...v1.0.0
 [0.1.0]: https://github.com/rsasaki0109/semantic-toponav/releases/tag/v0.1.0
