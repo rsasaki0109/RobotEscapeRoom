@@ -1,0 +1,2536 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sdf version="1.8">
+  <model name="escape_room_facility">
+    <static>true</static>
+    <link name="facility">
+      <visual name="mesh">
+        <geometry>
+          <mesh>
+            <uri>meshes/escape_room_scene.obj</uri>
+            <scale>1 1 1</scale>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="box_0">
+        <pose>12.0000 0.0000 0.0400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.9200 2.9200 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_1">
+        <pose>12.0000 0.0000 2.9600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.2000 3.2000 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_2">
+        <pose>12.0000 0.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_3">
+        <pose>11.2800 0.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_4">
+        <pose>12.7200 0.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_5">
+        <pose>10.4000 -1.0625 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 1.0750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_6">
+        <pose>10.4000 1.0625 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 1.0750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_7">
+        <pose>10.4000 -0.4900 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_8">
+        <pose>10.4000 0.4900 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_9">
+        <pose>10.4000 0.0000 2.1150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 1.0500 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_10">
+        <pose>13.6000 -1.0625 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 1.0750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_11">
+        <pose>13.6000 1.0625 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 1.0750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_12">
+        <pose>13.6000 -0.4900 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_13">
+        <pose>13.6000 0.4900 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_14">
+        <pose>13.6000 0.0000 2.1150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 1.0500 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_15">
+        <pose>12.0000 -1.6000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.2000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_16">
+        <pose>10.9375 1.6000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.0750 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_17">
+        <pose>13.0625 1.6000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.0750 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_18">
+        <pose>11.5100 1.6000 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0700 0.1200 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_19">
+        <pose>12.4900 1.6000 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0700 0.1200 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_20">
+        <pose>12.0000 1.6000 2.1150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.0500 0.1200 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_21">
+        <pose>20.0000 -7.0000 -8.3600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.3200 2.3200 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_22">
+        <pose>20.0000 -7.0000 -5.4400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.6000 2.6000 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_23">
+        <pose>20.0000 -7.0000 -5.4350 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_24">
+        <pose>19.4150 -7.0000 -5.4350 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_25">
+        <pose>20.5850 -7.0000 -5.4350 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_26">
+        <pose>18.7000 -7.0000 -6.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 2.6000 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_27">
+        <pose>21.3000 -7.9125 -6.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 0.7750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_28">
+        <pose>21.3000 -6.0875 -6.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 0.7750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_29">
+        <pose>21.3000 -7.4900 -7.3250 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_30">
+        <pose>21.3000 -6.5100 -7.3250 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_31">
+        <pose>21.3000 -7.0000 -6.2850 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 1.0500 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_32">
+        <pose>20.0000 -8.3000 -6.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.6000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_33">
+        <pose>20.0000 -5.7000 -6.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.6000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_34">
+        <pose>19.5000 -7.0000 -7.6500 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.4500 0.8000 0.5000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_35">
+        <pose>20.6000 -7.0000 -7.6500 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.4500 0.8000 0.5000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_36">
+        <pose>28.0000 11.0000 8.4400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.7200 3.7200 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_37">
+        <pose>28.0000 11.0000 11.3600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>4.0000 4.0000 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_38">
+        <pose>28.0000 11.0000 11.3650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_39">
+        <pose>27.1000 11.0000 11.3650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_40">
+        <pose>28.9000 11.0000 11.3650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_41">
+        <pose>26.0000 9.7375 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 1.4750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_42">
+        <pose>26.0000 12.2625 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 1.4750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_43">
+        <pose>26.0000 10.5100 9.4750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_44">
+        <pose>26.0000 11.4900 9.4750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_45">
+        <pose>26.0000 11.0000 10.5150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 1.0500 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_46">
+        <pose>30.0000 11.0000 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 4.0000 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_47">
+        <pose>28.0000 9.0000 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>4.0000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_48">
+        <pose>28.0000 13.0000 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>4.0000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_49">
+        <pose>28.0000 11.2000 9.7000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.8500 1.8000 0.8000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_50">
+        <pose>27.0000 10.2000 10.6000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.8500 0.4500 1.2000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_51">
+        <pose>29.0000 10.2000 10.6000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.8500 0.4500 1.2000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_52">
+        <pose>16.0000 0.0000 0.0400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.3200 2.3200 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_53">
+        <pose>16.0000 0.0000 2.9600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.6000 2.6000 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_54">
+        <pose>16.0000 0.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_55">
+        <pose>15.4150 0.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_56">
+        <pose>16.5850 0.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_57">
+        <pose>14.7000 -0.9125 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 0.7750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_58">
+        <pose>14.7000 0.9125 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 0.7750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_59">
+        <pose>14.7000 -0.4900 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_60">
+        <pose>14.7000 0.4900 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_61">
+        <pose>14.7000 0.0000 2.1150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 1.0500 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_62">
+        <pose>17.3000 -0.9125 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 0.7750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_63">
+        <pose>17.3000 0.9125 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 0.7750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_64">
+        <pose>17.3000 -0.4900 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_65">
+        <pose>17.3000 0.4900 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_66">
+        <pose>17.3000 0.0000 2.1150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 1.0500 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_67">
+        <pose>16.0000 -1.3000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.6000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_68">
+        <pose>16.0000 1.3000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.6000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_69">
+        <pose>20.0000 0.0000 0.0400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.9200 2.9200 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_70">
+        <pose>20.0000 0.0000 2.9600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.2000 3.2000 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_71">
+        <pose>20.0000 0.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_72">
+        <pose>19.2800 0.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_73">
+        <pose>20.7200 0.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_74">
+        <pose>18.4000 -1.0625 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 1.0750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_75">
+        <pose>18.4000 1.0625 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 1.0750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_76">
+        <pose>18.4000 -0.4900 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_77">
+        <pose>18.4000 0.4900 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_78">
+        <pose>18.4000 0.0000 2.1150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 1.0500 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_79">
+        <pose>21.6000 0.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 3.2000 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_80">
+        <pose>18.9375 -1.6000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.0750 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_81">
+        <pose>21.0625 -1.6000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.0750 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_82">
+        <pose>19.5100 -1.6000 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0700 0.1200 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_83">
+        <pose>20.4900 -1.6000 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0700 0.1200 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_84">
+        <pose>20.0000 -1.6000 2.1150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.0500 0.1200 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_85">
+        <pose>20.0000 1.6000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.2000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_86">
+        <pose>20.6000 0.0000 2.2250 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.9000 0.9000 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_87">
+        <pose>19.2000 0.0000 1.5500 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.9000 0.3500 0.9000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_88">
+        <pose>24.0000 15.0000 8.4400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.3200 3.3200 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_89">
+        <pose>24.0000 15.0000 11.3600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.6000 3.6000 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_90">
+        <pose>24.0000 15.0000 11.3650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_91">
+        <pose>23.1900 15.0000 11.3650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_92">
+        <pose>24.8100 15.0000 11.3650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_93">
+        <pose>22.2000 15.0000 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 3.6000 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_94">
+        <pose>25.8000 15.0000 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 3.6000 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_95">
+        <pose>22.8375 13.2000 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.2750 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_96">
+        <pose>25.1625 13.2000 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.2750 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_97">
+        <pose>23.5100 13.2000 9.4750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0700 0.1200 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_98">
+        <pose>24.4900 13.2000 9.4750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0700 0.1200 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_99">
+        <pose>24.0000 13.2000 10.5150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.0500 0.1200 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_100">
+        <pose>24.0000 16.8000 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.6000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_101">
+        <pose>24.0000 15.5000 10.5600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.0000 1.4000 0.1200</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_102">
+        <pose>24.0000 14.4000 9.1000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.9000 0.8000 0.6000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_103">
+        <pose>0.0000 0.0000 0.0400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.7200 3.7200 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_104">
+        <pose>0.0000 0.0000 2.9600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>4.0000 4.0000 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_105">
+        <pose>0.0000 0.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_106">
+        <pose>-0.9000 0.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_107">
+        <pose>0.9000 0.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_108">
+        <pose>-2.0000 0.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 4.0000 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_109">
+        <pose>2.0000 -1.2625 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 1.4750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_110">
+        <pose>2.0000 1.2625 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 1.4750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_111">
+        <pose>2.0000 -0.4900 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_112">
+        <pose>2.0000 0.4900 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_113">
+        <pose>2.0000 0.0000 2.1150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 1.0500 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_114">
+        <pose>0.0000 -2.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>4.0000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_115">
+        <pose>0.0000 2.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>4.0000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_116">
+        <pose>-0.9000 0.0000 0.7250 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.3500 1.6000 0.4500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_117">
+        <pose>0.8500 -0.7000 0.9500 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.2500 0.1800 1.4000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_118">
+        <pose>0.8500 0.7000 0.9500 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.2500 0.1800 1.4000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_119">
+        <pose>8.0000 0.0000 0.0400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.7200 3.7200 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_120">
+        <pose>8.0000 0.0000 2.9600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>4.0000 4.0000 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_121">
+        <pose>8.0000 0.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_122">
+        <pose>7.1000 0.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_123">
+        <pose>8.9000 0.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_124">
+        <pose>6.0000 -1.2625 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 1.4750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_125">
+        <pose>6.0000 1.2625 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 1.4750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_126">
+        <pose>6.0000 -0.4900 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_127">
+        <pose>6.0000 0.4900 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_128">
+        <pose>6.0000 0.0000 2.1150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 1.0500 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_129">
+        <pose>10.0000 -1.2625 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 1.4750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_130">
+        <pose>10.0000 1.2625 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 1.4750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_131">
+        <pose>10.0000 -0.4900 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_132">
+        <pose>10.0000 0.4900 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_133">
+        <pose>10.0000 0.0000 2.1150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 1.0500 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_134">
+        <pose>6.7375 -2.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.4750 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_135">
+        <pose>9.2625 -2.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.4750 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_136">
+        <pose>7.5100 -2.0000 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0700 0.1200 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_137">
+        <pose>8.4900 -2.0000 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0700 0.1200 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_138">
+        <pose>8.0000 -2.0000 2.1150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.0500 0.1200 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_139">
+        <pose>8.0000 2.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>4.0000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_140">
+        <pose>8.0000 0.0000 1.2250 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.9000 1.4000 0.7500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_141">
+        <pose>7.0000 -1.0000 1.2500 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.9000 0.5000 0.5000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_142">
+        <pose>7.0000 1.0000 1.2500 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.9000 0.5000 0.5000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_143">
+        <pose>24.0000 -7.0000 -8.3600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.3200 3.3200 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_144">
+        <pose>24.0000 -7.0000 -5.4400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.6000 3.6000 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_145">
+        <pose>24.0000 -7.0000 -5.4350 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_146">
+        <pose>23.1900 -7.0000 -5.4350 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_147">
+        <pose>24.8100 -7.0000 -5.4350 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_148">
+        <pose>22.2000 -8.1625 -6.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 1.2750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_149">
+        <pose>22.2000 -5.8375 -6.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 1.2750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_150">
+        <pose>22.2000 -7.4900 -7.3250 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_151">
+        <pose>22.2000 -6.5100 -7.3250 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_152">
+        <pose>22.2000 -7.0000 -6.2850 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 1.0500 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_153">
+        <pose>25.8000 -7.0000 -6.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 3.6000 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_154">
+        <pose>24.0000 -8.8000 -6.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.6000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_155">
+        <pose>24.0000 -5.2000 -6.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.6000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_156">
+        <pose>24.0000 -6.6000 -6.3500 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.0000 1.2000 0.1000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_157">
+        <pose>24.0000 6.0000 4.2400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.3200 2.3200 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_158">
+        <pose>24.0000 6.0000 7.1600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.6000 2.6000 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_159">
+        <pose>24.0000 6.0000 7.1650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_160">
+        <pose>23.4150 6.0000 7.1650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_161">
+        <pose>24.5850 6.0000 7.1650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_162">
+        <pose>22.7000 5.0875 5.7000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 0.7750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_163">
+        <pose>22.7000 6.9125 5.7000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 0.7750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_164">
+        <pose>22.7000 5.5100 5.2750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_165">
+        <pose>22.7000 6.4900 5.2750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_166">
+        <pose>22.7000 6.0000 6.3150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 1.0500 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_167">
+        <pose>25.3000 6.0000 5.7000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 2.6000 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_168">
+        <pose>24.0000 4.7000 5.7000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.6000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_169">
+        <pose>24.0000 7.3000 5.7000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.6000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_170">
+        <pose>8.0000 -4.0000 0.0400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.7200 3.7200 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_171">
+        <pose>8.0000 -4.0000 2.9600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>4.0000 4.0000 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_172">
+        <pose>8.0000 -4.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_173">
+        <pose>7.1000 -4.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_174">
+        <pose>8.9000 -4.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_175">
+        <pose>6.0000 -4.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 4.0000 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_176">
+        <pose>10.0000 -4.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 4.0000 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_177">
+        <pose>8.0000 -6.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>4.0000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_178">
+        <pose>6.7375 -2.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.4750 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_179">
+        <pose>9.2625 -2.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.4750 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_180">
+        <pose>7.5100 -2.0000 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0700 0.1200 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_181">
+        <pose>8.4900 -2.0000 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0700 0.1200 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_182">
+        <pose>8.0000 -2.0000 2.1150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.0500 0.1200 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_183">
+        <pose>8.2000 -4.0000 1.1250 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7500 1.2000 0.7500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_184">
+        <pose>6.9000 -4.0000 1.8500 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7500 0.3500 0.9000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_185">
+        <pose>9.0000 -5.0000 0.7750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7500 0.5500 0.4500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_186">
+        <pose>4.0000 4.0000 0.0400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.7200 3.7200 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_187">
+        <pose>4.0000 4.0000 2.9600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>4.0000 4.0000 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_188">
+        <pose>4.0000 4.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_189">
+        <pose>3.1000 4.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_190">
+        <pose>4.9000 4.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_191">
+        <pose>2.0000 4.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 4.0000 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_192">
+        <pose>6.0000 4.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 4.0000 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_193">
+        <pose>2.7375 2.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.4750 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_194">
+        <pose>5.2625 2.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.4750 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_195">
+        <pose>3.5100 2.0000 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0700 0.1200 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_196">
+        <pose>4.4900 2.0000 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0700 0.1200 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_197">
+        <pose>4.0000 2.0000 2.1150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.0500 0.1200 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_198">
+        <pose>4.0000 6.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>4.0000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_199">
+        <pose>3.1000 3.2000 2.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.9000 0.4500 0.5500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_200">
+        <pose>3.1000 4.0000 2.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.9000 0.4500 0.5500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_201">
+        <pose>3.1000 4.8000 2.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.9000 0.4500 0.5500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_202">
+        <pose>4.5000 4.0000 1.1000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.9000 0.6000 0.4000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_203">
+        <pose>22.0000 -3.0000 0.0400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.9200 1.9200 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_204">
+        <pose>22.0000 -3.0000 2.9600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.2000 2.2000 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_205">
+        <pose>22.0000 -3.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_206">
+        <pose>21.5050 -3.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_207">
+        <pose>22.4950 -3.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_208">
+        <pose>20.9000 -3.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 2.2000 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_209">
+        <pose>23.1000 -3.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 2.2000 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_210">
+        <pose>22.0000 -4.1000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.2000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_211">
+        <pose>21.1875 -1.9000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.5750 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_212">
+        <pose>22.8125 -1.9000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.5750 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_213">
+        <pose>21.5100 -1.9000 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0700 0.1200 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_214">
+        <pose>22.4900 -1.9000 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0700 0.1200 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_215">
+        <pose>22.0000 -1.9000 2.1150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.0500 0.1200 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_216">
+        <pose>22.0000 -3.3520 0.0600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.1000 0.1760 0.1200</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_217">
+        <pose>22.0000 -3.1760 0.1800 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.1000 0.1760 0.1200</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_218">
+        <pose>22.0000 -3.0000 0.3000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.1000 0.1760 0.1200</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_219">
+        <pose>22.0000 -2.8240 0.4200 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.1000 0.1760 0.1200</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_220">
+        <pose>22.0000 -2.6480 0.5400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.1000 0.1760 0.1200</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_221">
+        <pose>22.0000 6.0000 4.2400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.9200 1.9200 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_222">
+        <pose>22.0000 6.0000 7.1600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.2000 2.2000 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_223">
+        <pose>22.0000 6.0000 7.1650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_224">
+        <pose>21.5050 6.0000 7.1650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_225">
+        <pose>22.4950 6.0000 7.1650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_226">
+        <pose>20.9000 6.0000 5.7000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 2.2000 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_227">
+        <pose>23.1000 5.1875 5.7000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 0.5750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_228">
+        <pose>23.1000 6.8125 5.7000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 0.5750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_229">
+        <pose>23.1000 5.5100 5.2750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_230">
+        <pose>23.1000 6.4900 5.2750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_231">
+        <pose>23.1000 6.0000 6.3150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 1.0500 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_232">
+        <pose>22.0000 4.9000 5.7000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.2000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_233">
+        <pose>22.0000 7.1000 5.7000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.2000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_234">
+        <pose>22.0000 5.6480 4.2600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.1000 0.1760 0.1200</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_235">
+        <pose>22.0000 5.8240 4.3800 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.1000 0.1760 0.1200</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_236">
+        <pose>22.0000 6.0000 4.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.1000 0.1760 0.1200</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_237">
+        <pose>22.0000 6.1760 4.6200 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.1000 0.1760 0.1200</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_238">
+        <pose>22.0000 6.3520 4.7400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.1000 0.1760 0.1200</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_239">
+        <pose>22.0000 11.0000 8.4400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.9200 1.9200 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_240">
+        <pose>22.0000 11.0000 11.3600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.2000 2.2000 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_241">
+        <pose>22.0000 11.0000 11.3650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_242">
+        <pose>21.5050 11.0000 11.3650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_243">
+        <pose>22.4950 11.0000 11.3650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_244">
+        <pose>20.9000 11.0000 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 2.2000 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_245">
+        <pose>23.1000 10.1875 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 0.5750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_246">
+        <pose>23.1000 11.8125 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 0.5750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_247">
+        <pose>23.1000 10.5100 9.4750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_248">
+        <pose>23.1000 11.4900 9.4750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_249">
+        <pose>23.1000 11.0000 10.5150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 1.0500 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_250">
+        <pose>22.0000 9.9000 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.2000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_251">
+        <pose>22.0000 12.1000 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.2000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_252">
+        <pose>22.0000 10.6480 8.4600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.1000 0.1760 0.1200</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_253">
+        <pose>22.0000 10.8240 8.5800 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.1000 0.1760 0.1200</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_254">
+        <pose>22.0000 11.0000 8.7000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.1000 0.1760 0.1200</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_255">
+        <pose>22.0000 11.1760 8.8200 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.1000 0.1760 0.1200</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_256">
+        <pose>22.0000 11.3520 8.9400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.1000 0.1760 0.1200</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_257">
+        <pose>12.0000 4.0000 0.0400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>3.7200 3.7200 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_258">
+        <pose>12.0000 4.0000 2.9600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>4.0000 4.0000 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_259">
+        <pose>12.0000 4.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_260">
+        <pose>11.1000 4.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_261">
+        <pose>12.9000 4.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_262">
+        <pose>10.0000 4.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 4.0000 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_263">
+        <pose>14.0000 4.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 4.0000 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_264">
+        <pose>10.7375 2.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.4750 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_265">
+        <pose>13.2625 2.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.4750 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_266">
+        <pose>11.5100 2.0000 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0700 0.1200 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_267">
+        <pose>12.4900 2.0000 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0700 0.1200 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_268">
+        <pose>12.0000 2.0000 2.1150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.0500 0.1200 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_269">
+        <pose>12.0000 6.0000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>4.0000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_270">
+        <pose>11.2000 3.2000 1.6500 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.5500 0.9000 0.9000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_271">
+        <pose>12.8000 3.2000 1.6500 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.5500 0.9000 0.9000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_272">
+        <pose>12.0000 4.9000 1.0500 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.5500 1.6000 0.7000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_273">
+        <pose>24.0000 11.0000 8.4400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.3200 2.3200 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_274">
+        <pose>24.0000 11.0000 11.3600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.6000 2.6000 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_275">
+        <pose>24.0000 11.0000 11.3650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_276">
+        <pose>23.4150 11.0000 11.3650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_277">
+        <pose>24.5850 11.0000 11.3650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_278">
+        <pose>22.7000 10.0875 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 0.7750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_279">
+        <pose>22.7000 11.9125 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 0.7750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_280">
+        <pose>22.7000 10.5100 9.4750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_281">
+        <pose>22.7000 11.4900 9.4750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_282">
+        <pose>22.7000 11.0000 10.5150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 1.0500 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_283">
+        <pose>25.3000 10.0875 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 0.7750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_284">
+        <pose>25.3000 11.9125 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 0.7750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_285">
+        <pose>25.3000 10.5100 9.4750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_286">
+        <pose>25.3000 11.4900 9.4750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_287">
+        <pose>25.3000 11.0000 10.5150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 1.0500 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_288">
+        <pose>24.0000 9.7000 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.6000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_289">
+        <pose>23.0875 12.3000 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7750 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_290">
+        <pose>24.9125 12.3000 9.9000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7750 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_291">
+        <pose>23.5100 12.3000 9.4750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0700 0.1200 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_292">
+        <pose>24.4900 12.3000 9.4750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0700 0.1200 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_293">
+        <pose>24.0000 12.3000 10.5150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.0500 0.1200 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_294">
+        <pose>4.0000 0.0000 0.0400 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.3200 2.3200 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_295">
+        <pose>4.0000 0.0000 2.9600 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.6000 2.6000 0.0800</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_296">
+        <pose>4.0000 0.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_297">
+        <pose>3.4150 0.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_298">
+        <pose>4.5850 0.0000 2.9650 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7000 0.3600 0.0500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_299">
+        <pose>2.7000 -0.9125 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 0.7750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_300">
+        <pose>2.7000 0.9125 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 0.7750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_301">
+        <pose>2.7000 -0.4900 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_302">
+        <pose>2.7000 0.4900 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_303">
+        <pose>2.7000 0.0000 2.1150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 1.0500 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_304">
+        <pose>5.3000 -0.9125 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 0.7750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_305">
+        <pose>5.3000 0.9125 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1400 0.7750 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_306">
+        <pose>5.3000 -0.4900 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_307">
+        <pose>5.3000 0.4900 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 0.0700 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_308">
+        <pose>5.3000 0.0000 2.1150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1200 1.0500 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_309">
+        <pose>4.0000 -1.3000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.6000 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_310">
+        <pose>3.0875 1.3000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7750 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_311">
+        <pose>4.9125 1.3000 1.5000 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.7750 0.1400 3.0000</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_312">
+        <pose>3.5100 1.3000 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0700 0.1200 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_313">
+        <pose>4.4900 1.3000 1.0750 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0700 0.1200 2.1500</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="box_314">
+        <pose>4.0000 1.3000 2.1150 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.0500 0.1200 0.0700</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>
