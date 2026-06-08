@@ -10,7 +10,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
 from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
@@ -31,11 +31,12 @@ def generate_launch_description() -> LaunchDescription:
     gazebo_models = repo / "examples/meshes/escape_room/gazebo/models"
 
     declare_escape_room = DeclareLaunchArgument("escape_room", default_value="true")
+    declare_use_localization = DeclareLaunchArgument("use_localization", default_value="true")
     declare_goal = DeclareLaunchArgument("goal_node", default_value="maintenance_exit")
     declare_start = DeclareLaunchArgument("start_node", default_value="holding_cell")
     declare_prefer_elevator = DeclareLaunchArgument("prefer_elevator", default_value="true")
     declare_avoid_restricted = DeclareLaunchArgument("avoid_restricted", default_value="true")
-    declare_startup_delay = DeclareLaunchArgument("startup_delay_sec", default_value="20.0")
+    declare_startup_delay = DeclareLaunchArgument("startup_delay_sec", default_value="25.0")
 
     gz_resource_path = SetEnvironmentVariable(
         name="GZ_SIM_RESOURCE_PATH",
@@ -67,6 +68,7 @@ def generate_launch_description() -> LaunchDescription:
         package="tf2_ros",
         executable="static_transform_publisher",
         arguments=["0", "0", "0", "0", "0", "0", "map", "odom"],
+        condition=UnlessCondition(LaunchConfiguration("use_localization")),
         parameters=[{"use_sim_time": True}],
     )
 
@@ -89,7 +91,7 @@ def generate_launch_description() -> LaunchDescription:
             "use_sim_time": "true",
             "params_file": str(nav2_params),
             "autostart": "true",
-            "use_localization": "false",
+            "use_localization": LaunchConfiguration("use_localization"),
         }.items(),
     )
 
@@ -118,6 +120,17 @@ def generate_launch_description() -> LaunchDescription:
             {"frame_id": "map"},
             {"startup_delay_sec": LaunchConfiguration("startup_delay_sec")},
             {"arrival_radius": 0.45},
+            {
+                "pose_source": PythonExpression(
+                    [
+                        "'amcl' if '",
+                        LaunchConfiguration("use_localization"),
+                        "' == 'true' else 'odom'",
+                    ]
+                )
+            },
+            {"amcl_pose_topic": "/amcl_pose"},
+            {"odom_topic": "/odom"},
         ],
     )
 
@@ -141,6 +154,7 @@ def generate_launch_description() -> LaunchDescription:
     return LaunchDescription(
         [
             declare_escape_room,
+            declare_use_localization,
             declare_goal,
             declare_start,
             declare_prefer_elevator,
