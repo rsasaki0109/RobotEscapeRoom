@@ -4,775 +4,2721 @@
       "turn": 1,
       "caption": "Route to Server Room",
       "detail": "A* replanned on live cost stack (no scripted path)",
-      "route_goal": "server_room"
+      "route_goal": "server_room",
+      "route": [
+        "holding_cell",
+        "west_corridor",
+        "server_room"
+      ],
+      "progress": 0.0,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 1,
       "caption": "Route to Server Room",
       "detail": "A* replanned on live cost stack (no scripted path)",
-      "route_goal": "server_room"
+      "route_goal": "server_room",
+      "route": [
+        "holding_cell",
+        "west_corridor",
+        "server_room"
+      ],
+      "progress": 0.10400000000000002,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 1,
       "caption": "Route to Server Room",
       "detail": "A* replanned on live cost stack (no scripted path)",
-      "route_goal": "server_room"
+      "route_goal": "server_room",
+      "route": [
+        "holding_cell",
+        "west_corridor",
+        "server_room"
+      ],
+      "progress": 0.3520000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 1,
       "caption": "Route to Server Room",
       "detail": "A* replanned on live cost stack (no scripted path)",
-      "route_goal": "server_room"
+      "route_goal": "server_room",
+      "route": [
+        "holding_cell",
+        "west_corridor",
+        "server_room"
+      ],
+      "progress": 0.648,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 1,
       "caption": "Route to Server Room",
       "detail": "A* replanned on live cost stack (no scripted path)",
-      "route_goal": "server_room"
+      "route_goal": "server_room",
+      "route": [
+        "holding_cell",
+        "west_corridor",
+        "server_room"
+      ],
+      "progress": 0.8960000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 1,
       "caption": "Route to Server Room",
       "detail": "A* replanned on live cost stack (no scripted path)",
-      "route_goal": "server_room"
+      "route_goal": "server_room",
+      "route": [
+        "holding_cell",
+        "west_corridor",
+        "server_room"
+      ],
+      "progress": 1.0,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 1,
       "caption": "Route to Server Room",
       "detail": "A* replanned on live cost stack (no scripted path)",
-      "route_goal": "server_room"
+      "route_goal": "server_room",
+      "route": [
+        "holding_cell",
+        "west_corridor",
+        "server_room"
+      ],
+      "progress": 1.104,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 1,
       "caption": "Route to Server Room",
       "detail": "A* replanned on live cost stack (no scripted path)",
-      "route_goal": "server_room"
+      "route_goal": "server_room",
+      "route": [
+        "holding_cell",
+        "west_corridor",
+        "server_room"
+      ],
+      "progress": 1.352,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 1,
       "caption": "Route to Server Room",
       "detail": "A* replanned on live cost stack (no scripted path)",
-      "route_goal": "server_room"
+      "route_goal": "server_room",
+      "route": [
+        "holding_cell",
+        "west_corridor",
+        "server_room"
+      ],
+      "progress": 1.6480000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 1,
       "caption": "Route to Server Room",
       "detail": "A* replanned on live cost stack (no scripted path)",
-      "route_goal": "server_room"
+      "route_goal": "server_room",
+      "route": [
+        "holding_cell",
+        "west_corridor",
+        "server_room"
+      ],
+      "progress": 1.8960000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 1,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "server_room"
+      "route_goal": "server_room",
+      "route": [
+        "holding_cell",
+        "west_corridor",
+        "server_room"
+      ],
+      "progress": 2,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 1,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "server_room"
+      "route_goal": "server_room",
+      "route": [
+        "holding_cell",
+        "west_corridor",
+        "server_room"
+      ],
+      "progress": 2,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 1,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "server_room"
+      "route_goal": "server_room",
+      "route": [
+        "holding_cell",
+        "west_corridor",
+        "server_room"
+      ],
+      "progress": 2,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 1,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "server_room"
+      "route_goal": "server_room",
+      "route": [
+        "holding_cell",
+        "west_corridor",
+        "server_room"
+      ],
+      "progress": 2,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 2,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "main_lab"
+      "route_goal": "main_lab",
+      "route": [
+        "server_room",
+        "west_corridor",
+        "main_lab"
+      ],
+      "progress": 0.0,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 2,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "main_lab"
+      "route_goal": "main_lab",
+      "route": [
+        "server_room",
+        "west_corridor",
+        "main_lab"
+      ],
+      "progress": 0.10400000000000002,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 2,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "main_lab"
+      "route_goal": "main_lab",
+      "route": [
+        "server_room",
+        "west_corridor",
+        "main_lab"
+      ],
+      "progress": 0.3520000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 2,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "main_lab"
+      "route_goal": "main_lab",
+      "route": [
+        "server_room",
+        "west_corridor",
+        "main_lab"
+      ],
+      "progress": 0.648,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 2,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "main_lab"
+      "route_goal": "main_lab",
+      "route": [
+        "server_room",
+        "west_corridor",
+        "main_lab"
+      ],
+      "progress": 0.8960000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 2,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "main_lab"
+      "route_goal": "main_lab",
+      "route": [
+        "server_room",
+        "west_corridor",
+        "main_lab"
+      ],
+      "progress": 1.0,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 2,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "main_lab"
+      "route_goal": "main_lab",
+      "route": [
+        "server_room",
+        "west_corridor",
+        "main_lab"
+      ],
+      "progress": 1.104,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 2,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "main_lab"
+      "route_goal": "main_lab",
+      "route": [
+        "server_room",
+        "west_corridor",
+        "main_lab"
+      ],
+      "progress": 1.352,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 2,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "main_lab"
+      "route_goal": "main_lab",
+      "route": [
+        "server_room",
+        "west_corridor",
+        "main_lab"
+      ],
+      "progress": 1.6480000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 2,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "main_lab"
+      "route_goal": "main_lab",
+      "route": [
+        "server_room",
+        "west_corridor",
+        "main_lab"
+      ],
+      "progress": 1.8960000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 2,
       "caption": "Collected keycard blue",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "main_lab"
+      "route_goal": "main_lab",
+      "route": [
+        "server_room",
+        "west_corridor",
+        "main_lab"
+      ],
+      "progress": 2,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 2,
       "caption": "Collected keycard blue",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "main_lab"
+      "route_goal": "main_lab",
+      "route": [
+        "server_room",
+        "west_corridor",
+        "main_lab"
+      ],
+      "progress": 2,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 2,
       "caption": "Collected keycard blue",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "main_lab"
+      "route_goal": "main_lab",
+      "route": [
+        "server_room",
+        "west_corridor",
+        "main_lab"
+      ],
+      "progress": 2,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 2,
       "caption": "Collected keycard blue",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "main_lab"
+      "route_goal": "main_lab",
+      "route": [
+        "server_room",
+        "west_corridor",
+        "main_lab"
+      ],
+      "progress": 2,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 3,
       "caption": "Collected keycard blue",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "security_office"
+      "route_goal": "security_office",
+      "route": [
+        "main_lab",
+        "security_office"
+      ],
+      "progress": 0.0,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 3,
       "caption": "Collected keycard blue",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "security_office"
+      "route_goal": "security_office",
+      "route": [
+        "main_lab",
+        "security_office"
+      ],
+      "progress": 0.10400000000000002,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 3,
       "caption": "Collected keycard blue",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "security_office"
+      "route_goal": "security_office",
+      "route": [
+        "main_lab",
+        "security_office"
+      ],
+      "progress": 0.3520000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 3,
       "caption": "Collected keycard blue",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "security_office"
+      "route_goal": "security_office",
+      "route": [
+        "main_lab",
+        "security_office"
+      ],
+      "progress": 0.648,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 3,
       "caption": "Collected keycard blue",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "security_office"
+      "route_goal": "security_office",
+      "route": [
+        "main_lab",
+        "security_office"
+      ],
+      "progress": 0.8960000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 3,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "security_office"
+      "route_goal": "security_office",
+      "route": [
+        "main_lab",
+        "security_office"
+      ],
+      "progress": 1,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 3,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "security_office"
+      "route_goal": "security_office",
+      "route": [
+        "main_lab",
+        "security_office"
+      ],
+      "progress": 1,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 3,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "security_office"
+      "route_goal": "security_office",
+      "route": [
+        "main_lab",
+        "security_office"
+      ],
+      "progress": 1,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 3,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "security_office"
+      "route_goal": "security_office",
+      "route": [
+        "main_lab",
+        "security_office"
+      ],
+      "progress": 1,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 4,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "storage_bay"
+      "route_goal": "storage_bay",
+      "route": [
+        "security_office",
+        "main_lab",
+        "atrium",
+        "storage_bay"
+      ],
+      "progress": 0.0,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 4,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "storage_bay"
+      "route_goal": "storage_bay",
+      "route": [
+        "security_office",
+        "main_lab",
+        "atrium",
+        "storage_bay"
+      ],
+      "progress": 0.10400000000000002,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 4,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "storage_bay"
+      "route_goal": "storage_bay",
+      "route": [
+        "security_office",
+        "main_lab",
+        "atrium",
+        "storage_bay"
+      ],
+      "progress": 0.3520000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 4,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "storage_bay"
+      "route_goal": "storage_bay",
+      "route": [
+        "security_office",
+        "main_lab",
+        "atrium",
+        "storage_bay"
+      ],
+      "progress": 0.648,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 4,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "storage_bay"
+      "route_goal": "storage_bay",
+      "route": [
+        "security_office",
+        "main_lab",
+        "atrium",
+        "storage_bay"
+      ],
+      "progress": 0.8960000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 4,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "storage_bay"
+      "route_goal": "storage_bay",
+      "route": [
+        "security_office",
+        "main_lab",
+        "atrium",
+        "storage_bay"
+      ],
+      "progress": 1.0,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 4,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "storage_bay"
+      "route_goal": "storage_bay",
+      "route": [
+        "security_office",
+        "main_lab",
+        "atrium",
+        "storage_bay"
+      ],
+      "progress": 1.104,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 4,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "storage_bay"
+      "route_goal": "storage_bay",
+      "route": [
+        "security_office",
+        "main_lab",
+        "atrium",
+        "storage_bay"
+      ],
+      "progress": 1.352,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 4,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "storage_bay"
+      "route_goal": "storage_bay",
+      "route": [
+        "security_office",
+        "main_lab",
+        "atrium",
+        "storage_bay"
+      ],
+      "progress": 1.6480000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 4,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "storage_bay"
+      "route_goal": "storage_bay",
+      "route": [
+        "security_office",
+        "main_lab",
+        "atrium",
+        "storage_bay"
+      ],
+      "progress": 1.8960000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 4,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "storage_bay"
+      "route_goal": "storage_bay",
+      "route": [
+        "security_office",
+        "main_lab",
+        "atrium",
+        "storage_bay"
+      ],
+      "progress": 2.0,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 4,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "storage_bay"
+      "route_goal": "storage_bay",
+      "route": [
+        "security_office",
+        "main_lab",
+        "atrium",
+        "storage_bay"
+      ],
+      "progress": 2.104,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 4,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "storage_bay"
+      "route_goal": "storage_bay",
+      "route": [
+        "security_office",
+        "main_lab",
+        "atrium",
+        "storage_bay"
+      ],
+      "progress": 2.3520000000000003,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 4,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "storage_bay"
+      "route_goal": "storage_bay",
+      "route": [
+        "security_office",
+        "main_lab",
+        "atrium",
+        "storage_bay"
+      ],
+      "progress": 2.648,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 4,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "storage_bay"
+      "route_goal": "storage_bay",
+      "route": [
+        "security_office",
+        "main_lab",
+        "atrium",
+        "storage_bay"
+      ],
+      "progress": 2.896,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 4,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "storage_bay"
+      "route_goal": "storage_bay",
+      "route": [
+        "security_office",
+        "main_lab",
+        "atrium",
+        "storage_bay"
+      ],
+      "progress": 3,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 4,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "storage_bay"
+      "route_goal": "storage_bay",
+      "route": [
+        "security_office",
+        "main_lab",
+        "atrium",
+        "storage_bay"
+      ],
+      "progress": 3,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 4,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "storage_bay"
+      "route_goal": "storage_bay",
+      "route": [
+        "security_office",
+        "main_lab",
+        "atrium",
+        "storage_bay"
+      ],
+      "progress": 3,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 4,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "storage_bay"
+      "route_goal": "storage_bay",
+      "route": [
+        "security_office",
+        "main_lab",
+        "atrium",
+        "storage_bay"
+      ],
+      "progress": 3,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 0.0,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 0.10400000000000002,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 0.3520000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 0.648,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 0.8960000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 1.0,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 1.104,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 1.352,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 1.6480000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 1.8960000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 2.0,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 2.104,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 2.3520000000000003,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 2.648,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 2.896,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 3.0,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 3.104,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 3.3520000000000003,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 3.648,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 3.896,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 4.0,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 4.104,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 4.352,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 4.648,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 4.896,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 5.0,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 5.104,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 5.352,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 5.648,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Collected power core",
       "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 5.896,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 6,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 6,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 6,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "Riddle solved",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 6,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 6,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 6,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 6,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 6,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 6,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 5,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "control_room"
+      "route_goal": "control_room",
+      "route": [
+        "storage_bay",
+        "atrium",
+        "dark_corridor",
+        "elevator_lobby",
+        "mid_landing",
+        "top_landing",
+        "control_room"
+      ],
+      "progress": 6,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 0.0,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 0.10400000000000002,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 0.3520000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 0.648,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 0.8960000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 1.0,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 1.104,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 1.352,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 1.6480000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 1.8960000000000001,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 2.0,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 2.104,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 2.3520000000000003,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 2.648,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 2.896,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 3.0,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 3.104,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 3.3520000000000003,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 3.648,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 3.896,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 4.0,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 4.104,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 4.352,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 4.648,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
       "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 4.896,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "ESCAPED",
       "detail": "Maintenance Exit (B1) \u2014 not the Floor-3 decoy sign",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 5,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "ESCAPED",
       "detail": "Maintenance Exit (B1) \u2014 not the Floor-3 decoy sign",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 5,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "ESCAPED",
       "detail": "Maintenance Exit (B1) \u2014 not the Floor-3 decoy sign",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 5,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "ESCAPED",
       "detail": "Maintenance Exit (B1) \u2014 not the Floor-3 decoy sign",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 5,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "ESCAPED",
       "detail": "Maintenance Exit (B1) \u2014 not the Floor-3 decoy sign",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 5,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "ESCAPED",
       "detail": "Maintenance Exit (B1) \u2014 not the Floor-3 decoy sign",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 5,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "ESCAPED",
       "detail": "Maintenance Exit (B1) \u2014 not the Floor-3 decoy sign",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 5,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     },
     {
       "turn": 6,
       "caption": "ESCAPED",
       "detail": "Maintenance Exit (B1) \u2014 not the Floor-3 decoy sign",
-      "route_goal": "maintenance_exit"
+      "route_goal": "maintenance_exit",
+      "route": [
+        "control_room",
+        "top_landing",
+        "mid_landing",
+        "elevator_lobby",
+        "basement_tunnel",
+        "maintenance_exit"
+      ],
+      "progress": 5,
+      "location": "control_room",
+      "items": [
+        "hatch_code",
+        "keycard_blue",
+        "keycard_red",
+        "power_core"
+      ]
     }
   ],
   "hz": 12

@@ -9,8 +9,8 @@ const FRAMES_DIR = process.argv[2] || "/tmp/erframes";
 const BASE_URL = process.argv[3] || "http://localhost:8080";
 const MCAP_URL = process.argv[4] || `${BASE_URL}/escape_room.mcap`;
 
-const SPEED = Number(process.env.SPEED || 0.38);
-const CAPTURE_MS = Number(process.env.CAPTURE_MS || 28000);
+const SPEED = Number(process.env.SPEED || 0.35);
+const CAPTURE_MS = Number(process.env.CAPTURE_MS || 55000);
 const WIDTH = Number(process.env.WIDTH || 1920);
 const HEIGHT = Number(process.env.HEIGHT || 1080);
 
@@ -89,7 +89,7 @@ async function injectLayout(page, data) {
 
   const url = `${BASE_URL}/?ds=remote-file&ds.url=${encodeURIComponent(MCAP_URL)}`;
   await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
-  await page.waitForTimeout(11000);
+  await page.waitForTimeout(16000);
 
   const hide = await page.$('button[aria-label="Hide left sidebar"]');
   if (hide) await hide.click();

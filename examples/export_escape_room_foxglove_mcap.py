@@ -385,6 +385,10 @@ def _write_timeline_json(graph: Any, timeline: list[TimelineFrame]) -> None:
             "caption": cap,
             "detail": detail,
             "route_goal": frame.route[-1] if frame.route else "",
+            "route": frame.route,
+            "progress": frame.progress,
+            "location": frame.world.location,
+            "items": sorted(frame.world.items),
         })
     TIMELINE_PATH.parent.mkdir(parents=True, exist_ok=True)
     TIMELINE_PATH.write_text(
