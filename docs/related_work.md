@@ -82,12 +82,42 @@ cost rules authored as data.
   during working hours"). But these modulate a metric **costmap layer** in
   research-grade ROS 1 stacks, not a graph-level declarative rule engine.
   <https://wiki.ros.org/knowrob>
+- **osmAG-Nav** (Feng et al., 2026) — *"A Hierarchical Semantic Topometric
+  Navigation Stack for Robust Lifelong Indoor Autonomy."* Replaces Nav2's
+  grid-based global planner with a hierarchical semantic-topometric
+  OpenStreetMap Area Graph while keeping standard ROS 2 local controllers
+  for the metric handoff — the closest 2026 "feeds-Nav2 topological
+  planner." But it is **C++ / ROS 2 Lifecycle Nodes, single-robot, with no
+  language grounding and no declarative time/preference/reservation cost
+  model** — it overlaps only the *topology-replaces-grid* idea, not the
+  data-authored rule engine. <https://arxiv.org/abs/2603.28271>
+- **LLM → route-constraint parsers** (2025–26, the converging frontier) —
+  **LLMAP** (Yuan et al., *"LLM-Assisted Multi-Objective Route Planning
+  with User Preferences,"* 2025) parses NL into tasks + preferences under
+  *user time limits, POI opening hours, and task dependencies*; **RouteLLM**
+  (*"Constraint-Aware Route Recommendation from Natural Language via
+  Hierarchical LLM Agents,"* 2025) grounds linguistic preferences into
+  per-route / per-POI constraints. These validate market pull for two of
+  the three pillars (opening-hours, preferences) — but both target *human
+  road / POI travel* (OSM, city streets), derive constraints from NL **at
+  query time** rather than authoring persistent, unit-testable graph rules,
+  and have **no** weekday / `closed_on_dates` calendar, no reservation-aware
+  cost, and no edge → node preference inheritance. The directional threat is
+  an LLM front-end that *emits* declarative cost rules; that, not Nav2, is
+  the frontier to pre-empt. <https://arxiv.org/abs/2509.12273> ·
+  <https://arxiv.org/abs/2510.06078>
 
 **Where this repo is genuinely alone:** declarative **calendar / weekday /
 `closed_on_dates` / recurring-window** closures, **preference-aware**
 routing with edge → node-default inheritance, and **reservation-aware**
 costs — all authored as data, unit-testable, pure-Python, no ROS. That
-combination does not appear as a named capability in any OSS surveyed.
+combination does not appear as a named capability in any OSS surveyed; the
+sharpest two — **reservation-aware cost** and **edge → node preference
+inheritance** — are the least replicated anywhere (even the 2026 LLM-route
+parsers above don't reach them), so lead with those and frame the calendar
+feature explicitly as **declarative vs Nav2's *imperative*
+`DynamicEdgesScorer`** ("close this edge now") rather than as multi-floor
+routing, which Nav2 already owns.
 The clean handoff is the v1-locked `SemanticWaypoint` stream a Nav2
 Waypoint Follower / Navigate-Through-Poses (or Route Server graph)
 consumes — this is the planning tier that *feeds* Nav2, not a rival. That
@@ -141,6 +171,25 @@ menu with a provable upper bound*, packaged dependency-light.
   is not (dense throughput), weak on semantics, deadlines-as-contracts,
   and explainability — the solver-track baseline this layer deliberately
   sits *above*. <https://arxiv.org/abs/2102.05085>
+- **CE-MRS** (Schneider et al., IEEE RA-L 2024) — *"Contrastive
+  Explanations for Multi-Robot Systems,"* the single closest work on
+  *explaining* multi-robot decisions: it answers "why is robot rᵢ **not**
+  assigned to task tⱼ?" by fusing task-allocation, scheduling and
+  motion-planning data, validated in a 22-person study. But it produces
+  **human-facing natural-language** explanations of *allocation choices*,
+  not a structured machine-readable `reason_code` on *admission denial*,
+  ships no dependency-light Python library, and touches neither deadlines
+  nor topology-node reservation / rollback. It occupies "explainable MRTA"
+  as a research topic without closing the *denial-contract* niche.
+  <https://arxiv.org/abs/2410.08408>
+- **Agent Control Protocol** (2026) — *"Admission Control for Agent
+  Actions"*: deterministic, history-aware, auditable allow/deny over an
+  LLM agent's execution trace (the conceptual sibling of the denial
+  contract). It governs **software / LLM-agent actions, not physical
+  fleet task admission, topology reservation, or scheduling** — but it
+  shows the "admission control + structured deny" vocabulary going
+  mainstream, so the realistic 12-month threat is a robotics group porting
+  this framing, not Open-RMF. <https://arxiv.org/abs/2603.18829>
 
 **Honest gaps:** RMF wins on real infrastructure (lifts / doors / battery
 recharge injection), field deployment, and *kinematic* space-time
@@ -150,7 +199,12 @@ deconfliction; lifelong-MAPF wins on agent count. The right frame is
 hands the chosen waypoint to a fleet adapter / Nav2 for execution. The one
 capability with essentially **no maintained OSS competitor** is the
 machine-readable **denial contract** (`reason_code` +
-`ConflictExplanation`).
+`ConflictExplanation`) — and as CE-MRS (human-facing NL) and ACP
+(LLM-agent actions) show, even the 2024–26 explainability wave converges on
+the *idea* without shipping a structured refusal contract for *physical
+fleet admission*. Position the work explicitly as the **robot-fleet /
+topology-reservation instantiation** of admission-control-with-deny before
+that cross-pollination closes the gap.
 
 ## Resolve axis — language grounding & grounding safety
 
@@ -195,6 +249,26 @@ false-positive-resolve**, as a sim-free OSS layer).
   tasks" — documenting exactly the gap the deterministic floor fills
   (<https://arxiv.org/abs/2506.15065>). All are text / QA, *not* NL → node
   navigation grounding.
+- **AbstainEQA** (Wu et al., 2025) — *"When Robots Should Say 'I Don't
+  Know': Benchmarking Abstention in Embodied Question Answering,"* the
+  closest 2025 mirror: a 1,636-case benchmark with a five-way abstention
+  taxonomy (actionability, referential underspecification, preference
+  dependence, information unavailability, **false presupposition** —
+  overlapping this repo's `false_premise`) reporting abstention recall
+  (best frontier model 42.79% vs human 91.17%). But the task is embodied
+  **question answering** over a 3D **simulator** (Habitat / OpenEQA), not
+  sim-free NL → node-id grounding; it reports recall only, **not**
+  `false_positive_resolve_rate` / `clarification_rate` split by category,
+  and has no structural no-invent guarantee. <https://arxiv.org/abs/2512.04597>
+- **VLN-NF** (2026, ACL 2026) — *"Feasibility-Aware Vision-and-Language
+  Navigation with False-Premise Instructions"*: the agent must explore,
+  gather evidence, and emit **NOT-FOUND** when the target does not exist,
+  with metrics decomposing false NOT-FOUND on feasible episodes. The
+  sharpest sign that "false-premise navigation" is now an established topic
+  — but it keeps the **LLM planner as the chooser** (no structural no-invent
+  floor), runs on **Matterport3D (simulator)**, and frames the problem as
+  exploration-to-confirm-absence, not stable NL → node-id resolution with a
+  category-split metric suite. <https://arxiv.org/abs/2604.10533>
 
 **Where this repo is genuinely alone:** grounding **NL → a stable topology
 node id** with a *structural* no-invent guarantee (out-of-pool picks
@@ -221,7 +295,16 @@ replays hallucinated ids, prompt-injection, payloads, substring / case
 near-misses and an out-of-pool clarification pin through the resolver and
 checks a **0.00 leak rate** (`run_no_invent_audit` /
 `run_no_invent_conformance`) — the regression Grounded Decoding /
-Mobility-VLA describe but never ship as a runnable check.
+Mobility-VLA describe but never ship as a runnable check. **Scope the claim
+honestly:** after AbstainEQA and VLN-NF (above), neither "abstention" nor
+"false-premise detection" is novel *in isolation* — both are now named
+embodied-agent concerns. What remains uncontested is the *combination*: a
+**structural** (non-bypassable) no-invent guarantee on a **stable node-id
+pool**, with category-split `false_positive_resolve_rate` /
+`abstention_rate` / `clarification_rate` shipped as a **sim-free, runnable
+OSS metric suite** — where every mirror is LLM-as-chooser and
+simulator-bound. Cite AbstainEQA / VLN-NF as the closest mirrors, not as
+prior art that pre-empts this assembly.
 
 ## Resolve / visual axis — perception, localization & locomotion
 
@@ -312,6 +395,25 @@ The honest one-paragraph version: on each axis a strong incumbent already
 covers the *obvious* capability, so the differentiation is the same four
 words everywhere — **declarative, deterministic, explainable,
 dependency-light** — assembled into one pure-Python middle layer.
+
+**The 2026 through-line — verifiable contracts for the semantic navigation
+tier.** The mid-2026 survey above shows each axis now has a *concept*-level
+mirror (LLMAP / RouteLLM author route constraints from NL; CE-MRS / ACP do
+explainable admission-with-deny; AbstainEQA / VLN-NF make abstention and
+false premises first-class) — so leading with any single capability is
+weaker than it was a year ago. The capability that stays uncontested is the
+*assembly*: each axis ships a **machine-checkable contract the LLM and the
+fleet scheduler cannot bypass** — (Plan) cost rules **declared as data**,
+not imperative plugins; (Coordinate) a **structured `reason_code` /
+`ConflictExplanation` denial contract**; (Resolve) a **structural no-invent
+guarantee + category-split abstention metrics** — and all three run
+**without ROS and without a simulator**, as unit tests. Every adjacent
+system is bound on exactly one of those axes (osmAG-Nav is ROS/C++-bound,
+AbstainEQA / VLN-NF are simulator-bound, ACP governs software agents, CE-MRS
+explains in human prose). Naming this category *verifiable-contract tier*
+— distinct from the field's "VLN" / "semantic mapping" labels — is itself a
+discoverability differentiator, since the niche is otherwise hard to find
+under its own name.
 
 - **Plan.** *Don't* lead with multi-floor or semantic edge costs —
   **Nav2's Route Server already does both** (elevator/stairs nodes,
