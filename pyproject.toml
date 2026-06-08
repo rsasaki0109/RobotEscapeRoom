@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "semantic-toponav"
 version = "1.0.1"
-description = "Semantic topological navigation for language goals, graph-level routing, semantic waypoints, and multi-robot reservations."
+description = "Self-solving Robot Escape Room demo plus semantic topological navigation — language goals, composable A* costs, fleet coordination, and Nav2 hand-off."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
@@ -25,6 +25,8 @@ keywords = [
     "ros2",
     "nav2",
     "embodied-ai",
+    "escape-room",
+    "game-demo",
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",

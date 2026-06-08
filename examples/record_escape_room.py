@@ -16,7 +16,8 @@ animation in the same style as the language / coordination heroes:
     (``block_edges``, ``block_edge_types``, ``avoid_restricted``) and the
     item / riddle checklist.
 
-Writes ``docs/images/robot_escape_room.gif``.
+Writes ``docs/images/robot_escape_room_panels.gif``. For the README
+simulation hero use ``record_escape_room_sim.py``.
 """
 
 from __future__ import annotations
@@ -50,7 +51,7 @@ game.VERBOSE = False
 
 ROOT = Path(__file__).resolve().parents[1]
 GRAPH_PATH = Path(__file__).parent / "robot_escape_room.yaml"
-OUT_PATH = ROOT / "docs" / "images" / "robot_escape_room.gif"
+OUT_PATH = ROOT / "docs" / "images" / "robot_escape_room_panels.gif"
 
 FLOOR_DY = 11.0
 FLOOR_BAND = {-1: 0, 1: 1, 2: 2, 3: 3}
