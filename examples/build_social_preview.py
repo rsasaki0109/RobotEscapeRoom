@@ -4,9 +4,8 @@ The output is ``docs/images/social_preview.png``. Upload that PNG in
 GitHub repository settings as the social preview image.
 
 The preview frames a still from the README hero
-(``robot_escape_room.gif`` — the Foxglove/RViz-style live simulation) so
-a shared link unfurls the escape-game demo at a glance: stacked-floor map,
-``/tf`` robot motion, mission HUD, and event log.
+(``robot_escape_room.gif`` — 2D topo + robot camera + furnished 3D sim) so
+a shared link unfurls the escape-game demo at a glance.
 
 Run from the repository root:
 
@@ -104,7 +103,7 @@ def main() -> None:
     )
     draw.text(
         (58, 136),
-        "3D sim replay: stacked floors · /tf · cyan route progress",
+        "2D topo · robot camera · furnished OBJ rooms · real A* each frame",
         font=FONT_SMALL, fill=MUTED,
     )
     bx = 58
