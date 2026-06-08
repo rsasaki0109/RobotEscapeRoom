@@ -140,6 +140,28 @@ def _write_robot_model() -> None:
                       <diffuse>1 1 0.35 1</diffuse>
                     </material>
                   </visual>
+                  <sensor name="lidar" type="gpu_lidar">
+                    <pose>0.12 0 0.06 0 0 0</pose>
+                    <topic>scan</topic>
+                    <update_rate>10</update_rate>
+                    <lidar>
+                      <scan>
+                        <horizontal>
+                          <samples>720</samples>
+                          <resolution>1</resolution>
+                          <min_angle>-3.14159265</min_angle>
+                          <max_angle>3.14159265</max_angle>
+                        </horizontal>
+                      </scan>
+                      <range>
+                        <min>0.12</min>
+                        <max>12.0</max>
+                        <resolution>0.01</resolution>
+                      </range>
+                    </lidar>
+                    <always_on>1</always_on>
+                    <visualize>true</visualize>
+                  </sensor>
                 </link>
 
                 <link name="left_wheel">
@@ -265,6 +287,11 @@ def _write_robot_model() -> None:
                 <origin xyz="0 -0.14 0.05" rpy="0 0 0"/>
                 <axis xyz="0 1 0"/>
               </joint>
+              <link name="laser_link"/>
+              <joint name="laser_joint" type="fixed">
+                <parent link="base_link"/><child link="laser_link"/>
+                <origin xyz="0.12 0 0.06" rpy="0 0 0"/>
+              </joint>
             </robot>
             """
         ),
@@ -284,6 +311,11 @@ def _write_world() -> None:
               <max_step_size>0.004</max_step_size>
               <real_time_factor>1</real_time_factor>
             </physics>
+
+            <plugin filename="libgz-sim-sensors-system.so"
+                    name="gz::sim::systems::Sensors">
+              <render_engine>ogre2</render_engine>
+            </plugin>
 
             <light name="sun" type="directional">
               <pose>0 0 10 0 0 0</pose>
