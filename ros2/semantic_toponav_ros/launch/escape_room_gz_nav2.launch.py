@@ -1,23 +1,4 @@
-"""Launch escape-room Gazebo sim + ros_gz_bridge + Nav2 + semantic waypoints.
-
-Requires ROS 2 + Nav2 + Gazebo Harmonic (``ros_gz_sim``, ``ros_gz_bridge``).
-Build this repo's ROS packages first::
-
-    cd /path/to/semantic-toponav
-    pip install -e .
-    cd ros2
-    colcon build --packages-select semantic_toponav_msgs semantic_toponav_ros
-    source install/setup.bash
-
-Run::
-
-    ros2 launch semantic_toponav_ros escape_room_gz_nav2.launch.py
-
-Override the sample route::
-
-    ros2 launch semantic_toponav_ros escape_room_gz_nav2.launch.py \\
-      goal_node:=maintenance_exit prefer_elevator:=true avoid_restricted:=true
-"""
+"""Launch escape-room Gazebo sim + dynamic puzzle replanning + Nav2."""
 
 from __future__ import annotations
 
@@ -26,7 +7,8 @@ from pathlib import Path
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable, TimerAction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
+from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
@@ -48,11 +30,12 @@ def generate_launch_description() -> LaunchDescription:
     nav2_params = pkg_share / "config/escape_room/nav2_params.yaml"
     gazebo_models = repo / "examples/meshes/escape_room/gazebo/models"
 
+    declare_escape_room = DeclareLaunchArgument("escape_room", default_value="true")
     declare_goal = DeclareLaunchArgument("goal_node", default_value="maintenance_exit")
     declare_start = DeclareLaunchArgument("start_node", default_value="holding_cell")
     declare_prefer_elevator = DeclareLaunchArgument("prefer_elevator", default_value="true")
     declare_avoid_restricted = DeclareLaunchArgument("avoid_restricted", default_value="true")
-    declare_waypoint_delay = DeclareLaunchArgument("waypoint_delay_sec", default_value="25.0")
+    declare_startup_delay = DeclareLaunchArgument("startup_delay_sec", default_value="20.0")
 
     gz_resource_path = SetEnvironmentVariable(
         name="GZ_SIM_RESOURCE_PATH",
@@ -120,6 +103,21 @@ def generate_launch_description() -> LaunchDescription:
             {"action_name": "navigate_through_poses"},
             {"action_timeout_sec": 120.0},
             {"default_frame_id": "map"},
+            {"continuous": LaunchConfiguration("escape_room")},
+        ],
+    )
+
+    escape_room_runner = Node(
+        package="semantic_toponav_ros",
+        executable="escape_room_runner",
+        output="screen",
+        condition=IfCondition(LaunchConfiguration("escape_room")),
+        parameters=[
+            {"use_sim_time": True},
+            {"graph_path": str(graph)},
+            {"frame_id": "map"},
+            {"startup_delay_sec": LaunchConfiguration("startup_delay_sec")},
+            {"arrival_radius": 0.45},
         ],
     )
 
@@ -127,6 +125,7 @@ def generate_launch_description() -> LaunchDescription:
         package="semantic_toponav_ros",
         executable="waypoint_publisher",
         output="screen",
+        condition=UnlessCondition(LaunchConfiguration("escape_room")),
         parameters=[
             {"use_sim_time": True},
             {"graph_path": str(graph)},
@@ -139,18 +138,14 @@ def generate_launch_description() -> LaunchDescription:
         ],
     )
 
-    delayed_waypoints = TimerAction(
-        period=LaunchConfiguration("waypoint_delay_sec"),
-        actions=[waypoint_publisher],
-    )
-
     return LaunchDescription(
         [
+            declare_escape_room,
             declare_goal,
             declare_start,
             declare_prefer_elevator,
             declare_avoid_restricted,
-            declare_waypoint_delay,
+            declare_startup_delay,
             gz_resource_path,
             gz_sim,
             bridge,
@@ -158,6 +153,7 @@ def generate_launch_description() -> LaunchDescription:
             rsp,
             nav2,
             nav2_demo,
-            delayed_waypoints,
+            escape_room_runner,
+            waypoint_publisher,
         ]
     )

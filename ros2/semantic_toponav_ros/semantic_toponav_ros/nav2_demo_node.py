@@ -10,9 +10,9 @@ Nav2 is intentionally **not** a build/test dependency of this repository.
 robots that do not have Nav2 installed. Running this node *does* require
 ``nav2_msgs`` to be on the workspace path.
 
-The node is one-shot: it accepts the first ``SemanticWaypointArray`` it
-receives, sends a single ``NavigateThroughPoses`` goal, logs the outcome,
-and ignores subsequent waypoint messages.
+The node accepts the first ``SemanticWaypointArray`` by default. Set
+``continuous:=true`` to preempt Nav2 with each new waypoint stream (escape-room
+replanning).
 """
 
 from __future__ import annotations
@@ -37,6 +37,7 @@ class Nav2DemoNode(Node):
         self.declare_parameter("action_name", "navigate_through_poses")
         self.declare_parameter("action_timeout_sec", 5.0)
         self.declare_parameter("default_frame_id", "map")
+        self.declare_parameter("continuous", False)
 
         waypoints_topic = (
             self.get_parameter("waypoints_topic").get_parameter_value().string_value
@@ -48,6 +49,7 @@ class Nav2DemoNode(Node):
         self._default_frame_id = (
             self.get_parameter("default_frame_id").get_parameter_value().string_value
         )
+        self._continuous = bool(self.get_parameter("continuous").value)
 
         try:
             from semantic_toponav_msgs.msg import SemanticWaypointArray
@@ -73,6 +75,8 @@ class Nav2DemoNode(Node):
         self._action_client = ActionClient(self, NavigateThroughPoses, action_name)
         self._action_name = action_name
         self._sent = False
+        self._goal_handle: Any | None = None
+        self._pending_poses: list[Any] | None = None
 
         self._subscription = self.create_subscription(
             SemanticWaypointArray, waypoints_topic, self._on_waypoints, 10
@@ -81,12 +85,13 @@ class Nav2DemoNode(Node):
         self.get_logger().info(
             f"nav2_demo ready: subscribing on {waypoints_topic}, "
             f"forwarding to action {action_name!r}"
+            + (" (continuous replan)" if self._continuous else " (one-shot)")
         )
 
     # ----------------------------- callbacks ------------------------------
 
     def _on_waypoints(self, msg: Any) -> None:
-        if self._sent:
+        if self._sent and not self._continuous:
             return
 
         from geometry_msgs.msg import PoseStamped
@@ -125,11 +130,26 @@ class Nav2DemoNode(Node):
             )
             return
 
+        self._pending_poses = poses
+        if self._continuous and self._goal_handle is not None:
+            self.get_logger().info("preempting in-flight Nav2 goal for replan")
+            cancel_future = self._goal_handle.cancel_goal_async()
+            cancel_future.add_done_callback(self._on_cancel_done)
+            return
+
+        self._send_goal(poses, skipped)
+
+    def _on_cancel_done(self, _: Any) -> None:
+        if self._pending_poses is not None:
+            self._send_goal(self._pending_poses, 0)
+
+    def _send_goal(self, poses: list[Any], skipped: int) -> None:
         goal_msg = self._NavigateThroughPoses.Goal()
         goal_msg.poses = poses
-        # behavior_tree is left empty so Nav2 uses its configured default tree.
 
-        self._sent = True
+        if not self._continuous:
+            self._sent = True
+        self._pending_poses = None
         self.get_logger().info(
             f"sending NavigateThroughPoses goal with {len(poses)} poses "
             f"({skipped} pose-less waypoint(s) skipped)"
@@ -141,7 +161,9 @@ class Nav2DemoNode(Node):
         goal_handle = future.result()
         if goal_handle is None or not goal_handle.accepted:
             self.get_logger().error("Nav2 rejected the NavigateThroughPoses goal")
+            self._goal_handle = None
             return
+        self._goal_handle = goal_handle
         self.get_logger().info("Nav2 accepted the goal; awaiting result")
         result_future = goal_handle.get_result_async()
         result_future.add_done_callback(self._on_result)
@@ -149,6 +171,7 @@ class Nav2DemoNode(Node):
     def _on_result(self, future: Any) -> None:
         result = future.result()
         status = getattr(result, "status", None)
+        self._goal_handle = None
         self.get_logger().info(f"NavigateThroughPoses finished with status={status}")
 
 
