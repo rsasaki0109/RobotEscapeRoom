@@ -197,6 +197,12 @@ def _write_robot_model() -> None:
                   <wheel_separation>0.28</wheel_separation>
                   <wheel_radius>0.05</wheel_radius>
                   <topic>/cmd_vel</topic>
+                  <odom_topic>odom</odom_topic>
+                  <tf_topic>tf</tf_topic>
+                  <frame_id>odom</frame_id>
+                  <child_frame_id>base_link</child_frame_id>
+                  <publish_odom_tf>true</publish_odom_tf>
+                  <odom_publish_frequency>30</odom_publish_frequency>
                 </plugin>
               </model>
             </sdf>
@@ -209,6 +215,7 @@ def _write_robot_model() -> None:
             """\
             <?xml version="1.0"?>
             <robot name="t0_robot">
+              <link name="base_footprint"/>
               <link name="base_link">
                 <visual>
                   <geometry><box size="0.36 0.28 0.12"/></geometry>
@@ -222,6 +229,10 @@ def _write_robot_model() -> None:
                   <inertia ixx="0.08" ixy="0" ixz="0" iyy="0.12" iyz="0" izz="0.14"/>
                 </inertial>
               </link>
+              <joint name="base_footprint_joint" type="fixed">
+                <parent link="base_footprint"/><child link="base_link"/>
+                <origin xyz="0 0 0.05" rpy="0 0 0"/>
+              </joint>
               <link name="left_wheel">
                 <visual>
                   <origin xyz="0 0 0" rpy="1.5707 0 0"/>
@@ -351,7 +362,29 @@ def _write_readme(cube_count: int) -> None:
             Robot **T-0** spawns at the holding cell `({SPAWN[0]:.1f}, {SPAWN[1]:.1f}, {SPAWN[2]:.2f})`
             in the `map` frame. Drive with `/cmd_vel` (DiffDrive plugin).
 
-            ## Nav2 hand-off
+            ## Nav2 + ros_gz_bridge (full stack)
+
+            One-shot launch (Gazebo Harmonic + Nav2 + semantic waypoints):
+
+            ```bash
+            pip install -e .
+            cd ros2 && colcon build --packages-select semantic_toponav_msgs semantic_toponav_ros
+            source install/setup.bash
+            cd ..
+            PYTHONPATH=. python3 examples/generate_escape_room_nav2_map.py
+            ./scripts/run_escape_room_gz_nav2.sh
+            ```
+
+            Or manually:
+
+            ```bash
+            ros2 launch semantic_toponav_ros escape_room_gz_nav2.launch.py \\
+              goal_node:=maintenance_exit prefer_elevator:=true avoid_restricted:=true
+            ```
+
+            Requires ROS 2 Jazzy/Humble with ``nav2_bringup``, ``ros_gz_sim``, ``ros_gz_bridge``.
+
+            ## Nav2 GeoJSON only
 
             Export the escape-room topology for Nav2 Route Server:
 

@@ -16,6 +16,16 @@
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>python3-yaml</exec_depend>
   <exec_depend>semantic_toponav_msgs</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+
+  <!-- Escape-room Gazebo + Nav2 launch (runtime only; not required to import nodes) -->
+  <exec_depend>nav2_bringup</exec_depend>
+  <exec_depend>ros_gz_sim</exec_depend>
+  <exec_depend>ros_gz_bridge</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

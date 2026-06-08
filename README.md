@@ -232,6 +232,10 @@ See [`examples/meshes/escape_room/gazebo/README.md`](examples/meshes/escape_room
 `python examples/export_escape_room_nav2_route.py` →
 `examples/data/nav2/escape_room_graph.geojson`.
 
+**Full sim stack:** `./scripts/run_escape_room_gz_nav2.sh` launches Gazebo +
+ros_gz_bridge + Nav2 + semantic waypoint following — see
+[`ros2/README.md`](ros2/README.md).
+
 ### Conversion pipeline
 
 Topology graphs can be authored by hand or **generated from
