@@ -19,7 +19,8 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "examples"))
 
-from escape_room_meshes import all_meshes, iso_faces, iso_project  # noqa: E402
+from escape_room_3dgs_map import load_map  # noqa: E402
+from escape_room_meshes import IsoView, all_meshes, fit_iso_view, iso_project  # noqa: E402
 from robot_escape_room import POWER_ITEM, UNPOWERED_TYPES  # noqa: E402
 from semantic_toponav.graph.serialization import load_graph  # noqa: E402
 
@@ -33,8 +34,7 @@ FLOOR_HEIGHT_M = 4.2
 FLOOR_LABEL = {-1: "B1", 1: "1F", 2: "2F", 3: "3F"}
 X_MIN, X_MAX = -2.0, 30.0
 Y_MIN, Y_MAX = -10.0, 38.0
-ISO_CX, ISO_CY = SIM_W // 2 + 10, BODY_H - 70
-ISO_SCALE = 5.6
+_ISO_VIEW: IsoView | None = None
 
 BG = (8, 14, 28)
 BAR = (12, 22, 42)
@@ -98,11 +98,15 @@ def _node_xyz(graph, node_id: str) -> tuple[float, float, float]:
     return node.pose.x, node.pose.y, z
 
 
-def _iso(x: float, y: float, z: float) -> tuple[float, float]:
-    dx, dy = x - 14.0, y
-    sx = ISO_CX + (dx - dy) * ISO_SCALE * 0.74
-    sy = ISO_CY - z * ISO_SCALE * 1.1 + (dx + dy) * ISO_SCALE * 0.30
-    return sx, sy
+def _iso_view(graph) -> IsoView:
+    global _ISO_VIEW
+    if _ISO_VIEW is None:
+        _ISO_VIEW = fit_iso_view(graph, SIM_W, BODY_H)
+    return _ISO_VIEW
+
+
+def _iso(x: float, y: float, z: float, view: IsoView) -> tuple[float, float]:
+    return iso_project(x, y, z, view.cx, view.cy, scale=view.scale)
 
 
 def _depth(x: float, y: float, z: float) -> float:
@@ -223,31 +227,44 @@ def _render_map(graph, meta: dict) -> Image.Image:
     return panel
 
 
+_3DGS_BG: Image.Image | None = None
+
+
+def _mesh_wireframes(graph, view: IsoView) -> list[tuple[float, tuple, tuple, tuple, int]]:
+    """Semi-transparent topology boxes over the 3DGS splat map."""
+    lines: list[tuple[float, tuple, tuple, tuple, int]] = []
+    edges = (
+        (0, 1), (1, 2), (2, 3), (3, 0),
+        (4, 5), (5, 6), (6, 7), (7, 4),
+        (0, 4), (1, 5), (2, 6), (3, 7),
+    )
+    for mesh in all_meshes(graph):
+        corners = mesh.corners()
+        pts = [iso_project(*c, view.cx, view.cy, scale=view.scale) for c in corners]
+        r, g, b, _ = mesh.color
+        stroke = (int(r * 255), int(g * 255), int(b * 255), 200)
+        depth = sum(mesh.center) / 3
+        for i, j in edges:
+            lines.append((depth, stroke, pts[i], pts[j], 1))
+    return lines
+
+
 def _render_sim(graph, meta: dict) -> Image.Image:
+    global _3DGS_BG
+    view = _iso_view(graph)
+    if _3DGS_BG is None:
+        _3DGS_BG = load_map(graph)
+
     items = set(meta.get("items", []))
     route = meta.get("route") or []
     progress = float(meta.get("progress", 0.0))
     panel = Image.new("RGBA", (SIM_W, BODY_H), (10, 18, 34))
+    panel.paste(_3DGS_BG, (0, 0), _3DGS_BG)
     draw = ImageDraw.Draw(panel, "RGBA")
 
-    draw.rectangle((0, 0, SIM_W, 26), fill=(9, 17, 31))
-    draw.text((14, 6), "3D sim · room meshes", font=FONT_PANEL, fill=TEXT)
-
-    # grid
-    for i in range(-6, 10):
-        a = _iso(i * 3, -8, 0)
-        b = _iso(i * 3, 18, 0)
-        draw.line([a, b], fill=(*DIM, 60), width=1)
-    for j in range(-4, 8):
-        a = _iso(-4, j * 3, 0)
-        b = _iso(30, j * 3, 0)
-        draw.line([a, b], fill=(*DIM, 60), width=1)
-
-    mesh_faces: list[tuple[float, list[tuple[float, float]], tuple[int, int, int, int]]] = []
-    for mesh in all_meshes(graph):
-        mesh_faces.extend(iso_faces(mesh, ISO_CX, ISO_CY))
-    for _, poly, fill in sorted(mesh_faces, key=lambda f: f[0]):
-        draw.polygon(poly, fill=fill)
+    draw.rectangle((0, 0, SIM_W, 26), fill=(9, 17, 31, 240))
+    draw.text((14, 6), "3D sim · 3DGS map", font=FONT_PANEL, fill=TEXT)
+    draw.text((SIM_W - 14, 6), "Gaussian splats", font=FONT_SM, fill=MUTED, anchor="ra")
 
     segment = min(int(progress), len(route) - 2) if len(route) >= 2 else 0
     local = progress - segment if len(route) >= 2 else 0.0
@@ -267,29 +284,32 @@ def _render_sim(graph, meta: dict) -> Image.Image:
             color = (*MUTED, 160)
             width = 2
         depth = (_depth(*a) + _depth(*b)) / 2
-        edges.append((depth, color, _iso(*a), _iso(*b), width))
+        edges.append((depth, color, _iso(*a, view), _iso(*b, view), width))
 
     if len(route) >= 2:
         for idx, (a_id, b_id) in enumerate(zip(route[:-1], route[1:], strict=False)):
             a = _node_xyz(graph, a_id)
             b = _node_xyz(graph, b_id)
             if idx < segment:
-                edges.append(((_depth(*a) + _depth(*b)) / 2, (*CYAN, 255), _iso(*a), _iso(*b), 5))
+                edges.append(((_depth(*a) + _depth(*b)) / 2, (*CYAN, 255), _iso(*a, view), _iso(*b, view), 5))
             elif idx == segment:
                 mid = (
                     a[0] + (b[0] - a[0]) * local,
                     a[1] + (b[1] - a[1]) * local,
                     a[2] + (b[2] - a[2]) * local,
                 )
-                edges.append(((_depth(*a) + _depth(*mid)) / 2, (*CYAN, 255), _iso(*a), _iso(*mid), 5))
-                edges.append(((_depth(*mid) + _depth(*b)) / 2, (*PINK, 180), _iso(*mid), _iso(*b), 4))
+                edges.append(((_depth(*a) + _depth(*mid)) / 2, (*CYAN, 255), _iso(*a, view), _iso(*mid, view), 5))
+                edges.append(((_depth(*mid) + _depth(*b)) / 2, (*PINK, 180), _iso(*mid, view), _iso(*b, view), 4))
             else:
-                edges.append(((_depth(*a) + _depth(*b)) / 2, (*PINK, 120), _iso(*a), _iso(*b), 4))
+                edges.append(((_depth(*a) + _depth(*b)) / 2, (*PINK, 120), _iso(*a, view), _iso(*b, view), 4))
 
     for depth, color, a, b, width in sorted(edges, key=lambda e: e[0]):
         draw.line([a, b], fill=color, width=width)
 
-    rsx, rsy = _iso(rx, ry, rz)
+    for depth, color, a, b, width in sorted(_mesh_wireframes(graph, view), key=lambda e: e[0]):
+        draw.line([a, b], fill=color, width=width)
+
+    rsx, rsy = _iso(rx, ry, rz, view)
     draw.ellipse((rsx - 18, rsy - 18, rsx + 18, rsy + 18), fill=(*CYAN, 45))
     draw.ellipse((rsx - 12, rsy - 12, rsx + 12, rsy + 12), fill=(8, 47, 73), outline=CYAN, width=3)
     draw.ellipse((rsx - 4, rsy - 4, rsx + 4, rsy + 4), fill=(255, 255, 255))
@@ -298,7 +318,7 @@ def _render_sim(graph, meta: dict) -> Image.Image:
     for mesh in all_meshes(graph):
         if mesh.node_id in {"holding_cell", "emergency_exit", "maintenance_exit", "control_room"}:
             x, y, z = mesh.center
-            lx, ly = iso_project(x, y, z + mesh.size[2] / 2 + 0.2, ISO_CX, ISO_CY)
+            lx, ly = iso_project(x, y, z + mesh.size[2] / 2 + 0.2, view.cx, view.cy, scale=view.scale)
             draw.text((lx, ly), mesh.label[:14], font=FONT_XS, fill=TEXT, anchor="ma")
 
     return panel
@@ -327,7 +347,7 @@ def render_frame(graph, meta: dict) -> Image.Image:
     draw.line([(0, BODY_H + TOP_H), (total_w, BODY_H + TOP_H)], fill=(51, 65, 85), width=2)
 
     draw.text((18, 14), "robot-escape-room", font=FONT_TITLE, fill=TEXT)
-    draw.text((300, 18), "2D map + 3D sim · real A* each frame", font=FONT_LEGEND, fill=MUTED)
+    draw.text((300, 18), "2D topo + 3DGS sim · real A* each frame", font=FONT_LEGEND, fill=MUTED)
     _round_rect(draw, (total_w - 108, 12, total_w - 18, 42), 14, (6, 78, 59), (45, 212, 191), 1)
     draw.text((total_w - 63, 18), "live", font=FONT_BADGE, fill=(167, 243, 208), anchor="ma")
 
