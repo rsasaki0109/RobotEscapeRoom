@@ -7,6 +7,27 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.0.6] — 2026-06-09
+
+Gazebo overview MP4 recording with CPU renderer fallback. No changes to
+the six v1-locked public wire schemas or core planner behavior.
+
+### Added
+
+- **Gazebo overview MP4** — `./scripts/record_escape_room_gz_sim.sh` replays
+  the shipped timeline, drives T-0, and captures the overview camera →
+  `docs/images/robot_escape_room_gz.mp4`. When gz-sim camera output is
+  blank (headless / no GPU), `examples/record_escape_room_gz_mp4.py`
+  falls back to a CPU overview renderer aligned with the Gazebo
+  `overview_camera` pose (`--offline` for offline-only).
+- **CPU overview renderer** — `render_overview_facility` in
+  `examples/escape_room_mesh_render.py` matches the Gazebo camera pose.
+
+### Changed
+
+- README documents the Gazebo MP4 recorder and CPU fallback path.
+- `examples/meshes/escape_room/gazebo/README.md` — Record Gazebo MP4 section.
+
 ## [1.0.5] — 2026-06-09
 
 Gazebo / Nav2 sim stack + dynamic escape-room replan + puzzle-caption hero refresh.
@@ -597,7 +618,9 @@ release consolidates). Future migration notes (for v2 schema
 bumps, removed CLI flags, etc.) will appear in this section per
 the freeze policy in [`docs/schema_v1.md`](docs/schema_v1.md).
 
-[Unreleased]: https://github.com/rsasaki0109/robot-escape-room/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/rsasaki0109/robot-escape-room/compare/v1.0.6...HEAD
+[1.0.6]: https://github.com/rsasaki0109/robot-escape-room/compare/v1.0.5...v1.0.6
+[1.0.5]: https://github.com/rsasaki0109/robot-escape-room/compare/v1.0.4...v1.0.5
 [1.0.2]: https://github.com/rsasaki0109/robot-escape-room/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/rsasaki0109/robot-escape-room/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/rsasaki0109/robot-escape-room/compare/v0.1.0...v1.0.0
