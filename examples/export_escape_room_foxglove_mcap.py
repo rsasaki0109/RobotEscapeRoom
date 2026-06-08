@@ -1,8 +1,8 @@
 """Export the Robot Escape Room as a Foxglove 3D replay MCAP.
 
-Drives the full escape-game timeline from ``robot_escape_room.py`` (every
-route is a real A* plan) and writes stacked-floor 3D scene data suitable for
-Gazebo/RViz-style replay in Foxglove / Lichtblick.
+Drives the full escape-game timeline from ``semantic_toponav.escape_room``
+(every route is a real A* plan) and writes stacked-floor 3D scene data suitable
+for Gazebo/RViz-style replay in Foxglove / Lichtblick.
 
     pip install -e '.[foxglove]'
     PYTHONPATH=. python3 examples/export_escape_room_foxglove_mcap.py
@@ -25,24 +25,20 @@ try:
 except ImportError as exc:  # pragma: no cover
     raise SystemExit("Install the Foxglove extra first: pip install -e '.[foxglove]'") from exc
 
-import robot_escape_room as game
-from robot_escape_room import (
+from semantic_toponav.escape_room.runner import (
+    ITEMS,
     POWER_ITEM,
+    RIDDLES,
     TRUE_EXIT,
-    UNPOWERED_TYPES,
     World,
-    arrive,
-    objectives,
-    plan,
+    complete_navigation,
+    next_turn,
 )
-
 from semantic_toponav.graph.serialization import load_graph
 from semantic_toponav.waypoint import path_to_semantic_waypoints
 
 import export_foxglove_mcap as fx
 from escape_room_interior import foxglove_furnished_cubes
-
-game.VERBOSE = False
 
 HERE = Path(__file__).parent
 ROOT = HERE.parent
@@ -57,6 +53,17 @@ TWIST_HOLD = 6
 ESCAPE_HOLD = 8
 FLOOR_HEIGHT_M = 4.2
 FLOOR_LABEL = {-1: "B1", 1: "1F", 2: "2F", 3: "3F"}
+UNPOWERED_TYPES = ("unpowered",)
+
+STATUS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "turn": {"type": "integer"},
+        "caption": {"type": "string"},
+        "detail": {"type": "string"},
+        "events": {"type": "array", "items": {"type": "string"}},
+    },
+}
 
 NODE_COLORS = {
     "room": (0.31, 0.62, 0.96, 1.0),
@@ -75,12 +82,29 @@ class TimelineFrame:
     route: list[str]
     progress: float
     turn: int
+    caption: str
+    detail: str
     events: list[str] = field(default_factory=list)
 
 
-def _snapshot(world: World, route: list[str], progress: float, turn: int, events: list[str]) -> TimelineFrame:
+def _snapshot(
+    world: World,
+    route: list[str],
+    progress: float,
+    turn: int,
+    caption: str,
+    detail: str,
+    events: list[str],
+) -> TimelineFrame:
     return TimelineFrame(
-        frozenset(world.items), world.location, list(route), progress, turn, list(events),
+        frozenset(world.items),
+        world.location,
+        list(route),
+        progress,
+        turn,
+        caption,
+        detail,
+        list(events),
     )
 
 
@@ -131,19 +155,39 @@ def _floor_rect(graph: Any, floor: int) -> list[tuple[float, float, float]]:
     ]
 
 
-def _caption(frame: TimelineFrame, graph: Any) -> tuple[str, str]:
-    evt = frame.events[-1] if frame.events else ""
+def _turn_caption(graph: Any, turn_plan, events: list[str]) -> tuple[str, str]:
+    evt = events[-1] if events else ""
     if "ESCAPED" in evt:
-        return "ESCAPED", "Maintenance Exit (B1) — not the Floor-3 decoy sign"
+        return (
+            "ESCAPED",
+            "Maintenance Exit (B1) — Gazebo + Nav2 + AMCL · not the Floor-3 decoy",
+        )
     if "twist" in evt.lower():
-        return "DECOY EXIT sealed", "Emergency Exit (3F) welded shut → route to sublevel"
+        return (
+            "DECOY EXIT sealed",
+            "Emergency Exit (3F) welded shut → replan to sublevel",
+        )
     if evt.startswith("item:"):
-        item = evt.split(":", 1)[1].strip().replace("_", " ")
-        return f"Collected {item}", "block_edges updated — door now open"
+        item_id = evt.split(":", 1)[1].strip()
+        label = ITEMS.get(item_id, {}).get("label", item_id.replace("_", " "))
+        return f"Collected {label}", "block_edges updated — door now open"
     if evt.startswith("riddle:"):
-        return "Riddle solved", "resolve_goal grounded the clue → new objective unlocked"
-    goal = graph.get_node(frame.route[-1]).label if frame.route else "?"
-    return f"Route to {goal}", "A* replanned on live cost stack (no scripted path)"
+        rid = evt.split(":", 1)[1].strip()
+        for node, spec in RIDDLES.items():
+            if spec["id"] == rid:
+                return (
+                    f"Riddle solved @ {graph.get_node(node).label}",
+                    "resolve_goal grounded the clue → new objective unlocked",
+                )
+        return "Riddle solved", "resolve_goal grounded the clue"
+    if turn_plan.status == "exit":
+        goal = graph.get_node(TRUE_EXIT).label
+        return f"Final run → {goal}", "NavigateThroughPoses · continuous replan"
+    if turn_plan.objective is not None:
+        goal = graph.get_node(turn_plan.objective.node).label
+        kind = "Investigate" if turn_plan.objective.kind == "riddle" else "Reach"
+        return f"{kind} {goal}", turn_plan.status
+    return "Replanning", "A* on live cost stack (no scripted path)"
 
 
 def _build_timeline(graph: Any) -> list[TimelineFrame]:
@@ -151,47 +195,68 @@ def _build_timeline(graph: Any) -> list[TimelineFrame]:
     events = ["T-0 online — Holding Cell"]
     timeline: list[TimelineFrame] = []
 
-    def push_motion(path: list[str], turn: int):
+    def push_motion(path: list[str], turn: int, caption: str, detail: str):
         if len(path) < 2:
-            timeline.append(_snapshot(world, path or [world.location], 0.0, turn, events))
+            timeline.append(
+                _snapshot(world, path or [world.location], 0.0, turn, caption, detail, events)
+            )
             return
         for hop in range(len(path) - 1):
             for step in range(FRAMES_PER_HOP):
-                timeline.append(_snapshot(world, path, hop + _ease(step / FRAMES_PER_HOP), turn, events))
+                timeline.append(
+                    _snapshot(
+                        world,
+                        path,
+                        hop + _ease(step / FRAMES_PER_HOP),
+                        turn,
+                        caption,
+                        detail,
+                        events,
+                    )
+                )
 
     def hold(state: TimelineFrame, n: int):
         timeline.extend([state] * n)
 
-    twist_seen = False
-    for turn in range(1, 50):
-        exit_path = plan(graph, world, TRUE_EXIT)
-        if exit_path is not None:
-            push_motion(exit_path, turn)
-            hold(_snapshot(world, exit_path, len(exit_path) - 1, turn, events + ["ESCAPED"]), ESCAPE_HOLD)
+    for _ in range(49):
+        turn_plan = next_turn(graph, world)
+        caption, detail = _turn_caption(graph, turn_plan, events)
+
+        if turn_plan.status == "exit":
+            path = turn_plan.exit_path or []
+            push_motion(path, turn_plan.turn, caption, detail)
+            events.append("ESCAPED")
+            hold(
+                _snapshot(world, path, max(0.0, len(path) - 1), turn_plan.turn, caption, detail, events),
+                ESCAPE_HOLD,
+            )
             break
 
-        opts = objectives(graph, world)
-        if not opts:
+        if turn_plan.status == "stuck":
             break
 
-        _, node, _, path = opts[0]
-        push_motion(path, turn)
+        assert turn_plan.objective is not None
+        path = turn_plan.objective.path
+        push_motion(path, turn_plan.turn, caption, detail)
 
         items_before = set(world.items)
         solved_before = set(world.solved)
-        world.location = node
-        arrive(graph, world, node)
+        arrival = complete_navigation(graph, world, turn_plan.objective.node)
+        twist_hold = False
         for item in sorted(world.items - items_before):
             events.append(f"item: {item}")
         for rid in sorted(world.solved - solved_before):
             events.append(f"riddle: {rid}")
+        for line in arrival.messages:
+            if "Plot twist" in line:
+                events.append("twist: Floor-3 exit sealed")
+                twist_hold = True
 
-        hold(_snapshot(world, path, len(path) - 1, turn, events), HOLD_FRAMES)
-
-        if not twist_seen and "riddle_3" in world.solved:
-            twist_seen = True
-            events.append("twist: Floor-3 exit sealed")
-            hold(_snapshot(world, path, len(path) - 1, turn, events), TWIST_HOLD)
+        caption, detail = _turn_caption(graph, turn_plan, events)
+        hold(
+            _snapshot(world, path, len(path) - 1, turn_plan.turn, caption, detail, events),
+            TWIST_HOLD if twist_hold else HOLD_FRAMES,
+        )
 
     return timeline
 
@@ -243,10 +308,7 @@ def _static_scene(graph: Any, frame: TimelineFrame, timestamp_ns: int) -> dict[s
             "color": fx._color(*color),
         }
 
-    cubes = [
-        _cube(fg.center, fg.size, fg.rgba)
-        for fg in foxglove_furnished_cubes(graph, route_set)
-    ]
+    cubes = [_cube(fg.center, fg.size, fg.rgba) for fg in foxglove_furnished_cubes(graph, route_set)]
 
     labels = [
         fx._text(
@@ -263,8 +325,7 @@ def _static_scene(graph: Any, frame: TimelineFrame, timestamp_ns: int) -> dict[s
             x, y, z = _node_xyz(graph, nid)
             labels.append(fx._text((x, y + 0.75, z + 0.35), graph.get_node(nid).label, size=0.38))
 
-    cap, _ = _caption(frame, graph)
-    labels.append(fx._text((14.0, -10.5, 2.0), cap, (1.0, 1.0, 1.0, 1.0), size=0.48))
+    labels.append(fx._text((14.0, -10.5, 2.0), frame.caption, (1.0, 1.0, 1.0, 1.0), size=0.48))
 
     return {
         "deletions": [],
@@ -285,19 +346,16 @@ def _static_scene(graph: Any, frame: TimelineFrame, timestamp_ns: int) -> dict[s
     }
 
 
-def _robot_pose(graph: Any, route: list[str], progress: float) -> tuple[tuple[float, float, float], int, list[tuple[float, float, float]]]:
+def _robot_pose(
+    graph: Any, route: list[str], progress: float
+) -> tuple[tuple[float, float, float], int, list[tuple[float, float, float]]]:
     if len(route) < 2:
         xyz = _node_xyz(graph, route[0] if route else "holding_cell")
         return xyz, 0, [xyz]
 
     points = [_node_xyz(graph, nid) for nid in route]
-    cumulative = [0.0]
-    for a, b in zip(points[:-1], points[1:], strict=False):
-        cumulative.append(cumulative[-1] + math.dist(a, b))
-
     segment = min(int(progress), len(route) - 2)
-    local = progress - segment
-    local = max(0.0, min(1.0, local))
+    local = max(0.0, min(1.0, progress - segment))
     a, b = points[segment], points[segment + 1]
     xyz = (
         a[0] + (b[0] - a[0]) * local,
@@ -308,7 +366,9 @@ def _robot_pose(graph: Any, route: list[str], progress: float) -> tuple[tuple[fl
     return xyz, segment, traveled
 
 
-def _dynamic_scene(graph: Any, frame: TimelineFrame, timestamp_ns: int) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], int]:
+def _dynamic_scene(
+    graph: Any, frame: TimelineFrame, timestamp_ns: int
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], int]:
     robot_xyz, segment_idx, traveled = _robot_pose(graph, frame.route, frame.progress)
     node_idx = min(segment_idx, len(frame.route) - 1)
     next_idx = min(segment_idx + 1, len(frame.route) - 1)
@@ -353,6 +413,14 @@ def _write_mcap(graph: Any, timeline: list[TimelineFrame]) -> None:
         writer = Writer(stream, compression=CompressionType.NONE)
         writer.start(profile="foxglove")
         channels = fx._register_channels(writer)
+        status_schema = writer.register_schema(
+            "semantic_toponav.EscapeRoomStatus", "jsonschema", fx._json_bytes(STATUS_SCHEMA)
+        )
+        status_channel = writer.register_channel(
+            "/semantic_toponav/escape_room/status",
+            "json",
+            status_schema,
+        )
         writer.add_metadata("robot_escape_room", {
             "demo": "robot_escape_room",
             "frames": str(frame_count),
@@ -382,6 +450,12 @@ def _write_mcap(graph: Any, timeline: list[TimelineFrame]) -> None:
                 "current_node_id": frame.route[node_idx],
                 "waypoints": [wp.to_dict() for wp in waypoints],
             })
+            fx._write_message(writer, status_channel, timestamp_ns, {
+                "turn": frame.turn,
+                "caption": frame.caption,
+                "detail": frame.detail,
+                "events": frame.events,
+            })
 
         writer.finish()
 
@@ -389,16 +463,16 @@ def _write_mcap(graph: Any, timeline: list[TimelineFrame]) -> None:
 def _write_timeline_json(graph: Any, timeline: list[TimelineFrame]) -> None:
     frames = []
     for frame in timeline:
-        cap, detail = _caption(frame, graph)
         frames.append({
             "turn": frame.turn,
-            "caption": cap,
-            "detail": detail,
+            "caption": frame.caption,
+            "detail": frame.detail,
             "route_goal": frame.route[-1] if frame.route else "",
             "route": frame.route,
             "progress": frame.progress,
             "location": frame.location,
             "items": sorted(frame.items),
+            "events": frame.events,
         })
     TIMELINE_PATH.parent.mkdir(parents=True, exist_ok=True)
     TIMELINE_PATH.write_text(
@@ -409,6 +483,7 @@ def _write_timeline_json(graph: Any, timeline: list[TimelineFrame]) -> None:
 
 def main() -> None:
     sys.path.insert(0, str(ROOT))
+    sys.path.insert(0, str(HERE))
     graph = load_graph(GRAPH_PATH)
     timeline = _build_timeline(graph)
     if not timeline:

@@ -5,7 +5,7 @@
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 <p align="center">
-  <img src="docs/images/robot_escape_room.gif" width="900" alt="Three-panel hero: stacked-floor topology map, robot RGB camera with furnished interior, and isometric 3D sim with OBJ room meshes — turn-by-turn captions as T-0 escapes via the sublevel">
+  <img src="docs/images/robot_escape_room.gif" width="900" alt="Three-panel hero: topology map, robot RGB camera in furnished rooms, and 3D sim — puzzle replan captions each turn as T-0 escapes via the sublevel (Gazebo + Nav2 stack)">
 </p>
 
 <p align="center">

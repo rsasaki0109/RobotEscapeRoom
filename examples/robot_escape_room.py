@@ -12,15 +12,19 @@ from pathlib import Path
 from semantic_toponav.escape_room.runner import (
     DECOY_EXIT,
     ITEMS,
+    POWER_ITEM,
     RIDDLES,
     START,
     TRUE_EXIT,
+    UNPOWERED_TYPES,
     World,
+    arrive,
     complete_navigation,
     laser_briefing,
     mobility_briefing,
     next_turn,
     objectives,
+    plan,
 )
 from semantic_toponav.graph.serialization import load_graph
 

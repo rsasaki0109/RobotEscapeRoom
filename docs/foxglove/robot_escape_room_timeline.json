@@ -2,8 +2,8 @@
   "frames": [
     {
       "turn": 1,
-      "caption": "Route to Server Room",
-      "detail": "A* replanned on live cost stack (no scripted path)",
+      "caption": "Investigate Server Room",
+      "detail": "investigate Server Room",
       "route_goal": "server_room",
       "route": [
         "holding_cell",
@@ -12,12 +12,15 @@
       ],
       "progress": 0.0,
       "location": "holding_cell",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell"
+      ]
     },
     {
       "turn": 1,
-      "caption": "Route to Server Room",
-      "detail": "A* replanned on live cost stack (no scripted path)",
+      "caption": "Investigate Server Room",
+      "detail": "investigate Server Room",
       "route_goal": "server_room",
       "route": [
         "holding_cell",
@@ -26,12 +29,15 @@
       ],
       "progress": 0.10400000000000002,
       "location": "holding_cell",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell"
+      ]
     },
     {
       "turn": 1,
-      "caption": "Route to Server Room",
-      "detail": "A* replanned on live cost stack (no scripted path)",
+      "caption": "Investigate Server Room",
+      "detail": "investigate Server Room",
       "route_goal": "server_room",
       "route": [
         "holding_cell",
@@ -40,12 +46,15 @@
       ],
       "progress": 0.3520000000000001,
       "location": "holding_cell",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell"
+      ]
     },
     {
       "turn": 1,
-      "caption": "Route to Server Room",
-      "detail": "A* replanned on live cost stack (no scripted path)",
+      "caption": "Investigate Server Room",
+      "detail": "investigate Server Room",
       "route_goal": "server_room",
       "route": [
         "holding_cell",
@@ -54,12 +63,15 @@
       ],
       "progress": 0.648,
       "location": "holding_cell",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell"
+      ]
     },
     {
       "turn": 1,
-      "caption": "Route to Server Room",
-      "detail": "A* replanned on live cost stack (no scripted path)",
+      "caption": "Investigate Server Room",
+      "detail": "investigate Server Room",
       "route_goal": "server_room",
       "route": [
         "holding_cell",
@@ -68,12 +80,15 @@
       ],
       "progress": 0.8960000000000001,
       "location": "holding_cell",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell"
+      ]
     },
     {
       "turn": 1,
-      "caption": "Route to Server Room",
-      "detail": "A* replanned on live cost stack (no scripted path)",
+      "caption": "Investigate Server Room",
+      "detail": "investigate Server Room",
       "route_goal": "server_room",
       "route": [
         "holding_cell",
@@ -82,12 +97,15 @@
       ],
       "progress": 1.0,
       "location": "holding_cell",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell"
+      ]
     },
     {
       "turn": 1,
-      "caption": "Route to Server Room",
-      "detail": "A* replanned on live cost stack (no scripted path)",
+      "caption": "Investigate Server Room",
+      "detail": "investigate Server Room",
       "route_goal": "server_room",
       "route": [
         "holding_cell",
@@ -96,12 +114,15 @@
       ],
       "progress": 1.104,
       "location": "holding_cell",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell"
+      ]
     },
     {
       "turn": 1,
-      "caption": "Route to Server Room",
-      "detail": "A* replanned on live cost stack (no scripted path)",
+      "caption": "Investigate Server Room",
+      "detail": "investigate Server Room",
       "route_goal": "server_room",
       "route": [
         "holding_cell",
@@ -110,12 +131,15 @@
       ],
       "progress": 1.352,
       "location": "holding_cell",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell"
+      ]
     },
     {
       "turn": 1,
-      "caption": "Route to Server Room",
-      "detail": "A* replanned on live cost stack (no scripted path)",
+      "caption": "Investigate Server Room",
+      "detail": "investigate Server Room",
       "route_goal": "server_room",
       "route": [
         "holding_cell",
@@ -124,12 +148,15 @@
       ],
       "progress": 1.6480000000000001,
       "location": "holding_cell",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell"
+      ]
     },
     {
       "turn": 1,
-      "caption": "Route to Server Room",
-      "detail": "A* replanned on live cost stack (no scripted path)",
+      "caption": "Investigate Server Room",
+      "detail": "investigate Server Room",
       "route_goal": "server_room",
       "route": [
         "holding_cell",
@@ -138,11 +165,14 @@
       ],
       "progress": 1.8960000000000001,
       "location": "holding_cell",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell"
+      ]
     },
     {
       "turn": 1,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Server Room",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "server_room",
       "route": [
@@ -152,11 +182,15 @@
       ],
       "progress": 2,
       "location": "server_room",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1"
+      ]
     },
     {
       "turn": 1,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Server Room",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "server_room",
       "route": [
@@ -166,11 +200,15 @@
       ],
       "progress": 2,
       "location": "server_room",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1"
+      ]
     },
     {
       "turn": 1,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Server Room",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "server_room",
       "route": [
@@ -180,11 +218,15 @@
       ],
       "progress": 2,
       "location": "server_room",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1"
+      ]
     },
     {
       "turn": 1,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Server Room",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "server_room",
       "route": [
@@ -194,11 +236,15 @@
       ],
       "progress": 2,
       "location": "server_room",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1"
+      ]
     },
     {
       "turn": 2,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Server Room",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "main_lab",
       "route": [
@@ -208,11 +254,15 @@
       ],
       "progress": 0.0,
       "location": "server_room",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1"
+      ]
     },
     {
       "turn": 2,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Server Room",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "main_lab",
       "route": [
@@ -222,11 +272,15 @@
       ],
       "progress": 0.10400000000000002,
       "location": "server_room",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1"
+      ]
     },
     {
       "turn": 2,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Server Room",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "main_lab",
       "route": [
@@ -236,11 +290,15 @@
       ],
       "progress": 0.3520000000000001,
       "location": "server_room",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1"
+      ]
     },
     {
       "turn": 2,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Server Room",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "main_lab",
       "route": [
@@ -250,11 +308,15 @@
       ],
       "progress": 0.648,
       "location": "server_room",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1"
+      ]
     },
     {
       "turn": 2,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Server Room",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "main_lab",
       "route": [
@@ -264,11 +326,15 @@
       ],
       "progress": 0.8960000000000001,
       "location": "server_room",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1"
+      ]
     },
     {
       "turn": 2,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Server Room",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "main_lab",
       "route": [
@@ -278,11 +344,15 @@
       ],
       "progress": 1.0,
       "location": "server_room",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1"
+      ]
     },
     {
       "turn": 2,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Server Room",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "main_lab",
       "route": [
@@ -292,11 +362,15 @@
       ],
       "progress": 1.104,
       "location": "server_room",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1"
+      ]
     },
     {
       "turn": 2,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Server Room",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "main_lab",
       "route": [
@@ -306,11 +380,15 @@
       ],
       "progress": 1.352,
       "location": "server_room",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1"
+      ]
     },
     {
       "turn": 2,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Server Room",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "main_lab",
       "route": [
@@ -320,11 +398,15 @@
       ],
       "progress": 1.6480000000000001,
       "location": "server_room",
-      "items": []
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1"
+      ]
     },
     {
       "turn": 2,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Server Room",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "main_lab",
       "route": [
@@ -334,27 +416,15 @@
       ],
       "progress": 1.8960000000000001,
       "location": "server_room",
-      "items": []
-    },
-    {
-      "turn": 2,
-      "caption": "Collected keycard blue",
-      "detail": "block_edges updated \u2014 door now open",
-      "route_goal": "main_lab",
-      "route": [
-        "server_room",
-        "west_corridor",
-        "main_lab"
-      ],
-      "progress": 2,
-      "location": "main_lab",
-      "items": [
-        "keycard_blue"
+      "items": [],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1"
       ]
     },
     {
       "turn": 2,
-      "caption": "Collected keycard blue",
+      "caption": "Collected \ud83d\udd37 Blue Keycard",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "main_lab",
       "route": [
@@ -366,11 +436,16 @@
       "location": "main_lab",
       "items": [
         "keycard_blue"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue"
       ]
     },
     {
       "turn": 2,
-      "caption": "Collected keycard blue",
+      "caption": "Collected \ud83d\udd37 Blue Keycard",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "main_lab",
       "route": [
@@ -382,11 +457,16 @@
       "location": "main_lab",
       "items": [
         "keycard_blue"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue"
       ]
     },
     {
       "turn": 2,
-      "caption": "Collected keycard blue",
+      "caption": "Collected \ud83d\udd37 Blue Keycard",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "main_lab",
       "route": [
@@ -398,11 +478,37 @@
       "location": "main_lab",
       "items": [
         "keycard_blue"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue"
+      ]
+    },
+    {
+      "turn": 2,
+      "caption": "Collected \ud83d\udd37 Blue Keycard",
+      "detail": "block_edges updated \u2014 door now open",
+      "route_goal": "main_lab",
+      "route": [
+        "server_room",
+        "west_corridor",
+        "main_lab"
+      ],
+      "progress": 2,
+      "location": "main_lab",
+      "items": [
+        "keycard_blue"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue"
       ]
     },
     {
       "turn": 3,
-      "caption": "Collected keycard blue",
+      "caption": "Collected \ud83d\udd37 Blue Keycard",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "security_office",
       "route": [
@@ -413,11 +519,16 @@
       "location": "main_lab",
       "items": [
         "keycard_blue"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue"
       ]
     },
     {
       "turn": 3,
-      "caption": "Collected keycard blue",
+      "caption": "Collected \ud83d\udd37 Blue Keycard",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "security_office",
       "route": [
@@ -428,11 +539,16 @@
       "location": "main_lab",
       "items": [
         "keycard_blue"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue"
       ]
     },
     {
       "turn": 3,
-      "caption": "Collected keycard blue",
+      "caption": "Collected \ud83d\udd37 Blue Keycard",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "security_office",
       "route": [
@@ -443,11 +559,16 @@
       "location": "main_lab",
       "items": [
         "keycard_blue"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue"
       ]
     },
     {
       "turn": 3,
-      "caption": "Collected keycard blue",
+      "caption": "Collected \ud83d\udd37 Blue Keycard",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "security_office",
       "route": [
@@ -458,11 +579,16 @@
       "location": "main_lab",
       "items": [
         "keycard_blue"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue"
       ]
     },
     {
       "turn": 3,
-      "caption": "Collected keycard blue",
+      "caption": "Collected \ud83d\udd37 Blue Keycard",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "security_office",
       "route": [
@@ -473,11 +599,16 @@
       "location": "main_lab",
       "items": [
         "keycard_blue"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue"
       ]
     },
     {
       "turn": 3,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Security Office",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "security_office",
       "route": [
@@ -489,11 +620,18 @@
       "items": [
         "keycard_blue",
         "keycard_red"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2"
       ]
     },
     {
       "turn": 3,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Security Office",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "security_office",
       "route": [
@@ -505,11 +643,18 @@
       "items": [
         "keycard_blue",
         "keycard_red"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2"
       ]
     },
     {
       "turn": 3,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Security Office",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "security_office",
       "route": [
@@ -521,11 +666,18 @@
       "items": [
         "keycard_blue",
         "keycard_red"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2"
       ]
     },
     {
       "turn": 3,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Security Office",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "security_office",
       "route": [
@@ -537,11 +689,18 @@
       "items": [
         "keycard_blue",
         "keycard_red"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2"
       ]
     },
     {
       "turn": 4,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Security Office",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "storage_bay",
       "route": [
@@ -555,11 +714,18 @@
       "items": [
         "keycard_blue",
         "keycard_red"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2"
       ]
     },
     {
       "turn": 4,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Security Office",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "storage_bay",
       "route": [
@@ -573,11 +739,18 @@
       "items": [
         "keycard_blue",
         "keycard_red"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2"
       ]
     },
     {
       "turn": 4,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Security Office",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "storage_bay",
       "route": [
@@ -591,11 +764,18 @@
       "items": [
         "keycard_blue",
         "keycard_red"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2"
       ]
     },
     {
       "turn": 4,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Security Office",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "storage_bay",
       "route": [
@@ -609,11 +789,18 @@
       "items": [
         "keycard_blue",
         "keycard_red"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2"
       ]
     },
     {
       "turn": 4,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Security Office",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "storage_bay",
       "route": [
@@ -627,11 +814,18 @@
       "items": [
         "keycard_blue",
         "keycard_red"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2"
       ]
     },
     {
       "turn": 4,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Security Office",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "storage_bay",
       "route": [
@@ -645,11 +839,18 @@
       "items": [
         "keycard_blue",
         "keycard_red"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2"
       ]
     },
     {
       "turn": 4,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Security Office",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "storage_bay",
       "route": [
@@ -663,11 +864,18 @@
       "items": [
         "keycard_blue",
         "keycard_red"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2"
       ]
     },
     {
       "turn": 4,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Security Office",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "storage_bay",
       "route": [
@@ -681,11 +889,18 @@
       "items": [
         "keycard_blue",
         "keycard_red"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2"
       ]
     },
     {
       "turn": 4,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Security Office",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "storage_bay",
       "route": [
@@ -699,11 +914,18 @@
       "items": [
         "keycard_blue",
         "keycard_red"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2"
       ]
     },
     {
       "turn": 4,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Security Office",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "storage_bay",
       "route": [
@@ -717,11 +939,18 @@
       "items": [
         "keycard_blue",
         "keycard_red"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2"
       ]
     },
     {
       "turn": 4,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Security Office",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "storage_bay",
       "route": [
@@ -735,11 +964,18 @@
       "items": [
         "keycard_blue",
         "keycard_red"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2"
       ]
     },
     {
       "turn": 4,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Security Office",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "storage_bay",
       "route": [
@@ -753,11 +989,18 @@
       "items": [
         "keycard_blue",
         "keycard_red"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2"
       ]
     },
     {
       "turn": 4,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Security Office",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "storage_bay",
       "route": [
@@ -771,11 +1014,18 @@
       "items": [
         "keycard_blue",
         "keycard_red"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2"
       ]
     },
     {
       "turn": 4,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Security Office",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "storage_bay",
       "route": [
@@ -789,11 +1039,18 @@
       "items": [
         "keycard_blue",
         "keycard_red"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2"
       ]
     },
     {
       "turn": 4,
-      "caption": "Riddle solved",
+      "caption": "Riddle solved @ Security Office",
       "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
       "route_goal": "storage_bay",
       "route": [
@@ -807,11 +1064,18 @@
       "items": [
         "keycard_blue",
         "keycard_red"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2"
       ]
     },
     {
       "turn": 4,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "storage_bay",
       "route": [
@@ -826,11 +1090,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 4,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "storage_bay",
       "route": [
@@ -845,11 +1117,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 4,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "storage_bay",
       "route": [
@@ -864,11 +1144,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 4,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "storage_bay",
       "route": [
@@ -883,11 +1171,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -905,11 +1201,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -927,11 +1231,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -949,11 +1261,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -971,11 +1291,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -993,11 +1321,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1015,11 +1351,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1037,11 +1381,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1059,11 +1411,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1081,11 +1441,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1103,11 +1471,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1125,11 +1501,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1147,11 +1531,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1169,11 +1561,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1191,11 +1591,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1213,11 +1621,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1235,11 +1651,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1257,11 +1681,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1279,11 +1711,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1301,11 +1741,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1323,11 +1771,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1345,11 +1801,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1367,11 +1831,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1389,11 +1861,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1411,11 +1891,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1433,11 +1921,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1455,11 +1951,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1477,11 +1981,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1499,11 +2011,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1521,11 +2041,19 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
-      "caption": "Collected power core",
+      "caption": "Collected \ud83d\udd0b Power Core",
       "detail": "block_edges updated \u2014 door now open",
       "route_goal": "control_room",
       "route": [
@@ -1543,104 +2071,20 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
-      ]
-    },
-    {
-      "turn": 5,
-      "caption": "Riddle solved",
-      "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "control_room",
-      "route": [
-        "storage_bay",
-        "atrium",
-        "dark_corridor",
-        "elevator_lobby",
-        "mid_landing",
-        "top_landing",
-        "control_room"
       ],
-      "progress": 6,
-      "location": "control_room",
-      "items": [
-        "hatch_code",
-        "keycard_blue",
-        "keycard_red",
-        "power_core"
-      ]
-    },
-    {
-      "turn": 5,
-      "caption": "Riddle solved",
-      "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "control_room",
-      "route": [
-        "storage_bay",
-        "atrium",
-        "dark_corridor",
-        "elevator_lobby",
-        "mid_landing",
-        "top_landing",
-        "control_room"
-      ],
-      "progress": 6,
-      "location": "control_room",
-      "items": [
-        "hatch_code",
-        "keycard_blue",
-        "keycard_red",
-        "power_core"
-      ]
-    },
-    {
-      "turn": 5,
-      "caption": "Riddle solved",
-      "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "control_room",
-      "route": [
-        "storage_bay",
-        "atrium",
-        "dark_corridor",
-        "elevator_lobby",
-        "mid_landing",
-        "top_landing",
-        "control_room"
-      ],
-      "progress": 6,
-      "location": "control_room",
-      "items": [
-        "hatch_code",
-        "keycard_blue",
-        "keycard_red",
-        "power_core"
-      ]
-    },
-    {
-      "turn": 5,
-      "caption": "Riddle solved",
-      "detail": "resolve_goal grounded the clue \u2192 new objective unlocked",
-      "route_goal": "control_room",
-      "route": [
-        "storage_bay",
-        "atrium",
-        "dark_corridor",
-        "elevator_lobby",
-        "mid_landing",
-        "top_landing",
-        "control_room"
-      ],
-      "progress": 6,
-      "location": "control_room",
-      "items": [
-        "hatch_code",
-        "keycard_blue",
-        "keycard_red",
-        "power_core"
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core"
       ]
     },
     {
       "turn": 5,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "control_room",
       "route": [
         "storage_bay",
@@ -1658,12 +2102,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 5,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "control_room",
       "route": [
         "storage_bay",
@@ -1681,12 +2136,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 5,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "control_room",
       "route": [
         "storage_bay",
@@ -1704,12 +2170,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 5,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "control_room",
       "route": [
         "storage_bay",
@@ -1727,12 +2204,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 5,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "control_room",
       "route": [
         "storage_bay",
@@ -1750,12 +2238,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 5,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "control_room",
       "route": [
         "storage_bay",
@@ -1773,12 +2272,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -1795,12 +2305,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -1817,12 +2338,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -1839,12 +2371,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -1861,12 +2404,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -1883,12 +2437,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -1905,12 +2470,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -1927,12 +2503,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -1949,12 +2536,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -1971,12 +2569,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -1993,12 +2602,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2015,12 +2635,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2037,12 +2668,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2059,12 +2701,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2081,12 +2734,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2103,12 +2767,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2125,12 +2800,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2147,12 +2833,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2169,12 +2866,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2191,12 +2899,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2213,12 +2932,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2235,12 +2965,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2257,12 +2998,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2279,12 +3031,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2301,12 +3064,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
       "caption": "DECOY EXIT sealed",
-      "detail": "Emergency Exit (3F) welded shut \u2192 route to sublevel",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2323,12 +3097,23 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed"
       ]
     },
     {
       "turn": 6,
-      "caption": "ESCAPED",
-      "detail": "Maintenance Exit (B1) \u2014 not the Floor-3 decoy sign",
+      "caption": "DECOY EXIT sealed",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2345,12 +3130,24 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed",
+        "ESCAPED"
       ]
     },
     {
       "turn": 6,
-      "caption": "ESCAPED",
-      "detail": "Maintenance Exit (B1) \u2014 not the Floor-3 decoy sign",
+      "caption": "DECOY EXIT sealed",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2367,12 +3164,24 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed",
+        "ESCAPED"
       ]
     },
     {
       "turn": 6,
-      "caption": "ESCAPED",
-      "detail": "Maintenance Exit (B1) \u2014 not the Floor-3 decoy sign",
+      "caption": "DECOY EXIT sealed",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2389,12 +3198,24 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed",
+        "ESCAPED"
       ]
     },
     {
       "turn": 6,
-      "caption": "ESCAPED",
-      "detail": "Maintenance Exit (B1) \u2014 not the Floor-3 decoy sign",
+      "caption": "DECOY EXIT sealed",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2411,12 +3232,24 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed",
+        "ESCAPED"
       ]
     },
     {
       "turn": 6,
-      "caption": "ESCAPED",
-      "detail": "Maintenance Exit (B1) \u2014 not the Floor-3 decoy sign",
+      "caption": "DECOY EXIT sealed",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2433,12 +3266,24 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed",
+        "ESCAPED"
       ]
     },
     {
       "turn": 6,
-      "caption": "ESCAPED",
-      "detail": "Maintenance Exit (B1) \u2014 not the Floor-3 decoy sign",
+      "caption": "DECOY EXIT sealed",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2455,12 +3300,24 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed",
+        "ESCAPED"
       ]
     },
     {
       "turn": 6,
-      "caption": "ESCAPED",
-      "detail": "Maintenance Exit (B1) \u2014 not the Floor-3 decoy sign",
+      "caption": "DECOY EXIT sealed",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2477,12 +3334,24 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed",
+        "ESCAPED"
       ]
     },
     {
       "turn": 6,
-      "caption": "ESCAPED",
-      "detail": "Maintenance Exit (B1) \u2014 not the Floor-3 decoy sign",
+      "caption": "DECOY EXIT sealed",
+      "detail": "Emergency Exit (3F) welded shut \u2192 replan to sublevel",
       "route_goal": "maintenance_exit",
       "route": [
         "control_room",
@@ -2499,6 +3368,18 @@
         "keycard_blue",
         "keycard_red",
         "power_core"
+      ],
+      "events": [
+        "T-0 online \u2014 Holding Cell",
+        "riddle: riddle_1",
+        "item: keycard_blue",
+        "item: keycard_red",
+        "riddle: riddle_2",
+        "item: power_core",
+        "item: hatch_code",
+        "riddle: riddle_3",
+        "twist: Floor-3 exit sealed",
+        "ESCAPED"
       ]
     }
   ],
