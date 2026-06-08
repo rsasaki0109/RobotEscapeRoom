@@ -1,0 +1,424 @@
+{
+  "name": "robot_escape_room",
+  "units": "metres",
+  "frame_id": "map",
+  "floor_height_m": 4.2,
+  "wall_height_m": 3.0,
+  "combined_scene": "examples/meshes/escape_room/escape_room_scene.obj",
+  "rooms": [
+    {
+      "id": "atrium",
+      "label": "Central Atrium",
+      "type": "intersection",
+      "floor": 1,
+      "obj": "meshes/escape_room/atrium.obj",
+      "center": {
+        "x": 12.0,
+        "y": 0.0,
+        "z": 1.5
+      },
+      "size": {
+        "x": 3.2,
+        "y": 3.2,
+        "z": 3.0
+      },
+      "color_rgba": [
+        0.66,
+        0.4,
+        0.96,
+        0.5
+      ]
+    },
+    {
+      "id": "basement_tunnel",
+      "label": "Sublevel Tunnel",
+      "type": "corridor",
+      "floor": -1,
+      "obj": "meshes/escape_room/basement_tunnel.obj",
+      "center": {
+        "x": 20.0,
+        "y": -7.0,
+        "z": -6.9
+      },
+      "size": {
+        "x": 2.6,
+        "y": 2.6,
+        "z": 3.0
+      },
+      "color_rgba": [
+        0.45,
+        0.5,
+        0.58,
+        0.45
+      ]
+    },
+    {
+      "id": "control_room",
+      "label": "Control Room",
+      "type": "room",
+      "floor": 3,
+      "obj": "meshes/escape_room/control_room.obj",
+      "center": {
+        "x": 28.0,
+        "y": 11.0,
+        "z": 9.9
+      },
+      "size": {
+        "x": 4.0,
+        "y": 4.0,
+        "z": 3.0
+      },
+      "color_rgba": [
+        0.31,
+        0.62,
+        0.96,
+        0.55
+      ]
+    },
+    {
+      "id": "dark_corridor",
+      "label": "Dark Corridor",
+      "type": "corridor",
+      "floor": 1,
+      "obj": "meshes/escape_room/dark_corridor.obj",
+      "center": {
+        "x": 16.0,
+        "y": 0.0,
+        "z": 1.5
+      },
+      "size": {
+        "x": 2.6,
+        "y": 2.6,
+        "z": 3.0
+      },
+      "color_rgba": [
+        0.45,
+        0.5,
+        0.58,
+        0.45
+      ]
+    },
+    {
+      "id": "elevator_lobby",
+      "label": "Elevator Lobby",
+      "type": "intersection",
+      "floor": 1,
+      "obj": "meshes/escape_room/elevator_lobby.obj",
+      "center": {
+        "x": 20.0,
+        "y": 0.0,
+        "z": 1.5
+      },
+      "size": {
+        "x": 3.2,
+        "y": 3.2,
+        "z": 3.0
+      },
+      "color_rgba": [
+        0.66,
+        0.4,
+        0.96,
+        0.5
+      ]
+    },
+    {
+      "id": "emergency_exit",
+      "label": "Emergency Exit (3F)",
+      "type": "sealed_exit",
+      "floor": 3,
+      "obj": "meshes/escape_room/emergency_exit.obj",
+      "center": {
+        "x": 24.0,
+        "y": 15.0,
+        "z": 9.9
+      },
+      "size": {
+        "x": 3.6,
+        "y": 3.6,
+        "z": 3.0
+      },
+      "color_rgba": [
+        0.95,
+        0.34,
+        0.34,
+        0.55
+      ]
+    },
+    {
+      "id": "holding_cell",
+      "label": "Holding Cell",
+      "type": "room",
+      "floor": 1,
+      "obj": "meshes/escape_room/holding_cell.obj",
+      "center": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.5
+      },
+      "size": {
+        "x": 4.0,
+        "y": 4.0,
+        "z": 3.0
+      },
+      "color_rgba": [
+        0.31,
+        0.62,
+        0.96,
+        0.55
+      ]
+    },
+    {
+      "id": "main_lab",
+      "label": "Main Lab",
+      "type": "room",
+      "floor": 1,
+      "obj": "meshes/escape_room/main_lab.obj",
+      "center": {
+        "x": 8.0,
+        "y": 0.0,
+        "z": 1.5
+      },
+      "size": {
+        "x": 4.0,
+        "y": 4.0,
+        "z": 3.0
+      },
+      "color_rgba": [
+        0.31,
+        0.62,
+        0.96,
+        0.55
+      ]
+    },
+    {
+      "id": "maintenance_exit",
+      "label": "Maintenance Exit",
+      "type": "exit",
+      "floor": -1,
+      "obj": "meshes/escape_room/maintenance_exit.obj",
+      "center": {
+        "x": 24.0,
+        "y": -7.0,
+        "z": -6.9
+      },
+      "size": {
+        "x": 3.6,
+        "y": 3.6,
+        "z": 3.0
+      },
+      "color_rgba": [
+        0.22,
+        0.83,
+        0.45,
+        0.65
+      ]
+    },
+    {
+      "id": "mid_landing",
+      "label": "2F Landing",
+      "type": "corridor",
+      "floor": 2,
+      "obj": "meshes/escape_room/mid_landing.obj",
+      "center": {
+        "x": 24.0,
+        "y": 6.0,
+        "z": 5.7
+      },
+      "size": {
+        "x": 2.6,
+        "y": 2.6,
+        "z": 3.0
+      },
+      "color_rgba": [
+        0.45,
+        0.5,
+        0.58,
+        0.45
+      ]
+    },
+    {
+      "id": "security_office",
+      "label": "Security Office",
+      "type": "room",
+      "floor": 1,
+      "obj": "meshes/escape_room/security_office.obj",
+      "center": {
+        "x": 8.0,
+        "y": -4.0,
+        "z": 1.5
+      },
+      "size": {
+        "x": 4.0,
+        "y": 4.0,
+        "z": 3.0
+      },
+      "color_rgba": [
+        0.31,
+        0.62,
+        0.96,
+        0.55
+      ]
+    },
+    {
+      "id": "server_room",
+      "label": "Server Room",
+      "type": "room",
+      "floor": 1,
+      "obj": "meshes/escape_room/server_room.obj",
+      "center": {
+        "x": 4.0,
+        "y": 4.0,
+        "z": 1.5
+      },
+      "size": {
+        "x": 4.0,
+        "y": 4.0,
+        "z": 3.0
+      },
+      "color_rgba": [
+        0.31,
+        0.62,
+        0.96,
+        0.55
+      ]
+    },
+    {
+      "id": "stairwell_1f",
+      "label": "East Stairwell",
+      "type": "stairs",
+      "floor": 1,
+      "obj": "meshes/escape_room/stairwell_1f.obj",
+      "center": {
+        "x": 22.0,
+        "y": -3.0,
+        "z": 1.5
+      },
+      "size": {
+        "x": 2.2,
+        "y": 2.2,
+        "z": 3.0
+      },
+      "color_rgba": [
+        0.96,
+        0.62,
+        0.08,
+        0.55
+      ]
+    },
+    {
+      "id": "stairwell_2f",
+      "label": "2F Stairwell",
+      "type": "stairs",
+      "floor": 2,
+      "obj": "meshes/escape_room/stairwell_2f.obj",
+      "center": {
+        "x": 22.0,
+        "y": 6.0,
+        "z": 5.7
+      },
+      "size": {
+        "x": 2.2,
+        "y": 2.2,
+        "z": 3.0
+      },
+      "color_rgba": [
+        0.96,
+        0.62,
+        0.08,
+        0.55
+      ]
+    },
+    {
+      "id": "stairwell_3f",
+      "label": "3F Stairwell",
+      "type": "stairs",
+      "floor": 3,
+      "obj": "meshes/escape_room/stairwell_3f.obj",
+      "center": {
+        "x": 22.0,
+        "y": 11.0,
+        "z": 9.9
+      },
+      "size": {
+        "x": 2.2,
+        "y": 2.2,
+        "z": 3.0
+      },
+      "color_rgba": [
+        0.96,
+        0.62,
+        0.08,
+        0.55
+      ]
+    },
+    {
+      "id": "storage_bay",
+      "label": "Storage Bay",
+      "type": "room",
+      "floor": 1,
+      "obj": "meshes/escape_room/storage_bay.obj",
+      "center": {
+        "x": 12.0,
+        "y": 4.0,
+        "z": 1.5
+      },
+      "size": {
+        "x": 4.0,
+        "y": 4.0,
+        "z": 3.0
+      },
+      "color_rgba": [
+        0.31,
+        0.62,
+        0.96,
+        0.55
+      ]
+    },
+    {
+      "id": "top_landing",
+      "label": "3F Landing",
+      "type": "corridor",
+      "floor": 3,
+      "obj": "meshes/escape_room/top_landing.obj",
+      "center": {
+        "x": 24.0,
+        "y": 11.0,
+        "z": 9.9
+      },
+      "size": {
+        "x": 2.6,
+        "y": 2.6,
+        "z": 3.0
+      },
+      "color_rgba": [
+        0.45,
+        0.5,
+        0.58,
+        0.45
+      ]
+    },
+    {
+      "id": "west_corridor",
+      "label": "West Corridor",
+      "type": "corridor",
+      "floor": 1,
+      "obj": "meshes/escape_room/west_corridor.obj",
+      "center": {
+        "x": 4.0,
+        "y": 0.0,
+        "z": 1.5
+      },
+      "size": {
+        "x": 2.6,
+        "y": 2.6,
+        "z": 3.0
+      },
+      "color_rgba": [
+        0.45,
+        0.5,
+        0.58,
+        0.45
+      ]
+    }
+  ]
+}

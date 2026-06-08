@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "examples"))
 
+from escape_room_meshes import all_meshes, iso_faces, iso_project  # noqa: E402
 from robot_escape_room import POWER_ITEM, UNPOWERED_TYPES  # noqa: E402
 from semantic_toponav.graph.serialization import load_graph  # noqa: E402
 
@@ -230,7 +231,7 @@ def _render_sim(graph, meta: dict) -> Image.Image:
     draw = ImageDraw.Draw(panel, "RGBA")
 
     draw.rectangle((0, 0, SIM_W, 26), fill=(9, 17, 31))
-    draw.text((14, 6), "3D sim (isometric)", font=FONT_PANEL, fill=TEXT)
+    draw.text((14, 6), "3D sim · room meshes", font=FONT_PANEL, fill=TEXT)
 
     # grid
     for i in range(-6, 10):
@@ -242,31 +243,11 @@ def _render_sim(graph, meta: dict) -> Image.Image:
         b = _iso(30, j * 3, 0)
         draw.line([a, b], fill=(*DIM, 60), width=1)
 
-    floors = sorted({_floor(n) for n in graph.nodes()})
-    for floor in floors:
-        xs, ys = [], []
-        for node in graph.nodes():
-            if _floor(node) != floor:
-                continue
-            xs.append(node.pose.x)
-            ys.append(node.pose.y)
-        if not xs:
-            continue
-        pad = 2.0
-        z = (floor - 1) * FLOOR_HEIGHT_M
-        corners = [
-            (min(xs) - pad, min(ys) - pad, z),
-            (max(xs) + pad, min(ys) - pad, z),
-            (max(xs) + pad, max(ys) + pad, z),
-            (min(xs) - pad, max(ys) + pad, z),
-        ]
-        poly = [_iso(*c) for c in corners]
-        fill = PANEL_2 if floor % 2 == 0 else PANEL_3
-        draw.polygon(poly, fill=(*fill, 200), outline=(*MUTED, 180))
-        cx = sum(c[0] for c in corners) / 4
-        cy = sum(c[1] for c in corners) / 4
-        lx, ly = _iso(cx, cy - 2.5, z + 0.3)
-        draw.text((lx, ly), f"FLOOR {FLOOR_LABEL[floor]}", font=FONT_SM, fill=TEXT, anchor="ma")
+    mesh_faces: list[tuple[float, list[tuple[float, float]], tuple[int, int, int, int]]] = []
+    for mesh in all_meshes(graph):
+        mesh_faces.extend(iso_faces(mesh, ISO_CX, ISO_CY))
+    for _, poly, fill in sorted(mesh_faces, key=lambda f: f[0]):
+        draw.polygon(poly, fill=fill)
 
     segment = min(int(progress), len(route) - 2) if len(route) >= 2 else 0
     local = progress - segment if len(route) >= 2 else 0.0
@@ -308,30 +289,17 @@ def _render_sim(graph, meta: dict) -> Image.Image:
     for depth, color, a, b, width in sorted(edges, key=lambda e: e[0]):
         draw.line([a, b], fill=color, width=width)
 
-    route_set = set(route)
-    nodes_draw = []
-    for node in graph.nodes():
-        xyz = _node_xyz(graph, node.id)
-        sx, sy = _iso(*xyz)
-        color = NODE_COLORS.get(node.type, BLUE)
-        r = 7 if node.id in route_set else 4
-        alpha = 255 if node.id in route_set else 120
-        nodes_draw.append((_depth(*xyz), sx, sy, r, (*color, alpha)))
-
-    for _, sx, sy, r, color in sorted(nodes_draw, key=lambda n: n[0]):
-        draw.ellipse((sx - r, sy - r, sx + r, sy + r), fill=color, outline=(3, 7, 18), width=1)
-
     rsx, rsy = _iso(rx, ry, rz)
     draw.ellipse((rsx - 18, rsy - 18, rsx + 18, rsy + 18), fill=(*CYAN, 45))
     draw.ellipse((rsx - 12, rsy - 12, rsx + 12, rsy + 12), fill=(8, 47, 73), outline=CYAN, width=3)
     draw.ellipse((rsx - 4, rsy - 4, rsx + 4, rsy + 4), fill=(255, 255, 255))
     draw.text((rsx + 16, rsy - 8), "T-0", font=FONT_SM, fill=CYAN)
 
-    for nid in ("holding_cell", "emergency_exit", "maintenance_exit", "control_room"):
-        if graph.has_node(nid):
-            x, y, z = _node_xyz(graph, nid)
-            lx, ly = _iso(x, y + 0.8, z + 0.2)
-            draw.text((lx, ly), graph.get_node(nid).label[:14], font=FONT_XS, fill=TEXT, anchor="ma")
+    for mesh in all_meshes(graph):
+        if mesh.node_id in {"holding_cell", "emergency_exit", "maintenance_exit", "control_room"}:
+            x, y, z = mesh.center
+            lx, ly = iso_project(x, y, z + mesh.size[2] / 2 + 0.2, ISO_CX, ISO_CY)
+            draw.text((lx, ly), mesh.label[:14], font=FONT_XS, fill=TEXT, anchor="ma")
 
     return panel
 
