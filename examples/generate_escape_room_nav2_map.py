@@ -8,7 +8,6 @@ Nav2 global planning matches the Gazebo facility layout.
 
 from __future__ import annotations
 
-import struct
 import sys
 from pathlib import Path
 
@@ -18,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "examples"))
 
 from escape_room_interior import foxglove_furnished_cubes
+
 from semantic_toponav.graph.serialization import load_graph
 
 GRAPH = ROOT / "examples" / "robot_escape_room.yaml"

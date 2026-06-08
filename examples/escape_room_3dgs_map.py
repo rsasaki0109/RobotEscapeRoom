@@ -9,10 +9,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from PIL import Image
-
 from escape_room_mesh_render import render_iso_facility
 from escape_room_meshes import MESH_DIR, IsoView, fit_iso_view
+from PIL import Image
 
 HERE = Path(__file__).parent
 MAP_PATH = MESH_DIR / "escape_room_facility_mesh.png"
