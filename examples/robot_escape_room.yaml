@@ -17,6 +17,9 @@ metadata:
                           ``block_edge_types`` until the power core restores it.
       * Laser grid      : a ``restricted`` shortcut the planner must route
                           around via ``avoid_restricted``.
+      * Stairs vs lift  : a parallel ``stairs_up`` chain beside the
+                          elevator; ``prefer_elevator`` keeps T-0 on the
+                          lift even though the stairs are cheaper.
 
     The twist is structural, not coded into the planner: a brightly-lit
     EMERGENCY EXIT sign points up to Floor 3, so T-0 climbs toward it — but
@@ -74,13 +77,28 @@ nodes:
     type: intersection
     pose: {x: 20.0, y: 0.0, yaw: 0.0, frame_id: map}
     properties: {floor: 1}
+  - id: stairwell_1f
+    label: East Stairwell
+    type: stairs
+    pose: {x: 22.0, y: -3.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 1}
 
   # --- Floor 2 / Floor 3: the way "up" (toward the decoy) -------------
+  - id: stairwell_2f
+    label: 2F Stairwell
+    type: stairs
+    pose: {x: 22.0, y: 6.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 2}
   - id: mid_landing
     label: 2F Landing
     type: corridor
     pose: {x: 24.0, y: 6.0, yaw: 0.0, frame_id: map}
     properties: {floor: 2}
+  - id: stairwell_3f
+    label: 3F Stairwell
+    type: stairs
+    pose: {x: 22.0, y: 11.0, yaw: 0.0, frame_id: map}
+    properties: {floor: 3}
   - id: top_landing
     label: 3F Landing
     type: corridor
@@ -186,19 +204,58 @@ edges:
     bidirectional: true
     properties: {hazard: laser_grid}
 
-  # --- The way up: elevator to the decoy emergency exit on Floor 3 -----
+  # --- The way up: elevator OR stairs to the decoy emergency exit ------
+  # Stairs are cheaper by base cost; T-0 always plans with
+  # ``prefer_elevator`` so the lift wins anyway (accessibility mode).
   - id: lift_lobby_mid
     source: elevator_lobby
     target: mid_landing
     type: elevator_connection
-    cost: 1.5
+    cost: 2.5
     bidirectional: true
     properties: {}
   - id: lift_mid_top
     source: mid_landing
     target: top_landing
     type: elevator_connection
-    cost: 1.5
+    cost: 2.5
+    bidirectional: true
+    properties: {}
+  # Parallel stairwell chain — cheaper per hop than the lift, but T-0
+  # always plans with ``prefer_elevator`` and rides the elevator anyway.
+  - id: door_lobby_stairwell
+    source: elevator_lobby
+    target: stairwell_1f
+    type: traversable
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+  - id: stairs_1f_2f
+    source: stairwell_1f
+    target: stairwell_2f
+    type: stairs_up
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+  - id: door_stairwell_mid
+    source: stairwell_2f
+    target: mid_landing
+    type: traversable
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+  - id: stairs_2f_3f
+    source: stairwell_2f
+    target: stairwell_3f
+    type: stairs_up
+    cost: 1.0
+    bidirectional: true
+    properties: {}
+  - id: door_stairwell_top
+    source: stairwell_3f
+    target: top_landing
+    type: traversable
+    cost: 1.0
     bidirectional: true
     properties: {}
   - id: door_top_control

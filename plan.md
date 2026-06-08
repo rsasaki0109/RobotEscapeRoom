@@ -1921,9 +1921,7 @@ surface under the §23′.1 moratorium (a worked example, not a feature
 axis), in the same spirit as the §23′.4 demos — it reuses only existing
 planner primitives.
 
-**Status: not yet committed.** Local working-tree changes only; no PR cut.
-Awaiting an explicit `comit!` (the user's update cue this session was the
-plan.md-without-commit variant — see §25′ cue cadence). Files touched:
+**Status: committed** (`f210d1b`, 2026-06-08). Files:
 
 - `examples/robot_escape_room.yaml` — **multi-floor** escape topology, 15
   nodes / 15 edges across **B1 / 1F / 2F / 3F** (`floor` property +
@@ -1934,7 +1932,8 @@ plan.md-without-commit variant — see §25′ cue cadence). Files touched:
   re-plans. Escapes in 6 turns (items 4/4, riddles 3/3).
 - `examples/record_escape_room.py` — GIF recorder that **imports the
   runner's logic** (never reimplements the puzzle) and renders each turn.
-- `docs/images/robot_escape_room.gif` — 14 frames, ~384 KB.
+- `docs/images/robot_escape_room.gif` — 39 frames, three-panel hero style,
+  ~1.2 MB (regenerated after the stairs mechanic landed).
 - `README.md` — new gallery row **"Escape room — every cost function in
   one self-solving game"**, placed after "Multi-floor planning" as the
   capstone that ties the individually-demoed cost functions together.
@@ -1950,6 +1949,7 @@ doubles as a feature tour:
 | Riddle terminal | `resolve_goal(graph, clue_answer)` grounds the clue to a node id; a correct grounding reveals where a hidden item is stashed |
 | Power gate (Dark Corridor) | `block_edge_types(("unpowered",))` until the power core is collected |
 | Laser grid (shortcut) | `avoid_restricted` — a `restricted` shortcut the planner must route around (shown via a reckless-vs-safe `plan_astar` contrast at startup) |
+| Stairs vs lift | `prefer_elevator` — parallel `stairs_up` stairwell chain is cheaper, but T-0 rides the lift (shown via a mobility scan at startup) |
 
 ### 32′.2 The structural twist (the user's idea)
 
@@ -1970,13 +1970,22 @@ item state, which is the point:
   scripted branch. The GIF's escape frame shows the green route plunging
   past the sealed 3F sign down to the green sublevel exit.
 
-### 32′.3 Open follow-up (proposed, not built)
+### 32′.3 Stairs vs lift mechanic — ✅ shipped (2026-06-08)
 
-A **fifth mechanic** was offered but not implemented: add a parallel
-`stairs_up` / `stairs_down` chain alongside the elevator and demonstrate
-`avoid_stairs` / `prefer_elevator` (the route preferring the elevator) as
-a soft-preference cost — the one major cost-function family the escape
-room does not yet exercise. Gated on a user go-ahead.
+The fifth mechanic landed on the user's `tugiikou` cue right after the
+initial commit:
+
+- `stairwell_1f` / `stairwell_2f` / `stairwell_3f` nodes + `stairs_up`
+  edges form a parallel east stairwell; lift hops cost more per floor so
+  bare Dijkstra climbs the stairs.
+- T-0's runner always composes `prefer_elevator` into the cost stack, so
+  the live game rides `elevator_lobby → mid_landing → top_landing` even
+  though the stairwell is cheaper.
+- `mobility_briefing()` at startup prints both routes side-by-side (same
+  pattern as `laser_briefing()`).
+- Planning uses `heuristic_fn=lambda *_: 0.0` so semantic edge-cost
+  penalties decide the route — Euclidean pose distance would wrongly bias
+  toward the lift shaft when stairs and lift tie on node hops.
 
 ### 32′.4 Reproduction
 

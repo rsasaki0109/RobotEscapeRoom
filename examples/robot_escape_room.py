@@ -17,6 +17,9 @@ planner feature:
                         ``block_edge_types`` until the power core is held.
     4. Laser grid     — a ``restricted`` shortcut is routed around with
                         ``avoid_restricted``.
+    5. Stairs vs lift — a parallel ``stairs_up`` chain sits beside the
+                        elevator; ``prefer_elevator`` keeps T-0 on the
+                        lift even though the stairs are cheaper.
 
 On top of those there is a structural twist. A lit EMERGENCY EXIT sign points
 up to Floor 3, so T-0 climbs toward it — but that door is welded shut
@@ -46,6 +49,7 @@ from semantic_toponav.planner import (
     block_edges,
     compose_costs,
     plan_astar,
+    prefer_elevator,
 )
 from semantic_toponav.query import resolve_goal
 from semantic_toponav.waypoint.semantic_waypoint import path_to_semantic_waypoints
@@ -61,6 +65,11 @@ VERBOSE = True
 def _say(msg: str) -> None:
     if VERBOSE:
         print(msg)
+
+
+def _zero_heuristic(*_) -> float:
+    """Disable pose heuristics so semantic edge costs decide the route."""
+    return 0.0
 
 # The sign says "this way out"; the real exit is somewhere else entirely.
 DECOY_EXIT = "emergency_exit"   # lit Floor-3 sign — sealed shut, never opens
@@ -128,7 +137,9 @@ class World:
 
 def current_cost_fn(graph, world):
     """Compose the cost rules that apply given the current world state."""
-    fns = [avoid_restricted]  # the laser grid is always impassable
+    # Hard blocks first, then soft preferences. T-0 always prefers the
+    # elevator over the cheaper stairs (accessibility mode).
+    fns = [avoid_restricted, prefer_elevator]
 
     locked = [
         edge.id
@@ -146,8 +157,16 @@ def current_cost_fn(graph, world):
 
 def plan(graph, world, goal):
     """Plan from the current location to ``goal``; None if unreachable now."""
+    # Zero heuristic — edge costs (stairs vs lift penalties) decide the
+    # route; Euclidean pose distance would wrongly favour the lift shaft.
     try:
-        return plan_astar(graph, world.location, goal, cost_fn=current_cost_fn(graph, world))
+        return plan_astar(
+            graph,
+            world.location,
+            goal,
+            cost_fn=current_cost_fn(graph, world),
+            heuristic_fn=_zero_heuristic,
+        )
     except NoPathError:
         return None
 
@@ -242,6 +261,24 @@ def laser_briefing(graph):
     _say("")
 
 
+def mobility_briefing(graph):
+    """Show that ``prefer_elevator`` overrides cheaper stairs.
+
+    Stairs edges cost 1.0 per hop vs 1.5 for the lift, so a bare A* call
+    climbs the stairwell. Adding ``prefer_elevator`` discounts the lift enough
+    that T-0 rides it anyway.
+    """
+    start, goal = "elevator_lobby", "top_landing"
+    via_stairs = plan_astar(graph, start, goal, heuristic_fn=_zero_heuristic)
+    via_lift = plan_astar(
+        graph, start, goal, cost_fn=prefer_elevator, heuristic_fn=_zero_heuristic,
+    )
+    _say("  \U0001F6D7 Mobility scan — Elevator Lobby → 3F Landing:")
+    _say(f"     default (cheaper stairs): {' → '.join(via_stairs)}")
+    _say(f"     prefer_elevator         : {' → '.join(via_lift)}  (T-0 rides the lift)")
+    _say("")
+
+
 def main() -> None:
     graph = load_graph(GRAPH_PATH)
     world = World()
@@ -255,6 +292,7 @@ def main() -> None:
           f"{graph.get_node(DECOY_EXIT).label} — surely that is the way out?")
     print()
     laser_briefing(graph)
+    mobility_briefing(graph)
 
     twist_seen = False
     for turn in range(1, 50):
