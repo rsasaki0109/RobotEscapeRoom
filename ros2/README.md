@@ -194,7 +194,8 @@ AMCL to fall back to a static `map→odom` identity:
 ```bash
 ros2 launch semantic_toponav_ros escape_room_gz_nav2.launch.py use_localization:=false
 ```
-[`examples/meshes/escape_room/gazebo/README.md`](../examples/meshes/escape_room/gazebo/README.md).
+
+See [`examples/meshes/escape_room/gazebo/README.md`](../examples/meshes/escape_room/gazebo/README.md).
 
 ## JSON vs custom messages
 

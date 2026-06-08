@@ -13,7 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "examples"))
 
-from escape_room_3dgs_map import MAP_PATH, write_map  # noqa: E402
+from escape_room_3dgs_map import write_map  # noqa: E402
+
 from semantic_toponav.graph.serialization import load_graph  # noqa: E402
 
 GRAPH = ROOT / "examples" / "robot_escape_room.yaml"

@@ -21,6 +21,7 @@ sys.path.insert(0, str(ROOT / "examples"))
 
 from escape_room_interior import foxglove_furnished_cubes
 from escape_room_meshes import SCENE_OBJ
+
 from semantic_toponav.graph.serialization import load_graph
 
 GRAPH = ROOT / "examples" / "robot_escape_room.yaml"

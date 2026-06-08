@@ -7,7 +7,7 @@ The CLI in ``examples/robot_escape_room.py`` and the ROS2
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Literal
+from typing import Literal
 
 from semantic_toponav.graph.topology_graph import TopologyGraph
 from semantic_toponav.planner import (
