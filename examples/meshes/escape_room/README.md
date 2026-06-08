@@ -37,6 +37,9 @@ PYTHONPATH=. python3 examples/generate_escape_room_3dgs_map.py
 
 Outputs `escape_room_3dgs_map.png` (isometric splats aligned to room meshes).
 
+Robot RGB camera frames for the hero GIF come from the same splat cloud via
+`examples/escape_room_camera.py`.
+
 ## Gazebo / Foxglove
 
 The MCAP exporter (`export_escape_room_foxglove_mcap.py`) and README hero

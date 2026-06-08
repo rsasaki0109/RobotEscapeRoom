@@ -21,14 +21,14 @@ FRAMES="${FRAMES_DIR:-/tmp/erframes}"
 GIF_OUT="$ROOT/docs/images/robot_escape_room.gif"
 MP4_OUT="$ROOT/docs/images/robot_escape_room.mp4"
 FPS="${FPS:-12}"
-GIF_WIDTH="${GIF_WIDTH:-1200}"
+GIF_WIDTH="${GIF_WIDTH:-1280}"
 
 [ -f "$ROOT/docs/foxglove/robot_escape_room_timeline.json" ] || {
   echo "missing timeline JSON — run export_escape_room_foxglove_mcap.py first"
   exit 1
 }
 
-echo "==> rendering deterministic frames (map + 3D sim)"
+echo "==> rendering deterministic frames (map + camera + 3D sim)"
 rm -rf "$FRAMES"
 PYTHONPATH="$ROOT" python3 "$DIR/render_escape_room_hero.py" "$FRAMES"
 
@@ -41,9 +41,9 @@ done
 echo "==> encoding GIF -> $GIF_OUT"
 palette="/tmp/erhero_palette.png"
 ffmpeg -y -framerate "$FPS" -i "$FRAMES/f%03d.png" \
-  -vf "scale=$GIF_WIDTH:-1:flags=lanczos,palettegen=max_colors=220:stats_mode=full" "$palette"
+  -vf "scale=$GIF_WIDTH:-1:flags=lanczos,palettegen=max_colors=128:stats_mode=diff" "$palette"
 ffmpeg -y -framerate "$FPS" -i "$FRAMES/f%03d.png" -i "$palette" \
-  -lavfi "scale=$GIF_WIDTH:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=2" "$GIF_OUT"
+  -lavfi "scale=$GIF_WIDTH:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle" "$GIF_OUT"
 
 echo "==> encoding MP4 -> $MP4_OUT"
 ffmpeg -y -framerate "$FPS" -i "$FRAMES/f%03d.png" \
