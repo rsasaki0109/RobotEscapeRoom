@@ -1391,6 +1391,12 @@ Order picked by adoption-pull:
      and a clarification band. Pure transform `src/resolve.ts`
      (`buildResolveView` / `normalizeResolveTrace`) jest-tested (12
      cases). Completes the per-wire-format panel coverage story.
+   - **v0.4.0 shipped 2026-06-09** — fourth panel
+     `Semantic TopoNav Escape Room` subscribing to
+     `/semantic_toponav/escape_room/status`, decoding `EscapeRoomStatus`
+     (turn caption + puzzle events) for the robot-escape-room Foxglove
+     MCAP. Pure transform `src/escape_room.ts` jest-tested. Drop beside
+     the 3D scene when replaying `robot_escape_room_demo.mcap`.
    - **Issue #1 closed earlier** — `foxglove-extension build` wired
      into CI; tagged pushes now build + upload the `.foxe`, attached
      to the GitHub release (Node 24 runner via checkout/setup v6).
@@ -2020,3 +2026,41 @@ PYTHONPATH=. python3 examples/build_social_preview.py
 
 All recorders are deterministic — every keycard, riddle grounding, and
 route leg is real resolver/planner output.
+
+## 33′. Gazebo / Nav2 sim stack + overview MP4 (2026-06-09, ✅ shipped)
+
+Presentation/teaching surface extending §32′ with a physical-sim execution
+loop. Still under the §23′.1 moratorium (examples + ROS2 wiring, not a
+new planner feature axis).
+
+**Status: shipped** — v1.0.5 (Gazebo + Nav2 + dynamic replan) and v1.0.6
+(Gazebo overview MP4 + CPU fallback, PR #108).
+
+| PR / release | What |
+|---|---|
+| v1.0.5 | Gazebo world generator, T-0 diff-drive + lidar, Nav2 map export,
+  `escape_room_gz_nav2.launch.py`, AMCL, dynamic `escape_room_runner`
+  replan, puzzle-caption hero refresh |
+| #108 / v1.0.6 | `./scripts/record_escape_room_gz_sim.sh` →
+  `docs/images/robot_escape_room_gz.mp4`; CPU overview renderer fallback
+  in `examples/escape_room_mesh_render.py` when gz-sim camera is blank |
+
+### 33′.1 Reproduction
+
+```bash
+# Full Gazebo + Nav2 + semantic replan (requires ROS 2 + gz-sim):
+./scripts/run_escape_room_gz_nav2.sh
+
+# Record overview MP4 (tries live gz camera, falls back to CPU renderer):
+./scripts/record_escape_room_gz_sim.sh
+
+# Offline-only MP4 (no Gazebo):
+python3 examples/record_escape_room_gz_mp4.py --offline /tmp/gzframes docs/images/robot_escape_room_gz.mp4
+```
+
+### 33′.2 Foxglove escape-room panel (Phase C)
+
+The escape-room MCAP ships `/semantic_toponav/escape_room/status` but
+until v0.4.0 of `semantic-toponav-foxglove-panel` users had to read
+Raw Messages. The fourth panel (`Semantic TopoNav Escape Room`) renders
+turn captions + color-coded puzzle events beside the 3D scene.

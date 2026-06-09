@@ -55,6 +55,10 @@ scripts/foxglove_hero/build_escape_room_gif.sh
 | `/semantic_toponav/scene` | `foxglove.SceneUpdate` | Furnished interior cubes + route + robot marker |
 | `/semantic_toponav/waypoints` | `semantic_toponav.WaypointArray` | Semantic waypoints per frame |
 
-Open `docs/foxglove/robot_escape_room_demo.mcap` in Foxglove Studio and add a
-Raw Messages panel on `/semantic_toponav/escape_room/status` to read turn
-narrative alongside the 3D scene.
+Open `docs/foxglove/robot_escape_room_demo.mcap` in Foxglove Studio and add
+the **Semantic TopoNav Escape Room** panel from
+[`semantic-toponav-foxglove-panel`](https://github.com/rsasaki0109/semantic-toponav-foxglove-panel)
+(v0.4.0+) to read turn captions and puzzle events beside the 3D scene.
+Alternatively, add a Raw Messages panel on
+`/semantic_toponav/escape_room/status` to read turn narrative alongside
+the 3D scene.
