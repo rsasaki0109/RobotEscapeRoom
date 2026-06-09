@@ -2035,8 +2035,9 @@ Presentation/teaching surface extending §32′ with a physical-sim execution
 loop. Still under the §23′.1 moratorium (examples + ROS2 wiring, not a
 new planner feature axis).
 
-**Status: shipped** — v1.0.5 (Gazebo + Nav2 + dynamic replan) and v1.0.6
-(Gazebo overview MP4 + CPU fallback, PR #108).
+**Status: shipped** — v1.0.5 (Gazebo + Nav2 + dynamic replan), v1.0.6
+(Gazebo overview MP4 + CPU fallback, PR #108), and v1.0.7 (per-room
+quests in hero GIF / MCAP, PR #111).
 
 | PR / release | What |
 |---|---|
@@ -2046,6 +2047,9 @@ new planner feature axis).
 | #108 / v1.0.6 | `./scripts/record_escape_room_gz_sim.sh` →
   `docs/images/robot_escape_room_gz.mp4`; CPU overview renderer fallback
   in `examples/escape_room_mesh_render.py` when gz-sim camera is blank |
+| #111 / v1.0.7 | `semantic_toponav.escape_room.quests` — one quest per
+  graph node; hero GIF quest banner + map highlight; MCAP /
+  timeline JSON quest fields; foxglove-panel v0.5.0 quest banner |
 
 ### 33′.1 Reproduction
 
@@ -2066,3 +2070,7 @@ The escape-room MCAP ships `/semantic_toponav/escape_room/status` but
 until v0.4.0 of `semantic-toponav-foxglove-panel` users had to read
 Raw Messages. The fourth panel (`Semantic TopoNav Escape Room`) renders
 turn captions + color-coded puzzle events beside the 3D scene.
+
+**v0.5.0 (2026-06-09)** adds a per-room quest banner (`quest_title`,
+`quest_detail`, `quest_mechanic`, ACTIVE/COMPLETE) when replaying MCAPs
+exported from v1.0.7+.
