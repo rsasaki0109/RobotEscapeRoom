@@ -12,8 +12,6 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-from PIL import Image, ImageDraw
-
 from escape_room_meshes import (
     FLOOR_HEIGHT_M,
     SCENE_OBJ,
@@ -23,6 +21,7 @@ from escape_room_meshes import (
     iso_depth,
     iso_project,
 )
+from PIL import Image, ImageDraw
 
 CAMERA_HEIGHT_M = 0.72
 FOV_RAD = 1.05
@@ -238,7 +237,7 @@ def render_iso_facility(
         alpha = 255 if tri.surface != "floor" else 235
         faces.append((depth, pts, (*tri.color, alpha), tri.node_id))
 
-    for depth, pts, rgba, _ in sorted(faces, key=lambda f: f[0]):
+    for _depth, pts, rgba, _ in sorted(faces, key=lambda f: f[0]):
         draw.polygon(pts, fill=rgba)
 
     out = Image.alpha_composite(base, layer)
