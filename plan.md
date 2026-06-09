@@ -1394,7 +1394,7 @@ Order picked by adoption-pull:
    - **v0.4.0 shipped 2026-06-09** — fourth panel
      `Semantic TopoNav Escape Room` subscribing to
      `/semantic_toponav/escape_room/status`, decoding `EscapeRoomStatus`
-     (turn caption + puzzle events) for the robot-escape-room Foxglove
+     (turn caption + puzzle events) for the RobotEscapeRoom Foxglove
      MCAP. Pure transform `src/escape_room.ts` jest-tested. Drop beside
      the 3D scene when replaying `robot_escape_room_demo.mcap`.
    - **Issue #1 closed earlier** — `foxglove-extension build` wired
@@ -1927,7 +1927,9 @@ under the §23′.1 moratorium (a worked example, not a feature axis), in
 the same spirit as the §23′.4 demos — it reuses only existing planner
 primitives.
 
-**Status: shipped** — repo renamed to `robot-escape-room`
+**Status: shipped** — GitHub repo is `RobotEscapeRoom` (formerly
+`semantic-toponav` → `robot-escape-room` → `RobotEscapeRoom`; the Nav2
+planner-battle game moved to `Nav2PlannerBattle` to free the slug).
 (`ba40fe8`), hero dashboard GIF landed (`2e8f9cd`, v1.0.3). Files:
 
 - `examples/robot_escape_room.yaml` — **multi-floor** escape topology, 18

@@ -133,7 +133,7 @@ def write_obj(path: Path, meshes: Iterable[RoomMesh], *, combined: bool = False)
             chunks.append("f " + " ".join(idxs))
         offset += len(vert_lines)
     if combined:
-        header = "# robot-escape-room combined scene\n# units: metres, Z-up\n"
+        header = "# RobotEscapeRoom combined scene\n# units: metres, Z-up\n"
         path.write_text(header + "\n".join(chunks) + "\n", encoding="utf-8")
 
 

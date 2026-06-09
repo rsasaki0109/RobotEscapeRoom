@@ -1,6 +1,6 @@
-# robot-escape-room
+# RobotEscapeRoom
 
-[![test](https://github.com/rsasaki0109/robot-escape-room/actions/workflows/test.yml/badge.svg)](https://github.com/rsasaki0109/robot-escape-room/actions/workflows/test.yml)
+[![test](https://github.com/rsasaki0109/RobotEscapeRoom/actions/workflows/test.yml/badge.svg)](https://github.com/rsasaki0109/RobotEscapeRoom/actions/workflows/test.yml)
 [![python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
@@ -192,7 +192,7 @@ target — no per-floor sub-graphs needed.
 
 ### Escape room — every cost function in one self-solving game
 
-The [**page hero**](#robot-escape-room) is the 3D Foxglove replay GIF above
+The [**page hero**](#RobotEscapeRoom) is the 3D Foxglove replay GIF above
 (<code>export_escape_room_foxglove_mcap.py</code> +
 <code>build_escape_room_gif.sh</code>). A Foxglove dashboard variant lives at
 <code>docs/images/robot_escape_room_dashboard.gif</code>; a three-panel
