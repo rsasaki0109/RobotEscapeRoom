@@ -26,6 +26,9 @@ from escape_room_meshes import (
 
 CAMERA_HEIGHT_M = 0.72
 FOV_RAD = 1.05
+OVERVIEW_EYE = (14.0, -10.0, 24.0)
+OVERVIEW_LOOK_AT = (14.0, 0.0, 0.0)
+OVERVIEW_RPY = (0.0, 0.65, 0.85)
 LIGHT_DIR = np.array([0.25, -0.35, 0.90], dtype=np.float64)
 LIGHT_DIR /= np.linalg.norm(LIGHT_DIR)
 
@@ -296,29 +299,47 @@ def _robot_pose(graph: Any, meta: dict) -> tuple[np.ndarray, np.ndarray]:
     return pos, forward / n if n > 1e-6 else forward
 
 
-def render_camera_facility(
-    graph: Any,
-    meta: dict,
-    *,
-    width: int,
-    height: int,
-) -> Image.Image:
-    """First-person RGB view rasterising imported OBJ room meshes."""
-    eye, forward = _robot_pose(graph, meta)
+def _camera_basis_look_at(
+    eye: tuple[float, float, float],
+    target: tuple[float, float, float],
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    eye_v = np.array(eye, dtype=np.float64)
+    forward = np.array(target, dtype=np.float64) - eye_v
+    forward /= max(float(np.linalg.norm(forward)), 1e-6)
     world_up = np.array([0.0, 0.0, 1.0], dtype=np.float64)
     right = np.cross(forward, world_up)
     rn = float(np.linalg.norm(right))
     right = right / rn if rn > 1e-6 else np.array([0.0, 1.0, 0.0])
     up = np.cross(right, forward)
     up /= max(float(np.linalg.norm(up)), 1e-6)
+    return eye_v, forward, right, up
 
+
+def _camera_basis_rpy(
+    eye: tuple[float, float, float],
+    rpy: tuple[float, float, float],
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    del rpy
+    return _camera_basis_look_at(eye, OVERVIEW_LOOK_AT)
+
+
+def _project_tris(
+    eye: np.ndarray,
+    forward: np.ndarray,
+    right: np.ndarray,
+    up: np.ndarray,
+    *,
+    width: int,
+    height: int,
+    tris: list[RenderTri],
+) -> Image.Image:
     focal = width / (2.0 * math.tan(FOV_RAD / 2.0))
-    base = Image.new("RGBA", (width, height), (18, 22, 32, 255))
+    base = Image.new("RGBA", (width, height), (118, 122, 128, 255))
     layer = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(layer, "RGBA")
 
     polys: list[tuple[float, list[tuple[float, float]], tuple[int, int, int]]] = []
-    for tri in _tris(graph):
+    for tri in tris:
         pts: list[tuple[float, float]] = []
         depths: list[float] = []
         any_front = False
@@ -339,7 +360,68 @@ def render_camera_facility(
     for _, pts, color in sorted(polys, key=lambda p: p[0], reverse=True):
         draw.polygon(pts, fill=(*color, 255))
 
-    img = Image.alpha_composite(base, layer)
+    return Image.alpha_composite(base, layer)
+
+
+def _robot_ground_pose(graph: Any, meta: dict) -> tuple[np.ndarray, float]:
+    eye, forward = _robot_pose(graph, meta)
+    pos = eye.copy()
+    pos[2] = max(0.05, pos[2] - CAMERA_HEIGHT_M + 0.05)
+    yaw = math.atan2(float(forward[1]), float(forward[0]))
+    return pos, yaw
+
+
+def render_overview_facility(
+    graph: Any,
+    meta: dict,
+    *,
+    width: int,
+    height: int,
+) -> Image.Image:
+    """Overview RGB view matching the Gazebo ``overview_camera`` pose."""
+    eye, forward, right, up = _camera_basis_rpy(OVERVIEW_EYE, OVERVIEW_RPY)
+    img = _project_tris(eye, forward, right, up, width=width, height=height, tris=_tris(graph))
+
+    pos, yaw = _robot_ground_pose(graph, meta)
+    rel = pos - eye
+    cz = max(0.15, float(np.dot(rel, forward)))
+    focal = width / (2.0 * math.tan(FOV_RAD / 2.0))
+    sx = width / 2 + focal * float(np.dot(rel, right)) / cz
+    sy = height / 2 - focal * float(np.dot(rel, up)) / cz
+
+    overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(overlay, "RGBA")
+    body = 11.0
+    hx = math.cos(yaw) * body
+    hy = math.sin(yaw) * body
+    px, py = -math.sin(yaw) * 4.5, math.cos(yaw) * 4.5
+    draw.polygon(
+        [(sx + hx + px, sy + hy + py), (sx + hx - px, sy + hy - py),
+         (sx - hx - px, sy - hy - py), (sx - hx + px, sy - hy + py)],
+        fill=(34, 211, 238, 245),
+        outline=(248, 250, 252, 255),
+    )
+    draw.ellipse((sx - 4, sy - 4, sx + 4, sy + 4), fill=(248, 250, 252, 255))
+    return Image.alpha_composite(img, overlay)
+
+
+def render_camera_facility(
+    graph: Any,
+    meta: dict,
+    *,
+    width: int,
+    height: int,
+) -> Image.Image:
+    """First-person RGB view rasterising imported OBJ room meshes."""
+    eye, forward = _robot_pose(graph, meta)
+    world_up = np.array([0.0, 0.0, 1.0], dtype=np.float64)
+    right = np.cross(forward, world_up)
+    rn = float(np.linalg.norm(right))
+    right = right / rn if rn > 1e-6 else np.array([0.0, 1.0, 0.0])
+    up = np.cross(right, forward)
+    up /= max(float(np.linalg.norm(up)), 1e-6)
+
+    img = _project_tris(eye, forward, right, up, width=width, height=height, tris=_tris(graph))
 
     loc = meta.get("location") or "holding_cell"
     brightness = 0.34 if loc == "dark_corridor" else 1.0
