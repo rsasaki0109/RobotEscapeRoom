@@ -49,6 +49,15 @@ Requires ROS 2 Jazzy/Humble with ``nav2_bringup``, ``ros_gz_sim``, and
 # → docs/images/robot_escape_room_gz.mp4
 ```
 
+Requires ROS 2 with ``ros_gz_sim`` and ``ros_gz_bridge``. The script tries
+live gz-sim camera capture first; if frames are blank (common in headless /
+no-GPU environments), it falls back to a CPU overview renderer aligned with
+the Gazebo ``overview_camera`` pose. Offline-only:
+
+```bash
+python3 examples/record_escape_room_gz_mp4.py --offline /tmp/gzframes docs/images/robot_escape_room_gz.mp4
+```
+
 ## Nav2 GeoJSON only
 
 Export the escape-room topology for Nav2 Route Server:

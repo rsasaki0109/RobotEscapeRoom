@@ -1,0 +1,457 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 0,
+        "frame": "map",
+        "metadata": {
+          "node_id": "corridor_1f",
+          "label": "1F Corridor",
+          "class": "corridor",
+          "floor": 1
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 1,
+        "frame": "map",
+        "metadata": {
+          "node_id": "corridor_3f",
+          "label": "3F Corridor",
+          "class": "corridor",
+          "floor": 3
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 2,
+        "frame": "map",
+        "metadata": {
+          "node_id": "elevator_1f",
+          "label": "Elevator A (1F)",
+          "class": "elevator",
+          "floor": 1
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 3,
+        "frame": "map",
+        "metadata": {
+          "node_id": "elevator_2f",
+          "label": "Elevator A (2F)",
+          "class": "elevator",
+          "floor": 2
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 4,
+        "frame": "map",
+        "metadata": {
+          "node_id": "elevator_3f",
+          "label": "Elevator A (3F)",
+          "class": "elevator",
+          "floor": 3
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 5,
+        "frame": "map",
+        "metadata": {
+          "node_id": "entrance",
+          "label": "Entrance",
+          "class": "entrance",
+          "floor": 1
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 6,
+        "frame": "map",
+        "metadata": {
+          "node_id": "exec_office_3f",
+          "label": "Executive Office",
+          "class": "room",
+          "floor": 3
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          12.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 7,
+        "startid": 5,
+        "endid": 0,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "e_entrance_to_corridor_1f",
+          "class": "traversable"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            4.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 8,
+        "startid": 0,
+        "endid": 5,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "e_entrance_to_corridor_1f",
+          "class": "traversable"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            4.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 9,
+        "startid": 0,
+        "endid": 2,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "e_corridor_1f_to_elevator_1f",
+          "class": "traversable"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            4.0,
+            0.0
+          ],
+          [
+            6.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 10,
+        "startid": 2,
+        "endid": 0,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "e_corridor_1f_to_elevator_1f",
+          "class": "traversable"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            6.0,
+            0.0
+          ],
+          [
+            4.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 11,
+        "startid": 1,
+        "endid": 6,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "e_corridor_3f_to_exec_3f",
+          "class": "traversable"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            8.0,
+            0.0
+          ],
+          [
+            12.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 12,
+        "startid": 6,
+        "endid": 1,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "e_corridor_3f_to_exec_3f",
+          "class": "traversable"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            12.0,
+            0.0
+          ],
+          [
+            8.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 13,
+        "startid": 1,
+        "endid": 4,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "e_corridor_3f_to_elevator_3f",
+          "class": "traversable"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            8.0,
+            0.0
+          ],
+          [
+            6.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 14,
+        "startid": 4,
+        "endid": 1,
+        "cost": 1.0,
+        "metadata": {
+          "edge_id": "e_corridor_3f_to_elevator_3f",
+          "class": "traversable"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            6.0,
+            0.0
+          ],
+          [
+            8.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 15,
+        "startid": 2,
+        "endid": 3,
+        "cost": 3.0,
+        "metadata": {
+          "edge_id": "e_elevator_1f_2f",
+          "class": "elevator_connection"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            6.0,
+            0.0
+          ],
+          [
+            6.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 16,
+        "startid": 3,
+        "endid": 2,
+        "cost": 3.0,
+        "metadata": {
+          "edge_id": "e_elevator_1f_2f",
+          "class": "elevator_connection"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            6.0,
+            0.0
+          ],
+          [
+            6.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 17,
+        "startid": 3,
+        "endid": 4,
+        "cost": 3.0,
+        "metadata": {
+          "edge_id": "e_elevator_2f_3f",
+          "class": "elevator_connection"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            6.0,
+            0.0
+          ],
+          [
+            6.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 18,
+        "startid": 4,
+        "endid": 3,
+        "cost": 3.0,
+        "metadata": {
+          "edge_id": "e_elevator_2f_3f",
+          "class": "elevator_connection"
+        }
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            6.0,
+            0.0
+          ],
+          [
+            6.0,
+            0.0
+          ]
+        ]
+      }
+    }
+  ]
+}

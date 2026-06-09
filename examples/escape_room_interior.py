@@ -6,12 +6,10 @@ feeds OBJ export and the hero GIF mesh renderer.
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass, field
 from typing import Any
 
 from escape_room_meshes import (
-    FLOOR_HEIGHT_M,
     MESH_RGBA,
     MESH_SIZE,
     WALL_HEIGHT_M,
@@ -303,7 +301,7 @@ def geometry_to_obj(room: RoomGeometry) -> str:
         for v in (tri.v0, tri.v1, tri.v2):
             lines.append(f"v {v[0]:.4f} {v[1]:.4f} {v[2]:.4f}")
     base = 0
-    for tri in room.tris:
+    for _tri in room.tris:
         lines.append(f"f {base + 1} {base + 2} {base + 3}")
         base += 3
     return "\n".join(lines) + "\n"

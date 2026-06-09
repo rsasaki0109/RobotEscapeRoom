@@ -9,7 +9,6 @@ so the robot visibly moves every frame. No Docker / Playwright capture drift.
 from __future__ import annotations
 
 import json
-import math
 import sys
 from pathlib import Path
 
@@ -22,6 +21,7 @@ sys.path.insert(0, str(ROOT / "examples"))
 from escape_room_3dgs_map import load_map  # noqa: E402
 from escape_room_camera import render_camera_view  # noqa: E402
 from escape_room_meshes import IsoView, all_meshes, fit_iso_view, iso_project  # noqa: E402
+
 from semantic_toponav.escape_room.runner import POWER_ITEM, UNPOWERED_TYPES  # noqa: E402
 from semantic_toponav.graph.serialization import load_graph  # noqa: E402
 
@@ -308,7 +308,7 @@ def _render_sim(graph, meta: dict) -> Image.Image:
             else:
                 edges.append(((_depth(*a) + _depth(*b)) / 2, (*PINK, 120), _iso(*a, view), _iso(*b, view), 4))
 
-    for depth, color, a, b, width in sorted(edges, key=lambda e: e[0]):
+    for _edge_depth, color, a, b, width in sorted(edges, key=lambda e: e[0]):
         draw.line([a, b], fill=color, width=width)
 
     rsx, rsy = _iso(rx, ry, rz, view)

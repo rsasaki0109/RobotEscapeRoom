@@ -35,17 +35,32 @@ if [[ -f "$WS/install/setup.bash" ]]; then
 fi
 
 export GZ_SIM_RESOURCE_PATH="${MODELS}:${GZ_SIM_RESOURCE_PATH:-}"
-export LIBGL_ALWAYS_SOFTWARE="${LIBGL_ALWAYS_SOFTWARE:-1}"
 
-echo "==> start gz-sim (headless server + rendering)"
-gz sim -s -r --headless-rendering --render-engine ogre2 "$WORLD" &
+if [[ -n "${DISPLAY:-}" ]]; then
+  # GPU + virtual display (e.g. :1) — ogre2 headless-rendering segfaults with NVIDIA here.
+  GZ_ARGS="-s -r --render-engine ogre2"
+else
+  export LIBGL_ALWAYS_SOFTWARE="${LIBGL_ALWAYS_SOFTWARE:-1}"
+  GZ_ARGS="-s -r --headless-rendering --render-engine ogre2"
+fi
+
+echo "==> start gz-sim via ros_gz_sim (${GZ_ARGS})"
+ros2 launch ros_gz_sim gz_sim.launch.py \
+  "gz_args:=${GZ_ARGS} ${WORLD}" &
 GZ_PID=$!
 cleanup() {
   kill "$GZ_PID" 2>/dev/null || true
   kill "$BRIDGE_PID" 2>/dev/null || true
 }
 trap cleanup EXIT
-sleep 5
+
+echo "==> wait for Gazebo transport topics (max 60s)"
+for _ in $(seq 1 30); do
+  if gz topic -l 2>/dev/null | grep -q '/escape_room/camera'; then
+    break
+  fi
+  sleep 2
+done
 
 echo "==> start ros_gz_bridge (odom, cmd_vel, camera)"
 ros2 run ros_gz_bridge parameter_bridge \
@@ -53,9 +68,17 @@ ros2 run ros_gz_bridge parameter_bridge \
   /odom@nav_msgs/msg/Odometry[gz.msgs.Odometry \
   /escape_room/camera@sensor_msgs/msg/Image[gz.msgs.Image &
 BRIDGE_PID=$!
-sleep 3
 
-echo "==> drive T-0 + capture overview camera"
+echo "==> wait for ROS camera topic"
+for _ in $(seq 1 30); do
+  if ros2 topic list 2>/dev/null | grep -q '^/escape_room/camera$'; then
+    break
+  fi
+  sleep 1
+done
+sleep 2
+
+echo "==> drive T-0 + capture overview camera (offline fallback if GPU render fails)"
 rm -rf "$FRAMES"
 python3 examples/record_escape_room_gz_mp4.py "$FRAMES" "$OUT"
 
