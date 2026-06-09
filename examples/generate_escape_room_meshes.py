@@ -16,7 +16,8 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "examples"))
 
 from escape_room_interior import all_room_geometry, geometry_to_obj
-from escape_room_meshes import MESH_DIR, MANIFEST_PATH, SCENE_OBJ, all_meshes, write_manifest
+from escape_room_meshes import MANIFEST_PATH, MESH_DIR, SCENE_OBJ, all_meshes, write_manifest
+
 from semantic_toponav.graph.serialization import load_graph
 
 GRAPH_PATH = Path(__file__).parent / "robot_escape_room.yaml"

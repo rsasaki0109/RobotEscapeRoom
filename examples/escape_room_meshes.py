@@ -8,10 +8,10 @@ via ``examples/meshes/escape_room/manifest.json``.
 from __future__ import annotations
 
 import json
-import math
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 FLOOR_HEIGHT_M = 4.2
 WALL_HEIGHT_M = 3.0
@@ -232,7 +232,6 @@ def iso_faces(mesh: RoomMesh, cx: float, cy: float) -> list[tuple[float, list[tu
     pts = [iso_project(*c, cx, cy) for c in corners]
     # bottom 0-3, top 4-7
     floor_face = (iso_depth(*corners[0]), [pts[0], pts[1], pts[2], pts[3]], (30, 41, 59, 200))
-    roof_face = (iso_depth(*corners[4]), [pts[4], pts[5], pts[6], pts[7]], (71, 85, 105, 120))
     walls = []
     quads = [
         ([0, 1, 5, 4], (45, 55, 72, 210)),

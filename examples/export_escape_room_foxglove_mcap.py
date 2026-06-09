@@ -14,7 +14,6 @@ Regenerate the README hero with ``scripts/foxglove_hero/build_escape_room_gif.sh
 from __future__ import annotations
 
 import json
-import math
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -24,6 +23,9 @@ try:
     from mcap.writer import CompressionType, Writer
 except ImportError as exc:  # pragma: no cover
     raise SystemExit("Install the Foxglove extra first: pip install -e '.[foxglove]'") from exc
+
+import export_foxglove_mcap as fx
+from escape_room_interior import foxglove_furnished_cubes
 
 from semantic_toponav.escape_room.runner import (
     ITEMS,
@@ -36,9 +38,6 @@ from semantic_toponav.escape_room.runner import (
 )
 from semantic_toponav.graph.serialization import load_graph
 from semantic_toponav.waypoint import path_to_semantic_waypoints
-
-import export_foxglove_mcap as fx
-from escape_room_interior import foxglove_furnished_cubes
 
 HERE = Path(__file__).parent
 ROOT = HERE.parent
