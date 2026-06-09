@@ -47,7 +47,7 @@ def _write_model_config() -> None:
               <version>1.0</version>
               <sdf version="1.8">model.sdf</sdf>
               <author>
-                <name>robot-escape-room</name>
+                <name>RobotEscapeRoom</name>
                 <email>semantic-toponav@example.com</email>
               </author>
               <description>Furnished escape-room facility mesh + interior collision boxes.</description>
@@ -100,7 +100,7 @@ def _write_robot_model() -> None:
               <version>1.0</version>
               <sdf version="1.8">model.sdf</sdf>
               <author>
-                <name>robot-escape-room</name>
+                <name>RobotEscapeRoom</name>
                 <email>semantic-toponav@example.com</email>
               </author>
               <description>T-0 diff-drive robot for escape-room Gazebo sim.</description>

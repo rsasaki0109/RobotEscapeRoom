@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/rsasaki0109/robot-escape-room/schemas/semantic_waypoint_array/v1.json",
+  "$id": "https://github.com/rsasaki0109/RobotEscapeRoom/schemas/semantic_waypoint_array/v1.json",
   "title": "SemanticWaypointArray",
   "description": "Wire format for the JSON output of waypoint_publisher_node (output_format='json'). Stable as of v1.",
   "type": "object",

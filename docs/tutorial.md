@@ -14,7 +14,7 @@ robot to visit.
 If you haven't already:
 
 ```bash
-git clone https://github.com/rsasaki0109/robot-escape-room.git
+git clone https://github.com/rsasaki0109/RobotEscapeRoom.git
 cd semantic-toponav
 pip install -e '.[viz,viz_web]'   # matplotlib + pyvis
 ```
