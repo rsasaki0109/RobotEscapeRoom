@@ -7,6 +7,27 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.0.6] — 2026-06-09
+
+Gazebo overview MP4 recording with CPU renderer fallback. No changes to
+the six v1-locked public wire schemas or core planner behavior.
+
+### Added
+
+- **Gazebo overview MP4** — `./scripts/record_escape_room_gz_sim.sh` replays
+  the shipped timeline, drives T-0, and captures the overview camera →
+  `docs/images/robot_escape_room_gz.mp4`. When gz-sim camera output is
+  blank (headless / no GPU), `examples/record_escape_room_gz_mp4.py`
+  falls back to a CPU overview renderer aligned with the Gazebo
+  `overview_camera` pose (`--offline` for offline-only).
+- **CPU overview renderer** — `render_overview_facility` in
+  `examples/escape_room_mesh_render.py` matches the Gazebo camera pose.
+
+### Changed
+
+- README documents the Gazebo MP4 recorder and CPU fallback path.
+- `examples/meshes/escape_room/gazebo/README.md` — Record Gazebo MP4 section.
+
 ## [1.0.5] — 2026-06-09
 
 Gazebo / Nav2 sim stack + dynamic escape-room replan + puzzle-caption hero refresh.
